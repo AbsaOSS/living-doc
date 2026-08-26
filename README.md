@@ -34,7 +34,7 @@ Content can be authored by hand or AI-accelerated — the pipeline itself always
 
 | Source | Objects | Status |
 |---|---|---|
-| GitHub | Issues, labels | Available |
+| GitHub | Issues(User Stories, Features, Functionalities), labels | Available |
 | Azure DevOps | Work items | Planned |
 | Azure DevOps | Boards, pipelines, test plans, release notes | Planned |
 | Source code | User Stories, Features, Functionalities, Gherkin test scenarios | Available |
@@ -56,7 +56,6 @@ Content can be authored by hand or AI-accelerated — the pipeline itself always
 | [living-doc-utilities](https://github.com/AbsaOSS/living-doc-utilities) | Shared library | Core data models, transformation, and serialization logic shared by collectors, the toolkit, and generators. |
 | [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) | Toolkit | Normalizes collector output into a canonical dataset consumed by generators. |
 | [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) | Generator | Renders the canonical dataset as plain Markdown. *(early stage)* |
-| [living-doc-generator-mdoc](https://github.com/AbsaOSS/living-doc-generator-mdoc) | Generator | **Deprecated.** Rendered GitHub issue/label data as Markdown formatted for an MDoc viewer; was an ABSA-internal solution and is no longer supported. |
 | [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) | Generator | Renders structured JSON (user stories, test catalogs, coverage matrices) as PDF via Jinja2 + WeasyPrint. |
 
 See [docs/projects](docs/projects/) for a dedicated page per project. The table above describes the intended pipeline.

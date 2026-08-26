@@ -1,7 +1,7 @@
 # Spec: Documentation & Style Synchronization
 
 **Status:** Draft — 2026-08-25
-**Scope reviewed:** `living-doc-collector-gh`, `living-doc-collector-ad`, `living-doc-utilities`, `living-doc-toolkit`, `living-doc-generator-markdown`, `living-doc-generator-mdoc`, `living-doc-generator-pdf`
+**Scope reviewed:** `living-doc-collector-gh`, `living-doc-collector-ad`, `living-doc-utilities`, `living-doc-toolkit`, `living-doc-generator-markdown`, `living-doc-generator-pdf`
 
 ## 1. Method
 
@@ -9,7 +9,7 @@ Every repo was cloned locally and its `README.md`, `CONTRIBUTING.md`, `DEVELOPER
 
 ## 2. What's already consistent
 
-This is worth stating explicitly so remediation doesn't undo it: five of the seven repos (`collector-gh`, `collector-ad`, `utilities`, `generator-mdoc`, and to a lesser extent `generator-pdf`) already share one README template — `Motivation → Usage → Action Configuration → Action Outputs → Developer Guide → Contribution Guidelines → License → Contact`— and one `DEVELOPER.md` template — `Project Setup → Run Pylint/Black/mypy → Run Unit Test → Code Coverage → Releasing`, with matching wording (pylint ≥9.5, coverage ≥80%, Black line length 120). `CONTRIBUTING.md` is byte-for-byte identical across `collector-gh`, `collector-ad`, and `utilities`. This is a strong, reusable baseline — the fix here is to converge the outliers onto it and stop future drift, not to invent a new template.
+This is worth stating explicitly so remediation doesn't undo it: four of the six repos (`collector-gh`, `collector-ad`, `utilities`, and to a lesser extent `generator-pdf`) already share one README template — `Motivation → Usage → Action Configuration → Action Outputs → Developer Guide → Contribution Guidelines → License → Contact`— and one `DEVELOPER.md` template — `Project Setup → Run Pylint/Black/mypy → Run Unit Test → Code Coverage → Releasing`, with matching wording (pylint ≥9.5, coverage ≥80%, Black line length 120). `CONTRIBUTING.md` is byte-for-byte identical across `collector-gh`, `collector-ad`, and `utilities`. This is a strong, reusable baseline — the fix here is to converge the outliers onto it and stop future drift, not to invent a new template.
 
 ## 3. Findings
 
@@ -17,8 +17,6 @@ This is worth stating explicitly so remediation doesn't undo it: five of the sev
 
 | Repo | File | Issue |
 |---|---|---|
-| `living-doc-generator-mdoc` | `README.md` (Contribution/Issues/Discussions links, ~L2847–2860) | Links point to `github.com/AbsaOSS/living-doc-generator` (no `-mdoc` suffix) — the repo was renamed at some point and the README wasn't updated. All four links (CONTRIBUTING, LICENSE, Issues, Discussions) are wrong. |
-| `living-doc-generator-mdoc` | `README.md` title, `#1` | Title is `# Living Documentation Generator`, not `# Living Documentation Generator for MDoc` — same stale-rename symptom as the links above. |
 | `living-doc-generator-markdown` | `CONTRIBUTING.md` (all Issues links) | Points to `github.com/AbsaOSS/generate-release-notes/issues` — this is boilerplate copied from the org template and never rebound to this repo. Same defect this root repo's own placeholder `README.md` had before this pass (see [Architecture](architecture.md)). |
 
 ### 3.2 `living-doc-generator-markdown` is not a documented project yet
@@ -28,16 +26,8 @@ Its `README.md` is 5 lines of unmodified org template text (the "implement AquaS
 ### 3.3 `living-doc-toolkit` diverges from the shared template — partly by necessity, partly by gap
 
 - **No `CONTRIBUTING.md` at all** (confirmed absent at repo root). Every other repo has one, and it's identical across three of them. This is a plain gap, not a design choice — nothing about the monorepo structure justifies dropping it.
-- **`README.md` and `DEVELOPER.md` follow a different, arguably better structure** (`Understand / Use / Maintain` doc taxonomy, a `Services` section per CLI command, CI badges at the top) than the six-repo template. This is justified — it's a monorepo hosting multiple services, and the flat one-README template doesn't fit — but it means a reader moving between `toolkit` and the other repos hits two different documentation philosophies with no signposting that the switch is intentional.
+- **`README.md` and `DEVELOPER.md` follow a different, arguably better structure** (`Understand / Use / Maintain` doc taxonomy, a `Services` section per CLI command, CI badges at the top) than the five-repo template. This is justified — it's a monorepo hosting multiple services, and the flat one-README template doesn't fit — but it means a reader moving between `toolkit` and the other repos hits two different documentation philosophies with no signposting that the switch is intentional.
 - **No `SPEC.md`**, unlike `collector-gh` which uses one to spec upcoming modes (`doc-source`, `ui-tests`) before implementation. `toolkit`'s own `docs/architecture.md` and `docs/contracts.md` partially fill this role but are retrospective ("what the system is") rather than prospective ("what we're about to build") — there's no place in `toolkit` to spec a new service the way `collector-gh/SPEC.md` specs a new mode.
-
-### 3.4 Version claims disagree across repos
-
-| Claim | `collector-gh` README | `collector-ad` README | `generator-mdoc` README | `utilities` `pyproject.toml` |
-|---|---|---|---|---|
-| Minimum Python | "3.14 or higher" | "3.14 or higher" | "3.12 or higher" | `requires-python = ">=3.12"` |
-
-CI workflows (`static_analysis_and_tests.yml`) uniformly run `python-version: '3.14'` in every repo including `generator-mdoc`, so `generator-mdoc`'s own README (3.12) is stale relative to what its own CI actually gates on. This is a small thing but it's exactly the kind of claim a new integrator copies verbatim and then hits a CI failure over.
 
 ### 3.5 `living-doc-collector-ad` advertises unbuilt modes as "todo" inline, `living-doc-collector-gh` does the same for "in development" — inconsistent signaling convention
 
@@ -45,7 +35,7 @@ Both READMEs use shield.io status badges next to mode links (`![Status](...statu
 
 ### 3.6 Two different "why this action exists" motivations, worded almost identically but drifting
 
-`collector-gh`, `collector-ad`, and `generator-mdoc` each open with a near-identical "Motivation" paragraph ("Addresses the need for continuously updated documentation accessible to all team members and stakeholders..."). This is good — it's a shared narrative. But `generator-pdf`'s README replaces this entirely with a different framing ("A source-agnostic GitHub Action that renders **any** structured JSON into a professional PDF...") and drops the "Motivation" section/heading altogether in favor of "Overview". Given `generator-pdf` is explicitly the newest and most deliberately-designed of the actions (see [Architecture](architecture.md)), this may be an intentional, improved template rather than drift — worth a decision, not an automatic revert.
+`collector-gh` and `collector-ad` each open with a near-identical "Motivation" paragraph ("Addresses the need for continuously updated documentation accessible to all team members and stakeholders..."). This is good — it's a shared narrative. But `generator-pdf`'s README replaces this entirely with a different framing ("A source-agnostic GitHub Action that renders **any** structured JSON into a professional PDF...") and drops the "Motivation" section/heading altogether in favor of "Overview". Given `generator-pdf` is explicitly the newest and most deliberately-designed of the actions (see [Architecture](architecture.md)), this may be an intentional, improved template rather than drift — worth a decision, not an automatic revert.
 
 ### 3.7 `README.md` "Developer Guide" pointer style is inconsistent
 
@@ -53,17 +43,16 @@ Repos following the shared template put a one-line `## Developer Guide` section 
 
 ## 4. Target state
 
-1. One canonical **action-repo template** (README structure, CONTRIBUTING.md verbatim, DEVELOPER.md structure) — already ~90% real today across 5 repos; formalize it as a template the org scaffolds new repos from, so `living-doc-generator-markdown` doesn't get built against stale boilerplate.
+1. One canonical **action-repo template** (README structure, CONTRIBUTING.md verbatim, DEVELOPER.md structure) — already ~90% real today across 4 repos; formalize it as a template the org scaffolds new repos from, so `living-doc-generator-markdown` doesn't get built against stale boilerplate.
 2. One canonical **monorepo template** for `toolkit`-shaped repos (multiple services/packages) — document that `toolkit`'s `Understand/Use/Maintain` structure is the intended pattern for this repo shape, not a deviation, and give it its own root `CONTRIBUTING.md`.
 3. A lightweight **link-check gate** (see [CI Checks & QA Tooling](ci-qa-tooling.md)) so a repo rename never again leaves stale cross-repo links live for an unknown period.
 4. A single **stated Python version policy** (pick 3.14, since it's what CI actually enforces almost everywhere) that every README states identically.
 
 ## 5. Tasks
 
-- [ ] Fix `living-doc-generator-mdoc/README.md`: replace all `living-doc-generator` links with `living-doc-generator-mdoc`, retitle to include "for MDoc" or the repo's actual product name.
 - [ ] Fix `living-doc-generator-markdown/CONTRIBUTING.md`: repoint Issues links from `generate-release-notes` to `living-doc-generator-markdown`.
 - [ ] Add `CONTRIBUTING.md` to `living-doc-toolkit` (adapt from the shared 36-line template; add a note on monorepo-specific PR scope, e.g. "PRs should touch one package where possible").
-- [ ] Reconcile the Python version claim: standardize on 3.14 in every README (`collector-gh`, `collector-ad` already correct; fix `generator-mdoc`; confirm `utilities`' `>=3.12` `pyproject.toml` constraint is intentionally looser than the action repos, or tighten it to match).
+- [ ] Reconcile the Python version claim: standardize on 3.14 in every README (`collector-gh`, `collector-ad` already correct); confirm `utilities`' `>=3.12` `pyproject.toml` constraint is intentionally looser than the action repos, or tighten it to match.
 - [ ] Either build out `collector-ad/boards`, `pipelines`, `test_plans`, `release_notes` stub directories with README placeholders, or remove/soften the "todo" badge links in `collector-ad/README.md` until a directory exists to link to.
 - [ ] Decide and document whether `generator-pdf`'s README structure (Overview-first, no Motivation heading) is the new template direction for all action repos, or should be reverted to match the shared template — then apply the decision everywhere, including adding the missing `## Developer Guide` pointer to `generator-pdf/README.md`.
 - [ ] Write (or adapt from `toolkit/docs/architecture.md` + `contracts.md`) a prospective `SPEC.md`-style process for `toolkit`, so new services get speced before being built the way `collector-gh/SPEC.md` specs new collector modes.

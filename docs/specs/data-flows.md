@@ -1,19 +1,18 @@
 # Spec: Data Flows, Formats & Schemas
 
 **Status:** Draft — 2026-08-25
-**Scope reviewed:** all 7 `living-doc-*` repos, at schema-file and source-code level.
+**Scope reviewed:** all 6 `living-doc-*` repos, at schema-file and source-code level.
 
 ## 1. Method
 
-Every `*-schema.json` file across the 7 repos was located and diffed byte-for-byte against same-named copies in other repos. Version-compatibility logic (`toolkit/packages/adapters/collector_gh/compatibility.py`, `SCHEMA_SYNC.md`) was read directly, not summarized from README claims.
+Every `*-schema.json` file across the 6 repos was located and diffed byte-for-byte against same-named copies in other repos. Version-compatibility logic (`toolkit/packages/adapters/collector_gh/compatibility.py`, `SCHEMA_SYNC.md`) was read directly, not summarized from README claims.
 
 ## 2. Current data flow, end to end
 
 ```mermaid
 flowchart TD
     GH[(GitHub Issues)] -->|GH API| CGH[collector-gh]
-    CGH -->|doc-issues.json v1.x| P1[Path A: generator-mdoc]
-    CGH -->|doc-issues.json v1.x| P2[Path B: generator-pdf]
+    CGH -->|doc-issues.json v1.x| P2[generator-pdf]
     CGH -->|doc-issues.json v1.x| P3[toolkit: adapters/collector_gh]
 
     FEAT[.feature files] -.SPEC'd, not yet built.-> CGH
@@ -35,7 +34,7 @@ flowchart TD
 
 Three facts drive everything else in this document:
 
-1. `doc-issues.json` (collector-gh's output) is consumed by **three independent parsers** — `generator-mdoc` (via `living_doc_utilities` model classes), `generator-pdf` (as raw, untransformed JSON passed to Jinja2 templates), and `toolkit`'s adapter (via its own Pydantic models). None of the three share parsing code.
+1. `doc-issues.json` (collector-gh's output) is consumed by **two independent parsers** — `generator-pdf` (as raw, untransformed JSON passed to Jinja2 templates) and `toolkit`'s adapter (via its own Pydantic models). Neither shares parsing code with the other.
 2. `toolkit`'s `coverage-matrix` service is a real, tested, working cross-reference between `doc-source.json` (User Stories + ACs) and `ui-tests.json` (BDD scenarios) — but both of those *inputs* are specced in `collector-gh/SPEC.md` and not yet implemented in `collector-gh`'s shipped code (`doc_source/` and `ui_tests/` packages don't exist in the current tree; only `doc_issues/` does). `coverage_matrix`'s golden-fixture tests currently exercise it against hand-built fixtures, not live collector output.
 3. `collector-ad` produces no schema-versioned, `toolkit`-adapted output at all yet — it's a standalone JSON producer with no downstream contract.
 
@@ -83,7 +82,7 @@ This gets both properties at once: CI validation stays offline-safe and fast (no
 
 ## 4. Version compatibility — what's actually implemented well
 
-This deserves credit, not just critique: `toolkit`'s adapter has real, tested multi-version handling. Golden fixtures exist for collector-gh output at `v0.9.0`, `v1.0.0`, `v1.2.0`, and `v2.0.0` (`living-doc-toolkit/tests/fixtures/collector_gh/`), and `compatibility.py` implements a clean semver range check (`>=1.0.0,<2.0.0`) that **warns and still attempts processing** on an out-of-range version rather than hard-failing — the warning is captured in the output's `audit.trace[].warnings[]`, preserving provenance. This is a good pattern and the rest of the ecosystem doesn't yet have an equivalent — `generator-pdf` and `generator-mdoc` have no version-compatibility check on their inputs at all; they either parse successfully or throw an unstructured error.
+This deserves credit, not just critique: `toolkit`'s adapter has real, tested multi-version handling. Golden fixtures exist for collector-gh output at `v0.9.0`, `v1.0.0`, `v1.2.0`, and `v2.0.0` (`living-doc-toolkit/tests/fixtures/collector_gh/`), and `compatibility.py` implements a clean semver range check (`>=1.0.0,<2.0.0`) that **warns and still attempts processing** on an out-of-range version rather than hard-failing — the warning is captured in the output's `audit.trace[].warnings[]`, preserving provenance. This is a good pattern and the rest of the ecosystem doesn't yet have an equivalent — `generator-pdf` has no version-compatibility check on its inputs at all; it either parses successfully or throws an unstructured error.
 
 ## 5. The `pdf_ready.json` naming problem, restated as a data-flow issue
 
@@ -99,7 +98,7 @@ Per [Architecture](architecture.md), `toolkit`'s `normalize-issues` output is ex
 | `doc_ready.json` | "ready to be rendered as documentation, by any renderer" | Original recommendation; superseded. Smallest edit distance from `pdf_ready.json`, but has a real ambiguity: this repo's own pipeline produces actual rendered *documents* (PDF, Markdown) one stage later — a reader could easily mistake "doc ready" for "the finished document is ready," when what it actually means is "structured data, ready to be handed to a generator." `generator-ready` doesn't have that collision. |
 | `doc_dataset.json` | "the canonical dataset" | Reuses `toolkit`'s own existing vocabulary ("canonical datasets for downstream generators") exactly. Still a reasonable second choice, but less immediately clear than `generator-ready` about *why* it's ready — ready for what? |
 | `normalized_issues.json` | "the output of the normalize-issues command" | Rejected — names the *process* that produced the file, not what the file *is for*. Also inaccurate per §7 below: what this command does is broader than normalization alone. |
-| `render_ready.json` | "ready for any renderer" | Rejected — close to `generator-ready` in meaning, but "render" isn't otherwise used as a term anywhere in `toolkit`'s docs today, while "generator" is the term the whole ecosystem already organizes itself around (`generator-pdf`, `generator-markdown`, `generator-mdoc`). |
+| `render_ready.json` | "ready for any renderer" | Rejected — close to `generator-ready` in meaning, but "render" isn't otherwise used as a term anywhere in `toolkit`'s docs today, while "generator" is the term the whole ecosystem already organizes itself around (`generator-pdf`, `generator-markdown`). |
 
 **Final recommendation: `generator-ready.json`.** Two things changed the verdict from the original `doc_ready.json` pick:
 

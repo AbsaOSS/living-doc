@@ -1,7 +1,7 @@
 # Spec: Architecture — Unified GitHub Action & Support-Library Solution
 
 **Status:** Draft — 2026-08-25
-**Scope reviewed:** all 7 `living-doc-*` repos, cloned and read at source-code level (not README level).
+**Scope reviewed:** all 6 `living-doc-*` repos, cloned and read at source-code level (not README level).
 
 ## 1. Method and a correction to earlier assumptions
 
@@ -11,43 +11,34 @@ This spec is based on reading actual source (`action.yml`, entry points, `requir
 
 ```mermaid
 graph TD
-    subgraph "Path A: mdoc (oldest)"
-        GHA[collector-gh] -->|doc-issues.json| MDOC[generator-mdoc]
-        MDOC -->|living_doc_utilities models directly| MDOUT[MDoc-formatted Markdown]
-    end
-
-    subgraph "Path B: pdf (documented today)"
-        GHA -->|doc-issues.json, raw| PDF[generator-pdf]
+    subgraph "Path A: pdf (documented today)"
+        GHA[collector-gh] -->|doc-issues.json, raw| PDF[generator-pdf]
         PDF -->|schema-path: doc-issues-v1.0.0-schema.json| PDFOUT[PDF]
     end
 
-    subgraph "Path C: toolkit (newest, under-connected)"
+    subgraph "Path B: toolkit (newest, under-connected)"
         GHA -->|doc-issues.json| TK[toolkit normalize-issues]
         TK -->|pdf_ready.json + audit envelope| ORPHAN[No documented consumer]
     end
 
     UTIL[living-doc-utilities] -.shared model classes.-> GHA
-    UTIL -.shared model classes.-> MDOC
     ADCOL[collector-ad] -.base plumbing only, no shared Issue model.-> UTIL
 
     style ORPHAN fill:#ffebee,stroke:#c62828
 ```
 
-Three independent, non-converging paths exist simultaneously:
+Two independent, non-converging paths exist simultaneously:
 
-- **Path A — `generator-mdoc`**: imports `living_doc_utilities.model.{issue,issues,user_story_issue,feature_issue,functionality_issue}` and `living_doc_utilities.exporter.exporter.Exporter` directly (`living_doc_generator/mdoc_exporter.py:28-33`). It has no dependency on `living-doc-toolkit` at all. This is the original, oldest integration pattern in the ecosystem.
-- **Path B — `generator-pdf`**: has **zero** dependency on either `living-doc-utilities` or `living-doc-toolkit` (`requirements.txt` has neither package). It's deliberately source-agnostic: `source-path` + `document-type` in, PDF out, with the source JSON passed to Jinja2 templates unchanged (`README.md`: "The action does not transform the source JSON"). Its documented example for `document-type: user-stories` validates against `generator/schemas/doc-issues-v1.0.0-schema.json` — i.e., **the collector's raw output schema**, not `toolkit`'s normalized output.
-- **Path C — `toolkit`**: `normalize-issues` produces `pdf_ready.json`, explicitly named and scoped for the PDF generator (`docs/contracts.md`: "Target: living-doc-generator-pdf"). But `generator-pdf`'s `action.yml` carries `pdf_ready_json` only as a **deprecated alias** for the generic `source-path` input, and the README's own usage examples don't reference it. In practice, `toolkit`'s richest output (with audit provenance, section-heading normalization, version-compatibility warnings) has no documented, exercised consumer today.
+- **Path A — `generator-pdf`**: has **zero** dependency on either `living-doc-utilities` or `living-doc-toolkit` (`requirements.txt` has neither package). It's deliberately source-agnostic: `source-path` + `document-type` in, PDF out, with the source JSON passed to Jinja2 templates unchanged (`README.md`: "The action does not transform the source JSON"). Its documented example for `document-type: user-stories` validates against `generator/schemas/doc-issues-v1.0.0-schema.json` — i.e., **the collector's raw output schema**, not `toolkit`'s normalized output.
+- **Path B — `toolkit`**: `normalize-issues` produces `pdf_ready.json`, explicitly named and scoped for the PDF generator (`docs/contracts.md`: "Target: living-doc-generator-pdf"). But `generator-pdf`'s `action.yml` carries `pdf_ready_json` only as a **deprecated alias** for the generic `source-path` input, and the README's own usage examples don't reference it. In practice, `toolkit`'s richest output (with audit provenance, section-heading normalization, version-compatibility warnings) has no documented, exercised consumer today.
 
-`living-doc-collector-ad` sits differently again: it depends on `living-doc-utilities` only for plumbing (`constants`, `github.utils`, `logging_config`, `inputs.action_inputs`) — it does **not** use the shared `Issue`/`Issues`/`UserStoryIssue` model classes the way `collector-gh` and `generator-mdoc` do, because ADO work items aren't mapped into that model yet (only `work-items` mode exists; `boards`/`pipelines`/`test_plans`/`release_notes` are unimplemented — see [Documentation & Style Synchronization](doc-style-sync.md) §3.5).
-
-Version pinning has already drifted as a direct consequence of there being three uncoordinated integration points: `collector-gh` and `collector-ad` pin `living-doc-utilities==0.3.1`; `generator-mdoc` pins `==0.3.0`.
+`living-doc-collector-ad` sits differently again: it depends on `living-doc-utilities` only for plumbing (`constants`, `github.utils`, `logging_config`, `inputs.action_inputs`) — it does **not** use the shared `Issue`/`Issues`/`UserStoryIssue` model classes the way `collector-gh` does, because ADO work items aren't mapped into that model yet (only `work-items` mode exists; `boards`/`pipelines`/`test_plans`/`release_notes` are unimplemented — see [Documentation & Style Synchronization](doc-style-sync.md) §3.5).
 
 ## 2.1 Expected usage: GitHub Actions first, local CLI for debug only
 
-Every piece in this ecosystem is packaged first as a GitHub Action (`action.yml` at the root of `collector-gh`, `collector-ad`, `generator-mdoc`, `generator-pdf`) or, for `toolkit`, as a CLI meant to be invoked as a workflow step. **The expected, supported usage pattern is chaining these actions inside a GitHub Actions workflow** — this is what every `README.md`'s "Adding the Action to Your Workflow" section documents, what every integration/example workflow in [CI Checks & QA Tooling](ci-qa-tooling.md) exercises, and what the tutorials in this repo (`docs/tutorials/`) walk through.
+Every piece in this ecosystem is packaged first as a GitHub Action (`action.yml` at the root of `collector-gh`, `collector-ad`, `generator-pdf`) or, for `toolkit`, as a CLI meant to be invoked as a workflow step. **The expected, supported usage pattern is chaining these actions inside a GitHub Actions workflow** — this is what every `README.md`'s "Adding the Action to Your Workflow" section documents, what every integration/example workflow in [CI Checks & QA Tooling](ci-qa-tooling.md) exercises, and what the tutorials in this repo (`docs/tutorials/`) walk through.
 
-Running components locally — `collector-gh`/`collector-ad`'s documented `run_script.sh` pattern (`DEVELOPER.md`: hand-set `INPUT_*` env vars, `python3 main.py`), or `toolkit`'s `living-doc` CLI invoked directly (`living-doc normalize-issues --input ... --output ...`) — **is possible and already documented, but it is a development/debugging affordance, not a second first-class deployment target.** `toolkit`'s own `.github/copilot-instructions.md` already draws this distinction explicitly for its context section ("must assume components may run locally and/or on GitHub Actions runners"), which is more accurate for `toolkit` specifically (it's a CLI by nature) than for the four `action.yml`-based repos, where local execution exists purely so a contributor can iterate without pushing a branch and waiting on CI.
+Running components locally — `collector-gh`/`collector-ad`'s documented `run_script.sh` pattern (`DEVELOPER.md`: hand-set `INPUT_*` env vars, `python3 main.py`), or `toolkit`'s `living-doc` CLI invoked directly (`living-doc normalize-issues --input ... --output ...`) — **is possible and already documented, but it is a development/debugging affordance, not a second first-class deployment target.** `toolkit`'s own `.github/copilot-instructions.md` already draws this distinction explicitly for its context section ("must assume components may run locally and/or on GitHub Actions runners"), which is more accurate for `toolkit` specifically (it's a CLI by nature) than for the three `action.yml`-based repos, where local execution exists purely so a contributor can iterate without pushing a branch and waiting on CI.
 
 This matters for the target architecture in §5: the canonical `generator-ready` contract (see [Data Flows & Schemas](data-flows.md) §5 for final naming) needs to be easy to produce and validate from a workflow step (inputs/outputs as files on the runner's filesystem, action outputs pointing at them) — it does not need a polished standalone local UX, a config file format, or interactive prompts. Local usage only needs to stay good enough for a developer testing a change before opening a PR.
 
@@ -58,25 +49,20 @@ This matters for the target architecture in §5: the canonical `generator-ready`
 This is architecturally sound and it's *already partially built* — `toolkit`'s `normalize_issues` service already does the hard part (section-heading synonym mapping, ID normalization, audit-envelope construction) that a Markdown generator would need identically to a PDF generator. The gap is not "toolkit can't do this," it's:
 
 1. `toolkit`'s output contract (`pdf_ready.json`) is **named and scoped for one consumer** rather than framed as the shared canonical dataset both generators should read.
-2. `generator-pdf` was never actually wired to consume it in its current documented form (Path B bypasses Path C).
+2. `generator-pdf` was never actually wired to consume it in its current documented form (Path A bypasses Path B).
 3. `generator-markdown` doesn't exist yet as code, so there's no second consumer to force the "same normalized input, two renderers" contract into existence.
-4. `generator-mdoc` — the one generator that's oldest and works — is on a **third, separate** integration pattern (Path A) that neither participates in nor benefits from `toolkit` at all.
 
-## 4. mdoc status
+## 4. The stage upstream of all of this: authoring — and a governing principle
 
-The user's framing — that `mdoc` is the oldest integration and is being deprecated because the MDoc format itself is no longer used — is corroborated architecturally, if not stated explicitly in any repo's docs: `generator-mdoc` is the only generator still coupled directly to `living-doc-utilities`' model classes rather than a normalized/versioned contract, it's the only one without a `toolkit` integration path even as an option, and it's the only repo with a residual stale-rename README ([Documentation & Style Synchronization](doc-style-sync.md) §3.1) suggesting less recent attention. No repo currently documents an actual deprecation timeline or migration path off MDoc — that's a gap in itself if the intent is real (see Tasks).
+Everything in §2–§3 starts from `collector-gh` mining GitHub Issues or `.feature` files that already exist. Those files don't write themselves, and someone or something authors User Story / Feature / Functionality entities and Gherkin scenarios before any collector ever runs. That authoring step *can* be accelerated by [`AbsaOSS/agentic-toolkit`](https://github.com/AbsaOSS/agentic-toolkit)'s `living-doc-bdd-copilot` agent — a Copilot/Claude-compatible AI agent + skill family, not a `living-doc-*` GitHub Action — but it does not have to be.
 
-## 4.5 The stage upstream of all of this: authoring — and a governing principle
-
-Everything in §2–§4 starts from `collector-gh` mining GitHub Issues or `.feature` files that already exist. Those files don't write themselves, and someone or something authors User Story / Feature / Functionality entities and Gherkin scenarios before any collector ever runs. That authoring step *can* be accelerated by [`AbsaOSS/agentic-toolkit`](https://github.com/AbsaOSS/agentic-toolkit)'s `living-doc-bdd-copilot` agent — a Copilot/Claude-compatible AI agent + skill family, not a `living-doc-*` GitHub Action — but it does not have to be.
-
-**Governing principle: the whole Living Documentation pipeline must run AI-free.** Every `living-doc-*` repo — `collector-gh`, `collector-ad`, `utilities`, `toolkit`, all three generators — is, and must remain, deterministic tooling: Python scripts, JSON Schema validation, Jinja2/Markdown templates, no LLM call anywhere in the collect → normalize → generate path. A human can hand-write a `.feature` file or a GitHub Issue in the documented format with no AI involvement at all, and the rest of the pipeline behaves identically. `agentic-toolkit` does not change this: it is **acceleration for the authoring step, not a dependency of it.** An engineer typing out a User Story header block by hand, and the `living-doc-bdd-copilot` agent generating the same block from a conversational request, must produce output the collector mines identically — the agent's entire value is speed and consistency at authoring time, never a capability the pipeline requires to function. This extends to `agentic-toolkit`'s Playwright-based automation skills (`living-doc-pageobject-scan`, `data-cy-instrument`) too: browser scanning/crawling to generate PageObjects and scenarios is explicitly in scope as a legitimate accelerator, but a human writing the same PageObject or Gherkin scenario by hand is an equally valid, fully-supported path — the tool speeds up authoring, it doesn't gate it.
+**Governing principle: the whole Living Documentation pipeline must run AI-free.** Every `living-doc-*` repo — `collector-gh`, `collector-ad`, `utilities`, `toolkit`, both generators — is, and must remain, deterministic tooling: Python scripts, JSON Schema validation, Jinja2/Markdown templates, no LLM call anywhere in the collect → normalize → generate path. A human can hand-write a `.feature` file or a GitHub Issue in the documented format with no AI involvement at all, and the rest of the pipeline behaves identically. `agentic-toolkit` does not change this: it is **acceleration for the authoring step, not a dependency of it.** An engineer typing out a User Story header block by hand, and the `living-doc-bdd-copilot` agent generating the same block from a conversational request, must produce output the collector mines identically — the agent's entire value is speed and consistency at authoring time, never a capability the pipeline requires to function. This extends to `agentic-toolkit`'s Playwright-based automation skills (`living-doc-pageobject-scan`, `data-cy-instrument`) too: browser scanning/crawling to generate PageObjects and scenarios is explicitly in scope as a legitimate accelerator, but a human writing the same PageObject or Gherkin scenario by hand is an equally valid, fully-supported path — the tool speeds up authoring, it doesn't gate it.
 
 This shapes how "authoring" belongs in the architecture picture: it's the stage upstream of "collect," and it changes what "the ecosystem" means end to end — **author (human or AI-accelerated) → collect → normalize → generate** — but it is explicitly *optional acceleration* at that first stage only, never a runtime dependency anywhere downstream. See [Data Flows & Schemas](data-flows.md) §9 for the format comparison this stage's output needs to match, and [Copilot & AI-Agent Tooling](copilot-ai-tooling.md) for the same acceleration-only principle applied to how this ecosystem's own contributors use AI tooling.
 
-## 4.6 The next task after v1: tutorial-capture scenario execution
+## 4.1 The next task after v1: tutorial-capture scenario execution
 
-Beyond the AC-linked scenarios `collector-gh`'s `ui-tests` mode is scoped to mine (§4.5, [Data Flows & Schemas](data-flows.md) §9), the same Gherkin/Playwright execution machinery can drive a different kind of scenario: **long-running, feature-based walkthroughs — structured like e2e tests, but tagged/flagged for a different purpose.** This ecosystem's scope here is narrow and concrete: **run the flagged scenarios and collect the outputs** — screenshots at each step plus step-level commentary — as structured artifacts. No video-generation skill is planned within this ecosystem or `agentic-toolkit`; turning the collected images-and-commentary into a narrated tutorial video is a downstream AI consumer of that output, entirely outside this pipeline's scope. What this ecosystem owns is the run-and-collect step, nothing past it.
+Beyond the AC-linked scenarios `collector-gh`'s `ui-tests` mode is scoped to mine (§4, [Data Flows & Schemas](data-flows.md) §9), the same Gherkin/Playwright execution machinery can drive a different kind of scenario: **long-running, feature-based walkthroughs — structured like e2e tests, but tagged/flagged for a different purpose.** This ecosystem's scope here is narrow and concrete: **run the flagged scenarios and collect the outputs** — screenshots at each step plus step-level commentary — as structured artifacts. No video-generation skill is planned within this ecosystem or `agentic-toolkit`; turning the collected images-and-commentary into a narrated tutorial video is a downstream AI consumer of that output, entirely outside this pipeline's scope. What this ecosystem owns is the run-and-collect step, nothing past it.
 
 This is **the first task queued up after v1 ships** — not a vague someday-maybe, the immediate next roadmap item once the v1 goal in [Roadmap](roadmap.md) is delivered. It depends on Phase 2's scenario-mining and execution machinery existing first, which is why it can't move earlier. See [Roadmap](roadmap.md)'s Post-v1 section.
 
@@ -105,7 +91,6 @@ Key changes from current state:
 - **`generator-pdf` gets a first-class `document-type` (or `schema-path`) entry for the canonical toolkit output**, not just the raw collector schema, so the documented golden path actually is `collector → toolkit → generator-pdf`.
 - **`generator-markdown`, once built, consumes the identical canonical output** — same schema, same audit envelope, different template/render layer. This is the one-line justification the user gave, made structural: the two generators differ only in `templates/` + rendering library (Jinja2+WeasyPrint vs. Jinja2+Markdown), not in what they consume.
 - **A `collector_ad` adapter package in `toolkit`**, mirroring `adapters/collector_gh`, once ADO work-items mode has a stable enough schema to adapt (this can follow, not block, the pdf/markdown convergence).
-- **`generator-mdoc` gets an explicit decision**: either migrate it onto the same canonical `toolkit` output (retiring Path A), or formally mark it deprecated/maintenance-only in its README so new integrators aren't steered toward the pattern being phased out.
 
 ## 6. Tasks
 
@@ -122,13 +107,8 @@ Key changes from current state:
 - [ ] Scaffold `living-doc-generator-markdown` to consume the same `generator-ready-v1.0.0` schema `generator-pdf` now documents — do not let it invent its own input contract the way `generator-pdf` originally did before toolkit existed.
 - [ ] Share template-organization conventions (`templates/{document-type}/...`) between `generator-pdf` and `generator-markdown` where the two aren't format-specific, to keep the "same data, different format" symmetry visible in the codebase, not just the docs.
 
-**Phase 4 — resolve mdoc and collector-ad**
-- [ ] Make an explicit decision on `generator-mdoc`: migrate to `toolkit`-normalized input, or declare deprecated/maintenance-mode in its README with a stated end-of-support signal.
-- [ ] If migrating: build `generator-mdoc`'s consumption of `generator-ready-v1.0.0` the same way `generator-pdf`/`generator-markdown` do, retiring its direct `living_doc_utilities` model coupling.
+**Phase 4 — collector-ad integration**
 - [ ] Build a `toolkit/packages/adapters/collector_ad` package once `collector-ad`'s work-items schema is stable, so ADO-sourced docs join the same canonical pipeline as GitHub-sourced ones.
 
 **Phase 0 — state the usage model explicitly (small, do first)**
 - [ ] Add a one-paragraph "Expected usage" note (GitHub Actions workflow is the supported path; local CLI/script execution is for development and debugging only) to each repo's `README.md`, near the top — today only `toolkit`'s internal `copilot-instructions.md` draws this distinction, and only implicitly.
-
-**Phase 5 — version hygiene**
-- [ ] Realign `living-doc-utilities` pins across `collector-gh`, `collector-ad`, `generator-mdoc` to the same version (currently split 0.3.1 / 0.3.1 / 0.3.0) — see [Data Flows & Schemas](data-flows.md) for the full version-drift picture.

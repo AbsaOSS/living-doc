@@ -12,7 +12,7 @@ Instead of asking people to write and update docs, Living Documentation treats t
 
 1. **Collect** — pull structured data (issues, labels, work items, boards) out of the source system.
 2. **Normalize** — transform that data into one canonical shape, regardless of where it came from.
-3. **Generate** — render the canonical data into a target format: Markdown, an MDoc-viewer site, or PDF reports.
+3. **Generate** — render the canonical data into a target format: Markdown, or PDF reports.
 
 Because the pipeline runs automatically (e.g. as a scheduled GitHub Action), the resulting documentation is never more than one run behind the actual state of the project.
 

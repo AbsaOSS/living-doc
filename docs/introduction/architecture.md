@@ -7,7 +7,7 @@ The ecosystem is split into three stages — **collect**, **normalize**, **gener
 ```mermaid
 flowchart LR
     subgraph Sources
-        GH[(GitHub Issues<br/>& Labels)]
+        GH[(GitHub Issues & Labels,<br/>Repository Source Code)]
         AD[(Azure DevOps<br/>Work Items, Boards, Pipelines)]
     end
 
@@ -22,13 +22,11 @@ flowchart LR
 
     subgraph Generate
         GM[living-doc-generator-markdown]
-        GMD[living-doc-generator-mdoc]
         GPDF[living-doc-generator-pdf]
     end
 
     subgraph Outputs
         OM[Markdown files]
-        OMD[MDoc-viewer site]
         OPDF[PDF reports]
     end
 
@@ -37,7 +35,6 @@ flowchart LR
     CGH -- JSON --> TK
     CAD -- JSON --> TK
     TK -- canonical dataset --> GM --> OM
-    TK -- canonical dataset --> GMD --> OMD
     TK -- canonical dataset --> GPDF --> OPDF
 
     UTIL[living-doc-utilities<br/>shared models & serialization]
@@ -45,20 +42,17 @@ flowchart LR
     UTIL -.-> CAD
     UTIL -.-> TK
     UTIL -.-> GM
-    UTIL -.-> GMD
     UTIL -.-> GPDF
 ```
-
-> Note: `living-doc-generator-mdoc` currently consumes GitHub collector output directly rather than going through the toolkit; treat the toolkit hop above as the target shape for new integrations, not a hard requirement every generator already follows.
 
 ## Stage responsibilities
 
 | Stage | Project(s) | Responsibility |
 |---|---|---|
-| Collect | `collector-gh`, `collector-ad` | Talk to one source system's API, mine issues/work items/labels/pipelines, emit JSON. |
+| Collect | `collector-gh`, `collector-ad` | Talk to one source system's API, mine issues/work items/labels/pipelines/source code, emit JSON. |
 | Shared model | `utilities` | Define the data models and (de)serialization logic every other project imports, so collector output and generator input agree on shape. |
 | Normalize | `toolkit` | Take one or more collector outputs and produce a single canonical dataset — resolving format differences between sources. |
-| Generate | `generator-markdown`, `generator-mdoc`, `generator-pdf` | Take the canonical dataset (or, for `generator-mdoc` today, collector output directly) and render one target format. |
+| Generate | `generator-markdown`, `generator-pdf` | Take the canonical dataset and render one target format. |
 
 ## Typical run (GitHub Action)
 

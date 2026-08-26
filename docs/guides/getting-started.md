@@ -16,7 +16,6 @@ See [Collecting from GitHub](github-collection.md) or [Collecting from Azure Dev
 | You want | Use |
 |---|---|
 | Plain Markdown files | [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) |
-| A browsable MDoc-viewer site | [living-doc-generator-mdoc](https://github.com/AbsaOSS/living-doc-generator-mdoc) |
 | PDF reports (user stories, test catalogs, coverage matrices) | [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) |
 
 See [Choosing a Generator](choosing-a-generator.md) for a full comparison.

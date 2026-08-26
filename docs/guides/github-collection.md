@@ -10,7 +10,7 @@
 
 ## When to use it
 
-Use this collector when your project tracks work — features, bugs, user stories — as GitHub issues, and you want documentation (Markdown, an MDoc site, or PDF reports) generated from that backlog.
+Use this collector when your project tracks work — features, bugs, user stories — as GitHub issues, and you want documentation (Markdown or PDF reports) generated from that backlog.
 
 ## Basic setup
 

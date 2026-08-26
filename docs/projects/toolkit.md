@@ -21,7 +21,7 @@ For the exact CLI usage and current data contract, see the [project README](http
 
 ## Where it fits
 
-Middle stage of the pipeline. See [Architecture](../introduction/architecture.md) — note that `generator-mdoc` currently bypasses this stage and consumes `collector-gh` output directly.
+Middle stage of the pipeline. See [Architecture](../introduction/architecture.md).
 
 ## Used in
 

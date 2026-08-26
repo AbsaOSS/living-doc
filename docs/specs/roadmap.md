@@ -29,11 +29,10 @@ The four specs each found real problems, but not all of them block v1 equally. T
 Before any Phase 0 work starts: these are real unresolved decisions surfaced across the specs — genuinely open, not things this document can settle on its own. Get an answer to each before committing to the phases below, since several of them change what a later phase actually builds.
 
 **Format & directory conventions**
-- What's the directory convention for the flagged, long-run tutorial-capture scenarios ([Architecture](architecture.md) §4.6) — a new directory alongside `liv_doc_us`/`liv_doc_func`, or do they live "outside the living-doc directories" the way smoke/regression/exploratory scenarios already do per the glossary?
+- What's the directory convention for the flagged, long-run tutorial-capture scenarios ([Architecture](architecture.md) §4.1) — a new directory alongside `liv_doc_us`/`liv_doc_func`, or do they live "outside the living-doc directories" the way smoke/regression/exploratory scenarios already do per the glossary?
 - Once `collector-gh/SPEC.md` is reconciled against `agentic-toolkit`'s format (Phase 2), does the resulting schema bump ship as additive `v1.x` (every new field optional) or `v2.0.0`? Depends on whether `not_in_scope`/deprecation-metadata/AC-level precondition extensions can all be modeled as optional without breaking the "same shape, richer" goal. *[Data Flows & Schemas](data-flows.md) §9.2.*
 
 **Component fate**
-- `generator-mdoc`: migrate onto the canonical `generator-ready.json` contract, or formally mark deprecated/maintenance-only? Nothing in any repo states an intended timeline either way today. *[Architecture](architecture.md) §4, Phase 4 task.*
 - `collector-ad`'s remaining modes (`boards`, `pipelines`, `test_plans`, `release_notes`): is there an owner or rough timeline, or are they aspirational placeholders in the README with no near-term plan? Affects how the "todo" badges in that README should be worded (see [Documentation & Style Synchronization](doc-style-sync.md) §3.5).
 - `packages/datasets_pdf` → a generator-agnostic package name: worth doing once `generator-markdown` exists and needs the package, or not worth the churn ever? *[Data Flows & Schemas](data-flows.md) §5, task list.*
 
@@ -43,7 +42,7 @@ Before any Phase 0 work starts: these are real unresolved decisions surfaced acr
 - Is `living-doc-utilities`' looser `requires-python = ">=3.12"` (versus every other repo's stated/enforced 3.14) intentional — is the shared library meant to support older Python than the actions that consume it — or just unreconciled? *[Documentation & Style Synchronization](doc-style-sync.md) §3.4.*
 
 **Governance of the AI-free principle**
-- [Architecture](architecture.md) §4.5's "the pipeline must run AI-free, `agentic-toolkit` is acceleration only" is stated in this root repo's specs — but nothing in any individual `living-doc-*` repo's own README/CONTRIBUTING currently states this principle explicitly. Should it be added there too (so it's visible to someone who lands directly on `collector-gh` or `toolkit` without ever reading this repo), and if so, in what form — a shared boilerplate paragraph, like the CONTRIBUTING.md template already is?
+- [Architecture](architecture.md) §4's "the pipeline must run AI-free, `agentic-toolkit` is acceleration only" is stated in this root repo's specs — but nothing in any individual `living-doc-*` repo's own README/CONTRIBUTING currently states this principle explicitly. Should it be added there too (so it's visible to someone who lands directly on `collector-gh` or `toolkit` without ever reading this repo), and if so, in what form — a shared boilerplate paragraph, like the CONTRIBUTING.md template already is?
 
 ## Step 2 — Review all files in this repo
 
@@ -58,8 +57,8 @@ Before Phase 0 starts, do one consistency pass over every file in this repo (`li
 
 Small, mostly independent tasks that reduce risk before the bigger builds start.
 
-- [ ] **[Security]** Add the mandatory AquaSec Night Scan workflow to `collector-gh`, `collector-ad`, `utilities`, `toolkit`, `generator-pdf` (copy the working config from `generator-mdoc`). *Ref: [CI Checks & QA Tooling](ci-qa-tooling.md) §8.*
-- [ ] **[Docs]** Fix the three broken/stale cross-repo links (`generator-mdoc`'s stale rename, `generator-markdown`'s wrong-repo `CONTRIBUTING.md`). *Ref: [Documentation & Style Synchronization](doc-style-sync.md) §3.1.*
+- [ ] **[Security]** Add the mandatory AquaSec Night Scan workflow to `collector-gh`, `collector-ad`, `utilities`, `toolkit`, `generator-pdf` (copy the working config from `aquasec-scan-results`). *Ref: [CI Checks & QA Tooling](ci-qa-tooling.md) §8.*
+- [ ] **[Docs]** Fix the broken/stale cross-repo link (`generator-markdown`'s wrong-repo `CONTRIBUTING.md`). *Ref: [Documentation & Style Synchronization](doc-style-sync.md) §3.1.*
 - [ ] **[Docs]** Fix `SCHEMA_SYNC.md`'s stale `CONFIRMED_MIN` value; add the missing `CONTRIBUTING.md` to `toolkit`. *Ref: [Data Flows & Schemas](data-flows.md) §3, [Documentation & Style Synchronization](doc-style-sync.md) §3.3.*
 - [ ] **[Usage clarity]** Add the "GitHub Actions is the expected usage; local CLI is for debug" note to each repo's `README.md`. *Ref: [Architecture](architecture.md) §2.1, Phase 0.*
 - [ ] **[AI tooling]** De-drift `copilot-instructions.md`/`copilot-review-rules.md` onto one reconciled version; fill in `toolkit`'s empty "Repo additions" with its real per-package Makefile commands. *Ref: [Copilot & AI-Agent Tooling](copilot-ai-tooling.md) §5.* Doing this now, before the heavier Phase 1–3 build-out, means the AI-assisted work on those phases runs on correct instructions instead of `toolkit`'s currently-wrong default commands.
@@ -105,19 +104,18 @@ Runs alongside Phases 2–4 rather than after them — none of it blocks the gol
 - [ ] Implement the pin-and-vendor schema sync mechanism: owning repos publish schemas as versioned release assets, consumers fetch into a vendored copy from a pinned tag (never `master` live), and CI fails if the vendored copy drifts from that pin. *Ref: [Data Flows & Schemas](data-flows.md) §3.2, §10.*
 - [ ] Harden the shared lint/test workflow: `permissions` block, `concurrency` group, path-filtered `detect`/`noop` jobs — converging on the `aquasec-scan-results` pattern. *Ref: [CI Checks & QA Tooling](ci-qa-tooling.md) §8.*
 - [ ] Re-pin `actions/checkout` (and other actions) to one consistent SHA across all repos touched in this roadmap.
-- [ ] Realign `living-doc-utilities` version pins across `collector-gh`, `collector-ad`, `generator-mdoc` (currently split 0.3.1/0.3.1/0.3.0).
+- [ ] Confirm `living-doc-utilities` version pins stay aligned across `collector-gh` and `collector-ad` as new versions ship.
 
 ## Post-v1 (next)
 
 The first task queued up once v1 ships — not part of v1 itself, but not an unordered "someday" item either.
 
-- [ ] **Tutorial-capture scenario execution** ([Architecture](architecture.md) §4.6): run flagged, long-run Gherkin scenarios and collect the outputs — screenshots per step plus step-level commentary — as structured artifacts. Scope stops there: no video-generation skill is planned in this ecosystem or in `agentic-toolkit`; turning the collected artifacts into a tutorial video is a downstream AI consumer outside this pipeline. Depends on Phase 2's scenario-mining and execution machinery existing first, which is why it queues right after v1 rather than during it.
+- [ ] **Tutorial-capture scenario execution** ([Architecture](architecture.md) §4.1): run flagged, long-run Gherkin scenarios and collect the outputs — screenshots per step plus step-level commentary — as structured artifacts. Scope stops there: no video-generation skill is planned in this ecosystem or in `agentic-toolkit`; turning the collected artifacts into a tutorial video is a downstream AI consumer outside this pipeline. Depends on Phase 2's scenario-mining and execution machinery existing first, which is why it queues right after v1 rather than during it.
 
 ## Explicitly deferred (not v1)
 
 Real findings from the four specs, deliberately left out of this roadmap because they're not required to hit the v1 goal above:
 
-- **`generator-mdoc` migration or deprecation decision** — v1 doesn't require touching the MDoc path at all; it's additive (PDF + Markdown), not a replacement for what already works. Revisit once v1 ships.
 - **`collector-ad` / Azure DevOps support for any of this** — v1's stated scope is the GitHub-sourced content types only. A `toolkit` adapter for `collector-ad` is real future work, not v1.
 - **`toolkit/packages/datasets_pdf` → `datasets_doc` package rename** — the artifact rename (Phase 1) is enough; renaming the Python package is a bigger, purely-cosmetic follow-up.
 - **The AI-workflow process additions** (roadmap-task-driven implementation command, PR-ready verify command, docs-lifecycle automation) from [Copilot & AI-Agent Tooling](copilot-ai-tooling.md) §5 — valuable, but tooling-around-the-work, not the work itself. Worth doing once this roadmap exists to drive them, i.e. after this document, not before.

@@ -10,7 +10,7 @@
 
 ## When to use it
 
-Use this collector when work is tracked in Azure DevOps rather than GitHub issues, and you want the same generated-documentation experience — Markdown, MDoc site, or PDF — from that data.
+Use this collector when work is tracked in Azure DevOps rather than GitHub issues, and you want the same generated-documentation experience — Markdown or PDF — from that data.
 
 ## Basic setup
 

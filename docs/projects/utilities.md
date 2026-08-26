@@ -16,4 +16,4 @@ Not a pipeline stage on its own — it's a dependency of every other project. Se
 
 - [collector-gh](collector-gh.md), [collector-ad](collector-ad.md)
 - [toolkit](toolkit.md)
-- [generator-markdown](generator-markdown.md), [generator-mdoc](generator-mdoc.md), [generator-pdf](generator-pdf.md)
+- [generator-markdown](generator-markdown.md), [generator-pdf](generator-pdf.md)
