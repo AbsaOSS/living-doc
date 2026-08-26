@@ -1,6 +1,6 @@
 # Living Documentation
 
-**Living Documentation** is an approach to keeping project documentation continuously up to date by generating it directly from the systems teams already use — GitHub, Azure DevOps — instead of maintaining it by hand. It's an independent idea, developed and piloted within ABSA to close a real documentation gap there, and released here as ABSA open source for anyone to use.
+**Living Documentation** is an approach to keeping project documentation continuously up to date by generating it directly from the systems teams already use — GitHub, Azure DevOps — instead of maintaining it by hand. 
 
 This repository is the entry point for the whole topic: it explains the concept, the architecture, and links out to every tool in the ecosystem.
 
@@ -19,13 +19,15 @@ This repository is the entry point for the whole topic: it explains the concept,
 ## Tutorials
 
 - [GitHub Issues → Markdown](docs/tutorials/gh-issues-to-markdown.md)
-- [GitHub Issues → MDoc](docs/tutorials/gh-issues-to-mdoc.md)
 - [Azure DevOps Work Items → Markdown](docs/tutorials/ado-workitems-to-markdown.md)
 - [User Stories → PDF](docs/tutorials/user-stories-to-pdf.md)
 
 ## Ecosystem
 
 The pipeline is: content gets **authored** in the source system (by hand, or AI-accelerated — the pipeline itself runs AI-free either way), a **collector** mines it into a common JSON shape, the **toolkit** normalizes it into a canonical dataset, and a **generator** renders that dataset into a documentation format.
+
+TODO - there are two ways how to manage User Stories (US), Features (Feat), and Functionalities (Fund) - in source code preferred or in issues in GitHub or Azure DevOps
+TODO - mdoc repo is depreated, as this path was ABSA internal solution, which is no more supported
 
 | Project | Role | Purpose |
 |---|---|---|
@@ -38,18 +40,7 @@ The pipeline is: content gets **authored** in the source system (by hand, or AI-
 | [living-doc-generator-mdoc](https://github.com/AbsaOSS/living-doc-generator-mdoc) | Generator | Renders GitHub issue/label data as Markdown formatted for an MDoc viewer. |
 | [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) | Generator | Renders structured JSON (user stories, test catalogs, coverage matrices) as PDF via Jinja2 + WeasyPrint. |
 
-See [docs/projects](docs/projects/) for a dedicated page per project. The table above describes the intended pipeline; see [Specs & Roadmap](#specs--roadmap) below for how today's actual wiring differs and what's planned to close the gap.
-
-## Specs & Roadmap
-
-Cross-repo review documents assessing the ecosystem as it exists in code today (not just as documented) and proposing convergence work, each with a task list:
-
-- [Documentation & Style Synchronization](docs/specs/doc-style-sync.md) — where READMEs, CONTRIBUTING, and DEVELOPER guides across repos have drifted, and how to converge them
-- [Architecture](docs/specs/architecture.md) — the three currently-separate collector→generator paths (mdoc, pdf, toolkit), why they diverged, the target unified pipeline, the expected GitHub-Actions-first usage model, and the authoring stage (`agentic-toolkit`) upstream of it all
-- [Data Flows & Schemas](docs/specs/data-flows.md) — schema duplication across repos, an ownership rule for schema copies plus a pin-and-vendor sync mechanism, version-compatibility handling, the `generator-ready.json` canonical-dataset rename, normalization-vs-transformation terminology, and a comparison against `agentic-toolkit`'s authoritative entity/AC format
-- [CI Checks & QA Tooling](docs/specs/ci-qa-tooling.md) — CI gaps versus the org's more mature repos (`generate-release-notes`, `aquasec-scan-results`), including a missing mandatory security scan in most repos
-- [Copilot & AI-Agent Tooling](docs/specs/copilot-ai-tooling.md) — drift across repos' `copilot-instructions.md`, review rules, and agent definitions, plus proposed AI-assisted workflow additions
-- [Roadmap: v1 — Unified PDF & Markdown Delivery](docs/specs/roadmap.md) — the build order across all specs above, targeting PDF + Markdown output for User Stories/Features/Functionalities, the UI test catalog, and the coverage matrix
+See [docs/projects](docs/projects/) for a dedicated page per project. The table above describes the intended pipeline.
 
 ## Contributing
 
