@@ -4,6 +4,8 @@
 **Role:** Generator
 **Type:** GitHub Action
 
+> **Deprecated.** This generator was an ABSA-internal solution and is no longer supported. Use [living-doc-generator-markdown](generator-markdown.md) or [living-doc-generator-pdf](generator-pdf.md) instead.
+
 ## Purpose
 
 Generates living documentation in Markdown formatted for an MDoc viewer, extracting project data from GitHub repository issues and labels — producing a continuously updated, browsable documentation site.

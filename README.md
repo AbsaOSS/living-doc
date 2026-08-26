@@ -24,10 +24,29 @@ This repository is the entry point for the whole topic: it explains the concept,
 
 ## Ecosystem
 
-The pipeline is: content gets **authored** in the source system (by hand, or AI-accelerated — the pipeline itself runs AI-free either way), a **collector** mines it into a common JSON shape, the **toolkit** normalizes it into a canonical dataset, and a **generator** renders that dataset into a documentation format.
+The pipeline has four stages: content is **authored**, a **collector** mines it into a common JSON shape, the **toolkit** normalizes it into a canonical dataset, and a **generator** renders that dataset into a documentation format.
 
-TODO - there are two ways how to manage User Stories (US), Features (Feat), and Functionalities (Fund) - in source code preferred or in issues in GitHub or Azure DevOps
-TODO - mdoc repo is depreated, as this path was ABSA internal solution, which is no more supported
+### Authoring
+
+Content can be authored by hand or AI-accelerated — the pipeline itself always runs AI-free downstream of authoring. User Stories, Features, and Functionalities specifically can be authored two ways: directly in source code (preferred), or as issues/work items in GitHub or Azure DevOps.
+
+### What gets mined
+
+| Source | Objects | Status |
+|---|---|---|
+| GitHub | Issues, labels | Available |
+| Azure DevOps | Work items | Planned |
+| Azure DevOps | Boards, pipelines, test plans, release notes | Planned |
+| Source code | User Stories, Features, Functionalities, Gherkin test scenarios | Available |
+
+### What you get
+
+| Output | Best for | Status |
+|---|---|---|
+| Plain Markdown | Docs committed alongside code | Early stage |
+| PDF | Point-in-time deliverables — user stories, UI test catalogs, coverage matrices | Available |
+
+### Projects
 
 | Project | Role | Purpose |
 |---|---|---|
@@ -37,7 +56,7 @@ TODO - mdoc repo is depreated, as this path was ABSA internal solution, which is
 | [living-doc-utilities](https://github.com/AbsaOSS/living-doc-utilities) | Shared library | Core data models, transformation, and serialization logic shared by collectors, the toolkit, and generators. |
 | [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) | Toolkit | Normalizes collector output into a canonical dataset consumed by generators. |
 | [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) | Generator | Renders the canonical dataset as plain Markdown. *(early stage)* |
-| [living-doc-generator-mdoc](https://github.com/AbsaOSS/living-doc-generator-mdoc) | Generator | Renders GitHub issue/label data as Markdown formatted for an MDoc viewer. |
+| [living-doc-generator-mdoc](https://github.com/AbsaOSS/living-doc-generator-mdoc) | Generator | **Deprecated.** Rendered GitHub issue/label data as Markdown formatted for an MDoc viewer; was an ABSA-internal solution and is no longer supported. |
 | [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) | Generator | Renders structured JSON (user stories, test catalogs, coverage matrices) as PDF via Jinja2 + WeasyPrint. |
 
 See [docs/projects](docs/projects/) for a dedicated page per project. The table above describes the intended pipeline.
