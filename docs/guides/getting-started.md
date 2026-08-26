@@ -22,7 +22,9 @@ See [Choosing a Generator](choosing-a-generator.md) for a full comparison.
 
 ## 3. Chain them in a workflow
 
-A minimal pipeline is a GitHub Actions workflow that runs the collector, then the generator, on a schedule:
+A pipeline is three stages, always in this order: **collect → normalize → generate**. The normalize step — [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) — is **not optional**: generators consume the canonical dataset toolkit produces, not raw collector output, even when you only have one collector. See [Architecture](../introduction/architecture.md) for why the pipeline is shaped this way.
+
+Unlike the collector and generator, `toolkit` isn't packaged as a GitHub Action — it's a Python CLI, invoked with `pip install` + `run` in its own step. Here's a full pipeline running nightly against a GitHub repository's issues, normalizing them, and committing the rendered Markdown:
 
 ```yaml
 name: Living Documentation
@@ -40,31 +42,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Collect
+      - name: Collect from GitHub
         uses: AbsaOSS/living-doc-collector-gh@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          # collector-specific inputs — see the collector's README
+          repository: ${{ github.repository }}
+          # writes doc-issues.json into the workspace
 
-      - name: Generate
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Normalize (toolkit)
+        run: |
+          pip install living-doc-toolkit
+          living-doc normalize-issues --input doc-issues.json --output pdf_ready.json
+
+      - name: Generate Markdown
         uses: AbsaOSS/living-doc-generator-markdown@v1
         with:
-          # generator-specific inputs — see the generator's README
+          source-path: pdf_ready.json
+          output-path: docs/generated
 
       - name: Publish
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add .
+          git add docs/generated
           git commit -m "docs: update living documentation" || echo "no changes"
           git push
 ```
 
-Replace the collector/generator steps and their inputs with the ones you picked in steps 1–2; each project's own README documents its action inputs and outputs in detail.
+A few things to note about these inputs:
 
-## 4. Add a normalization step (optional)
-
-If you're combining multiple collectors, or feeding a generator that expects the canonical shape, insert [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) between collect and generate. See [Architecture](../introduction/architecture.md) for where it fits.
+- `doc-issues.json` / `pdf_ready.json` are `collector-gh`'s and `toolkit`'s current documented file names (`pdf_ready.json` is slated to be renamed `generator-ready.json` — see [Data Flows & Schemas](../specs/data-flows.md) — but that migration hasn't shipped yet, so use `pdf_ready.json` today).
+- `living-doc normalize-issues` is `toolkit`'s actual CLI command, taking `--input`/`--output` file paths — this is a workflow step like any other, not a local-only affordance.
+- Swap the collector/generator `uses:` steps for the ones you picked in steps 1–2 above; each project's own README documents its exact action inputs and outputs, which evolve faster than this guide.
 
 ## Next steps
 

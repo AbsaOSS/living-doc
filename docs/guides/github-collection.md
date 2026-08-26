@@ -1,16 +1,18 @@
 # Collecting from GitHub
 
-[living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) is a GitHub Action that mines a repository's issues, labels, and other metadata into the JSON shape the rest of the ecosystem consumes.
+[living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) is a GitHub Action that mines a repository's issues into the JSON shape the rest of the ecosystem consumes.
 
 ## What it collects
 
-- Issues (title, body, state, assignees, milestones)
-- Labels (including any structured/semantic labels used to categorize documentation content)
-- Repository metadata needed to attribute and link generated output back to source issues
+- Issues: issue title, issue body.
+- Source code: User Story / Feature / Functionality header blocks, Gherkin test scenarios (`.feature` files) — see [Living Doc Header Types](living-doc-header-types.md) for the format.
 
 ## When to use it
 
-Use this collector when your project tracks work — features, bugs, user stories — as GitHub issues, and you want documentation (Markdown or PDF reports) generated from that backlog.
+Use this collector when your project tracks living documentation — User Stories, Features, and Functionalities — as:
+
+- Issues
+- Source code, including Gherkin test scenarios (`.feature` files)
 
 ## Basic setup
 
@@ -28,4 +30,4 @@ Refer to the [project README](https://github.com/AbsaOSS/living-doc-collector-gh
 
 ## Feeding it forward
 
-Collector output is JSON. Pass it directly to a generator, or through [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) first if you need to normalize it alongside another source. See [Architecture](../introduction/architecture.md).
+Collector output is JSON. It always passes through [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit)'s normalize step next — generators consume toolkit's canonical dataset, not raw collector output. See [Architecture](../introduction/architecture.md).

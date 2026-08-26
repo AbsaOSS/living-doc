@@ -18,10 +18,11 @@ First stage of the pipeline, upstream of [collector-gh](collector-gh.md). See [A
 
 ## Why it matters to this ecosystem specifically
 
-Its `skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md` are the current, actively-maintained description of the entity/AC/header-block format — more complete than `living-doc-collector-gh/SPEC.md`'s version of the same thing (missing fields: `not_in_scope`, AC-level precondition extensions, deprecation metadata, the `@AC:<id>/aspect:<value>` tag param syntax, and any mining path for Functionality-level header blocks). See [Data Flows & Schemas](../specs/data-flows.md) §9 for the full comparison.
+`living-doc` (this docs repo) is the source of truth for the entity/AC/header-block format the whole ecosystem shares: [Living Doc Glossary](../guides/living-doc-glossary.md) (entity definitions, IDs, AC/tag grammar) and [Living Doc Header Types](../guides/living-doc-header-types.md) (the Project Profile and the three living-doc header types — **US Feature File Header**, **Functionality Feature File Header**, **PageObject File Header** — plus `seed.yaml`/`manifest.json`). `agentic-toolkit`'s non-task companion skill, `shared` (`skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md`), is synced from these two pages, and every other skill in the family imports it.
 
 ## Used in
 
 - [Architecture](../specs/architecture.md) §4.5
-- [Data Flows & Schemas](../specs/data-flows.md) §9
-- [Roadmap](../specs/roadmap.md) Phase 2 (the format-reconciliation task)
+- [Living Doc Glossary](../guides/living-doc-glossary.md)
+- [Living Doc Header Types](../guides/living-doc-header-types.md)
+- [Roadmap](../specs/roadmap.md) Phase 2 (implementing `collector-gh`'s `doc-source`/`ui-tests` modes against this format)

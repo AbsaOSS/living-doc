@@ -30,7 +30,7 @@ Before any Phase 0 work starts: these are real unresolved decisions surfaced acr
 
 **Format & directory conventions**
 - What's the directory convention for the flagged, long-run tutorial-capture scenarios ([Architecture](architecture.md) §4.1) — a new directory alongside `liv_doc_us`/`liv_doc_func`, or do they live "outside the living-doc directories" the way smoke/regression/exploratory scenarios already do per the glossary?
-- Once `collector-gh/SPEC.md` is reconciled against `agentic-toolkit`'s format (Phase 2), does the resulting schema bump ship as additive `v1.x` (every new field optional) or `v2.0.0`? Depends on whether `not_in_scope`/deprecation-metadata/AC-level precondition extensions can all be modeled as optional without breaking the "same shape, richer" goal. *[Data Flows & Schemas](data-flows.md) §9.2.*
+- Once `collector-gh`'s `doc-source`/`ui-tests` modes are implemented against the canonical format (Phase 2), does the resulting schema bump ship as additive `v1.x` (every new field optional) or `v2.0.0`? Depends on whether `not_in_scope`/deprecation-metadata/AC-level precondition extensions can all be modeled as optional without breaking the "same shape, richer" goal. *[Data Flows & Schemas](data-flows.md) §9.*
 
 **Component fate**
 - `collector-ad`'s remaining modes (`boards`, `pipelines`, `test_plans`, `release_notes`): is there an owner or rough timeline, or are they aspirational placeholders in the README with no near-term plan? Affects how the "todo" badges in that README should be worded (see [Documentation & Style Synchronization](doc-style-sync.md) §3.5).
@@ -71,12 +71,10 @@ Small, mostly independent tasks that reduce risk before the bigger builds start.
 
 ## Phase 2 — Ship `doc-source` and `ui-tests` collector modes
 
-Both are already fully specced in `collector-gh/SPEC.md` — this phase is "build what's already designed," not new design work, **except for one correction that must land first.**
-
-- [ ] **Reconcile `collector-gh/SPEC.md` against `agentic-toolkit`'s current living-doc format before writing any parser code.** `SPEC.md`'s header/AC parsing rules are behind the authoring-side format the `living-doc-bdd-copilot` agent actually produces — implementing `SPEC.md` as currently written would ship a collector that mis-parses or silently drops `not_in_scope`, AC-level precondition extensions, deprecation metadata, and `@AC:<id>/aspect:<value>`-tagged scenarios. Update `SPEC.md`'s §3 (header format), §3.6.7 (AC block parsing), and §4.6.3 (scenario tag parsing) to match `agentic-toolkit`'s `skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md` field-for-field. *Ref: [Data Flows & Schemas](data-flows.md) §9.1 for the full delta table.*
-- [ ] Bump `doc-issues-v1.0.0-schema.json` (and the not-yet-shipped `doc-source`/`ui-tests` schemas) to account for the new fields from the reconciliation above — additive `v1.x` if every new field can be optional, otherwise `v2.0.0`. *Ref: [Data Flows & Schemas](data-flows.md) §9.2.*
-- [ ] Implement `doc_source/` (collector-gh): header-block parser, `GHDocSourceCollector`, output to `doc-source.json` — per the reconciled `SPEC.md` §3.
-- [ ] Implement `ui_tests/` (collector-gh): scenario-block parser, `GHUITestsCollector`, output to `ui-tests.json` — per the reconciled `SPEC.md` §4.
+- [ ] **Write `collector-gh/SPEC.md`'s header/AC/scenario-tag parsing rules (§3, §3.6.7, §4.6.3) against the canonical format** in [Living Doc Glossary](../guides/living-doc-glossary.md) and [Living Doc Header Types](../guides/living-doc-header-types.md) — field-for-field, including `not_in_scope`, AC-level precondition extensions, deprecation metadata, and the `@AC:<id>/aspect:<value>` tag syntax. *Ref: [Data Flows & Schemas](data-flows.md) §9.*
+- [ ] Bump `doc-issues-v1.0.0-schema.json` (and the not-yet-shipped `doc-source`/`ui-tests` schemas) to carry those fields — additive `v1.x` if every new field can be optional, otherwise `v2.0.0`. *Ref: [Data Flows & Schemas](data-flows.md) §9.*
+- [ ] Implement `doc_source/` (collector-gh): header-block parser, `GHDocSourceCollector`, output to `doc-source.json` — per `SPEC.md` §3.
+- [ ] Implement `ui_tests/` (collector-gh): scenario-block parser, `GHUITestsCollector`, output to `ui-tests.json` — per `SPEC.md` §4.
 - [ ] Ship `ui_tests/schema/ui-tests-v1.0.0-schema.json` as the actual owned schema (it currently only exists as `generator-pdf`'s consumer copy — see Phase 1 ownership note below).
 - [ ] Transfer schema ownership for `doc-source-v1.0.0` and `ui-tests-v1.0.0` from `toolkit` (de facto today) to `collector-gh` (the intended owner); re-label `toolkit`'s copies as owner-sourced validation copies. *Ref: [Data Flows & Schemas](data-flows.md) §3.1.*
 - [ ] Re-run `toolkit coverage-matrix`'s golden tests against this real collector output, not just the hand-built fixtures used today.

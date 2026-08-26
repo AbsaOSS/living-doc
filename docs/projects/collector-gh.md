@@ -17,10 +17,12 @@ For the exact, current list of action inputs/outputs, see the [project README](h
 
 ## Where it fits
 
-First collection stage of the pipeline — feeds [living-doc-toolkit](toolkit.md) or a generator directly. Upstream of it, [agentic-toolkit](agentic-toolkit.md)'s `living-doc-bdd-copilot` agent is what authors the User Story/Feature/Functionality entities and `.feature` files this collector's `doc-issues`/`doc-source`/`ui-tests` modes are designed to mine — see [Architecture](../introduction/architecture.md) and [Data Flows & Schemas spec](../specs/data-flows.md) §9 for how closely (and, in places, how not-yet-closely) the two formats currently match.
+First collection stage of the pipeline — feeds [living-doc-toolkit](toolkit.md) or a generator directly. Upstream of it, [agentic-toolkit](agentic-toolkit.md)'s `living-doc-bdd-copilot` agent is what authors the User Story/Feature/Functionality entities and `.feature` files this collector's `doc-issues`/`doc-source`/`ui-tests` modes are designed to mine, using the header format described in [Living Doc Header Types](../guides/living-doc-header-types.md). See [Architecture](../introduction/architecture.md) for where this collector sits in the pipeline.
 
 ## Used in
 
 - [Collecting from GitHub](../guides/github-collection.md)
+- [Living Doc Glossary](../guides/living-doc-glossary.md)
+- [Living Doc Header Types](../guides/living-doc-header-types.md)
 - [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md)
 - [User Stories → PDF](../tutorials/user-stories-to-pdf.md)
