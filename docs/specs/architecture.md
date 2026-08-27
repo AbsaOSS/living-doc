@@ -52,6 +52,8 @@ This is architecturally sound and it's *already partially built* — `toolkit`'s
 2. `generator-pdf` was never actually wired to consume it in its current documented form (Path A bypasses Path B).
 3. `generator-markdown` doesn't exist yet as code, so there's no second consumer to force the "same normalized input, two renderers" contract into existence.
 
+The design rule this settles on (repo owner, 2026-08-27): **collector output is never consumed directly by a generator — the `toolkit` normalize step is always in the path**, single source or not. Path A above is a shortcut to be removed, not a supported alternative (Roadmap Phase 3).
+
 ## 4. The stage upstream of all of this: authoring — and a governing principle
 
 Everything in §2–§3 starts from `collector-gh` mining GitHub Issues or `.feature` files that already exist. Those files don't write themselves, and someone or something authors User Story / Feature / Functionality entities and Gherkin scenarios before any collector ever runs. That authoring step *can* be accelerated by [`AbsaOSS/agentic-toolkit`](https://github.com/AbsaOSS/agentic-toolkit)'s `living-doc-bdd-copilot` agent — a Copilot/Claude-compatible AI agent + skill family, not a `living-doc-*` GitHub Action — but it does not have to be.

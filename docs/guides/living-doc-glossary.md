@@ -175,8 +175,12 @@ Additional `/param:value` segments can be appended as needed — the format is o
 - US scenarios: `@AC:US-<n>-<nn>` (e.g. `@AC:US-1-01`)
 - Functionality scenarios: `@AC:FUNC-<nnn>-<nn>` (e.g. `@AC:FUNC-001-01`)
 - Both annotations are required for living-doc feature files (`feature_dirs.user_story` and `feature_dirs.functionality`, defaults `features/liv_doc_us/` and `features/liv_doc_func/`).
-- Feature files outside the living-doc directories (smoke tests, regression suites, exploratory probes)
-  do not require `@AC:` tags.
+- Feature files outside the living-doc directories (smoke tests, regression suites, exploratory probes,
+  tutorial walkthroughs) do not require `@AC:` tags.
+- **Tutorial walkthroughs** are long-run, feature-based walkthroughs kept for tutorial capture, not living
+  documentation. They live in one or more folders *parallel* to the living-doc directories (named
+  `tutorials/` or `tutorial_<group>/`), carry a `@tutorial` scenario flag, and are out of scope for every
+  collector mode — no collector mines them. See [Roadmap](../specs/roadmap.md)'s Post-v1 section.
 
 Deprecated ACs include a removal note:
 

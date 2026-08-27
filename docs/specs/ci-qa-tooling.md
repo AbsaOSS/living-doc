@@ -22,7 +22,7 @@
 
 ## 3. The AquaSec gap is the single biggest finding here
 
-Every `living-doc-*` repo's original scaffold README (still literally present, unmodified, in `generator-markdown`) states: *"As one of the first tasks, please implement the AquaSec Night Scan... as a mandatory workflow."* Despite that, **all 6 reviewed repos lack it** (`generator-markdown` has no code yet to scan, so it's the one partial exception). `collector-gh`, `collector-ad`, `utilities`, `toolkit`, and `generator-pdf` all ship real Python code, real dependencies, and real CI — but none of them run the mandatory security scan the org template asked for on day one. `aquasec-scan-results` (the tool that *implements* the scan action itself) unsurprisingly has it. This root repo (`living-doc`) has it too as of this pass — see [Architecture](../introduction/architecture.md)'s note on the workflow added here — but that only covers this repo; it does nothing for the 5 satellite repos that actually run Python and are the ones with a real vulnerability surface.
+Every `living-doc-*` repo's original scaffold README (still literally present, unmodified, in `generator-markdown`) states: *"As one of the first tasks, please implement the AquaSec Night Scan... as a mandatory workflow."* Despite that, **all 6 reviewed repos lack it** (`generator-markdown` has no code yet to scan, so it's the one partial exception). `collector-gh`, `collector-ad`, `utilities`, `toolkit`, and `generator-pdf` all ship real Python code, real dependencies, and real CI — but none of them run the mandatory security scan the org template asked for on day one. `aquasec-scan-results` (the tool that *implements* the scan action itself) unsurprisingly has it. This root repo (`living-doc`) has it too as of this pass (`.github/workflows/aquasec-night-scan.yml`) — but that only covers this repo; it does nothing for the 5 satellite repos that actually run Python and are the ones with a real vulnerability surface.
 
 ## 4. `aquasec-scan-results/test.yml` is a materially better lint/test gate than the shared `static_analysis_and_tests.yml` template
 
@@ -71,5 +71,5 @@ Similarly: `release_draft.yml` (5 repos) vs. `gh_release_draft.yml` (`generator-
 - [ ] Evaluate propagating `generator-pdf`'s `.pre-commit-config.yaml` to the other 5 repos — it's a net-new improvement over even the two reference repos, not just a consistency fix.
 
 **Longer-term, tie-in with other specs**
-- [ ] Add the schema-drift CI check from [Data Flows & Schemas](data-flows.md) §7 as a new job once the schema-ownership decision is made.
+- [ ] Add the schema-drift CI check from [Data Flows & Schemas](data-flows.md) §3.2 (pin-and-vendor sync, verified on every build) as a new job once the schema-ownership decision is made.
 - [ ] Add the link-check gate from [Documentation & Style Synchronization](doc-style-sync.md) §5 to the same shared workflow set once this pass's naming/permissions convergence lands, so it's added once to the template rather than 6 times separately.

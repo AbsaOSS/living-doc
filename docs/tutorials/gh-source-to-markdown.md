@@ -55,7 +55,7 @@ jobs:
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-source.json --output pdf_ready.json
+          living-doc normalize-issues --input doc-source.json --output pdf_ready.json   # renamed to generator-ready.json in a coming release
 
       # 3. GENERATE Markdown
       - name: Generate Markdown

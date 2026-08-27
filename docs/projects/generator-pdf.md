@@ -6,14 +6,14 @@
 
 ## Purpose
 
-Transforms structured JSON into professional PDF documents using customizable Jinja2 templates and WeasyPrint, with built-in support for user stories, UI test catalogs, and coverage matrices.
+Renders the canonical dataset into professional PDF documents using customizable Jinja2 templates and WeasyPrint, with built-in support for user stories, UI test catalogs, and coverage matrices.
 
 ## Inputs / Outputs
 
-- **Input:** canonical dataset (or structured JSON matching a supported template's shape)
+- **Input:** the canonical dataset produced by [living-doc-toolkit](toolkit.md) (`source-path`), plus a `document-type` selector (`user-stories` · `ui-test-catalog` · `coverage-matrix`)
 - **Output:** PDF, rendered via a Jinja2 template + WeasyPrint
 
-For the current set of built-in templates and exact action inputs, see the [project README](https://github.com/AbsaOSS/living-doc-generator-pdf).
+For the exact action inputs and the current built-in template set, see the [project README](https://github.com/AbsaOSS/living-doc-generator-pdf).
 
 ## Where it fits
 
@@ -23,3 +23,4 @@ Final stage of the pipeline — the option to reach for when the deliverable nee
 
 - [Choosing a Generator](../guides/choosing-a-generator.md)
 - [User Stories → PDF](../tutorials/user-stories-to-pdf.md)
+- [GitHub Source Code → PDF](../tutorials/gh-source-to-pdf.md)

@@ -1,6 +1,9 @@
 # Tutorial: Azure DevOps Work Items → Markdown
 
-> `living-doc-generator-markdown` is early stage; treat the generator step below as illustrative until its action inputs stabilize. Check the [project README](https://github.com/AbsaOSS/living-doc-generator-markdown) before running this for real.
+> **Forward-looking.** `living-doc-generator-markdown` is early stage, and `toolkit`'s adapter for
+> `collector-ad` output is still being built (see [Roadmap](../specs/roadmap.md)). Treat the collect
+> and normalize steps below as the intended shape; check each project's README before running this
+> for real.
 
 Goal: turn Azure DevOps work items into Markdown files, refreshed nightly.
 
@@ -31,9 +34,20 @@ jobs:
           project: my-project
           pat: ${{ secrets.ADO_PAT }}
 
+      # NORMALIZE — required: generators consume toolkit's canonical dataset, not raw collector output
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Normalize (toolkit)
+        run: |
+          pip install living-doc-toolkit
+          living-doc normalize-issues --input work-items.json --output pdf_ready.json   # renamed to generator-ready.json in a coming release
+
       - name: Generate Markdown
         uses: AbsaOSS/living-doc-generator-markdown@v1
         with:
+          source-path: pdf_ready.json
           output-path: docs/generated
 
       - name: Commit output
@@ -47,13 +61,14 @@ jobs:
 
 ## 2. What happens on each run
 
-1. `collector-ad` mines work items, boards, and pipeline metadata into JSON.
-2. `generator-markdown` renders that JSON as `.md` files under `docs/generated`.
-3. The workflow commits any changes.
+1. `collector-ad` mines work items into `work-items.json`.
+2. `toolkit` normalizes that into the canonical dataset generators consume.
+3. `generator-markdown` renders it as `.md` files under `docs/generated`.
+4. The workflow commits any changes.
 
 ## 3. Combining with GitHub data
 
-If the same documentation set needs both Azure DevOps and GitHub sources, run both collectors and merge their output through [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) before the generator step — see [Architecture](../introduction/architecture.md).
+If the same documentation set needs both Azure DevOps and GitHub sources, run both collectors and let the single `toolkit` normalize step merge their output before the generator — see [Architecture](../introduction/architecture.md).
 
 ## Related
 

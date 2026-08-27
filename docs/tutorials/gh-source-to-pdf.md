@@ -50,14 +50,14 @@ jobs:
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-source.json --output pdf_ready.json
+          living-doc normalize-issues --input doc-source.json --output pdf_ready.json   # renamed to generator-ready.json in a coming release
 
-      # 3. GENERATE PDF — pick the template for the document you want
+      # 3. GENERATE PDF — pick the document-type for the document you want
       - name: Generate PDF
         uses: AbsaOSS/living-doc-generator-pdf@v1
         with:
-          template: user-stories        # or: ui-test-catalog | coverage-matrix
           source-path: pdf_ready.json
+          document-type: user-stories        # or: ui-test-catalog | coverage-matrix
           output-path: reports/living-doc.pdf
 
       # 4. UPLOAD
@@ -77,7 +77,7 @@ jobs:
 
 ## 4. Other report types
 
-Swap `template:` to `ui-test-catalog` or `coverage-matrix` — see the
+Swap `document-type:` to `ui-test-catalog` or `coverage-matrix` — see the
 [project README](https://github.com/AbsaOSS/living-doc-generator-pdf) for the current template set,
 and [Living Documentation Document Types](../guides/living-doc-document-types.md) for what each one
 contains and needs.

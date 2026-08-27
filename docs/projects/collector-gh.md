@@ -25,7 +25,7 @@ All three modes mine content authored in the shared format described in [Living 
 ## Inputs / Outputs
 
 - **Inputs:**
-  - `GITHUB-TOKEN` (required) — token with read access to every repository and project the enabled modes touch.
+  - `github-token` (required) — token with read access to every repository and project the enabled modes touch.
   - Mode toggles: `doc-issues`, `doc-source`, `ui-tests` — enable at least one.
   - Per-mode repository lists: `doc-issues-repositories`, `doc-source-repositories`, `ui-tests-repositories` — a JSON array of objects carrying `organization-name`, `repository-name`, and mode-specific path/filter fields (e.g. `us-paths` / `func-paths` / `pages-paths` for `doc-source`, `projects-title-filter` for `doc-issues`).
   - Options: `doc-issues-project-state-mining` (pull GitHub Projects state into `doc-issues`), `verbose-logging`.
@@ -35,7 +35,7 @@ For the exact, current list of action inputs/outputs and each mode's configurati
 
 ## Where it fits
 
-First collection stage of the pipeline — feeds [living-doc-toolkit](toolkit.md) or a generator directly. Upstream of it, [agentic-toolkit](agentic-toolkit.md)'s `living-doc-bdd-copilot` agent is what authors the User Story / Feature / Functionality entities — as issue bodies or as `.feature` / PageObject files — that this collector's modes mine. See [Architecture](../introduction/architecture.md) for where this collector sits in the pipeline.
+First collection stage of the pipeline — its JSON output feeds [living-doc-toolkit](toolkit.md), which normalizes it into the canonical dataset generators consume. Upstream of it, [agentic-toolkit](agentic-toolkit.md)'s `living-doc-bdd-copilot` agent is what authors the User Story / Feature / Functionality entities — as issue bodies or as `.feature` / PageObject files — that this collector's modes mine. See [Architecture](../introduction/architecture.md) for where this collector sits in the pipeline.
 
 ## Used in
 

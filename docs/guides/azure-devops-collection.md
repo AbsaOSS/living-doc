@@ -1,12 +1,12 @@
 # Collecting from Azure DevOps
 
-[living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) mines an Azure DevOps organization for work items, boards, and pipeline metadata, and emits the same JSON shape used across the ecosystem.
+[living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) mines an Azure DevOps organization for work items and emits the same JSON shape used across the ecosystem.
 
 ## What it collects
 
 - Work items (title, description, state, type, assigned board/area)
-- Boards (structure and item placement)
-- Pipeline metadata
+
+Boards, pipelines, test plans, and release notes are planned collector modes — specced in the project README, not yet built. Azure DevOps scope for v1 is re-evaluated after the v1 pre-release (see [Roadmap](../specs/roadmap.md)).
 
 ## When to use it
 
@@ -27,4 +27,4 @@ Refer to the [project README](https://github.com/AbsaOSS/living-doc-collector-ad
 
 ## Feeding it forward
 
-Like the GitHub collector, output is JSON consumed by a generator directly or normalized first via [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) — useful when a documentation set needs to combine Azure DevOps and GitHub data in one output. See [Architecture](../introduction/architecture.md).
+Like the GitHub collector, the output is JSON that always passes through [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit)'s normalize step next — generators consume `toolkit`'s canonical dataset, not raw collector output. Normalizing is also where Azure DevOps and GitHub data get combined into one documentation set. See [Architecture](../introduction/architecture.md).

@@ -4,7 +4,7 @@
 **Role:** Authoring acceleration (optional — AI agent + skills)
 **Type:** AI Agent Skills library (Copilot/Claude/Cursor-compatible)
 
-> **Not a dependency.** The Living Documentation pipeline (collect → normalize → generate) runs entirely AI-free — every `living-doc-*` repo is deterministic Python/JSON/template tooling. `agentic-toolkit` accelerates the one step upstream of all of it (authoring User Stories, Features, Functionalities, and their Gherkin scenarios); a human writing the identical content by hand is an equally valid, fully-supported path. See [Architecture](../specs/architecture.md) §4.5.
+> **Not a dependency.** The Living Documentation pipeline (collect → normalize → generate) runs entirely AI-free — every `living-doc-*` repo is deterministic Python/JSON/template tooling. `agentic-toolkit` accelerates the one step upstream of all of it (authoring User Stories, Features, Functionalities, and their Gherkin scenarios); a human writing the identical content by hand is an equally valid, fully-supported path. See [Architecture](../specs/architecture.md) §4.
 
 ## Purpose
 
@@ -14,7 +14,7 @@ That agent is what an engineer runs to **author** User Story, Feature, and Funct
 
 ## Where it fits
 
-First stage of the pipeline, upstream of [collector-gh](collector-gh.md). See [Architecture](../specs/architecture.md) §4.5.
+First stage of the pipeline, upstream of [collector-gh](collector-gh.md). See [Architecture](../specs/architecture.md) §4.
 
 ## Why it matters to this ecosystem specifically
 

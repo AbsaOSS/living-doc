@@ -11,10 +11,11 @@ Renders the canonical Living Documentation dataset as plain Markdown files — o
 
 ## Where it fits
 
-Final stage of the pipeline, consuming output from [living-doc-toolkit](toolkit.md) (or a collector directly). See [Architecture](../introduction/architecture.md).
+Final stage of the pipeline, consuming the canonical dataset produced by [living-doc-toolkit](toolkit.md). See [Architecture](../introduction/architecture.md).
 
 ## Used in
 
 - [Choosing a Generator](../guides/choosing-a-generator.md)
 - [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md)
+- [GitHub Source Code → Markdown](../tutorials/gh-source-to-markdown.md)
 - [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md)

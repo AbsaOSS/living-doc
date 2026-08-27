@@ -1,6 +1,6 @@
 # Choosing a Generator
 
-All generators consume the same upstream data (canonical dataset or, in one case, collector output directly) and differ only in what they render. Pick based on where the output needs to live.
+All generators consume the same upstream data — the canonical dataset `toolkit` produces from collector output — and differ only in what they render. Pick based on where the output needs to live.
 
 | Generator | Output | Best for | Status |
 |---|---|---|---|

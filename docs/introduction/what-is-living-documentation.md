@@ -10,7 +10,7 @@ Hand-written documentation drifts from reality: a wiki page or design doc is acc
 
 Instead of asking people to write and update docs, Living Documentation treats the source system — GitHub issues, Azure DevOps work items — as the source of truth, and regenerates documentation from it on a schedule or on every change:
 
-1. **Collect** — pull structured data (issues, labels, work items, boards) out of the source system.
+1. **Collect** — pull structured data (issues, labels, work items) out of the source system.
 2. **Normalize** — transform that data into one canonical shape, regardless of where it came from.
 3. **Generate** — render the canonical data into a target format: Markdown, or PDF reports.
 

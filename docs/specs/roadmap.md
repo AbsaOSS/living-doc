@@ -99,10 +99,12 @@ The specs found the same drift — in READMEs, `CONTRIBUTING.md`, `copilot-instr
 - [ ] Transfer schema ownership for `doc-source-v1.0.0` and `ui-tests-v1.0.0` from `toolkit` (de facto today) to `collector-gh` (the intended owner); re-label `toolkit`'s copies as owner-sourced validation copies. *Ref: [Data Flows & Schemas](data-flows.md) §3.1.*
 - [ ] Re-run `toolkit coverage-matrix`'s golden tests against this real collector output, not just the hand-built fixtures used today.
 
-## Phase 3 — Wire `generator-pdf` onto the canonical contract as the primary path
+## Phase 3 — Wire `generator-pdf` onto the canonical contract as the only supported path
 
-- [ ] Add `generator-ready-v1.0.0-schema.json` to `generator-pdf/generator/schemas/`; document it in `README.md` as the recommended `document-type: user-stories` source (today's docs point at the raw collector schema instead).
-- [ ] Update `generator-pdf/README.md`'s Quick Start to show `collector-gh → toolkit normalize-issues → generator-pdf`, not `collector-gh → generator-pdf` directly.
+Design rule (repo owner, 2026-08-27): **collector output is not directly consumable by a generator — normalization through `toolkit` is always required.** `generator-pdf` technically renders any JSON at `source-path` today, but the raw-collector-schema path stops being a documented option.
+
+- [ ] Add `generator-ready-v1.0.0-schema.json` to `generator-pdf/generator/schemas/` and point `generator-pdf`'s `document-type` template sets at it; retire the raw `doc-issues` schema from the docs as an input option (keep it only as a `schema-path` a user can pass explicitly).
+- [ ] Update `generator-pdf/README.md`'s Quick Start to show `collector-gh → toolkit normalize-issues → generator-pdf`; remove any `collector-gh → generator-pdf` direct example.
 - [ ] Confirm (or add) a `document-type: ui-test-catalog` and `document-type: coverage-matrix` path, both consuming `toolkit`-produced output, completing PDF delivery for all three v1 content types.
 - [ ] Decide where the technical project's **inner vs release view** filter lives (a `toolkit` normalize option vs a generator input) and specify the exact filter rule — drop `planned` / `in_review` entities and ACs; drop ACs no longer `active` (delivered, then deprecated). Document it in [Living Documentation Document Types](../guides/living-doc-document-types.md) once real, replacing that page's current "how it is selected is a generator input" placeholder.
 

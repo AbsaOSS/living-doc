@@ -57,7 +57,7 @@ on it.
 The view is a generation-time filter over the same mined data — no separate authoring. How it is
 selected is a generator input; see the generator's README.
 
-**Generator template:** `user-stories`.
+**Generator input:** `document-type: user-stories`.
 
 ---
 
@@ -85,7 +85,7 @@ mode *(specced in `collector-gh/SPEC.md`, not yet built)*.
 and carry `@AC:` tags. A test catalog can be produced without a technical project, but it is far more
 useful alongside one.
 
-**Generator template:** `ui-test-catalog`.
+**Generator input:** `document-type: ui-test-catalog`.
 
 ---
 
@@ -108,7 +108,7 @@ ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined
 - a test catalog whose scenarios tag those same AC IDs,
 - both mined from the same repository, or [merged into one dataset](../specs/data-flows.md) (§8) if they come from different sources.
 
-**Generator template:** `coverage-matrix`.
+**Generator input:** `document-type: coverage-matrix`.
 
 ---
 

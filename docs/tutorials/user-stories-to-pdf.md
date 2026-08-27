@@ -24,10 +24,21 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
 
+      # NORMALIZE — required: generator-pdf consumes toolkit's canonical dataset, not raw collector output
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Normalize (toolkit)
+        run: |
+          pip install living-doc-toolkit
+          living-doc normalize-issues --input doc-issues.json --output pdf_ready.json   # renamed to generator-ready.json in a coming release
+
       - name: Generate PDF
         uses: AbsaOSS/living-doc-generator-pdf@v1
         with:
-          template: user-stories
+          source-path: pdf_ready.json
+          document-type: user-stories
           output-path: reports/user-stories.pdf
 
       - name: Upload report
@@ -41,13 +52,14 @@ This example triggers manually (`workflow_dispatch`) since PDF reports are typic
 
 ## 2. What happens on each run
 
-1. `collector-gh` mines issues into JSON.
-2. `generator-pdf` renders that JSON into a PDF using a Jinja2 template (`user-stories` here; the action also supports templates for UI test catalogs and coverage matrices).
-3. The PDF is uploaded as a workflow artifact — attach a publish/notify step if it needs to reach a wider audience.
+1. `collector-gh` mines issues into `doc-issues.json`.
+2. `toolkit` normalizes that into the canonical dataset.
+3. `generator-pdf` renders it to a PDF with the `user-stories` template set (`document-type` also accepts `ui-test-catalog` and `coverage-matrix`).
+4. The PDF is uploaded as a workflow artifact — attach a publish/notify step if it needs to reach a wider audience.
 
 ## 3. Other report types
 
-Swap the `template` input to produce a UI test catalog or coverage matrix instead — see the [project README](https://github.com/AbsaOSS/living-doc-generator-pdf) for the current set of built-in templates and how to customize one.
+Swap the `document-type` input to `ui-test-catalog` or `coverage-matrix` instead — see the [project README](https://github.com/AbsaOSS/living-doc-generator-pdf) for the current set of built-in templates and how to customize one with `template-path`.
 
 ## Related
 

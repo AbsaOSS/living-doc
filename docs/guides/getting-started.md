@@ -7,7 +7,7 @@ This guide walks through assembling your first Living Documentation pipeline: pi
 | Your source | Use |
 |---|---|
 | GitHub repository issues/labels | [living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) |
-| Azure DevOps work items/boards/pipelines | [living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) |
+| Azure DevOps work items | [living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) |
 
 See [Collecting from GitHub](github-collection.md) or [Collecting from Azure DevOps](azure-devops-collection.md) for setup details.
 
@@ -57,7 +57,7 @@ jobs:
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-issues.json --output pdf_ready.json
+          living-doc normalize-issues --input doc-issues.json --output pdf_ready.json   # renamed to generator-ready.json in a coming release
 
       - name: Generate Markdown
         uses: AbsaOSS/living-doc-generator-markdown@v1
@@ -76,7 +76,7 @@ jobs:
 
 A few things to note about these inputs:
 
-- `doc-issues.json` / `pdf_ready.json` are `collector-gh`'s and `toolkit`'s current documented file names (`pdf_ready.json` is slated to be renamed `generator-ready.json` — see [Data Flows & Schemas](../specs/data-flows.md) — but that migration hasn't shipped yet, so use `pdf_ready.json` today).
+- `doc-issues.json` / `pdf_ready.json` are `collector-gh`'s and `toolkit`'s current documented file names (`pdf_ready.json` is slated to be renamed `generator-ready.json` — see [Data Flows & Schemas](../specs/data-flows.md) §5 — but that migration hasn't shipped yet, so use `pdf_ready.json` today).
 - `living-doc normalize-issues` is `toolkit`'s actual CLI command, taking `--input`/`--output` file paths — this is a workflow step like any other, not a local-only affordance.
 - Swap the collector/generator `uses:` steps for the ones you picked in steps 1–2 above; each project's own README documents its exact action inputs and outputs, which evolve faster than this guide.
 

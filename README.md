@@ -40,10 +40,10 @@ Content can be authored by hand or AI-accelerated — the pipeline itself always
 
 | Source | Objects | Status |
 |---|---|---|
-| GitHub | Issues(User Stories, Features, Functionalities), labels | Available |
+| GitHub | Issues (User Stories, Features, Functionalities), labels | Available |
+| Source code | User Stories, Features, Functionalities, Gherkin test scenarios | Specced, not yet built |
 | Azure DevOps | Work items | Planned |
 | Azure DevOps | Boards, pipelines, test plans, release notes | Planned |
-| Source code | User Stories, Features, Functionalities, Gherkin test scenarios | Available |
 
 ### Document types
 

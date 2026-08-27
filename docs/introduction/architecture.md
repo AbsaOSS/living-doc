@@ -8,7 +8,7 @@ The ecosystem is split into three stages — **collect**, **normalize**, **gener
 flowchart LR
     subgraph Sources
         GH[(GitHub Issues & Labels,<br/>Repository Source Code)]
-        AD[(Azure DevOps<br/>Work Items, Boards, Pipelines)]
+        AD[(Azure DevOps<br/>Work Items)]
     end
 
     subgraph Collect
@@ -49,7 +49,7 @@ flowchart LR
 
 | Stage | Project(s) | Responsibility |
 |---|---|---|
-| Collect | `collector-gh`, `collector-ad` | Talk to one source system's API, mine issues/work items/labels/pipelines/source code, emit JSON. |
+| Collect | `collector-gh`, `collector-ad` | Talk to one source system's API, mine issues / work items / labels / source code, emit JSON. |
 | Shared model | `utilities` | Define the data models and (de)serialization logic every other project imports, so collector output and generator input agree on shape. |
 | Normalize | `toolkit` | Take one or more collector outputs and produce a single canonical dataset — resolving format differences between sources. |
 | Generate | `generator-markdown`, `generator-pdf` | Take the canonical dataset and render one target format. |
