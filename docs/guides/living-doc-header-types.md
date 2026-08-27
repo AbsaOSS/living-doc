@@ -1,6 +1,9 @@
 # Living Doc Header Types
 
-Templates and schemas for BDD automation files: the Project Profile, the three living-doc header types (US Feature File, Functionality Feature File, PageObject File), and the two exploration artifacts (`seed.yaml`, `manifest.json`) that back them. A human can write any of these by hand — no AI agent required, see [agentic-toolkit](../projects/agentic-toolkit.md) — as long as the file follows the format below.
+Templates and schemas for BDD automation files. Two kinds of file are covered here:
+
+- **File headers you author** — the header blocks that carry a **User Story**, a **Feature**, or a **Functionality**. A human can write any of these by hand (no AI agent required — see [agentic-toolkit](../projects/agentic-toolkit.md)) as long as the file follows the format below.
+- **Tooling files the AI agent manages** — the Project Profile (`.project-profile.yaml`), `seed.yaml`, and `manifest.json`. The `agentic-toolkit` agent creates and maintains these as configuration and durable local memory between runs; they are not written by hand.
 
 For entity definitions (IDs, status vocabulary, AC format, relationship diagram), see [Living Doc Glossary](living-doc-glossary.md).
 
@@ -8,65 +11,41 @@ For entity definitions (IDs, status vocabulary, AC format, relationship diagram)
 
 ---
 
-## Project Profile (config-driven conventions)
+## Contents
 
-**Every value a skill could otherwise hardcode — directory names, the test-id attribute,
-state-casing, tag conventions — lives in one Project Profile file.** Tooling reads the profile at
-session start and never assumes defaults. This keeps the format portable across projects that use
-different directory layouts or naming.
+**File headers you author** — human-editable, one per entity:
 
-**Location:** `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`).
-`agentic-toolkit`'s agent creates it on first run from the defaults below and confirms each value with the user.
-If it already exists, it's loaded as-is.
+1. [User Story in a Gherkin Feature File](#1-user-story-in-a-gherkin-feature-file)
+2. [Feature in a PageObject File](#2-feature-in-a-pageobject-file)
+3. [Functionality in a Gherkin Feature File](#3-functionality-in-a-gherkin-feature-file)
 
-```yaml
-# .copilot/bdd/.project-profile.yaml — defaults shown match the reference (AUL) project.
-test_id_attribute: data-cy            # what page.getByTestId() resolves to (Playwright testIdAttribute)
+**Tooling files the AI agent manages** — not authored by hand:
 
-feature_dirs:
-  user_story:    features/liv_doc_us      # E2E User Story feature files
-  functionality: features/liv_doc_func    # Functionality (system-test) feature files
+- [Project Profile](#project-profile-config-driven-conventions) — config-driven conventions every skill reads
+- [seed.yaml](#seedyaml-business-seed) — the agent's business-surface memory between runs
+- [manifest.json](#manifestjson-exploration-manifest) — the agent's record of every scanned surface
 
-paths:
-  bdd_artifacts:  .copilot/bdd            # seed.yaml, manifest.json, breaking-changes.md
-  pageobjects:    playwright/pages
-  steps:          playwright/steps
-
-# AC state vocabulary as written inside `# AC:` blocks and feature-file headers (lowercase with underscores).
-ac_states: [planned, in_review, active, deprecated]
-
-# PageObject header `status:` vocabulary (lowercase).
-pageobject_statuses: [planned, candidate, active, deprecated]
-
-# Scenario tagging conventions (see "Feature file tags" below).
-scenario_conventions:
-  feature_tag:        true     # @US_ID:<id> / @FUNC_ID:<id> on the Feature
-  domain_tag:         true     # optional second feature-level tag, e.g. @domain_create
-  suite_tags:         ["@Regression"]   # additional scenario-level tags allowed beside @AC:
-  section_banners:    true     # "# *** Happy day scenarios ***" / "# *** Negative scenarios ***"
-
-manifest_shape: object         # manifest is an object with routes array (see Manifest schema)
-```
-
-| Field | Used by | Default (AUL) |
-|---|---|---|
-| `test_id_attribute` | pageobject-scan, data-cy-instrument, gherkin-step | `data-cy` |
-| `feature_dirs.user_story` | scenario-creator, gherkin-living-doc-sync, gap-finder, scripts | `features/liv_doc_us` |
-| `feature_dirs.functionality` | scenario-creator, pageobject-scan, gap-finder, scripts | `features/liv_doc_func` |
-| `paths.bdd_artifacts` | pageobject-scan, data-cy-instrument | `.copilot/bdd` |
-| `paths.pageobjects` / `paths.steps` | pageobject-scan, gherkin-step | `playwright/pages` / `playwright/steps` |
-| `ac_states` | all catalog skills, scenario-creator, gherkin-living-doc-sync | `active` etc. (lowercase with underscores) |
-| `pageobject_statuses` | pageobject-scan | `active` etc. (lowercase) |
-| `scenario_conventions` | scenario-creator, gherkin-living-doc-sync | as shown |
-
-> **Casing rule:** AC states use **lowercase with underscores** inside `# AC:` blocks and entity files
-> (e.g. `- active`, `- in_review`). PageObject header `status:` is also lowercase (`status: active`).
-> Wherever this document or a skill shows `ACTIVE`/`PLANNED` in upper-case prose, it refers to the
-> *logical* state; the *written* form is always lowercase with underscores.
+See also: [Repository adoption scope](#repository-adoption-scope).
 
 ---
 
-## 1. US Feature File Header
+## Repository adoption scope
+
+A repository does not have to adopt all three entity types. Pick the depth that matches how much
+structure the team wants to maintain — each scope is a superset of the one above it:
+
+| Scope | Headers you maintain | What it gives you |
+|---|---|---|
+| **User Stories only** | User Story feature file headers | Business requirements and their end-to-end acceptance criteria, tracked by version and status. No mapping to concrete system surfaces. |
+| **User Stories + Features** | + Feature (PageObject) file headers | Every User Story is traced to the UI/API surfaces that satisfy it. Orphaned surfaces and uncovered User Stories show up in gap reports. |
+| **User Stories + Features + Functionalities** | + Functionality feature file headers | Full atomic-behavior coverage: each surface is broken into fast-testable Functionalities, each with its own ACs and system-test scenarios. |
+
+Moving up a scope never invalidates what you already wrote — adding Features later does not change
+existing User Story headers, and adding Functionalities does not change Feature headers.
+
+---
+
+## 1. User Story in a Gherkin Feature File
 
 Header comment block at the top of every User Story feature file —
 `<feature_dirs.user_story>/us-<nnn>-<kebab>.feature` (default `features/liv_doc_us/`).
@@ -141,95 +120,7 @@ Feature: <US Title>
 
 ---
 
-## 2. Functionality Feature File Header
-
-Header comment block at the top of every Functionality feature file —
-`<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
-
-```gherkin
-# =============================================================================
-# LIVING DOC — FUNC-<nnn> · <Feature Name> — <Functionality Name>
-# =============================================================================
-# source:    https://github.com/<org>/<repo>/issues/<n>          ← optional
-# status:    planned | in_review | active | deprecated
-# parent:    FEAT-<nnn>
-# func_type: component_state | component_action | button_action |
-#            field_validation | calculation | visibility | navigation_rule
-# rationale:                                                     ← optional
-#   - <why this FUNC is scoped this way — business or design decision context>
-# preconditions:                                                 ← optional; inherited by all ACs
-#   - <system state required before test>
-# not_in_scope:                                                  ← optional; inherited by all ACs
-#   - <exclusion>
-#
-# acceptance_criteria:
-#
-#   AC:FUNC-<nnn>-01 (v<version> - <State>)
-#     - <description in business language — no data-cy IDs in AC text>
-#     - Aspect: <value1>, <value2>        ← optional; default keyword — no {placeholder} needed
-#     preconditions:                      ← optional; extends feature-level preconditions for this AC only
-#       - <AC-specific precondition>
-#     not_in_scope:                       ← optional; extends feature-level not_in_scope for this AC only
-#       - <AC-specific exclusion>
-#
-#   AC:FUNC-<nnn>-02 (v<version> - <State>)
-#     - <description — may contain a {placeholder-name} for parameterised variants>
-#     - <placeholder-name>: <value1>, <value2>  ← optional; custom keyword — matches {placeholder-name} in AC text; ALL values must be covered
-# =============================================================================
-
-@FUNC_ID:FUNC-<nnn>
-Feature: <Feature Name> — <Functionality Name>
-  <Purpose: one-to-two sentences describing what this FUNC covers, in business
-  language. Present only when purpose adds context beyond the title.>   ← optional
-
-  # No scenarios yet — uncovered ACs flagged by coverage_report.py.
-  # When adding scenarios: include # AC:<id> comment and @AC:<id> or @AC:<id>/<placeholder-name>:<value> tag above each Scenario.
-  # ACs with a {placeholder-name}: one scenario per declared value is required — partial coverage is a gap.
-```
-
-**Header fields:**
-
-| Field | Required | Purpose |
-|---|---|---|
-| `# source:` | Optional | Link to the original issue tracker entry or the pre-BDD living doc location |
-| `# status:` | Yes | `planned` · `in_review` · `active` · `deprecated` (lowercase with underscores per profile `ac_states`) |
-| `# parent:` | Yes | Parent Feature ID (`FEAT-<nnn>`) |
-| `# func_type:` | Yes | Category of behavior this Functionality represents (see table below) |
-| `# rationale:` | Optional | **Why** this FUNC is scoped the way it is — business context, a deliberate design decision, or a constraint that explains the boundary. Not for implementation notes. |
-| `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
-| `# not_in_scope:` | Optional | Explicit exclusions at FUNC level; inherited and extended by all ACs |
-| `# acceptance_criteria:` | Yes | Full AC listing in business language — do not include `data-cy` IDs or implementation names in AC text; each AC may extend inherited preconditions and not_in_scope |
-| `@FUNC_ID:FUNC-<nnn>` tag | Yes | Machine-parseable Functionality ID (feature-level tag) |
-| Feature description (below `Feature:`) | Optional | One-to-two sentence purpose in business language. Use when the title alone is not self-explanatory. |
-
-**`func_type` values:**
-
-| Value | What it documents | PageObject anchor |
-|---|---|---|
-| `component_state` | Visible state of elements on load (presence, enabled/disabled, default text) AND what a data-bound component renders per data state (populated, empty, error) | `constructor` locators, data-bearing locators |
-| `component_action` | Observable response within a self-contained component to an internal interaction — no discrete button, no system-level side effect (e.g. live search, autocomplete, accordion, carousel, tab content) | Component input/state locators |
-| `button_action` | Observable outcome(s) after a specific discrete control is triggered — may span multiple resulting steps (e.g. redirect, entity created, dialog opened) | `btn-*` locators |
-| `field_validation` | Rule enforced on a single field's value — inline error, enabled state, accepted/rejected input | `input-*` locators |
-| `calculation` | Value computed and displayed from one or more inputs, independent of form submission | Display-only locators |
-| `visibility` | Element presence, content, or enabled state conditional on a runtime state — condition is optional context and may be role, prior action, data presence, or config (e.g. owner sees action buttons, section appears after step complete) | Any conditional locator |
-| `navigation_rule` | When and where the app routes, driven by action or system state — only when routing has a distinct precondition or business rule | Route assertion |
-
-**Scoping rules:**
-
-- **One FUNC, one cause.** If two behaviors share a trigger, they are one FUNC with two ACs. If two behaviors have different triggers, they are two FUNCs.
-- **`component_state`** — scope to a logical group, not individual elements. "Login form controls on load" is one FUNC. Do not write one FUNC per locator. For data-bound components, each distinct data state (populated / empty / error) is an AC on the same FUNC, not a separate FUNC.
-- **`component_action`** — one FUNC per distinct component behavior. If the same component has multiple independent internal behaviors (live search AND column sort), they are separate FUNCs.
-- **`button_action`** — one FUNC per distinct button. A button that produces multiple observable steps is still one FUNC; the steps become multiple ACs. Two buttons = two FUNCs. Form submission is `button_action` — the trigger is the submit control.
-- **`field_validation`** — one FUNC per distinct validation rule, not one per field. The same rule applied to multiple fields = one FUNC with a `{field}` placeholder AC.
-- **`calculation`** — only when the derived value is observable independently of a submission. If the result only appears after a form submit, it is an AC on the `button_action` FUNC.
-- **`visibility`** — use when an element's presence or state depends on a condition. The condition is descriptive context in the AC, not a required field. Distinct from `component_state` (always-true on load) and `component_action` (response to interaction).
-- **`navigation_rule`** — only for routing behaviors with a distinct precondition or business rule. A redirect that is always the result of a button action is an AC on that `button_action` FUNC, not a separate `navigation_rule`.
-
-> `test_type` (unit vs integration vs system) is NOT a FUNC header field — it belongs at scenario level as a tag (e.g. `@test_type:system`).
-
----
-
-## 3. PageObject File Header
+## 2. Feature in a PageObject File
 
 Every PageObject file opens with a living-doc header block. Use this format so each file is self-describing and traceable without opening a separate registry.
 
@@ -383,12 +274,160 @@ A `status: candidate` surface is **not a permanent state** — it is a living-do
 
 ---
 
+## 3. Functionality in a Gherkin Feature File
+
+Header comment block at the top of every Functionality feature file —
+`<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
+
+```gherkin
+# =============================================================================
+# LIVING DOC — FUNC-<nnn> · <Feature Name> — <Functionality Name>
+# =============================================================================
+# source:    https://github.com/<org>/<repo>/issues/<n>          ← optional
+# status:    planned | in_review | active | deprecated
+# parent:    FEAT-<nnn>
+# func_type: component_state | component_action | button_action |
+#            field_validation | calculation | visibility | navigation_rule
+# rationale:                                                     ← optional
+#   - <why this FUNC is scoped this way — business or design decision context>
+# preconditions:                                                 ← optional; inherited by all ACs
+#   - <system state required before test>
+# not_in_scope:                                                  ← optional; inherited by all ACs
+#   - <exclusion>
+#
+# acceptance_criteria:
+#
+#   AC:FUNC-<nnn>-01 (v<version> - <State>)
+#     - <description in business language — no data-cy IDs in AC text>
+#     - Aspect: <value1>, <value2>        ← optional; default keyword — no {placeholder} needed
+#     preconditions:                      ← optional; extends feature-level preconditions for this AC only
+#       - <AC-specific precondition>
+#     not_in_scope:                       ← optional; extends feature-level not_in_scope for this AC only
+#       - <AC-specific exclusion>
+#
+#   AC:FUNC-<nnn>-02 (v<version> - <State>)
+#     - <description — may contain a {placeholder-name} for parameterised variants>
+#     - <placeholder-name>: <value1>, <value2>  ← optional; custom keyword — matches {placeholder-name} in AC text; ALL values must be covered
+# =============================================================================
+
+@FUNC_ID:FUNC-<nnn>
+Feature: <Feature Name> — <Functionality Name>
+  <Purpose: one-to-two sentences describing what this FUNC covers, in business
+  language. Present only when purpose adds context beyond the title.>   ← optional
+
+  # No scenarios yet — uncovered ACs flagged by coverage_report.py.
+  # When adding scenarios: include # AC:<id> comment and @AC:<id> or @AC:<id>/<placeholder-name>:<value> tag above each Scenario.
+  # ACs with a {placeholder-name}: one scenario per declared value is required — partial coverage is a gap.
+```
+
+**Header fields:**
+
+| Field | Required | Purpose |
+|---|---|---|
+| `# source:` | Optional | Link to the original issue tracker entry or the pre-BDD living doc location |
+| `# status:` | Yes | `planned` · `in_review` · `active` · `deprecated` (lowercase with underscores per profile `ac_states`) |
+| `# parent:` | Yes | Parent Feature ID (`FEAT-<nnn>`) |
+| `# func_type:` | Yes | Category of behavior this Functionality represents (see table below) |
+| `# rationale:` | Optional | **Why** this FUNC is scoped the way it is — business context, a deliberate design decision, or a constraint that explains the boundary. Not for implementation notes. |
+| `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
+| `# not_in_scope:` | Optional | Explicit exclusions at FUNC level; inherited and extended by all ACs |
+| `# acceptance_criteria:` | Yes | Full AC listing in business language — do not include `data-cy` IDs or implementation names in AC text; each AC may extend inherited preconditions and not_in_scope |
+| `@FUNC_ID:FUNC-<nnn>` tag | Yes | Machine-parseable Functionality ID (feature-level tag) |
+| Feature description (below `Feature:`) | Optional | One-to-two sentence purpose in business language. Use when the title alone is not self-explanatory. |
+
+**`func_type` values:**
+
+| Value | What it documents | PageObject anchor |
+|---|---|---|
+| `component_state` | Visible state of elements on load (presence, enabled/disabled, default text) AND what a data-bound component renders per data state (populated, empty, error) | `constructor` locators, data-bearing locators |
+| `component_action` | Observable response within a self-contained component to an internal interaction — no discrete button, no system-level side effect (e.g. live search, autocomplete, accordion, carousel, tab content) | Component input/state locators |
+| `button_action` | Observable outcome(s) after a specific discrete control is triggered — may span multiple resulting steps (e.g. redirect, entity created, dialog opened) | `btn-*` locators |
+| `field_validation` | Rule enforced on a single field's value — inline error, enabled state, accepted/rejected input | `input-*` locators |
+| `calculation` | Value computed and displayed from one or more inputs, independent of form submission | Display-only locators |
+| `visibility` | Element presence, content, or enabled state conditional on a runtime state — condition is optional context and may be role, prior action, data presence, or config (e.g. owner sees action buttons, section appears after step complete) | Any conditional locator |
+| `navigation_rule` | When and where the app routes, driven by action or system state — only when routing has a distinct precondition or business rule | Route assertion |
+
+**Scoping rules:**
+
+- **One FUNC, one cause.** If two behaviors share a trigger, they are one FUNC with two ACs. If two behaviors have different triggers, they are two FUNCs.
+- **`component_state`** — scope to a logical group, not individual elements. "Login form controls on load" is one FUNC. Do not write one FUNC per locator. For data-bound components, each distinct data state (populated / empty / error) is an AC on the same FUNC, not a separate FUNC.
+- **`component_action`** — one FUNC per distinct component behavior. If the same component has multiple independent internal behaviors (live search AND column sort), they are separate FUNCs.
+- **`button_action`** — one FUNC per distinct button. A button that produces multiple observable steps is still one FUNC; the steps become multiple ACs. Two buttons = two FUNCs. Form submission is `button_action` — the trigger is the submit control.
+- **`field_validation`** — one FUNC per distinct validation rule, not one per field. The same rule applied to multiple fields = one FUNC with a `{field}` placeholder AC.
+- **`calculation`** — only when the derived value is observable independently of a submission. If the result only appears after a form submit, it is an AC on the `button_action` FUNC.
+- **`visibility`** — use when an element's presence or state depends on a condition. The condition is descriptive context in the AC, not a required field. Distinct from `component_state` (always-true on load) and `component_action` (response to interaction).
+- **`navigation_rule`** — only for routing behaviors with a distinct precondition or business rule. A redirect that is always the result of a button action is an AC on that `button_action` FUNC, not a separate `navigation_rule`.
+
+> `test_type` (unit vs integration vs system) is NOT a FUNC header field — it belongs at scenario level as a tag (e.g. `@test_type:system`).
+
+---
+
+## Project Profile (config-driven conventions)
+
+**Every value a skill could otherwise hardcode — directory names, the test-id attribute,
+state-casing, tag conventions — lives in one Project Profile file.** Tooling reads the profile at
+session start and never assumes defaults. This keeps the format portable across projects that use
+different directory layouts or naming. `agentic-toolkit`'s agent creates it on first run from the
+defaults below (confirming each value with the user) and loads it as-is thereafter — it is not a file
+you are expected to write from scratch.
+
+**Location:** `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`).
+
+```yaml
+# .copilot/bdd/.project-profile.yaml — defaults shown match the reference (AUL) project.
+test_id_attribute: data-cy            # what page.getByTestId() resolves to (Playwright testIdAttribute)
+
+feature_dirs:
+  user_story:    features/liv_doc_us      # E2E User Story feature files
+  functionality: features/liv_doc_func    # Functionality (system-test) feature files
+
+paths:
+  bdd_artifacts:  .copilot/bdd            # seed.yaml, manifest.json, breaking-changes.md
+  pageobjects:    playwright/pages
+  steps:          playwright/steps
+
+# AC state vocabulary as written inside `# AC:` blocks and feature-file headers (lowercase with underscores).
+ac_states: [planned, in_review, active, deprecated]
+
+# PageObject header `status:` vocabulary (lowercase).
+pageobject_statuses: [planned, candidate, active, deprecated]
+
+# Scenario tagging conventions (see "Feature file tags" below).
+scenario_conventions:
+  feature_tag:        true     # @US_ID:<id> / @FUNC_ID:<id> on the Feature
+  domain_tag:         true     # optional second feature-level tag, e.g. @domain_create
+  suite_tags:         ["@Regression"]   # additional scenario-level tags allowed beside @AC:
+  section_banners:    true     # "# *** Happy day scenarios ***" / "# *** Negative scenarios ***"
+
+manifest_shape: object         # manifest is an object with routes array (see Manifest schema)
+```
+
+| Field | Used by | Default (AUL) |
+|---|---|---|
+| `test_id_attribute` | pageobject-scan, data-cy-instrument, gherkin-step | `data-cy` |
+| `feature_dirs.user_story` | scenario-creator, gherkin-living-doc-sync, gap-finder, scripts | `features/liv_doc_us` |
+| `feature_dirs.functionality` | scenario-creator, pageobject-scan, gap-finder, scripts | `features/liv_doc_func` |
+| `paths.bdd_artifacts` | pageobject-scan, data-cy-instrument | `.copilot/bdd` |
+| `paths.pageobjects` / `paths.steps` | pageobject-scan, gherkin-step | `playwright/pages` / `playwright/steps` |
+| `ac_states` | all catalog skills, scenario-creator, gherkin-living-doc-sync | `active` etc. (lowercase with underscores) |
+| `pageobject_statuses` | pageobject-scan | `active` etc. (lowercase) |
+| `scenario_conventions` | scenario-creator, gherkin-living-doc-sync | as shown |
+
+> **Casing rule:** AC states use **lowercase with underscores** inside `# AC:` blocks and entity files
+> (e.g. `- active`, `- in_review`). PageObject header `status:` is also lowercase (`status: active`).
+> Wherever this document or a skill shows `ACTIVE`/`PLANNED` in upper-case prose, it refers to the
+> *logical* state; the *written* form is always lowercase with underscores.
+
+---
+
 ## seed.yaml (Business Seed)
 
-`seed.yaml` lives at `<paths.bdd_artifacts>/seed.yaml` (default `.copilot/bdd/seed.yaml`). It is the
-durable, human-curated input to every scan session: app entry point, business domains → routes,
-known entities for parameterised routes, test-user roles, and pre-declared form values. It should be
-re-read in full at the start of every scan session; `agentic-toolkit`'s agent appends to it as it discovers entities.
+`seed.yaml` lives at `<paths.bdd_artifacts>/seed.yaml` (default `.copilot/bdd/seed.yaml`). It is **the
+agent's local memory, not a human-authored file** — its durable record of the app's business surface
+between scan sessions: app entry point, business domains → routes, known entities for parameterised
+routes, test-user roles, and pre-declared form values. The agent creates it, re-reads it in full at
+the start of every scan session, and appends to it as it discovers entities. A human may pre-seed
+known values or correct them, but is not expected to write the file.
 
 ```yaml
 # .copilot/bdd/seed.yaml
@@ -502,7 +541,8 @@ manifest route's optional `field_constraints[]` (see below).
 ## manifest.json (Exploration Manifest)
 
 `manifest.json` lives at `<paths.bdd_artifacts>/manifest.json` (default `.copilot/bdd/manifest.json`).
-It is the machine record of every scanned surface. The manifest is a JSON object; **`routes` is a JSON array** of route objects
+It is **the agent's local memory, not a human-authored file** — its machine record of every scanned
+surface, written and read by the tooling across runs. The manifest is a JSON object; **`routes` is a JSON array** of route objects
 (profile `manifest_shape: object`). Targeted entries are loaded by route during a session; the full file
 is loaded only for a RE-SCAN.
 

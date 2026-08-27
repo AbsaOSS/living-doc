@@ -18,7 +18,7 @@ First stage of the pipeline, upstream of [collector-gh](collector-gh.md). See [A
 
 ## Why it matters to this ecosystem specifically
 
-`living-doc` (this docs repo) is the source of truth for the entity/AC/header-block format the whole ecosystem shares: [Living Doc Glossary](../guides/living-doc-glossary.md) (entity definitions, IDs, AC/tag grammar) and [Living Doc Header Types](../guides/living-doc-header-types.md) (the Project Profile and the three living-doc header types — **US Feature File Header**, **Functionality Feature File Header**, **PageObject File Header** — plus `seed.yaml`/`manifest.json`). `agentic-toolkit`'s non-task companion skill, `shared` (`skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md`), is synced from these two pages, and every other skill in the family imports it.
+`living-doc` (this docs repo) is the source of truth for the entity/AC/header-block format the whole ecosystem shares: [Living Doc Glossary](../guides/living-doc-glossary.md) (entity definitions, IDs, AC/tag grammar) and [Living Doc Header Types](../guides/living-doc-header-types.md) (the three living-doc header types — **User Story in a Gherkin Feature File**, **Feature in a PageObject File**, **Functionality in a Gherkin Feature File** — plus the Project Profile and `seed.yaml`/`manifest.json`). `agentic-toolkit`'s non-task companion skill, `shared` (`skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md`), is synced from these two pages, and every other skill in the family imports it.
 
 ## Used in
 

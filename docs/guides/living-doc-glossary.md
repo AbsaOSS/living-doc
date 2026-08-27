@@ -8,6 +8,18 @@ For the file-header schemas that carry these entities (feature file headers, Pag
 
 ---
 
+## Contents
+
+- [Core entities](#core-entities)
+  - [User Story (US)](#user-story-us)
+  - [Feature](#feature)
+  - [Functionality (FUNC)](#functionality-func)
+  - [Acceptance Criterion (AC)](#acceptance-criterion-ac)
+- [Relationship diagram](#relationship-diagram)
+- [What each `living-doc-bdd-copilot` skill creates or consumes](#what-each-living-doc-bdd-copilot-skill-creates-or-consumes)
+
+---
+
 ## Core entities
 
 ### User Story (US)
@@ -30,7 +42,7 @@ so that <business outcome>.
   - `deprecation_reason` — why it was deprecated
   - `superseded_by` — ID of the replacement entity (optional)
 
-> Feature file template: see [Living Doc Header Types — US Feature File Header](living-doc-header-types.md#1-us-feature-file-header).
+> Feature file template: see [Living Doc Header Types — User Story in a Gherkin Feature File](living-doc-header-types.md#1-user-story-in-a-gherkin-feature-file).
 
 ### Feature
 
@@ -57,7 +69,7 @@ A named system surface — the structural layer between User Stories and atomic 
   - `owner_changed_at` — date of ownership transfer
   - `owner_change_reason` — reason for the transfer
 
-> PageObject file header schemas (full header, cross-reference, operational notes, common mistakes): see [Living Doc Header Types — PageObject File Header](living-doc-header-types.md#3-pageobject-file-header).
+> PageObject file header schemas (full header, cross-reference, operational notes, common mistakes): see [Living Doc Header Types — Feature in a PageObject File](living-doc-header-types.md#2-feature-in-a-pageobject-file).
 
 ### Functionality (FUNC)
 
@@ -96,7 +108,7 @@ If an AC belongs to the wrong entity type, redirect:
 - AC too atomic / technical inside a US → move to a **Functionality**
 - AC describes a full user journey inside a FUNC → move to a **User Story**
 
-> Feature file template and `func_type` values: see [Living Doc Header Types — Functionality Feature File Header](living-doc-header-types.md#2-functionality-feature-file-header).
+> Feature file template and `func_type` values: see [Living Doc Header Types — Functionality in a Gherkin Feature File](living-doc-header-types.md#3-functionality-in-a-gherkin-feature-file).
 
 ### Acceptance Criterion (AC)
 

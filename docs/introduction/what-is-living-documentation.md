@@ -22,4 +22,5 @@ Because the pipeline runs automatically (e.g. as a scheduled GitHub Action), the
 - **Docs as a build artifact.** Documentation is generated output, checked or published like any other pipeline artifact — not a file people edit directly.
 - **Pluggable by source and by output.** Any collector can feed any generator through the shared canonical dataset, so a team using Azure DevOps and one using GitHub can both produce the same Markdown or PDF output.
 
-See [Architecture](architecture.md) for how the pieces of the ecosystem implement this.
+See [Architecture](architecture.md) for how the pieces of the ecosystem implement this, or jump
+straight to [Living Documentation in 5 Minutes](quickstart.md) to stand up a pipeline now.
