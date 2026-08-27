@@ -126,11 +126,65 @@ Worth pinning down precisely, because the answer changes what a contributor shou
 
 So, concretely: what `toolkit normalize-issues` does end to end is **adapt → normalize → enrich → restructure** — normalization (the heading-synonym mapping) is one real stage inside a larger transformation pipeline, not the whole of what the command does. Calling the whole thing "normalization" is a common, defensible looseness in data-engineering usage (ETL "normalize" steps routinely include cleanup + reshaping in practice, not just canonicalization), so this isn't grounds to rename the CLI command or the service package — `normalize-issues` still correctly names the *dominant, user-facing intent* ("make this consistent and usable downstream"). What's worth doing is making the four sub-stages legible in the code/docs themselves — right now `normalizer.py` and `builder.py` (per `toolkit/docs/architecture.md`'s component breakdown) roughly correspond to "normalize" and "enrich + restructure" respectively, but nothing documents that split in those terms, so a contributor fixing a "normalization bug" might not realize the bug they're chasing is actually in the restructuring stage.
 
+## 8. Multiple sources and multiple generators
+
+Both ends of the pipeline fan out — but only one of the two directions is a real decision.
+
+### Multiple generators — trivial
+
+`generator-ready.json` (§5) is generator-agnostic by design. Producing both Markdown and PDF is two
+generator steps reading the same normalized file — no second normalize run, no branching upstream:
+
+```
+toolkit normalize-issues -> generator-ready.json --> generator-pdf      -> PDF
+                                                 \-> generator-markdown -> Markdown
+```
+
+Nothing before the generator step needs to know a second generator exists. The user picks one or
+more; each is an independent workflow step.
+
+### Multiple sources — merge or keep isolated
+
+When a documentation set draws on more than one source (a GitHub repo *and* an Azure DevOps project,
+or issues *and* source-code `.feature` files), there are two shapes, and the choice matters:
+
+| Strategy | How | Result |
+|---|---|---|
+| **Merge** | Run each collector, feed *all* their outputs into one `toolkit normalize-issues` run | One canonical dataset, one document set covering everything |
+| **Isolated** | Run a full pipeline per source | One dataset and one document set per source; no cross-source view |
+
+`toolkit`'s adapter layer is built for the merge case — [Architecture](architecture.md) §5 has
+`adapters/collector_gh` and a planned `adapters/collector_ad` both feeding one normalize service.
+"Isolated" is just declining to do that: run the pipeline twice, keep the outputs separate.
+
+### The coverage-matrix constraint
+
+The [coverage matrix](../guides/living-doc-document-types.md#coverage-matrix) is where
+merge-vs-isolated actually bites. It joins a **technical project** (ACs) to a **test catalog** (scenarios) on AC ID, and that
+join is only meaningful when both sides describe the same system:
+
+- **Technical project and test catalog from the same source** → fine either way.
+- **Technical project from source A, test catalog from source B** → the matrix needs the **merged**
+  dataset. Two isolated pipelines produce two datasets that never meet, so no AC-to-scenario join is
+  possible across them. Worse than "not possible": an isolated per-source matrix run silently reports
+  every cross-source AC as *uncovered*, because the covering scenario is in the other pipeline's data
+  — a false gap that looks exactly like a real one.
+
+**Rule:** if a coverage matrix must span sources, merge those sources before `coverage-matrix` runs.
+Isolated pipelines may each produce their own technical project and test catalog, but a coverage
+matrix over them is valid only per-source.
+
+Prerequisite for a clean merge: **AC (and entity) IDs must be globally unique across sources** — no
+`US-1` meaning one thing in a GitHub repo and another in an ADO project. That is an authoring-time
+constraint (§9), not something `toolkit` can reconcile after the fact.
+
 ## 9. The authoring-side source of truth
 
 Everything documented elsewhere in this spec and in [Architecture](architecture.md) starts at `collector-gh` mining GitHub Issues or `.feature` files that already exist. Those files don't write themselves: `agentic-toolkit`'s `living-doc-bdd-copilot` agent is what an engineer runs to *author* the User Story / Feature / Functionality entities and their Gherkin scenarios in the first place — or a human can write them by hand — using the entity IDs, AC/tag grammar, and header formats defined in this repo's [Living Doc Glossary](../guides/living-doc-glossary.md) and [Living Doc Header Types](../guides/living-doc-header-types.md). Those two pages are the canonical format; `agentic-toolkit`'s `shared` skill is synced from them.
 
 `collector-gh`'s planned `doc-source` and `ui-tests` modes should be implemented against that same format, including fields not yet reflected in `doc-issues-v1.0.0-schema.json` today (`not_in_scope`, AC-level precondition/not_in_scope extensions, deprecation and descoped-AC metadata, the `@AC:<id>/aspect:<value>` tag syntax, and Functionality-level header mining). This is a schema *version* question for `generator-ready.json` (§5) and the `doc-issues`/`doc-source` schemas, not a redesign — additive `v1.x` if every new field can be optional, otherwise `v2.0.0`. Tracked as a Phase 2 task — see [Roadmap](roadmap.md).
+
+Concrete reference inputs for each entity and document type — the files an implementer parses against and a contributor copies from — are catalogued in [Example Input Files for Mining](example-inputs.md).
 
 ## 10. Tasks
 
@@ -143,3 +197,5 @@ Everything documented elsewhere in this spec and in [Architecture](architecture.
 - [ ] Add the adapt → normalize → enrich → restructure stage breakdown (§7) to `toolkit/docs/architecture.md`'s "Normalize-Issues Service Components" section, naming which of `normalizer.py` / `builder.py` owns which stage.
 - [ ] Extend `toolkit/packages/adapters/collector_gh`'s version-compatibility pattern (confirmed range + warn-and-continue + audit trace) to `generator-pdf` and, once built, `generator-markdown` — currently only the toolkit adapter layer has this; the generators have no equivalent input-version awareness.
 - [ ] Design and document a `doc-issues.json` equivalent contract for `collector-ad` (`work-items.json`?) so a `toolkit/packages/adapters/collector_ad` (per [Architecture](architecture.md) Phase 4) has a stable target to adapt against.
+- [ ] Document the merge-before-coverage-matrix rule (§8) in `toolkit`'s `coverage-matrix` service docs and in `generator-pdf`'s `document-type: coverage-matrix` README section — including the failure mode where an isolated per-source run reports every cross-source AC as a false gap. Add an authoring-time "entity/AC IDs are globally unique across sources" note to [Living Doc Glossary](../guides/living-doc-glossary.md).
+- [ ] Once `generator-markdown` exists, confirm a single `toolkit normalize-issues` output drives both generators in one workflow with no second normalize step (§8) — add this as a golden integration test.

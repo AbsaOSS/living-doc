@@ -20,7 +20,21 @@ flowchart LR
 Every stage is a separate GitHub Action. A pipeline is just those actions chained in one workflow
 file. Full detail: [Architecture](architecture.md).
 
-## Step 1 — Pick your two ends
+## Step 1 — Decide what you want to produce
+
+This decides what you have to prepare for the collector to mine:
+
+| You want a… | Prepare |
+|---|---|
+| **Technical project** — User Stories, Features, Functionalities | Issues labelled as US / Feature / Functionality, **or** the same entities as header blocks in source code |
+| **Test catalog** — the behaviours your tests cover | Gherkin `.feature` files in the repo |
+| **Coverage matrix** — which acceptance criteria have tests | Both of the above, for the same system |
+
+Full detail: [Living Documentation Document Types](../guides/living-doc-document-types.md). The rest
+of this guide builds a **technical project → Markdown** pipeline; swap the generator (or add a step)
+for the others.
+
+## Step 2 — Pick your two ends
 
 | Your source | Collector |
 |---|---|
@@ -34,7 +48,7 @@ file. Full detail: [Architecture](architecture.md).
 
 Undecided? → [Choosing a Generator](../guides/choosing-a-generator.md).
 
-## Step 2 — Add one workflow file
+## Step 3 — Add one workflow file
 
 The example below is **GitHub issues → Markdown**, refreshed nightly. Save it as
 `.github/workflows/living-doc.yml`:
@@ -93,15 +107,15 @@ jobs:
 > stable output today, generate a PDF instead ([User Stories → PDF](../tutorials/user-stories-to-pdf.md)).
 > Each project's README is the authoritative source for its current inputs.
 
-To use a different source or output, change **only steps 1 and 3** — the worked examples below give
-you a copy-paste starting point for each combination.
+To use a different source or output, change **only the collect and generate steps** — the worked
+examples below give you a copy-paste starting point for each combination.
 
-## Step 3 — Run it
+## Step 4 — Run it
 
 Commit the file, then in your repo: **Actions → Living Documentation → Run workflow**. (Or just wait
 for the nightly run.)
 
-## Step 4 — Check the result
+## Step 5 — Check the result
 
 Open `docs/generated/`. You should see Markdown that matches your issue tracker *right now* — one
 file or section per issue category your labels define. Every run overwrites it with the current
@@ -111,8 +125,9 @@ state; that is the whole point.
 
 | To… | Read |
 |---|---|
+| Choose which document type(s) to produce, and what each needs | [Living Documentation Document Types](../guides/living-doc-document-types.md) |
 | Build a pipeline properly, stage by stage | [Getting Started](../guides/getting-started.md) |
-| Copy a working example for your exact source + output | [GitHub → Markdown](../tutorials/gh-issues-to-markdown.md) · [Azure DevOps → Markdown](../tutorials/ado-workitems-to-markdown.md) · [User Stories → PDF](../tutorials/user-stories-to-pdf.md) |
+| Copy a working example for your exact source + output | [Getting Started § worked examples](../guides/getting-started.md#worked-examples) · [tutorials](../tutorials/) |
 | Understand what each collector mines | [Collecting from GitHub](../guides/github-collection.md) · [Collecting from Azure DevOps](../guides/azure-devops-collection.md) |
 | Write User Stories / Features / Functionalities in the format collectors read | [Living Doc Glossary](../guides/living-doc-glossary.md) · [Living Doc Header Types](../guides/living-doc-header-types.md) |
 | Let an AI agent help author that content (optional) | [agentic-toolkit](../projects/agentic-toolkit.md) |

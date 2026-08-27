@@ -124,6 +124,8 @@ Feature: <US Title>
 
 Every PageObject file opens with a living-doc header block. Use this format so each file is self-describing and traceable without opening a separate registry.
 
+**In this section:** [Required fields](#required-fields) · [Full vs cross-reference headers](#two-header-formats-full-vs-cross-reference) · [Maintaining the header](#maintaining-a-pageobject-header) · [Where operational notes belong](#where-operational-notes-belong) · [Common mistakes](#common-mistakes)
+
 ### Required fields
 
 | Field | Canonical values |
@@ -217,9 +219,31 @@ The following fields are **intentionally omitted** from the cross-reference head
  * ============================================================================= */
 ```
 
+### Maintaining a PageObject header
+
+**By hand.** The header block *is* the registry — there is no separate file to keep in sync. Edit
+the fields in place as the surface changes: keep `status:`, `owners:`, `user_stories:`, and
+`functionalities:` current, and when a surface is known but its template carries no `data-cy`
+attributes yet, set `status: candidate` with a one-line `stub-reason:`. None of this needs
+`seed.yaml` or `manifest.json` — those back the scan workflow only. Maintained by hand, the rule for
+scan-style detail (scan dates, gap lists, open-issue references) is simply: it has no home in the
+file — leave it out.
+
+**With the `agentic-toolkit` skills.** The
+[`living-doc-bdd-copilot`](../projects/agentic-toolkit.md) skills are large maintenance helpers here
+and produce the identical header format — nothing about a scanned header differs from a hand-written
+one. `living-doc-pageobject-scan` writes and refreshes the header and locators from a live scan of
+the running app; `data-cy-instrument` adds the missing `data-cy` attributes a `candidate` surface is
+waiting on; `living-doc-gap-finder` reports orphaned surfaces and uncovered User Stories. They are
+accelerators, not a requirement.
+
 ### Where operational notes belong
 
 The PageObject **header block and class JSDoc are living-doc contracts** — they encode identity, traceability, and status. They are not a changelog, scan diary, or issue tracker.
+
+When the scan workflow *is* in use, scan-derived detail has a home outside the header — the table
+below says where. (Without the scan workflow, none of these rows apply: the data simply is not
+produced, and the header stays clean by default.)
 
 | Information type | Correct location | NOT in |
 |---|---|---|

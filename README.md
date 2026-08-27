@@ -13,15 +13,20 @@ This repository is the entry point for the whole topic: it explains the concept,
 
 ## Guides
 
+- [Living Documentation Document Types](docs/guides/living-doc-document-types.md)
 - [Collecting from GitHub](docs/guides/github-collection.md)
 - [Collecting from Azure DevOps](docs/guides/azure-devops-collection.md)
 - [Choosing a Generator](docs/guides/choosing-a-generator.md)
 
 ## Tutorials
 
+One per **source + output** combination — see [Getting Started & Worked examples](docs/guides/getting-started.md#worked-examples) for the full matrix.
+
 - [GitHub Issues → Markdown](docs/tutorials/gh-issues-to-markdown.md)
+- [GitHub Source Code → Markdown](docs/tutorials/gh-source-to-markdown.md)
 - [Azure DevOps Work Items → Markdown](docs/tutorials/ado-workitems-to-markdown.md)
 - [User Stories → PDF](docs/tutorials/user-stories-to-pdf.md)
+- [GitHub Source Code → PDF](docs/tutorials/gh-source-to-pdf.md)
 
 ## Ecosystem
 
@@ -39,6 +44,18 @@ Content can be authored by hand or AI-accelerated — the pipeline itself always
 | Azure DevOps | Work items | Planned |
 | Azure DevOps | Boards, pipelines, test plans, release notes | Planned |
 | Source code | User Stories, Features, Functionalities, Gherkin test scenarios | Available |
+
+### Document types
+
+What the pipeline produces. Each can be rendered as Markdown or PDF.
+
+| Document type | Built from | Requires |
+|---|---|---|
+| **Technical project** — User Stories, Features, Functionalities | Mined from issues or source code (never hand-edited output) | A collector source |
+| **Test catalog** — the behaviours covered by Gherkin scenarios | Mined from `.feature` files | Gherkin feature files in the repo |
+| **Coverage matrix** — which acceptance criteria have tests | Cross-referencing the two above | Technical project **and** test catalog, for the same system |
+
+The **technical project** has two views: *inner* (everything, as-is) and *release* (planned and no-longer-active / delivered ACs filtered out). Full structure, purpose, and the prerequisite matrix: [Living Documentation Document Types](docs/guides/living-doc-document-types.md).
 
 ### What you get
 

@@ -80,7 +80,22 @@ A few things to note about these inputs:
 - `living-doc normalize-issues` is `toolkit`'s actual CLI command, taking `--input`/`--output` file paths — this is a workflow step like any other, not a local-only affordance.
 - Swap the collector/generator `uses:` steps for the ones you picked in steps 1–2 above; each project's own README documents its exact action inputs and outputs, which evolve faster than this guide.
 
+## Worked examples
+
+Each cell is a copy-paste tutorial for that **source + output** combination. The collect and
+normalize steps are the same across a row; only the generator step changes between columns.
+
+| Source | → Markdown | → PDF |
+|---|---|---|
+| GitHub issues | [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md) | [User Stories → PDF](../tutorials/user-stories-to-pdf.md) |
+| GitHub source code (`.feature` files, header blocks) | [GitHub Source → Markdown](../tutorials/gh-source-to-markdown.md) † | [GitHub Source → PDF](../tutorials/gh-source-to-pdf.md) † |
+| Azure DevOps work items | [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md) | swap the generator step in the ADO tutorial for `generator-pdf` — same pattern as [User Stories → PDF](../tutorials/user-stories-to-pdf.md) |
+
+† Source-code collection depends on `collector-gh`'s `doc-source` / `ui-tests` modes, which are
+specified but not yet built ([Data Flows & Schemas](../specs/data-flows.md) §2). Those two tutorials
+describe the intended workflow and are marked accordingly.
+
 ## Next steps
 
-- Walk through a full worked example: [Tutorials](../tutorials/)
+- Decide which [document types](living-doc-document-types.md) you need before building the pipeline
 - Understand the data flow: [Architecture](../introduction/architecture.md)

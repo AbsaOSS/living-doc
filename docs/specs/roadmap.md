@@ -71,7 +71,7 @@ Small, mostly independent tasks that reduce risk before the bigger builds start.
 
 ## Phase 2 — Ship `doc-source` and `ui-tests` collector modes
 
-- [ ] **Write `collector-gh/SPEC.md`'s header/AC/scenario-tag parsing rules (§3, §3.6.7, §4.6.3) against the canonical format** in [Living Doc Glossary](../guides/living-doc-glossary.md) and [Living Doc Header Types](../guides/living-doc-header-types.md) — field-for-field, including `not_in_scope`, AC-level precondition extensions, deprecation metadata, and the `@AC:<id>/aspect:<value>` tag syntax. *Ref: [Data Flows & Schemas](data-flows.md) §9.*
+- [ ] **Write `collector-gh/SPEC.md`'s header/AC/scenario-tag parsing rules (§3, §3.6.7, §4.6.3) against the canonical format** in [Living Doc Glossary](../guides/living-doc-glossary.md) and [Living Doc Header Types](../guides/living-doc-header-types.md) — field-for-field, including `not_in_scope`, AC-level precondition extensions, deprecation metadata, and the `@AC:<id>/aspect:<value>` tag syntax. Parse against the reference files in [Example Input Files for Mining](example-inputs.md) (author them first if not yet present). *Ref: [Data Flows & Schemas](data-flows.md) §9.*
 - [ ] Bump `doc-issues-v1.0.0-schema.json` (and the not-yet-shipped `doc-source`/`ui-tests` schemas) to carry those fields — additive `v1.x` if every new field can be optional, otherwise `v2.0.0`. *Ref: [Data Flows & Schemas](data-flows.md) §9.*
 - [ ] Implement `doc_source/` (collector-gh): header-block parser, `GHDocSourceCollector`, output to `doc-source.json` — per `SPEC.md` §3.
 - [ ] Implement `ui_tests/` (collector-gh): scenario-block parser, `GHUITestsCollector`, output to `ui-tests.json` — per `SPEC.md` §4.
@@ -84,6 +84,7 @@ Small, mostly independent tasks that reduce risk before the bigger builds start.
 - [ ] Add `generator-ready-v1.0.0-schema.json` to `generator-pdf/generator/schemas/`; document it in `README.md` as the recommended `document-type: user-stories` source (today's docs point at the raw collector schema instead).
 - [ ] Update `generator-pdf/README.md`'s Quick Start to show `collector-gh → toolkit normalize-issues → generator-pdf`, not `collector-gh → generator-pdf` directly.
 - [ ] Confirm (or add) a `document-type: ui-test-catalog` and `document-type: coverage-matrix` path both consuming `toolkit`-produced output, completing PDF delivery for all three v1 content types.
+- [ ] Decide where the technical project's **inner vs release view** filter lives (a `toolkit` normalize option vs a generator input) and specify the exact filter rule — drop `planned` / `in_review` entities and ACs; drop ACs no longer `active` (delivered, then deprecated). Document it in [Living Documentation Document Types](../guides/living-doc-document-types.md) once real, replacing that page's current "how it is selected is a generator input" placeholder.
 
 ## Phase 4 — Build `generator-markdown` against the same canonical contract
 
