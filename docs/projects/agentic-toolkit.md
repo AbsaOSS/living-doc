@@ -22,7 +22,7 @@ First stage of the pipeline, upstream of [collector-gh](collector-gh.md). See [A
 
 ## Used in
 
-- [Architecture](../specs/architecture.md) §4.5
+- [Architecture](../specs/architecture.md)
 - [Living Doc Glossary](../guides/living-doc-glossary.md)
 - [Living Doc Header Types](../guides/living-doc-header-types.md)
 - [Roadmap](../specs/roadmap.md) Phase 2 (implementing `collector-gh`'s `doc-source`/`ui-tests` modes against this format)

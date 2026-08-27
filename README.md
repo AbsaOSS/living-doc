@@ -69,7 +69,7 @@ The **technical project** has two views: *inner* (everything, as-is) and *releas
 | Project | Role | Purpose |
 |---|---|---|
 | [agentic-toolkit](https://github.com/AbsaOSS/agentic-toolkit) | Authoring acceleration (optional) | General-purpose AI-skills library; its `living-doc-bdd-copilot` agent + skill family *accelerates* authoring User Story/Feature/Functionality entities and Gherkin `.feature` files in the format `living-doc-collector-gh` mines — not required, since the whole pipeline runs AI-free and the same content can be hand-written. |
-| [living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) | Collector | Mines a GitHub repository's issues, labels, and metadata into JSON. |
+| [living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) | Collector | Mines a GitHub repository into JSON, in three toggleable modes: documentation issues (plus GitHub Projects state), living-doc header blocks in source code, and Gherkin UI-test scenarios. |
 | [living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) | Collector | Mines an Azure DevOps organization's work items into JSON. *(boards, pipelines, test plans, and release notes modes are planned, not yet built)* |
 | [living-doc-utilities](https://github.com/AbsaOSS/living-doc-utilities) | Shared library | Core data models, transformation, and serialization logic shared by collectors, the toolkit, and generators. |
 | [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) | Toolkit | Normalizes collector output into a canonical dataset consumed by generators. |
