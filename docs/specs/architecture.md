@@ -94,8 +94,11 @@ Key changes from current state:
 
 ## 6. Tasks
 
+> **Phase numbering:** [Roadmap](roadmap.md) is the authority on sequencing and supersedes the phase numbers in this section. The tasks below map to Roadmap Phase 1 (shared contract) and Phase 3–4 (generators); "Phase 0" here is folded into Roadmap Phase 0.
+
 **Phase 1 — establish the shared contract**
 - [ ] In `toolkit`, generalize `pdf_ready` (`packages/datasets_pdf`, `docs/contracts.md`) into a format-agnostic canonical schema (final name: `generator-ready` v1 — see [Data Flows & Schemas](data-flows.md) §5 for the naming rationale) — same fields, reframed as "the normalized input any generator renders," not "PDF-specific."
+- [ ] Rename the `packages/datasets_pdf` Python package to a generator-agnostic name (e.g. `datasets_generator_ready` / `datasets_canonical`) in the same change — it never leaves `toolkit`, so this is churn not risk, and it avoids leaving a `_pdf`-flavored import path for the Markdown generator. *(See [Data Flows & Schemas](data-flows.md) §5 migration step 2.)*
 - [ ] Update `toolkit/docs/contracts.md` §"Output Contract" to name both `generator-pdf` and (planned) `generator-markdown` as consumers, dropping the single-target framing.
 - [ ] Add a deprecation alias so existing `pdf_ready.json` output filename/schema-version keeps working during migration (same shape as `generator-pdf`'s own `pdf_ready_json` → `source-path` alias pattern).
 

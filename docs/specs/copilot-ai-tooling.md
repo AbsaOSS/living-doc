@@ -56,15 +56,22 @@ Beyond de-drifting what already exists, a few patterns worth introducing to this
 
 ## 5. Tasks
 
-**De-drift the existing template (do first — cheap, mechanical, high leverage)**
-- [ ] Pick one canonical version of `copilot-instructions.md` — recommend starting from `utilities`' version of `specification-master.agent.md` specifically (it's the more complete of the two), and reconciling `copilot-instructions.md`/`copilot-review-rules.md` core-rule wording into one text, keyword dialect included (settle on `Must` / `Must not` / `Prefer` / `Avoid`, since it's the more common of the three dialects found and matches what the files' own "Structure" section already claims).
-- [ ] Fill in `toolkit`'s "Repo additions" section with its real, monorepo-shaped commands (`make py-qa-<package>` per package, not repo-root `pylint`/`pytest`) — this is a correctness fix, not just a consistency one.
-- [ ] Roll the reconciled template out to all 6 `living-doc-*` repos, including adding the full `.github/agents/` board to `toolkit` and `collector-ad` (currently missing it) and to `generator-markdown` once it has real code.
-- [ ] Decide, deliberately, whether `aquasec-scan-results`'s "document the actual repo directly" style (§2.4) should replace the "portable core + Repo additions" style for the "Context"/architecture-facing sections specifically — the two aren't mutually exclusive: portable process rules (PR body management, output discipline, quality gates) plus a concrete, direct architecture summary (module map, entry points) in Repo additions, rather than the current generic Repo-additions placeholders many repos still carry.
+All of the below is [Roadmap](roadmap.md) **Phase 0** ("Repo unification & shared dev tooling"), done before the build phases so the AI-assisted work in Phases 1–5 runs on correct, consistent instructions.
 
-**Add process the ecosystem doesn't have yet (§4)**
-- [ ] Define a roadmap-task-driven implementation command for this ecosystem, once the root roadmap ([Roadmap](roadmap.md)) exists to drive it — read task spec + AC → implement → QA loop → verify AC against code → PR description. Natural home: alongside the existing agent board, invoked per roadmap task.
+**Decisions locked** (see [Roadmap](roadmap.md) "Decisions locked"):
+
+- Every repo documents *itself* directly — the `aquasec-scan-results` style from §2.4 (module map, entry points, real commands) — rather than the "portable core + Repo additions" split. This is done inside **one shared structure and one constraint dialect** (`Must` / `Must not` / `Prefer` / `Avoid`) so the files stay consistent across repos even though their content is repo-specific.
+- `CONTRIBUTING.md` is identical in every repo (one ecosystem) — see [Documentation & Style Synchronization](doc-style-sync.md) §5.
+- The workflow additions below are no longer "future, once a roadmap exists" — the roadmap exists, and they are Phase 0.
+
+**De-drift the existing template (cheap, mechanical, high leverage)**
+- [ ] Reconcile `copilot-instructions.md` / `copilot-review-rules.md` onto one version: repo-documented-directly content in a shared structure and the `Must` / `Must not` / `Prefer` / `Avoid` dialect. Carry over the more complete pieces from `utilities`' `specification-master.agent.md` (verbosity tiers, minimum-structure checklist, verification-plan deliverable).
+- [ ] Fill in `toolkit`'s "Repo additions" section with its real, monorepo-shaped commands (`make py-qa-<package>` per package, not repo-root `pylint`/`pytest`) — this is a correctness fix, not just a consistency one.
+- [ ] Roll the reconciled files out to all 6 `living-doc-*` repos, including adding the full `.github/agents/` board to `toolkit` and `collector-ad` (currently missing it) and to `generator-markdown` once it has real code.
+
+**Add the shared `.claude/` helper set (§4)**
+- [ ] Define a roadmap-task-driven implementation command for this ecosystem — read task spec + AC → read every referenced file → implement → QA loop → verify AC against code → PR description. Natural home: alongside the agent board, invoked per roadmap task.
 - [ ] Define the matching lighter "PR-ready" verification command.
 - [ ] Add a docs-lifecycle rule to `collector-gh/SPEC.md` (and any future `toolkit` prospective-spec process, per [Documentation & Style Synchronization](doc-style-sync.md) §3.3): implemented sections move out of `SPEC.md` and into the relevant live `README.md`/mode docs, rather than accumulating indefinitely.
-- [ ] Extend `sdet.agent.md` (in the four repos that have it, then the rest once §5's rollout lands) with a concrete, ecosystem-specific mock/fixture pattern table, sourced from what already exists in `tests/` across these repos rather than invented fresh.
+- [ ] Extend `sdet.agent.md` (in the four repos that have it, then the rest once the rollout lands) with a concrete, ecosystem-specific mock/fixture pattern table, sourced from what already exists in `tests/` across these repos rather than invented fresh.
 - [ ] Tighten `reviewer.agent.md`'s acceptance-criteria language to require checking the literal claim in code, not just that a same-named test passes.
