@@ -2,12 +2,12 @@
 
 ## **Identifying and Reporting Bugs**
 
-* **Ensure the bug has not already been reported** by searching our **[GitHub Issues](https://github.com/AbsaOSS/generate-release-notes/issues)**.
+* **Ensure the bug has not already been reported** by searching our **[GitHub Issues](https://github.com/AbsaOSS/living-doc/issues)**.
 * If you cannot find an open issue describing the problem, use the **Bug Report** GitHub issue template to open a new one.
 
 ## **Proposing New Features**
 
-* **Check if the feature has already been requested** by searching through our **[GitHub Issues](https://github.com/AbsaOSS/generate-release-notes/issues)**.
+* **Check if the feature has already been requested** by searching through our **[GitHub Issues](https://github.com/AbsaOSS/living-doc/issues)**.
 * If the feature request doesn't exist, feel free to create a new one, using the **Feature Request** GitHub issue template.
 
 ## Branch Naming
