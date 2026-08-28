@@ -1,0 +1,52 @@
+#
+# Copyright 2026 ABSA Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: AquaSec Night Scan
+
+on:
+  schedule:
+    - cron: '23 2 * * *'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Simulate without making changes'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: aquasec-night-scan-${{ github.repository }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+jobs:
+  scan:
+    uses: AbsaOSS/organizational-workflows/.github/workflows/aquasec-scan.yml@v1.1.0 # TODO: pin to the newest release SHA
+    with:
+      dry-run: ${{ inputs.dry-run || false }}
+      min-severity: 'high' # Only high and critical severity alerts will be promoted to issues
+      project-number: 0 # TODO: set the org project board number
+      project-org: 'AbsaOSS'
+    secrets:
+      AQUA_KEY: ${{ secrets.AQUA_KEY }}
+      AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+      AQUA_GROUP_ID: ${{ secrets.AQUA_GROUP_ID }}
+      AQUA_REPOSITORY_ID: ${{ secrets.AQUA_REPOSITORY_ID }}
+      TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
