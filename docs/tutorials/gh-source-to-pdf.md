@@ -46,17 +46,17 @@ jobs:
       # 2. NORMALIZE
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-source.json --output pdf_ready.json   # renamed to generator-ready.json in a coming release
+          living-doc normalize-issues --input doc-source.json --output generator-ready.json
 
       # 3. GENERATE PDF — pick the document-type for the document you want
       - name: Generate PDF
         uses: AbsaOSS/living-doc-generator-pdf@v1
         with:
-          source-path: pdf_ready.json
+          source-path: generator-ready.json
           document-type: user-stories        # or: ui-test-catalog | coverage-matrix
           output-path: reports/living-doc.pdf
 
