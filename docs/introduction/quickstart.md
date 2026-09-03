@@ -80,17 +80,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-issues.json --output pdf_ready.json   # renamed to generator-ready.json in a coming release
+          living-doc normalize-issues --input doc-issues.json --output generator-ready.json
 
       # 3. GENERATE — canonical dataset -> Markdown files
       - name: Generate Markdown
         uses: AbsaOSS/living-doc-generator-markdown@v1
         with:
-          source-path: pdf_ready.json
+          source-path: generator-ready.json
           output-path: docs/generated
 
       # 4. COMMIT the refreshed docs
