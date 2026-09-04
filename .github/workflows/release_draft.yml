@@ -1,4 +1,4 @@
-name: GitHub Draft Release
+name: Draft Release
 on:
   workflow_dispatch:
     inputs:
