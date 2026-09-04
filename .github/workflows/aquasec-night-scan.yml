@@ -38,7 +38,7 @@ permissions:
 
 jobs:
   scan:
-    uses: AbsaOSS/organizational-workflows/.github/workflows/aquasec-scan.yml@v1.1.0 # TODO: pin to the newest release SHA
+    uses: AbsaOSS/organizational-workflows/.github/workflows/aquasec-scan.yml@v1.3.0 # TODO: pin to the newest release SHA
     with:
       dry-run: ${{ inputs.dry-run || false }}
       min-severity: 'high' # Only high and critical severity alerts will be promoted to issues
