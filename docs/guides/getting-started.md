@@ -52,17 +52,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-issues.json --output pdf_ready.json   # renamed to generator-ready.json in a coming release
+          living-doc normalize-issues --input doc-issues.json --output generator-ready.json
 
       - name: Generate Markdown
         uses: AbsaOSS/living-doc-generator-markdown@v1
         with:
-          source-path: pdf_ready.json
+          source-path: generator-ready.json
           output-path: docs/generated
 
       - name: Publish
@@ -76,7 +76,7 @@ jobs:
 
 A few things to note about these inputs:
 
-- `doc-issues.json` / `pdf_ready.json` are `collector-gh`'s and `toolkit`'s current documented file names (`pdf_ready.json` is slated to be renamed `generator-ready.json` — see [Data Flows & Schemas](../specs/data-flows.md) §5 — but that migration hasn't shipped yet, so use `pdf_ready.json` today).
+- `doc-issues.json` and `generator-ready.json` are `collector-gh`'s and `toolkit`'s documented file names — `generator-ready.json` is the canonical dataset `toolkit`'s `normalize-issues` step emits (see [Data Flows & Schemas](../specs/data-flows.md) §5 for the naming rationale).
 - `living-doc normalize-issues` is `toolkit`'s actual CLI command, taking `--input`/`--output` file paths — this is a workflow step like any other, not a local-only affordance.
 - Swap the collector/generator `uses:` steps for the ones you picked in steps 1–2 above; each project's own README documents its exact action inputs and outputs, which evolve faster than this guide.
 

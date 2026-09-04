@@ -12,18 +12,18 @@
 
 ## Branch Naming
 
-Branches have to start with one of the allowed prefixes: `feature/`, `fix/`, `docs/`, `chore/`
+Branches have to start with one of the allowed prefixes — `feature/`, `fix/`, `docs/`, `chore/` — followed immediately by the related issue number, then a short kebab-case scope: `<prefix>/<issue>-<scope>`.
 Examples:
-- `feature/add-hierarchy-support`
+- `feature/128-add-hierarchy-support`
 - `fix/567-handle-empty-chapter`
-- `docs/improve-contribution-guide`
-- `chore/update-ci-python-version`
-  
+- `docs/203-improve-contribution-guide`
+- `chore/91-update-ci-python-version`
+
 Rename if needed before pushing:
 ```shell
-git branch -m fix/<new-name>
+git branch -m fix/<issue>-<new-name>
 ```
-Use lowercase **kebab-case** and reflect actual scope.
+Use lowercase **kebab-case** and reflect actual scope. The issue number is required — CI (`check-pr-requirements`) rejects a branch without one.
 
 ## PR Naming
 
