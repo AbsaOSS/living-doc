@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(gh issue *)",
+      "Bash(gh issue list *)",
+      "Bash(gh issue view *)",
       "Bash(awk '/## 9/,/## 10|^---$/' docs/specs/liv-doc/data-flows.md)",
       "Bash(git status *)",
       "Bash(echo \"exit $?\")",
@@ -29,9 +30,6 @@
       "Bash(git --no-pager diff docs/guides/living-doc-header-types.md)",
       "Bash(git --no-pager diff docs/guides/living-doc-document-types.md docs/guides/living-doc-glossary.md)",
       "Bash(git -c core.excludesFile=/dev/null status --porcelain docs/examples)"
-    ],
-    "additionalDirectories": [
-      "/Users/admin/repos/AbsaOSS/living-doc/docs/examples"
     ]
   }
 }

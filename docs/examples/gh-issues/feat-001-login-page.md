@@ -1,6 +1,6 @@
 <!--
 GitHub issue body for a Feature mined by collector-gh `doc-issues`.
-Labels: Feature    Title: FEAT-001 · Login Page
+Label: DocumentedFeature    Title: FEAT-001 · Login Page
 Layout: see ../README.md (GitHub issue-body layout)
 -->
 

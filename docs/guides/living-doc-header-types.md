@@ -122,7 +122,7 @@ Feature: <US Title>
 | `# acceptance_criteria:` | Yes | Full AC listing with IDs, versions, and states; each AC may extend inherited preconditions and not_in_scope |
 | `@US_ID:US-<n>` tag | Yes | Machine-parseable User Story ID (feature-level tag) |
 
-**Example:** [`docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature`](../examples/gherkin/liv_doc_us/us-001-customer-login.feature) — full header, one covered AC and one uncovered AC, AC-level `preconditions` extension.
+**Example:** [`docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature`](../examples/gherkin/liv_doc_us/us-001-customer-login.feature) — required fields, one covered AC and one uncovered AC, plus the one optional extension for that file (AC-level `preconditions`).
 
 ---
 
@@ -311,7 +311,7 @@ A `status: candidate` surface is **not a permanent state** — it is a living-do
 Header comment block at the top of every Functionality feature file —
 `<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
 
-**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — full header, an `Aspect:` AC split across two scenarios (covered) and one uncovered AC.
+**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file (`Aspect:` on an AC), split across two scenarios (covered), and one uncovered AC.
 
 ```gherkin
 # =============================================================================

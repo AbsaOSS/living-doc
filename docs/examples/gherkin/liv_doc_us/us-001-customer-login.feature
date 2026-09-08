@@ -1,7 +1,6 @@
 # =============================================================================
 # LIVING DOC — US-001 · Customer Login
 # =============================================================================
-# source:          https://github.com/AbsaOSS/living-doc/issues/9    ← optional
 # status:          active
 # business_value:
 #   - Registered customers can reach their account area, so returning users

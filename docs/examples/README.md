@@ -7,8 +7,8 @@ collector reads, not the documents a generator produces. For the formats these f
 
 All examples describe **one coherent mini technical project** — `US-001` / `FEAT-001` / `FUNC-001` —
 so that, taken together, the two `.feature` files plus the entities form a complete
-[coverage-matrix](../guides/living-doc-document-types.md#coverage-matrix) input: one AC covered by a
-scenario, one left uncovered, to show both verdicts.
+[coverage-matrix](../guides/living-doc-document-types.md#coverage-matrix) input: in each `.feature`
+file one AC is covered by a scenario and one is left uncovered, so the matrix shows both verdicts.
 
 ## Files
 
@@ -32,9 +32,12 @@ under-specified ecosystem-wide — the closest reference was the `toolkit/docs/c
 table (`description` / `business_value` / `preconditions` / `acceptance_criteria` / …). The
 [`gh-issues/`](gh-issues/) files pin it down:
 
-- Each entity is one GitHub issue. Entity type and ID come from the issue **labels**
-  (`US` / `Feature` / `Functionality`) and the issue **title** (`US-001 · Customer Login`) — not from
-  body headings.
+- Each entity is one GitHub issue. Entity **type** comes from the issue **label** —
+  `DocumentedUserStory` / `DocumentedFeature` / `DocumentedFunctionality`, the same values
+  `collector-gh` writes into each item's `tags` — and the entity **ID** (`US-001` / `FEAT-001` /
+  `FUNC-001`) from the prefix of the issue **title** (`US-001 · Customer Login`); neither is repeated
+  as a body heading. (`collector-gh` also records every issue under its own `owner/repo#number` item
+  ID; the entity ID above is what links the issue to the matching `.feature` file and PageObject.)
 - Section headings are `##`-level and map 1:1 to the fields of the equivalent feature-file header;
   the heading text is the Title-Case form of the synonym-table key.
 - AC blocks are `###` sub-headings using the same `AC:<id> (v<version> - <state>)` grammar as the
@@ -53,11 +56,13 @@ table (`description` / `business_value` / `preconditions` / `acceptance_criteria
 - **Minimal.** Each entity file carries every required field plus one optional field — just enough to
   show one field extension, no more. (`.project-profile.yaml` is shown complete: it is pure config
   with no optional-field layer.)
-- **Field extensions**, spread across the corpus so each is shown once in isolation:
-  - feature-level `Not In Scope` — `gh-issues/us-001-customer-login.md`
+- **Field extensions**, spread across the corpus so each is shown once in isolation — one per file,
+  no file carrying two:
   - AC-level `preconditions` extension — `gherkin/liv_doc_us/us-001-customer-login.feature`
-  - `Aspect:` on an AC — `func-001-validate-password-strength` (both the `.feature` and the issue body,
-    since it is the same entity mined two ways)
+  - feature-level `Not In Scope` — `gh-issues/us-001-customer-login.md`
+  - `External Dependencies` — `gh-issues/feat-001-login-page.md`
+  - `Aspect:` on an AC — `gherkin/liv_doc_func/func-001-validate-password-strength.feature`
+  - `Rationale` — `gh-issues/func-001-validate-password-strength.md`
 - **`@domain_*` tag** — `.project-profile.yaml` sets `scenario_conventions.domain_tag: true`, and both
   `.feature` files carry `@domain_authentication` as the optional second feature-level tag.
 - **Coverage pair.** `AC:US-001-01` and `AC:FUNC-001-01` are covered by scenarios;

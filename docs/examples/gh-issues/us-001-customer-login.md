@@ -1,6 +1,6 @@
 <!--
 GitHub issue body for a User Story mined by collector-gh `doc-issues`.
-Labels: US        Title: US-001 · Customer Login
+Label: DocumentedUserStory        Title: US-001 · Customer Login
 Layout: see ../README.md (GitHub issue-body layout)
 -->
 

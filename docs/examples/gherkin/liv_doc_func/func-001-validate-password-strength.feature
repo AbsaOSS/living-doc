@@ -1,7 +1,6 @@
 # =============================================================================
 # LIVING DOC — FUNC-001 · Login Page — Validate Password Strength
 # =============================================================================
-# source:    https://github.com/AbsaOSS/living-doc/issues/9          ← optional
 # status:    active
 # parent:    FEAT-001
 # func_type: field_validation
