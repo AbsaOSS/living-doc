@@ -1,9 +1,7 @@
 # Tutorial: GitHub Source Code → Markdown
 
 > **Forward-looking.** This pipeline relies on `collector-gh`'s `doc-source` and `ui-tests` modes,
-> which are specified in `collector-gh/SPEC.md` but **not yet implemented**
-> ([Data Flows & Schemas](../specs/data-flows.md) §2). Treat the collector step below as the intended
-> shape; check the [project README](https://github.com/AbsaOSS/living-doc-collector-gh) for the real
+> which are specified in `collector-gh/SPEC.md` but **not yet implemented**. Treat the collector step below as the intended shape; check the [project README](https://github.com/AbsaOSS/living-doc-collector-gh) for the real
 > inputs once the modes ship.
 
 Goal: turn the **User Story / Feature / Functionality header blocks and Gherkin `.feature` files that

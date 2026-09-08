@@ -18,7 +18,7 @@ The action runs one or more independent **mining regimes** ("modes"). Each is sw
 | **Documentation Source** | `doc-source` | Living-doc header blocks in checked-out repository source — User Story and Functionality blocks in `.feature` files, Feature blocks in TypeScript PageObject files — with acceptance criteria, business value, ownership, and parent links | `doc-source/doc-source.json` |
 | **UI Tests** | `ui-tests` | Gherkin scenario blocks from `.feature` files, producing a test catalog keyed by `@US_ID` / `@AC` tags — scenario name, tags, steps, and source location | `ui-tests/ui-tests.json` |
 
-The [project README](https://github.com/AbsaOSS/living-doc-collector-gh) tracks each mode's maturity with a status badge. `doc-issues` is the most developed and the only mode with a stable published schema (`doc-issues-v1.0.0`) that [living-doc-toolkit](toolkit.md) and [generator-pdf](generator-pdf.md) consume today; `doc-source` and `ui-tests` are newer and feed toolkit's coverage-matrix work (see [Roadmap](../specs/roadmap.md) Phase 2).
+The [project README](https://github.com/AbsaOSS/living-doc-collector-gh) tracks each mode's maturity with a status badge. `doc-issues` is the most developed and the only mode with a stable published schema (`doc-issues-v1.0.0`) that [living-doc-toolkit](toolkit.md) and [generator-pdf](generator-pdf.md) consume today; `doc-source` and `ui-tests` are newer and feed toolkit's coverage-matrix work planned for Phase 2.
 
 All three modes mine content authored in the shared format described in [Living Doc Header Types](../guides/living-doc-header-types.md) and [Living Doc Glossary](../guides/living-doc-glossary.md).
 

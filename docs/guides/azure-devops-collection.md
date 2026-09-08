@@ -6,8 +6,7 @@
 
 - Work items (title, description, state, type, assigned board/area)
 
-Boards, pipelines, test plans, and release notes are planned collector modes — specced in the project README, not yet built. Azure DevOps scope for v1 is re-evaluated after the v1 pre-release (see [Roadmap](../specs/roadmap.md)).
-
+Boards, pipelines, test plans, and release notes are planned collector modes — specced in the project README, not yet built. Azure DevOps scope for v1 is re-evaluated after the v1 pre-release.
 ## When to use it
 
 Use this collector when work is tracked in Azure DevOps rather than GitHub issues, and you want the same generated-documentation experience — Markdown or PDF — from that data.

@@ -6,6 +6,10 @@ For the file-header schemas that carry these entities (feature file headers, Pag
 
 > **Source of truth.** This page is the canonical definition of the entity model. `agentic-toolkit`'s `skills/shared/references/living-doc-glossary.md` is synced from it.
 
+> **Worked examples & sync obligation.** A minimal, copyable example of each entity lives in
+> [`docs/examples/`](../examples/README.md). When a field or rule on this page changes, the matching
+> example changes in the same PR.
+
 ---
 
 ## Contents
@@ -180,7 +184,7 @@ Additional `/param:value` segments can be appended as needed — the format is o
 - **Tutorial walkthroughs** are long-run, feature-based walkthroughs kept for tutorial capture, not living
   documentation. They live in one or more folders *parallel* to the living-doc directories (named
   `tutorials/` or `tutorial_<group>/`), carry a `@tutorial` scenario flag, and are out of scope for every
-  collector mode — no collector mines them. See [Roadmap](../specs/roadmap.md)'s Post-v1 section.
+  collector mode — no collector mines them (a post-v1 roadmap item).
 
 Deprecated ACs include a removal note:
 
