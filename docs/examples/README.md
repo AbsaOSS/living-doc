@@ -50,21 +50,32 @@ table (`description` / `business_value` / `preconditions` / `acceptance_criteria
 
 ## Conventions used by this corpus
 
-- **Minimal.** Each file carries every required field plus at most one optional field — just enough
-  to show one field extension, no more.
-- **Field extensions**, one per file, spread across the corpus:
+- **Minimal.** Each entity file carries every required field plus one optional field — just enough to
+  show one field extension, no more. (`.project-profile.yaml` is shown complete: it is pure config
+  with no optional-field layer.)
+- **Field extensions**, spread across the corpus so each is shown once in isolation:
   - feature-level `Not In Scope` — `gh-issues/us-001-customer-login.md`
   - AC-level `preconditions` extension — `gherkin/liv_doc_us/us-001-customer-login.feature`
-  - `Aspect:` — `gherkin/liv_doc_func/func-001-validate-password-strength.feature`
+  - `Aspect:` on an AC — `func-001-validate-password-strength` (both the `.feature` and the issue body,
+    since it is the same entity mined two ways)
+- **`@domain_*` tag** — `.project-profile.yaml` sets `scenario_conventions.domain_tag: true`, and both
+  `.feature` files carry `@domain_authentication` as the optional second feature-level tag.
 - **Coverage pair.** `AC:US-001-01` and `AC:FUNC-001-01` are covered by scenarios;
-  `AC:US-001-02` and `AC:FUNC-001-02` are declared but have no scenario.
+  `AC:US-001-02` and `AC:FUNC-001-02` are declared but have no scenario (a deliberate gap, so the
+  coverage matrix shows both the covered and the uncovered verdict).
+- **Feature status vs surface status.** `FEAT-001` is an `active` entity (delivered, linked to
+  `US-001`), while its PageObject *surface* is `status: candidate` — the login template is not yet
+  instrumented for test automation. These are independent axes; see
+  [Header Types § status: candidate](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file).
 
 ## Sync obligation
 
-These files encode the same format as [Living Doc Header Types](../guides/living-doc-header-types.md)
-and [Living Doc Glossary](../guides/living-doc-glossary.md). When a field or rule on those pages
-changes, the matching example here must change in the same PR.
+This corpus is part of the persisted product documentation and does not depend on any planning spec.
+Two rules keep it truthful, both enforced **in the same PR** as the change that triggers them:
 
-When a collector mode that mines these inputs (`collector-gh` `doc-source` / `ui-tests`, `doc-issues`)
-is implemented or changed, the PR that does so must re-check this corpus and the guides above against
-what the tooling actually mines, and correct any drift in the same PR.
+1. **Format change.** When a field or rule on [Living Doc Header Types](../guides/living-doc-header-types.md)
+   or [Living Doc Glossary](../guides/living-doc-glossary.md) changes, update the matching example here.
+2. **Implementation change (last check).** When a collector mode that mines these inputs
+   (`collector-gh` `doc-source` / `ui-tests` / `doc-issues`) is implemented or changed, re-check this
+   corpus **and** the guides above against what the tooling actually mines, and correct any drift.
+   This is the checkpoint that catches divergence between the documented format and the shipped state.

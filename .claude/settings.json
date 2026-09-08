@@ -27,7 +27,8 @@
       "Bash(perl -0pi -e 's/ \\\\\\(Data Flows & Schemas §2\\\\\\)//' docs/tutorials/gh-source-to-markdown.md docs/tutorials/gh-source-to-pdf.md docs/guides/getting-started.md)",
       "Bash(perl -0pi -e 's/\\\\*\\\\*not yet implemented\\\\*\\\\*\\\\n>\\\\. Treat the collector step below as the intended\\\\n> shape;/**not yet implemented**. Treat the collector step below as the intended shape;/' docs/tutorials/gh-source-to-markdown.md docs/tutorials/gh-source-to-pdf.md)",
       "Bash(git --no-pager diff docs/guides/living-doc-header-types.md)",
-      "Bash(git --no-pager diff docs/guides/living-doc-document-types.md docs/guides/living-doc-glossary.md)"
+      "Bash(git --no-pager diff docs/guides/living-doc-document-types.md docs/guides/living-doc-glossary.md)",
+      "Bash(git -c core.excludesFile=/dev/null status --porcelain docs/examples)"
     ],
     "additionalDirectories": [
       "/Users/admin/repos/AbsaOSS/living-doc/docs/examples"

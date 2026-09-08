@@ -20,6 +20,7 @@
 # =============================================================================
 
 @US_ID:US-001
+@domain_authentication
 Feature: Customer Login
   As a registered customer, I can sign in with my email and password, so that I can reach my account area.
 

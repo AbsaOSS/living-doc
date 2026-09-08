@@ -14,8 +14,9 @@
  * page-object:           LoginPage.ts
  * ============================================================================= */
 
-// Minimal PageObject body. Locators are added once the template is instrumented
-// (status: candidate -> active, and stub-reason removed at that point).
+// The FEAT-001 entity is `active` (delivered), but this *surface* is `candidate`:
+// the login template has no test-id attributes yet. Locators and the promotion to
+// `status: active` (dropping stub-reason) follow once it is instrumented.
 export class LoginPage {
   constructor(private readonly page: import("@playwright/test").Page) {}
 

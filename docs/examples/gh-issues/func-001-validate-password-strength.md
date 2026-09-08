@@ -16,15 +16,12 @@ FEAT-001
 
 field_validation
 
-## Rationale
-
-- The complexity policy is enforced client-side before submission so the customer gets immediate feedback; the server re-checks on submit.
-
 ## Acceptance Criteria
 
 ### AC:FUNC-001-01 (v1.0.0 - active)
 
 - Returns valid=false when the candidate password fails a complexity rule.
+- Aspect: minimum-length, character-classes
 
 ### AC:FUNC-001-02 (v1.0.0 - active)
 

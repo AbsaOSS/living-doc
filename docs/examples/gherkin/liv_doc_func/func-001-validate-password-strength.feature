@@ -17,6 +17,7 @@
 # =============================================================================
 
 @FUNC_ID:FUNC-001
+@domain_authentication
 Feature: Login Page — Validate Password Strength
   Validates a candidate password against the account complexity policy before the login form is submitted.
 

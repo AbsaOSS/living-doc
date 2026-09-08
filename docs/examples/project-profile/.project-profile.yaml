@@ -18,7 +18,7 @@ pageobject_statuses: [planned, candidate, active, deprecated]
 
 scenario_conventions:
   feature_tag:     true
-  domain_tag:      false      # optional second feature-level tag — disabled here
+  domain_tag:      true       # optional convention: allow a second feature-level tag, e.g. @domain_authentication
   suite_tags:      ["@Regression"]
   section_banners: true
 
