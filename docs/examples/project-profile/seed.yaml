@@ -1,0 +1,28 @@
+# seed.yaml — the agent's business-surface memory between scan sessions.
+# Not hand-authored in practice; shown here as a minimal, valid shape.
+# Business Seed — last verified 2026-09-08 (app v1.0.0)
+
+app:
+  name: Example Store
+  base_url: https://store.example.com
+  auth_entry_path: /account/dashboard
+
+credentials_source: .env            # holds TEST_USERID / TEST_PASSWORD — never inline literals
+
+test_id_attribute: data-cy          # mirrors .project-profile.yaml
+
+business_domains:
+  - name: Authentication
+    route_prefix: /login
+    feature_id: FEAT-001
+
+user_roles:
+  - role: standard_user
+    description: Default E2E test user — covers the sign-in flow
+
+# form_fixtures — optional; one optional block shown for this file.
+form_fixtures:
+  /login:
+    - field: email
+      value: standard.user@example.com
+      source: seed_declared

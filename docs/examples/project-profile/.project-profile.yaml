@@ -1,0 +1,25 @@
+# .project-profile.yaml — conventions every skill reads at session start.
+# Values below match the documented defaults (see
+# ../../guides/living-doc-header-types.md#project-profile-config-driven-conventions).
+test_id_attribute: data-cy
+
+feature_dirs:
+  user_story:    features/liv_doc_us
+  functionality: features/liv_doc_func
+
+paths:
+  bdd_artifacts: .copilot/bdd
+  pageobjects:   playwright/pages
+  steps:         playwright/steps
+
+ac_states: [planned, in_review, active, deprecated]
+
+pageobject_statuses: [planned, candidate, active, deprecated]
+
+scenario_conventions:
+  feature_tag:     true
+  domain_tag:      false      # optional second feature-level tag — disabled here
+  suite_tags:      ["@Regression"]
+  section_banners: true
+
+manifest_shape: object

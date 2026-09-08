@@ -1,7 +1,7 @@
 # Tutorial: Azure DevOps Work Items → Markdown
 
 > **Forward-looking.** `living-doc-generator-markdown` is early stage, and `toolkit`'s adapter for
-> `collector-ad` output is still being built (see [Roadmap](../specs/roadmap.md)). Treat the collect
+> `collector-ad` output is still being built. Treat the collect
 > and normalize steps below as the intended shape; check each project's README before running this
 > for real.
 

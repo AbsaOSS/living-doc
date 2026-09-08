@@ -76,7 +76,7 @@ jobs:
 
 A few things to note about these inputs:
 
-- `doc-issues.json` and `generator-ready.json` are `collector-gh`'s and `toolkit`'s documented file names — `generator-ready.json` is the canonical dataset `toolkit`'s `normalize-issues` step emits (see [Data Flows & Schemas](../specs/data-flows.md) §5 for the naming rationale).
+- `doc-issues.json` and `generator-ready.json` are `collector-gh`'s and `toolkit`'s documented file names — `generator-ready.json` is the canonical dataset `toolkit`'s `normalize-issues` step emits.
 - `living-doc normalize-issues` is `toolkit`'s actual CLI command, taking `--input`/`--output` file paths — this is a workflow step like any other, not a local-only affordance.
 - Swap the collector/generator `uses:` steps for the ones you picked in steps 1–2 above; each project's own README documents its exact action inputs and outputs, which evolve faster than this guide.
 
@@ -92,7 +92,7 @@ normalize steps are the same across a row; only the generator step changes betwe
 | Azure DevOps work items | [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md) | swap the generator step in the ADO tutorial for `generator-pdf` — same pattern as [User Stories → PDF](../tutorials/user-stories-to-pdf.md) |
 
 † Source-code collection depends on `collector-gh`'s `doc-source` / `ui-tests` modes, which are
-specified but not yet built ([Data Flows & Schemas](../specs/data-flows.md) §2). Those two tutorials
+specified but not yet built. Those two tutorials
 describe the intended workflow and are marked accordingly.
 
 ## Next steps

@@ -6,8 +6,7 @@
 
 ## Purpose
 
-Extracts project metadata from Azure DevOps and emits it as machine-readable JSON for the rest of the Living Documentation pipeline. The `work-items` mode is implemented; `boards`, `pipelines`, `test_plans`, and `release_notes` are planned modes, specced but not yet built — Azure DevOps scope for v1 is re-evaluated after the v1 pre-release (see [Roadmap](../specs/roadmap.md)).
-
+Extracts project metadata from Azure DevOps and emits it as machine-readable JSON for the rest of the Living Documentation pipeline. The `work-items` mode is implemented; `boards`, `pipelines`, `test_plans`, and `release_notes` are planned modes, specced but not yet built — Azure DevOps scope for v1 is re-evaluated after the v1 pre-release.
 ## Inputs / Outputs
 
 - **Input:** an Azure DevOps organization/project (via PAT/API access)

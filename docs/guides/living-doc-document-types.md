@@ -5,6 +5,7 @@ prerequisites, and each can be rendered as **Markdown** or **PDF** by pointing a
 
 - For the entities these are built from (User Story, Feature, Functionality, AC), see [Living Doc Glossary](living-doc-glossary.md).
 - For the file formats a collector mines, see [Living Doc Header Types](living-doc-header-types.md).
+- For a minimal, copyable input corpus feeding all three document types, see [`docs/examples/`](../examples/README.md).
 - To choose Markdown vs PDF, see [Choosing a Generator](choosing-a-generator.md).
 
 ## At a glance
@@ -47,6 +48,10 @@ See the [relationship diagram](living-doc-glossary.md#relationship-diagram) for 
 **Prerequisites** — a collector source, nothing else. This is the base document; the other two build
 on it.
 
+**Worked example** — the entities `US-001` / `FEAT-001` / `FUNC-001` in
+[`docs/examples/`](../examples/README.md) (`gh-issues/` as issue bodies, `gherkin/` + `pageobject/`
+as source-code headers).
+
 **Two views.** The same technical project is generated in one of two views:
 
 | View | Contains | Use for |
@@ -85,6 +90,9 @@ mode *(specced in `collector-gh/SPEC.md`, not yet built)*.
 and carry `@AC:` tags. A test catalog can be produced without a technical project, but it is far more
 useful alongside one.
 
+**Worked example** — [`docs/examples/gherkin/`](../examples/gherkin/): the two `.feature` files and
+their `@AC:` tagged scenarios.
+
 **Generator input:** `document-type: ui-test-catalog`.
 
 ---
@@ -106,7 +114,11 @@ ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined
 
 - a technical project with ACs assigned stable IDs,
 - a test catalog whose scenarios tag those same AC IDs,
-- both mined from the same repository, or [merged into one dataset](../specs/data-flows.md) (§8) if they come from different sources.
+- both mined from the same repository, or merged into one dataset if they come from different sources.
+
+**Worked example** — the [`docs/examples/`](../examples/README.md) corpus is a complete coverage-matrix
+input: `AC:US-001-01` and `AC:FUNC-001-01` are covered by scenarios, `AC:US-001-02` and
+`AC:FUNC-001-02` are declared with no scenario (uncovered).
 
 **Generator input:** `document-type: coverage-matrix`.
 
@@ -125,5 +137,4 @@ ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined
 - [Choosing a Generator](choosing-a-generator.md) — Markdown vs PDF for any of these
 - [Getting Started](getting-started.md) — assemble the pipeline
 - [Living Documentation in 5 Minutes](../introduction/quickstart.md) — the fast path
-- [Example Input Files for Mining](../specs/example-inputs.md) — reference inputs for each document type
-- [Data Flows & Schemas](../specs/data-flows.md) — the JSON contracts and multi-source handling
+- [`docs/examples/`](../examples/README.md) — reference input files for each document type

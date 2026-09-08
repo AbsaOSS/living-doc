@@ -9,6 +9,10 @@ For entity definitions (IDs, status vocabulary, AC format, relationship diagram)
 
 > **Source of truth.** This page is the canonical definition of this format. `agentic-toolkit`'s `skills/shared/references/living-doc-bdd-schemas.md` is synced from it.
 
+> **Worked examples.** A minimal, copyable example of every format on this page lives in
+> [`docs/examples/`](../examples/README.md). **Sync obligation:** when a field or rule on this page
+> changes, the matching example in `docs/examples/` changes in the same PR.
+
 ---
 
 ## Contents
@@ -118,6 +122,8 @@ Feature: <US Title>
 | `# acceptance_criteria:` | Yes | Full AC listing with IDs, versions, and states; each AC may extend inherited preconditions and not_in_scope |
 | `@US_ID:US-<n>` tag | Yes | Machine-parseable User Story ID (feature-level tag) |
 
+**Example:** [`docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature`](../examples/gherkin/liv_doc_us/us-001-customer-login.feature) — full header, one covered AC and one uncovered AC, AC-level `preconditions` extension.
+
 ---
 
 ## 2. Feature in a PageObject File
@@ -125,6 +131,8 @@ Feature: <US Title>
 Every PageObject file opens with a living-doc header block. Use this format so each file is self-describing and traceable without opening a separate registry.
 
 **In this section:** [Required fields](#required-fields) · [Full vs cross-reference headers](#two-header-formats-full-vs-cross-reference) · [Maintaining the header](#maintaining-a-pageobject-header) · [Where operational notes belong](#where-operational-notes-belong) · [Common mistakes](#common-mistakes)
+
+**Example:** [`docs/examples/pageobject/LoginPage.ts`](../examples/pageobject/LoginPage.ts) — full header with the `status: candidate` + `stub-reason:` optional field.
 
 ### Required fields
 
@@ -303,6 +311,8 @@ A `status: candidate` surface is **not a permanent state** — it is a living-do
 Header comment block at the top of every Functionality feature file —
 `<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
 
+**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — full header, an `Aspect:` AC split across two scenarios (covered) and one uncovered AC.
+
 ```gherkin
 # =============================================================================
 # LIVING DOC — FUNC-<nnn> · <Feature Name> — <Functionality Name>
@@ -397,6 +407,8 @@ you are expected to write from scratch.
 
 **Location:** `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`).
 
+**Example:** [`docs/examples/project-profile/.project-profile.yaml`](../examples/project-profile/.project-profile.yaml).
+
 ```yaml
 # .copilot/bdd/.project-profile.yaml — defaults shown match the reference (AUL) project.
 test_id_attribute: data-cy            # what page.getByTestId() resolves to (Playwright testIdAttribute)
@@ -452,6 +464,8 @@ between scan sessions: app entry point, business domains → routes, known entit
 routes, test-user roles, and pre-declared form values. The agent creates it, re-reads it in full at
 the start of every scan session, and appends to it as it discovers entities. A human may pre-seed
 known values or correct them, but is not expected to write the file.
+
+**Example:** [`docs/examples/project-profile/seed.yaml`](../examples/project-profile/seed.yaml) — required keys plus one optional `form_fixtures` entry.
 
 ```yaml
 # .copilot/bdd/seed.yaml

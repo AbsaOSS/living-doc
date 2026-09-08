@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh issue *)",
+      "Bash(awk '/## 9/,/## 10|^---$/' docs/specs/liv-doc/data-flows.md)",
+      "Bash(git status *)",
+      "Bash(echo \"exit $?\")",
+      "Bash(lychee --offline --no-progress --include-fragments './**/*.md')",
+      "Bash(perl -pi -e 's{\\\\.\\\\./specs/\\(roadmap|data-flows|example-inputs|architecture\\)\\\\.md}{../specs/liv-doc/$1.md}g' docs/guides/getting-started.md docs/guides/azure-devops-collection.md docs/guides/living-doc-glossary.md docs/guides/living-doc-document-types.md docs/projects/collector-ad.md docs/projects/collector-gh.md docs/projects/agentic-toolkit.md docs/tutorials/gh-source-to-pdf.md docs/tutorials/gh-source-to-markdown.md docs/tutorials/ado-workitems-to-markdown.md)",
+      "Bash(lychee --offline --no-progress --include-fragments docs/examples/README.md docs/examples/gh-issues/*.md)",
+      "Bash(git --no-pager diff docs/guides/living-doc-header-types.md docs/guides/living-doc-document-types.md)",
+      "Bash(git --no-pager diff --stat docs/specs/liv-doc/example-inputs.md)",
+      "Bash(git check-ignore *)",
+      "Bash(perl -pi -e 's{Layout: see \\\\.\\\\./\\\\.\\\\./specs/liv-doc/example-inputs\\\\.md section 5}{Layout: see ../README.md \\(GitHub issue-body layout\\)}' docs/examples/gh-issues/*.md)",
+      "Bash(lychee --offline --no-progress --include-fragments docs/examples/**/*.md docs/examples/*.md docs/guides/living-doc-header-types.md docs/guides/living-doc-document-types.md)",
+      "Bash(git --no-pager diff --stat)",
+      "Bash(awk '/^\\\\[docs.*\\\\]:/{f=$0} /ERROR/{print f}')",
+      "Bash(git --no-pager diff docs/guides/living-doc-glossary.md docs/projects/agentic-toolkit.md docs/guides/getting-started.md)",
+      "Bash(perl -0pi -e 's{\\\\[Architecture\\\\]\\\\\\(\\\\.\\\\./specs/liv-doc/architecture\\\\.md\\\\\\) §4}{[Architecture]\\(../introduction/architecture.md\\)}g; s{\\\\[Architecture\\\\]\\\\\\(\\\\.\\\\./specs/liv-doc/architecture\\\\.md\\\\\\)}{[Architecture]\\(../introduction/architecture.md\\)}g' docs/projects/agentic-toolkit.md)",
+      "Bash(perl -0pi -e 's{\\\\[\\([^\\\\]]+\\)\\\\]\\\\\\(\\\\.\\\\.\\\\/specs\\\\/[^\\)]*\\\\\\)}{$1}g' docs/guides/azure-devops-collection.md docs/guides/getting-started.md docs/guides/living-doc-document-types.md docs/guides/living-doc-glossary.md docs/projects/agentic-toolkit.md docs/projects/collector-ad.md docs/projects/collector-gh.md docs/tutorials/ado-workitems-to-markdown.md docs/tutorials/gh-source-to-markdown.md docs/tutorials/gh-source-to-pdf.md)",
+      "Bash(git --no-pager diff docs/guides/azure-devops-collection.md docs/guides/getting-started.md docs/guides/living-doc-document-types.md docs/guides/living-doc-glossary.md docs/projects/collector-ad.md docs/projects/collector-gh.md docs/projects/agentic-toolkit.md docs/tutorials/)",
+      "Bash(perl -pi -e 's/ \\\\\\(see Roadmap\\\\\\)\\\\./. /; s/Azure DevOps scope for v1 is re-evaluated after the v1 pre-release\\\\. \\\\n?/Azure DevOps scope for v1 is re-evaluated after the v1 pre-release./' docs/guides/azure-devops-collection.md docs/projects/collector-ad.md)",
+      "Bash(grep -nE ' $' docs/guides/azure-devops-collection.md docs/projects/collector-ad.md)",
+      "Bash(perl -pi -e 's/pre-release\\\\. $/pre-release./' docs/guides/azure-devops-collection.md docs/projects/collector-ad.md)",
+      "Bash(perl -pi -e 's/\\\\\\(see Roadmap Phase 2\\\\\\)/planned for Phase 2/' docs/projects/collector-gh.md)",
+      "Bash(perl -pi -e 's/^- Roadmap Phase 2 \\\\\\(implementing/- Phase 2 roadmap item — implementing/; s/format\\\\\\)$/format/' docs/projects/agentic-toolkit.md)",
+      "Bash(perl -0pi -e 's/ \\\\\\(Data Flows & Schemas §2\\\\\\)//' docs/tutorials/gh-source-to-markdown.md docs/tutorials/gh-source-to-pdf.md docs/guides/getting-started.md)",
+      "Bash(perl -0pi -e 's/\\\\*\\\\*not yet implemented\\\\*\\\\*\\\\n>\\\\. Treat the collector step below as the intended\\\\n> shape;/**not yet implemented**. Treat the collector step below as the intended shape;/' docs/tutorials/gh-source-to-markdown.md docs/tutorials/gh-source-to-pdf.md)",
+      "Bash(git --no-pager diff docs/guides/living-doc-header-types.md)",
+      "Bash(git --no-pager diff docs/guides/living-doc-document-types.md docs/guides/living-doc-glossary.md)"
+    ],
+    "additionalDirectories": [
+      "/Users/admin/repos/AbsaOSS/living-doc/docs/examples"
+    ]
+  }
+}
