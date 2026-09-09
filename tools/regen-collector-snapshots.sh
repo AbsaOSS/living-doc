@@ -62,7 +62,11 @@ echo "==> toolkit @ $TOOLKIT_REF"
 git clone --quiet --filter=blob:none https://github.com/AbsaOSS/living-doc-toolkit "$WORK_DIR/toolkit"
 git -C "$WORK_DIR/toolkit" checkout --quiet "$TOOLKIT_REF"
 # requirements.txt uses editable paths relative to the repo root, so install from there.
-( cd "$WORK_DIR/toolkit" && pip install --quiet -r requirements.txt )
+# It omits packages/services/coverage_matrix, yet apps/cli depends on the (unpublished)
+# living-doc-service-coverage-matrix — add it to the same pip call so the editable set
+# (living-doc-core included) resolves together.
+( cd "$WORK_DIR/toolkit" \
+  && pip install --quiet -e packages/services/coverage_matrix -r requirements.txt )
 
 RUN_DIR="$WORK_DIR/run"
 mkdir -p "$RUN_DIR"
