@@ -19,7 +19,7 @@ Normalize a collector / toolkit JSON artifact for snapshot comparison.
 
 The real collector and the coverage-matrix CLI stamp every run with volatile values
 (wall-clock timestamps, and — inside GitHub Actions — the run id / attempt / actor /
-sha). Those carry no signal about whether the *mined content* changed, so they are
+sha, plus ``metadata.producer.build``). Those carry no signal about whether the *mined content* changed, so they are
 replaced with fixed placeholders before the file is diffed against the committed
 expected snapshot under ``docs/examples/_expected/``.
 
@@ -39,6 +39,11 @@ _PLACEHOLDER = "<normalized-for-snapshot>"
 # Keys whose value is replaced with the placeholder string wherever they appear.
 _VOLATILE_SCALAR_KEYS = {"generated_at"}
 
+# Keys whose value is blanked to None wherever they appear. ``producer.build`` is the
+# CI run id when the collector runs inside GitHub Actions and absent (None) otherwise -
+# volatile run identity, exactly like the ``run`` block, and no signal about mined content.
+_VOLATILE_NULLED_KEYS = {"build"}
+
 
 def _normalize(node):
     """Recursively replace volatile values in place and return the node."""
@@ -51,6 +56,8 @@ def _normalize(node):
         for key, value in node.items():
             if key in _VOLATILE_SCALAR_KEYS and not isinstance(value, (dict, list)):
                 node[key] = _PLACEHOLDER
+            elif key in _VOLATILE_NULLED_KEYS and not isinstance(value, (dict, list)):
+                node[key] = None
             else:
                 _normalize(value)
     elif isinstance(node, list):
