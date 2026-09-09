@@ -1,0 +1,5 @@
+# Pinned dependencies for tools/examples_check.py and its test (see
+# .github/workflows/examples-check.yml). Scoped to the docs/examples corpus check only —
+# this repo has no other Python code.
+PyYAML==6.0.3
+pytest==9.1.1
