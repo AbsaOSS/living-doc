@@ -1,0 +1,125 @@
+{
+  "features": [],
+  "functionalities": [
+    {
+      "acceptance_criteria": [
+        {
+          "aspect": [
+            "minimum-length",
+            "character-classes   ← optional; one optional field for this file"
+          ],
+          "descoped_at": null,
+          "descoped_reason": null,
+          "description": "Returns valid=false when the candidate password fails a complexity rule.",
+          "future_release": null,
+          "id": "FUNC-001-01",
+          "not_in_scope": [],
+          "preconditions": [],
+          "removal_planned": null,
+          "state": "active",
+          "version": "v1.0.0"
+        },
+        {
+          "aspect": [],
+          "descoped_at": null,
+          "descoped_reason": null,
+          "description": "Returns valid=true when the candidate password satisfies every complexity rule.",
+          "future_release": null,
+          "id": "FUNC-001-02",
+          "not_in_scope": [],
+          "preconditions": [],
+          "removal_planned": null,
+          "state": "active",
+          "version": "v1.0.0"
+        }
+      ],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "func_type": "field_validation",
+      "id": "AbsaOSS/living-doc/FUNC-001",
+      "not_in_scope": [],
+      "parent": "FEAT-001",
+      "repository_name": "living-doc",
+      "state": "active",
+      "title": "Login Page — Validate Password Strength"
+    }
+  ],
+  "metadata": {
+    "original_metadata": {
+      "generated_at": "<normalized-for-snapshot>",
+      "inputs": {},
+      "schema_version": "1.0.0"
+    },
+    "producer": {
+      "build": null,
+      "name": "AbsaOSS/living-doc-collector-gh",
+      "version": "0.1.1"
+    },
+    "run": {
+      "actor": null,
+      "ref": null,
+      "run_attempt": null,
+      "run_id": null,
+      "sha": null,
+      "workflow": null
+    },
+    "source": {
+      "enterprise": null,
+      "organization": "AbsaOSS",
+      "repositories": [
+        "AbsaOSS/living-doc"
+      ],
+      "systems": [
+        "GitHub"
+      ]
+    }
+  },
+  "user_stories": [
+    {
+      "acceptance_criteria": [
+        {
+          "aspect": [],
+          "descoped_at": null,
+          "descoped_reason": null,
+          "description": "A customer who submits valid credentials lands on the account dashboard. preconditions:                      ← optional; AC-level extension (one optional field for this file) A registered customer account exists and is not locked.",
+          "future_release": null,
+          "id": "US-001-01",
+          "not_in_scope": [],
+          "preconditions": [],
+          "removal_planned": null,
+          "state": "active",
+          "version": "v1.0.0"
+        },
+        {
+          "aspect": [],
+          "descoped_at": null,
+          "descoped_reason": null,
+          "description": "An inline error is shown when the customer submits invalid credentials, without leaving the login screen.",
+          "future_release": null,
+          "id": "US-001-02",
+          "not_in_scope": [],
+          "preconditions": [],
+          "removal_planned": null,
+          "state": "active",
+          "version": "v1.0.0"
+        }
+      ],
+      "business_value": [
+        "Registered customers can reach their account area, so returning users convert without friction."
+      ],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "description": "As a registered customer, I can sign in with my email and password, so that I can reach my account area.",
+      "id": "AbsaOSS/living-doc/US-001",
+      "not_in_scope": [],
+      "preconditions": [],
+      "repository_name": "living-doc",
+      "state": "active",
+      "tags": [],
+      "timestamps": null,
+      "title": "Customer Login",
+      "url": "https://github.com/AbsaOSS/living-doc/blob/main/docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature"
+    }
+  ],
+  "warnings": []
+}

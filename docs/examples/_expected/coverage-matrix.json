@@ -1,0 +1,129 @@
+{
+  "features": [],
+  "functionalities": [
+    {
+      "acceptance_criteria": [
+        {
+          "coverage": {
+            "status": "covered",
+            "test_count": 2,
+            "tests": [
+              {
+                "id": "AbsaOSS/living-doc/liv_doc_func/func-001-validate-password-strength.feature/password-shorter-than-the-minimum-length-is-rejected",
+                "scenario_name": "Password shorter than the minimum length is rejected",
+                "source": {
+                  "file": "liv_doc_func/func-001-validate-password-strength.feature",
+                  "line": 25,
+                  "org": "AbsaOSS",
+                  "repo": "living-doc"
+                },
+                "tags": []
+              },
+              {
+                "id": "AbsaOSS/living-doc/liv_doc_func/func-001-validate-password-strength.feature/password-missing-a-required-character-class-is-rejected",
+                "scenario_name": "Password missing a required character class is rejected",
+                "source": {
+                  "file": "liv_doc_func/func-001-validate-password-strength.feature",
+                  "line": 32,
+                  "org": "AbsaOSS",
+                  "repo": "living-doc"
+                },
+                "tags": []
+              }
+            ]
+          },
+          "description": "Returns valid=false when the candidate password fails a complexity rule.",
+          "id": "FUNC-001-01",
+          "state": "active",
+          "version": "v1.0.0"
+        },
+        {
+          "coverage": {
+            "status": "not_covered",
+            "test_count": 0,
+            "tests": []
+          },
+          "description": "Returns valid=true when the candidate password satisfies every complexity rule.",
+          "id": "FUNC-001-02",
+          "state": "active",
+          "version": "v1.0.0"
+        }
+      ],
+      "full_id": "AbsaOSS/living-doc/FUNC-001",
+      "func_type": "field_validation",
+      "id": "FUNC-001",
+      "parent": "FEAT-001",
+      "state": "active",
+      "summary": {
+        "active_acs": 0,
+        "coverage_pct": null,
+        "covered_acs": 0,
+        "total_acs": 2
+      },
+      "title": "Login Page — Validate Password Strength"
+    }
+  ],
+  "generated_at": "<normalized-for-snapshot>",
+  "schema_version": "coverage-matrix-v1.0.0",
+  "stale_ac_refs": [],
+  "summary": {
+    "active_acs": 0,
+    "coverage_pct": null,
+    "covered_acs": 0,
+    "total_acs": 4,
+    "total_features": 0,
+    "total_functionalities": 1,
+    "total_user_stories": 1
+  },
+  "unlinked_tests": [],
+  "user_stories": [
+    {
+      "acceptance_criteria": [
+        {
+          "coverage": {
+            "status": "covered",
+            "test_count": 1,
+            "tests": [
+              {
+                "id": "AbsaOSS/living-doc/liv_doc_us/us-001-customer-login.feature/customer-signs-in-with-valid-credentials",
+                "scenario_name": "Customer signs in with valid credentials",
+                "source": {
+                  "file": "liv_doc_us/us-001-customer-login.feature",
+                  "line": 28,
+                  "org": "AbsaOSS",
+                  "repo": "living-doc"
+                },
+                "tags": []
+              }
+            ]
+          },
+          "description": "A customer who submits valid credentials lands on the account dashboard. preconditions:                      ← optional; AC-level extension (one optional field for this file) A registered customer account exists and is not locked.",
+          "id": "US-001-01",
+          "state": "active",
+          "version": "v1.0.0"
+        },
+        {
+          "coverage": {
+            "status": "not_covered",
+            "test_count": 0,
+            "tests": []
+          },
+          "description": "An inline error is shown when the customer submits invalid credentials, without leaving the login screen.",
+          "id": "US-001-02",
+          "state": "active",
+          "version": "v1.0.0"
+        }
+      ],
+      "full_id": "AbsaOSS/living-doc/US-001",
+      "id": "US-001",
+      "state": "active",
+      "summary": {
+        "active_acs": 0,
+        "coverage_pct": null,
+        "covered_acs": 0,
+        "total_acs": 2
+      },
+      "title": "Customer Login"
+    }
+  ]
+}
