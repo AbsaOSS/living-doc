@@ -311,7 +311,13 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
 
 # --- PageObject ----------------------------------------------------------------------
 
-REQUIRED_PO_KEYS = ["surface_type", "status", "user_stories", "functionalities", "page-object"]
+# docs/guides/living-doc-header-types.md#required-fields (Feature in a PageObject File)
+REQUIRED_PO_KEYS_FULL = [
+    "surface_type", "route", "owners", "status", "purpose",
+    "user_stories", "functionalities", "external_dependencies", "page-object",
+]
+# docs/guides/living-doc-header-types.md — Cross-reference header required fields
+REQUIRED_PO_KEYS_XREF = ["parent-feat", "route", "owners", "status", "purpose", "page-object"]
 
 
 def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
@@ -334,11 +340,13 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
         if km:
             keys.setdefault(km.group(1), (lineno, _strip_annotation(km.group(2))))
 
-    for key in REQUIRED_PO_KEYS:
+    is_xref = "parent-feat" in keys or any("[cross-reference]" in t for _, t in header)
+    required = REQUIRED_PO_KEYS_XREF if is_xref else REQUIRED_PO_KEYS_FULL
+    for key in required:
         if key not in keys:
+            kind_note = "Cross-reference header" if is_xref else "Feature in a PageObject File"
             corpus.fail(rel, 1, f"required PageObject header field '{key}:' missing",
-                        "see living-doc-header-types.md#required-fields "
-                        "(Feature in a PageObject File)")
+                        f"see living-doc-header-types.md#required-fields ({kind_note})")
 
     if "surface_type" in keys and keys["surface_type"][1] not in SURFACE_TYPES:
         corpus.fail(rel, keys["surface_type"][0],
@@ -349,10 +357,10 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
     if status and status not in PAGEOBJECT_STATUSES:
         corpus.fail(rel, keys["status"][0], f"status '{status}' is not a documented surface status",
                     f"use one of {PAGEOBJECT_STATUSES}")
-    if status and status != "active" and "stub-reason" not in keys:
+    if status == "candidate" and "stub-reason" not in keys:
         corpus.fail(rel, keys.get("status", (1, ""))[0],
-                    f"status '{status}' requires a 'stub-reason:' field",
-                    "add a one-line 'stub-reason:' explaining why the surface is not yet active")
+                    "status 'candidate' requires a 'stub-reason:' field",
+                    "add a one-line 'stub-reason:' explaining why the surface is not yet instrumented")
 
     for _, banner in header:
         bm = re.search(r"LIVING DOC\s+[—-]\s+(FEAT-\d+)", banner)
@@ -360,7 +368,7 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
             corpus.declared_entities.add(bm.group(1))
             break
 
-    for key in ("user_stories", "functionalities"):
+    for key in ("user_stories", "functionalities", "parent-feat"):
         if key in keys:
             lineno, value = keys[key]
             for rid in ENTITY_ID_RE.findall(value):

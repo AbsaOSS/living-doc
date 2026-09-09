@@ -34,6 +34,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 REAL_EXAMPLES = REPO_ROOT / "docs" / "examples"
 US_FEATURE = "gherkin/liv_doc_us/us-001-customer-login.feature"
 FUNC_FEATURE = "gherkin/liv_doc_func/func-001-validate-password-strength.feature"
+PAGEOBJECT = "pageobject/LoginPage.ts"
 
 
 @pytest.fixture
@@ -131,6 +132,42 @@ def test_coverage_pair_broken_when_every_ac_covered(corpus_dir: Path) -> None:
 
     findings = findings_for(corpus_dir)
     assert any("coverage-pair" in f.rule for f in findings), findings
+
+
+def test_pageobject_missing_required_field_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / PAGEOBJECT
+    kept = [ln for ln in target.read_text(encoding="utf-8").splitlines()
+            if not ln.lstrip(" *").startswith("route:")]
+    target.write_text("\n".join(kept) + "\n", encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(PAGEOBJECT in f.file and "route" in f.rule for f in findings), findings
+
+
+def test_pageobject_candidate_without_stub_reason_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / PAGEOBJECT
+    kept = [ln for ln in target.read_text(encoding="utf-8").splitlines()
+            if not ln.lstrip(" *").startswith("stub-reason:")
+            and not ln.lstrip(" *").startswith("documented from the interface spec")]
+    target.write_text("\n".join(kept) + "\n", encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(PAGEOBJECT in f.file and "stub-reason" in f.rule for f in findings), findings
+
+
+def test_pageobject_non_candidate_needs_no_stub_reason(corpus_dir: Path) -> None:
+    target = corpus_dir / PAGEOBJECT
+    text = target.read_text(encoding="utf-8")
+    text = "\n".join(
+        ln for ln in text.splitlines()
+        if not ln.lstrip(" *").startswith("stub-reason:")
+        and not ln.lstrip(" *").startswith("documented from the interface spec")
+    )
+    text = text.replace("status:                candidate", "status:                planned")
+    target.write_text(text + "\n", encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert not any(PAGEOBJECT in f.file and "stub-reason" in f.rule for f in findings), findings
 
 
 def test_missing_project_profile_fails(corpus_dir: Path) -> None:
