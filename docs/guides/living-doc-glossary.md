@@ -19,6 +19,7 @@ For the file-header schemas that carry these entities (feature file headers, Pag
   - [Feature](#feature)
   - [Functionality (FUNC)](#functionality-func)
   - [Acceptance Criterion (AC)](#acceptance-criterion-ac)
+  - [ID uniqueness](#id-uniqueness)
 - [Relationship diagram](#relationship-diagram)
 - [What each `living-doc-bdd-copilot` skill creates or consumes](#what-each-living-doc-bdd-copilot-skill-creates-or-consumes)
 
@@ -232,6 +233,26 @@ AC:FUNC-001-02 (v1.0.0 - active)
 AC:FUNC-001-03 (v1.0.0 - active)
    - Rejects passwords shorter than 8 characters.
 ```
+
+### ID uniqueness
+
+Entity IDs (`US-`, `FEAT-`, `FUNC-`) and AC IDs must be **globally unique across every source** that
+feeds a living-doc pipeline — not merely unique within one repo or Azure DevOps project. There must be
+no `US-1` that means one thing in a GitHub repo and something else in an ADO project.
+
+Why: a cross-source coverage matrix joins a technical project to a test catalog on these IDs. When the
+two sides come from different sources, that join is only meaningful if an ID denotes the same entity
+everywhere it appears. Colliding IDs cannot be reconciled after mining — the merge either collides
+records or silently mismatches a scenario to the wrong AC, producing a coverage matrix that is wrong
+in a way no downstream tool can detect.
+
+Guidance: when more than one source may contribute to the same technical project, prefix or namespace
+IDs per source (e.g. `GH-US-1` / `ADO-US-1`) so collisions cannot occur.
+
+This mirrors the *coverage-matrix* prerequisites in [Living Doc Document Types](living-doc-document-types.md#coverage-matrix)
+and the `Data Flows & Schemas` spec §8 ("Multiple sources and multiple generators"). The toolkit
+[`coverage_matrix` service README](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/packages/services/coverage_matrix/README.md)
+describes the merge-before-`coverage-matrix` rule and the false-gap failure mode.
 
 ---
 
