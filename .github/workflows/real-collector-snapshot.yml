@@ -1,0 +1,103 @@
+#
+# Copyright 2026 ABSA Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Runs the REAL living-doc-collector-gh (doc-source + ui-tests) and the REAL
+# living-doc-toolkit coverage-matrix over docs/examples/gherkin/, then snapshot-tests
+# the mined JSON against docs/examples/_expected/*.json.
+#
+# A failing diff means one of two things:
+#   1. the example corpus changed and docs/examples/_expected/ was not regenerated, or
+#   2. the pinned collector/toolkit was bumped and its parser output moved.
+# Either way: run `tools/regen-collector-snapshots.sh` and commit the result
+# (see CONTRIBUTING.md -> "Regenerating the collector snapshots").
+#
+# This is deliberately separate from examples-check.yml, which stays self-contained and
+# installs no collector. This workflow exists to exercise the real mining code.
+
+name: "Real collector snapshot"
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - "docs/examples/**"
+      - "tools/regen-collector-snapshots.sh"
+      - "tools/normalize_snapshot.py"
+      - "tools/collector-snapshot-pins.env"
+      - ".github/workflows/real-collector-snapshot.yml"
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    paths:
+      - "docs/examples/**"
+      - "tools/regen-collector-snapshots.sh"
+      - "tools/normalize_snapshot.py"
+      - "tools/collector-snapshot-pins.env"
+      - ".github/workflows/real-collector-snapshot.yml"
+  schedule:
+    # Weekly, to catch collector drift between example PRs.
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  real-collector-snapshot:
+    name: Snapshot the real collector over docs/examples/gherkin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Run the pinned collector + toolkit over the corpus
+        env:
+          # Only used for the collector's start-up connectivity check.
+          GITHUB_TOKEN: ${{ github.token }}
+        run: tools/regen-collector-snapshots.sh "${{ runner.temp }}/actual"
+
+      - name: Diff mined output against docs/examples/_expected/
+        run: |
+          set -euo pipefail
+          status=0
+          for name in doc-source ui-tests coverage-matrix; do
+            expected="docs/examples/_expected/${name}.json"
+            actual="${{ runner.temp }}/actual/${name}.json"
+            if ! diff -u "$expected" "$actual" > "/tmp/${name}.diff"; then
+              echo "::error file=${expected}::${name}.json snapshot diff - regenerate with tools/regen-collector-snapshots.sh"
+              echo "----- ${name}.json -----"
+              cat "/tmp/${name}.diff"
+              status=1
+            fi
+          done
+          if [[ $status -ne 0 ]]; then
+            echo ""
+            echo "Snapshot mismatch. Likely cause, one of:"
+            echo "  1. docs/examples/** changed and docs/examples/_expected/ was not regenerated."
+            echo "  2. the pinned collector/toolkit in tools/collector-snapshot-pins.env was bumped"
+            echo "     and its parser output moved."
+            echo "Fix: run tools/regen-collector-snapshots.sh and commit docs/examples/_expected/."
+          fi
+          exit $status

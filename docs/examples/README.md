@@ -23,6 +23,17 @@ file one AC is covered by a scenario and one is left uncovered, so the matrix sh
 | [gh-issues/feat-001-login-page.md](gh-issues/feat-001-login-page.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
 | [gh-issues/func-001-validate-password-strength.md](gh-issues/func-001-validate-password-strength.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
 
+## What the corpus mines to (`_expected/`)
+
+[`_expected/`](_expected/) holds the JSON this `gherkin/` corpus produces when the **real**
+`living-doc-collector-gh` (`doc-source` + `ui-tests`) and `living-doc-toolkit` `coverage-matrix`
+are run over it — `doc-source.json`, `ui-tests.json`, `coverage-matrix.json`, normalized so only
+the mined content is compared. `.github/workflows/real-collector-snapshot.yml` regenerates them on
+every PR touching `docs/examples/**` and fails on any diff, so a parser or schema change in the
+pinned collector that alters the mined output surfaces here. These files double as a worked
+reference for anyone integrating the collector. To regenerate after an intended change, see
+[CONTRIBUTING.md § Regenerating the collector snapshots](../../CONTRIBUTING.md#regenerating-the-collector-snapshots).
+
 ## GitHub issue-body layout (canonical)
 
 The `.feature` / header-block format is fully specified in

@@ -1,0 +1,146 @@
+{
+  "items": [
+    {
+      "ac_ids": [
+        "FUNC-001-01"
+      ],
+      "ac_links": [
+        {
+          "aspect": "minimum-length",
+          "id": "FUNC-001-01"
+        }
+      ],
+      "func_id": "FUNC-001",
+      "id": "AbsaOSS/living-doc/liv_doc_func/func-001-validate-password-strength.feature/password-shorter-than-the-minimum-length-is-rejected",
+      "scenario_name": "Password shorter than the minimum length is rejected",
+      "scenario_type": "Scenario",
+      "source": {
+        "file": "liv_doc_func/func-001-validate-password-strength.feature",
+        "line": 25,
+        "org": "AbsaOSS",
+        "repo": "living-doc"
+      },
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "the complexity policy requires at least 12 characters"
+        },
+        {
+          "keyword": "When",
+          "text": "the password \"short\" is validated"
+        },
+        {
+          "keyword": "Then",
+          "text": "the result is valid=false"
+        }
+      ],
+      "tags": [],
+      "us_id": null
+    },
+    {
+      "ac_ids": [
+        "FUNC-001-01"
+      ],
+      "ac_links": [
+        {
+          "aspect": "character-classes",
+          "id": "FUNC-001-01"
+        }
+      ],
+      "func_id": "FUNC-001",
+      "id": "AbsaOSS/living-doc/liv_doc_func/func-001-validate-password-strength.feature/password-missing-a-required-character-class-is-rejected",
+      "scenario_name": "Password missing a required character class is rejected",
+      "scenario_type": "Scenario",
+      "source": {
+        "file": "liv_doc_func/func-001-validate-password-strength.feature",
+        "line": 32,
+        "org": "AbsaOSS",
+        "repo": "living-doc"
+      },
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "the complexity policy requires an upper-case letter and a digit"
+        },
+        {
+          "keyword": "When",
+          "text": "the password \"lowercaseonly\" is validated"
+        },
+        {
+          "keyword": "Then",
+          "text": "the result is valid=false"
+        }
+      ],
+      "tags": [],
+      "us_id": null
+    },
+    {
+      "ac_ids": [
+        "US-001-01"
+      ],
+      "ac_links": [
+        {
+          "aspect": null,
+          "id": "US-001-01"
+        }
+      ],
+      "func_id": null,
+      "id": "AbsaOSS/living-doc/liv_doc_us/us-001-customer-login.feature/customer-signs-in-with-valid-credentials",
+      "scenario_name": "Customer signs in with valid credentials",
+      "scenario_type": "Scenario",
+      "source": {
+        "file": "liv_doc_us/us-001-customer-login.feature",
+        "line": 28,
+        "org": "AbsaOSS",
+        "repo": "living-doc"
+      },
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a registered customer is on the login screen"
+        },
+        {
+          "keyword": "When",
+          "text": "the customer submits valid credentials"
+        },
+        {
+          "keyword": "Then",
+          "text": "the account dashboard is displayed"
+        }
+      ],
+      "tags": [],
+      "us_id": "US-001"
+    }
+  ],
+  "metadata": {
+    "original_metadata": {
+      "generated_at": "<normalized-for-snapshot>",
+      "inputs": {},
+      "schema_version": "1.0.0"
+    },
+    "producer": {
+      "build": null,
+      "name": "AbsaOSS/living-doc-collector-gh",
+      "version": "0.1.1"
+    },
+    "run": {
+      "actor": null,
+      "ref": null,
+      "run_attempt": null,
+      "run_id": null,
+      "sha": null,
+      "workflow": null
+    },
+    "source": {
+      "enterprise": null,
+      "organization": "AbsaOSS",
+      "repositories": [
+        "AbsaOSS/living-doc"
+      ],
+      "systems": [
+        "GitHub"
+      ]
+    }
+  },
+  "warnings": []
+}

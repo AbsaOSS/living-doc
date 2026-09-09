@@ -39,6 +39,25 @@ PR body has to also include these sections: `## Overview`, `## Release Notes`, `
 - **Release Notes** – short, user-facing summary for the changelog.
 - **Related** – link the issue with a closing keyword, e.g. `Closes #123` or `Fixes AB#12345`.
 
+## Regenerating the collector snapshots
+
+`.github/workflows/real-collector-snapshot.yml` runs the real `living-doc-collector-gh`
+(`doc-source` + `ui-tests`) and the real `living-doc-toolkit` `coverage-matrix` over
+`docs/examples/gherkin/` and diffs the result against the committed expected files in
+`docs/examples/_expected/`. The job fails on any diff.
+
+Regenerate and commit the expected files **in the same PR** whenever either side moves:
+
+```shell
+export GITHUB_TOKEN=$(gh auth token)   # only used for the collector's start-up check
+tools/regen-collector-snapshots.sh     # writes docs/examples/_expected/*.json
+git add docs/examples/_expected
+```
+
+The pinned `collector-gh` / `toolkit` refs live in one place — `tools/collector-snapshot-pins.env`.
+Bumping a pin is a reviewed change, exactly like a dependency bump: change the ref there and
+commit the regenerated snapshots in the same PR.
+
 ## Target Branches
 
 PRs have to target `main`, `master`, `support/*`, or `release/*`.
