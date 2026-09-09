@@ -15,7 +15,8 @@
 #
 """Tests for tools/examples_check.py — the docs/examples corpus validator.
 
-Run: ``python -m pytest tools/test_examples_check.py`` (needs PyYAML; no other deps).
+Run: ``python -m pytest tools/test_examples_check.py`` (needs pytest + PyYAML;
+see tools/requirements-examples-check.txt).
 Each mutation test copies the real corpus, breaks one thing, and asserts the check
 reports it by file + rule.
 """

@@ -70,7 +70,7 @@ SURFACE_TYPES = ["UI", "API", "Service", "Worker", "Module", "Library"]
 AC_HEADER_RE = re.compile(
     r"^AC:(?P<id>[A-Z]+-\d+-\d+)\s+\("
     r"v(?P<version>\d+\.\d+\.\d+)\s*-\s*(?P<state>[a-z_]+)"
-    r"(?:\s*-\s*removal planned v\d+\.\d+\.\d+)?\)$"
+    r"(?P<removal>\s*-\s*removal planned v\d+\.\d+\.\d+)?\)$"
 )
 ENTITY_ID_RE = re.compile(r"\b((?:US|FEAT|FUNC)-\d+)\b")
 # @AC:<id>[/param:value] scenario tag — glossary "Tag format"
@@ -200,6 +200,17 @@ def _parse_ac_block(header: list[tuple[int, str]], corpus: Corpus, rel: str,
                 corpus.fail(rel, lineno,
                             f"AC id '{current}' does not belong to entity '{parent_id}'",
                             f"AC ids under {parent_id} must read '{parent_id}-<nn>'")
+            has_removal = m.group("removal") is not None
+            if m.group("state") == "deprecated" and not has_removal:
+                corpus.fail(rel, lineno,
+                            "deprecated AC is missing the 'removal planned v<version>' note",
+                            "write 'AC:<id> (v<version> - deprecated - removal planned v<version>)' "
+                            "(see living-doc-glossary.md#acceptance-criterion-ac)")
+            if m.group("state") != "deprecated" and has_removal:
+                corpus.fail(rel, lineno,
+                            f"non-deprecated AC (state '{m.group('state')}') carries a "
+                            "'removal planned' note",
+                            "the removal note is only valid on a 'deprecated' AC")
         elif current is not None:
             am = re.match(r"-?\s*Aspect:\s*(.+)$", stripped)
             if am:
