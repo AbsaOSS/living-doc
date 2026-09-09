@@ -10,7 +10,7 @@
 #
 #   AC:US-001-01 (v1.0.0 - active)
 #     - A customer who submits valid credentials lands on the account dashboard.
-#     preconditions:                      ← optional; AC-level extension (one optional field for this file)
+#     preconditions:
 #       - A registered customer account exists and is not locked.
 #
 #   AC:US-001-02 (v1.0.0 - active)

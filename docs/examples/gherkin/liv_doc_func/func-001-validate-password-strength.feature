@@ -9,7 +9,7 @@
 #
 #   AC:FUNC-001-01 (v1.0.0 - active)
 #     - Returns valid=false when the candidate password fails a complexity rule.
-#     - Aspect: minimum-length, character-classes   ← optional; one optional field for this file
+#     - Aspect: minimum-length, character-classes
 #
 #   AC:FUNC-001-02 (v1.0.0 - active)
 #     - Returns valid=true when the candidate password satisfies every complexity rule.

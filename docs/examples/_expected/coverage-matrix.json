@@ -97,7 +97,7 @@
               }
             ]
           },
-          "description": "A customer who submits valid credentials lands on the account dashboard. preconditions:                      ← optional; AC-level extension (one optional field for this file) A registered customer account exists and is not locked.",
+          "description": "A customer who submits valid credentials lands on the account dashboard.",
           "id": "US-001-01",
           "state": "active",
           "version": "v1.0.0"

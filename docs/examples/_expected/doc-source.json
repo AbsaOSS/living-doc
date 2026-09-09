@@ -6,7 +6,7 @@
         {
           "aspect": [
             "minimum-length",
-            "character-classes   ← optional; one optional field for this file"
+            "character-classes"
           ],
           "descoped_at": null,
           "descoped_reason": null,
@@ -81,11 +81,13 @@
           "aspect": [],
           "descoped_at": null,
           "descoped_reason": null,
-          "description": "A customer who submits valid credentials lands on the account dashboard. preconditions:                      ← optional; AC-level extension (one optional field for this file) A registered customer account exists and is not locked.",
+          "description": "A customer who submits valid credentials lands on the account dashboard.",
           "future_release": null,
           "id": "US-001-01",
           "not_in_scope": [],
-          "preconditions": [],
+          "preconditions": [
+            "A registered customer account exists and is not locked."
+          ],
           "removal_planned": null,
           "state": "active",
           "version": "v1.0.0"
