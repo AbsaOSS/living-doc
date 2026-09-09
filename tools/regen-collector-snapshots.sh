@@ -36,12 +36,26 @@ CORPUS_DIR="$REPO_ROOT/docs/examples/gherkin"
 # shellcheck source=tools/collector-snapshot-pins.env
 source "$REPO_ROOT/tools/collector-snapshot-pins.env"
 
+# Each pin MUST be an immutable ref: a full 40-hex commit SHA, or a tag that exists
+# on the corresponding remote. Anything else (a branch name, a short SHA, a typo)
+# is rejected so the snapshot stays reproducible.
+_collector_gh_url="https://github.com/AbsaOSS/living-doc-collector-gh"
+_toolkit_url="https://github.com/AbsaOSS/living-doc-toolkit"
 for ref_name in COLLECTOR_GH_REF TOOLKIT_REF; do
   ref_value="${!ref_name}"
-  if [[ "$ref_value" =~ ^(master|main|HEAD|develop)$ || -z "$ref_value" ]]; then
-    echo "ERROR: $ref_name='$ref_value' must be a tag or a full commit SHA, not a floating branch." >&2
-    exit 2
+  case "$ref_name" in
+    COLLECTOR_GH_REF) repo_url="$_collector_gh_url" ;;
+    TOOLKIT_REF)      repo_url="$_toolkit_url" ;;
+  esac
+  if [[ "$ref_value" =~ ^[0-9a-f]{40}$ ]]; then
+    continue
   fi
+  if [[ -n "$ref_value" ]] && git ls-remote --tags --exit-code "$repo_url" \
+       "refs/tags/$ref_value" >/dev/null 2>&1; then
+    continue
+  fi
+  echo "ERROR: $ref_name='$ref_value' must be a full 40-hex commit SHA or an existing tag of $repo_url." >&2
+  exit 2
 done
 
 GITHUB_TOKEN="${GITHUB_TOKEN:-$(gh auth token 2>/dev/null || true)}"

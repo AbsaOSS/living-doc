@@ -48,7 +48,8 @@ _VOLATILE_NULLED_KEYS = {"build"}
 def _normalize(node):
     """Recursively replace volatile values in place and return the node."""
     if isinstance(node, dict):
-        # metadata.run is a whole block of CI-run identity — blank every leaf.
+        # Any dict named "run" (in practice metadata.run) is a whole block of
+        # CI-run identity — blank every leaf.
         run = node.get("run")
         if isinstance(run, dict):
             node["run"] = {key: None for key in run}
