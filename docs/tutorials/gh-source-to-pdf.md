@@ -1,8 +1,7 @@
 # Tutorial: GitHub Source Code → PDF
 
-> **Forward-looking.** This pipeline relies on `collector-gh`'s `doc-source` and `ui-tests` modes,
-> which are specified in `collector-gh/SPEC.md` but **not yet implemented**. Treat the collector step below as the intended shape; check the [project README](https://github.com/AbsaOSS/living-doc-collector-gh) for the real
-> inputs once the modes ship.
+> This pipeline uses `collector-gh`'s `doc-source` and `ui-tests` modes (Available). Check the
+> [project README](https://github.com/AbsaOSS/living-doc-collector-gh) for the current inputs.
 
 Goal: produce a **PDF** — a technical project, a UI test catalog, or a coverage matrix — from the
 living-documentation header blocks and Gherkin `.feature` files in your source tree.
@@ -55,7 +54,7 @@ jobs:
         uses: AbsaOSS/living-doc-generator-pdf@v1
         with:
           source-path: generator-ready.json
-          document-type: user-stories        # or: ui-test-catalog | coverage-matrix
+          document-type: technical-project   # or: ui-test-catalog | coverage-matrix
           output-path: reports/living-doc.pdf
 
       # 4. UPLOAD
@@ -82,6 +81,6 @@ contains and needs.
 
 ## Related
 
-- [User Stories → PDF](user-stories-to-pdf.md) — the same output from issues instead of code
+- [Technical Project → PDF](technical-project-to-pdf.md) — the same output from issues instead of code
 - [GitHub Source → Markdown](gh-source-to-markdown.md) — same inputs, Markdown output
 - [Choosing a Generator](../guides/choosing-a-generator.md)

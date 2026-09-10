@@ -25,7 +25,7 @@ One per **source + output** combination — see [Getting Started & Worked exampl
 - [GitHub Issues → Markdown](docs/tutorials/gh-issues-to-markdown.md)
 - [GitHub Source Code → Markdown](docs/tutorials/gh-source-to-markdown.md)
 - [Azure DevOps Work Items → Markdown](docs/tutorials/ado-workitems-to-markdown.md)
-- [User Stories → PDF](docs/tutorials/user-stories-to-pdf.md)
+- [Technical Project → PDF](docs/tutorials/technical-project-to-pdf.md)
 - [GitHub Source Code → PDF](docs/tutorials/gh-source-to-pdf.md)
 
 ## Ecosystem

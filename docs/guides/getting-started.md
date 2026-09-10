@@ -87,13 +87,11 @@ normalize steps are the same across a row; only the generator step changes betwe
 
 | Source | → Markdown | → PDF |
 |---|---|---|
-| GitHub issues | [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md) | [User Stories → PDF](../tutorials/user-stories-to-pdf.md) |
-| GitHub source code (`.feature` files, header blocks) | [GitHub Source → Markdown](../tutorials/gh-source-to-markdown.md) † | [GitHub Source → PDF](../tutorials/gh-source-to-pdf.md) † |
-| Azure DevOps work items | [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md) | swap the generator step in the ADO tutorial for `generator-pdf` — same pattern as [User Stories → PDF](../tutorials/user-stories-to-pdf.md) |
+| GitHub issues | [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md) | [Technical Project → PDF](../tutorials/technical-project-to-pdf.md) |
+| GitHub source code (`.feature` files, header blocks) | [GitHub Source → Markdown](../tutorials/gh-source-to-markdown.md) | [GitHub Source → PDF](../tutorials/gh-source-to-pdf.md) |
+| Azure DevOps work items | [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md) | swap the generator step in the ADO tutorial for `generator-pdf` — same pattern as [Technical Project → PDF](../tutorials/technical-project-to-pdf.md) |
 
-† Source-code collection depends on `collector-gh`'s `doc-source` / `ui-tests` modes, which are
-specified but not yet built. Those two tutorials
-describe the intended workflow and are marked accordingly.
+Source-code collection uses `collector-gh`'s `doc-source` / `ui-tests` modes (Available).
 
 ## Next steps
 

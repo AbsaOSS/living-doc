@@ -1,6 +1,6 @@
-# Tutorial: User Stories → PDF
+# Tutorial: Technical Project → PDF
 
-Goal: produce a PDF report — user stories, a UI test catalog, or a coverage matrix — from collected issue/work-item data, suitable for sharing or archiving as a deliverable.
+Goal: produce a PDF report — a technical project, a UI test catalog, or a coverage matrix — from collected issue/work-item data, suitable for sharing or archiving as a deliverable.
 
 ## 1. Add the workflow
 
@@ -38,14 +38,14 @@ jobs:
         uses: AbsaOSS/living-doc-generator-pdf@v1
         with:
           source-path: generator-ready.json
-          document-type: user-stories
-          output-path: reports/user-stories.pdf
+          document-type: technical-project
+          output-path: reports/technical-project.pdf
 
       - name: Upload report
         uses: actions/upload-artifact@v4
         with:
-          name: user-stories-pdf
-          path: reports/user-stories.pdf
+          name: technical-project-pdf
+          path: reports/technical-project.pdf
 ```
 
 This example triggers manually (`workflow_dispatch`) since PDF reports are typically point-in-time deliverables rather than continuously refreshed docs — switch to a `schedule` trigger if you want it regenerated automatically.
@@ -54,7 +54,7 @@ This example triggers manually (`workflow_dispatch`) since PDF reports are typic
 
 1. `collector-gh` mines issues into `doc-issues.json`.
 2. `toolkit` normalizes that into the canonical dataset.
-3. `generator-pdf` renders it to a PDF with the `user-stories` template set (`document-type` also accepts `ui-test-catalog` and `coverage-matrix`).
+3. `generator-pdf` renders it to a PDF with the `technical-project` template set (`document-type` also accepts `ui-test-catalog` and `coverage-matrix`).
 4. The PDF is uploaded as a workflow artifact — attach a publish/notify step if it needs to reach a wider audience.
 
 ## 3. Other report types

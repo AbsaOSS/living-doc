@@ -1,8 +1,7 @@
 # Tutorial: GitHub Source Code → Markdown
 
-> **Forward-looking.** This pipeline relies on `collector-gh`'s `doc-source` and `ui-tests` modes,
-> which are specified in `collector-gh/SPEC.md` but **not yet implemented**. Treat the collector step below as the intended shape; check the [project README](https://github.com/AbsaOSS/living-doc-collector-gh) for the real
-> inputs once the modes ship.
+> This pipeline uses `collector-gh`'s `doc-source` and `ui-tests` modes (Available). Check the
+> [project README](https://github.com/AbsaOSS/living-doc-collector-gh) for the current inputs.
 
 Goal: turn the **User Story / Feature / Functionality header blocks and Gherkin `.feature` files that
 live in your source tree** (not issues) into Markdown, refreshed on every push.
