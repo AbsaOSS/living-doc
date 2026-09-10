@@ -57,12 +57,32 @@ as source-code headers).
 | View | Contains | Use for |
 |---|---|---|
 | **Inner** | Everything, unchanged — `planned`, `in_review`, `active`, and `deprecated` entities and ACs alike | Team-internal planning and traceability; nothing is hidden |
-| **Release** | `planned` / `in_review` items dropped; ACs that are no longer `active` (delivered, then deprecated) filtered out — i.e. *what was actually shipped and is still current* | A release note / delivery record shared outside the team |
+| **Release** | `planned` / `in_review` entities and ACs dropped; `deprecated` entities and ACs kept (they describe shipped behaviour still part of the solution) — i.e. *what was actually shipped* | A release note / delivery record shared outside the team |
 
-The view is a generation-time filter over the same mined data — no separate authoring. How it is
-selected is a generator input; see the generator's README.
+The view is a normalize-time filter over the same mined data — no separate authoring.
+`normalize-issues` selects it with `--view inner|release` (default `inner`), e.g.
 
-**Generator input:** `document-type: user-stories`.
+```
+living-doc normalize-issues --input doc-issues.json --output generator-ready.json --view release
+```
+
+**Drop rules by state** (state matching is case-insensitive; hyphens and spaces are equivalent):
+
+| State of entity / AC | Inner | Release |
+|---|---|---|
+| `planned` | kept | dropped |
+| `in_review` | kept | dropped |
+| `active` | kept | kept |
+| `deprecated` | kept | kept |
+
+When an entity is dropped, its ACs go with it; `deprecated` ACs on a retained entity stay.
+
+The applied view is recorded in the output's provenance envelope: `meta.view.view`,
+`meta.view.filtered_user_stories`, and `meta.view.filtered_acceptance_criteria` (counts of what the
+filter removed). See [`toolkit`'s `contracts.md` § Content Views](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/docs/contracts.md#content-views)
+for the field-level mechanics.
+
+**Generator input:** `document-type: technical-project`.
 
 ---
 
