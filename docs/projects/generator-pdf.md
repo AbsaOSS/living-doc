@@ -10,7 +10,7 @@ Renders the canonical dataset into professional PDF documents using customizable
 
 ## Inputs / Outputs
 
-- **Input:** the canonical dataset produced by [living-doc-toolkit](toolkit.md) (`source-path`), plus a `document-type` selector (`user-stories` · `ui-test-catalog` · `coverage-matrix`)
+- **Input:** the canonical dataset produced by [living-doc-toolkit](toolkit.md) (`source-path`), plus a `document-type` selector (`technical-project` · `ui-test-catalog` · `coverage-matrix`)
 - **Output:** PDF, rendered via a Jinja2 template + WeasyPrint
 
 For the exact action inputs and the current built-in template set, see the [project README](https://github.com/AbsaOSS/living-doc-generator-pdf).
@@ -22,5 +22,5 @@ Final stage of the pipeline — the option to reach for when the deliverable nee
 ## Used in
 
 - [Choosing a Generator](../guides/choosing-a-generator.md)
-- [User Stories → PDF](../tutorials/user-stories-to-pdf.md)
+- [Technical Project → PDF](../tutorials/technical-project-to-pdf.md)
 - [GitHub Source Code → PDF](../tutorials/gh-source-to-pdf.md)

@@ -5,7 +5,7 @@ All generators consume the same upstream data — the canonical dataset `toolkit
 | Generator | Output | Best for | Status |
 |---|---|---|---|
 | [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) | Plain `.md` files | Docs committed alongside code, rendered by whatever already renders your repo's Markdown (GitHub, a wiki, a generic static site generator). | Early stage — API not yet stable. |
-| [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) | PDF | Point-in-time deliverables: user stories, UI test catalogs, coverage matrices — documents meant to be shared or archived as a file, not browsed as a site. | Available. |
+| [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) | PDF | Point-in-time deliverables: technical projects, UI test catalogs, coverage matrices — documents meant to be shared or archived as a file, not browsed as a site. | Available. |
 
 ## Decision guide
 

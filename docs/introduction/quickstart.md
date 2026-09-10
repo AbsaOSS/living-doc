@@ -104,7 +104,7 @@ jobs:
 ```
 
 > **Heads-up:** `generator-markdown` is early stage and its action inputs may still change; for a
-> stable output today, generate a PDF instead ([User Stories → PDF](../tutorials/user-stories-to-pdf.md)).
+> stable output today, generate a PDF instead ([Technical Project → PDF](../tutorials/technical-project-to-pdf.md)).
 > Each project's README is the authoritative source for its current inputs.
 
 To use a different source or output, change **only the collect and generate steps** — the worked

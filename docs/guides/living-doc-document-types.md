@@ -42,7 +42,7 @@ See the [relationship diagram](living-doc-glossary.md#relationship-diagram) for 
 | Input | Collector mode | Status |
 |---|---|---|
 | GitHub issues labelled as US / Feature / Functionality | `collector-gh` `doc-issues` | Available |
-| Source-code header blocks (see [Header Types](living-doc-header-types.md)) | `collector-gh` `doc-source` | Specced, not yet built |
+| Source-code header blocks (see [Header Types](living-doc-header-types.md)) | `collector-gh` `doc-source` | Available |
 | Azure DevOps work items | `collector-ad` `work-items` | Planned |
 
 **Prerequisites** — a collector source, nothing else. This is the base document; the other two build
@@ -82,7 +82,9 @@ The applied view is recorded in the output's provenance envelope: `meta.view.vie
 filter removed). See [`toolkit`'s `contracts.md` § Content Views](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/docs/contracts.md#content-views)
 for the field-level mechanics.
 
-**Generator input:** `document-type: technical-project`.
+**Generator input:** `document-type: technical-project`, reading the `toolkit`-normalized
+`generator-ready.json` (produced by `normalize-issues` from `doc-issues.json` / `doc-source.json`) —
+never raw collector output.
 
 ---
 
@@ -104,7 +106,7 @@ Scenario-to-AC traceability comes from the `# AC:` comment and `@AC:` tag on eac
 
 **Built from** — Gherkin `.feature` files in the living-doc directories
 (`features/liv_doc_us/`, `features/liv_doc_func/` by default), mined by `collector-gh`'s `ui-tests`
-mode *(specced in `collector-gh/SPEC.md`, not yet built)*.
+mode (Available).
 
 **Prerequisites** — `.feature` files that follow the [feature-file header format](living-doc-header-types.md#1-user-story-in-a-gherkin-feature-file)
 and carry `@AC:` tags. A test catalog can be produced without a technical project, but it is far more
@@ -113,7 +115,8 @@ useful alongside one.
 **Worked example** — [`docs/examples/gherkin/`](../examples/gherkin/): the two `.feature` files and
 their `@AC:` tagged scenarios.
 
-**Generator input:** `document-type: ui-test-catalog`.
+**Generator input:** `document-type: ui-test-catalog`, reading the `toolkit`-normalized artifact
+produced from `ui-tests.json` — never raw collector output.
 
 ---
 
@@ -140,7 +143,8 @@ ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined
 input: `AC:US-001-01` and `AC:FUNC-001-01` are covered by scenarios, `AC:US-001-02` and
 `AC:FUNC-001-02` are declared with no scenario (uncovered).
 
-**Generator input:** `document-type: coverage-matrix`.
+**Generator input:** `document-type: coverage-matrix`, reading the `toolkit`-normalized artifact
+produced from `coverage-matrix.json` — never raw collector output.
 
 ---
 
