@@ -437,6 +437,12 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
         corpus.declare_form(entity_id, "feature-file header", rel, fields,
                             ac_headers, sorted(extensions))
 
+    if entity_id is not None:
+        fields = _feature_pair_fields(header, top_keys, raw, kind)
+        extensions.update(f"{key}:" for key in OPTIONAL_FEATURE_KEYS if key in top_keys)
+        corpus.declare_form(entity_id, "feature-file header", rel, fields,
+                            ac_headers, sorted(extensions))
+
     # scenario tags
     for i, line in enumerate(raw, 1):
         s = line.strip()
