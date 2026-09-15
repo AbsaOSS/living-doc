@@ -25,7 +25,10 @@ Task-list source (optional override): `$2`
 - `python tools/examples_check.py` and `python -m pytest tools/test_examples_check.py -q`
   if `docs/examples/**` or `tools/*` changed.
 - Confirm `docs/examples/_expected/**` is regenerated and diffs clean if the branch changed
-  anything `.github/workflows/real-collector-snapshot.yml` mines from.
+  `docs/examples/**`, `tools/regen-collector-snapshots.sh`, `tools/normalize_snapshot.py`,
+  `tools/collector-snapshot-pins.env`, or `.github/workflows/real-collector-snapshot.yml`
+  itself — the exact trigger paths of that workflow.
+- If the branch changes any Markdown file, confirm `link-check.yml` ran and is green.
 - There is no `make qa`, lint, type-check, or coverage gate in this repo — do not report one
   as missing.
 - Any red check ⇒ not PR-ready.

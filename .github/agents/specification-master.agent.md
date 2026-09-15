@@ -109,3 +109,5 @@ Repo specifics
 - High-risk areas
   - `docs/guides/living-doc-header-types.md` and `docs/guides/living-doc-glossary.md` — changing a field name or grammar here without updating `docs/examples/**` in the same PR breaks the corpus's own sync obligation.
   - `docs/examples/README.md`'s "Conventions used by this corpus" table — each field extension is deliberately shown exactly once across the corpus; adding a second instance of the same extension defeats its purpose as a minimal reference.
+- Review rubric
+  - Prefer writing acceptance criteria that anticipate the Double-check triggers in `.github/copilot-review-rules.md` (format-contract and corpus changes).

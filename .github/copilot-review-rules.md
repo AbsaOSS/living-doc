@@ -74,7 +74,7 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 - Must treat these as contract-sensitive — the `docs/examples/**` fixture corpus, the `docs/examples/_expected/**` snapshots, the pinned refs in `tools/collector-snapshot-pins.env`, and the cross-links `.github/workflows/link-check.yml` validates across `docs/**`.
 - Must expect `tools/examples_check.py` and `tools/normalize_snapshot.py` to stay deterministic and offline — flag any LLM call or unpinned network request introduced into either.
 - Must expect the only test suite to be `tools/test_examples_check.py`, run via `python -m pytest tools/test_examples_check.py -q`, exactly as `.github/workflows/examples-check.yml` runs it.
-- Must expect PRs to carry a `#<issue>: Title` title, a branch name with a ticket number, and `## Overview` / `## Release Notes` / `## Related` sections — enforced by `.github/workflows/check-pr-requirements.yml` and `check_pr_release_notes.yml`, and documented in `CONTRIBUTING.md`.
+- Must expect PRs to carry a `#<issue>: Title` or `<issue> - Title` title, a branch name with a ticket number, and `## Overview` / `## Release Notes` / `## Related` sections — enforced by `.github/workflows/check-pr-requirements.yml` and `check_pr_release_notes.yml`, and documented in `CONTRIBUTING.md`.
 
 ## Audit — what this repo deliberately lacks relative to the fleet's code repos
 

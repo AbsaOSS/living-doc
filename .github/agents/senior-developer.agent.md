@@ -88,7 +88,7 @@ Non-goals
 Repo specifics
 
 - Scope of "code" in this repo
-  - There is no monorepo, no packages, and no `pyproject.toml` — most of this repo is documentation (`docs/`). The entire Python surface is `tools/examples_check.py`, `tools/normalize_snapshot.py`, `tools/regen-collector-snapshots.sh`, and their pinned deps in `tools/requirements-examples-check.txt` (`tools/requirements-examples-check.txt` says this explicitly: "this repo has no other Python code").
+  - There is no monorepo, no packages, and no `pyproject.toml` — most of this repo is documentation (`docs/`). The entire Python surface is `tools/examples_check.py` and `tools/normalize_snapshot.py`, plus their pinned deps in `tools/requirements-examples-check.txt` (`tools/requirements-examples-check.txt` says this explicitly: "this repo has no other Python code"). `tools/regen-collector-snapshots.sh` is a Bash wrapper around that Python, not Python itself — do not apply type-hint or pytest expectations to it.
   - Most changes to this repo are prose edits to `docs/guides/**`, `docs/tutorials/**`, `docs/projects/**`, and `docs/examples/**`, not code. Apply this agent's rules only when a task actually touches `tools/*.py` or `tools/*.sh`.
 - Runtime/toolchain targets
   - `.github/workflows/examples-check.yml` and `real-collector-snapshot.yml` both pin Python `3.14` via `actions/setup-python`. Match that when testing locally.
@@ -103,3 +103,5 @@ Repo specifics
   - The rule set enforced by `tools/examples_check.py` (header fields, AC-tag grammar, coverage-pair rule, project-profile requirement) and the pinned refs in `tools/collector-snapshot-pins.env` — a pin bump must ship with regenerated `docs/examples/_expected/*.json` in the same PR (`CONTRIBUTING.md` § "Regenerating the collector snapshots").
 - AI-free principle
   - `tools/examples_check.py` and `tools/normalize_snapshot.py` must stay deterministic and offline — no LLM call and no network request other than the collector's own start-up connectivity check in `real-collector-snapshot.yml`.
+- Review rubric
+  - Prefer checking changes against `.github/copilot-review-rules.md` before handing off to Reviewer — it lists this repo's high-risk areas and contract-sensitive outputs.

@@ -46,7 +46,8 @@ Task-list source (optional override): `$2`
 
 ## 4. Run the checks until green
 
-- `python tools/examples_check.py` (only if `docs/examples/**` or the checker changed).
+- `python tools/examples_check.py` (only if `docs/examples/**`, `docs/guides/**`, or the
+  checker changed).
 - `python -m pytest tools/test_examples_check.py -q` (only if the checker or its tests
   changed) — the same command `.github/workflows/examples-check.yml` runs.
 - There is no `make qa`, no lint, no type-check, and no coverage-percentage gate in this
