@@ -120,16 +120,17 @@ def test_issue_body_extra_heading_fails(corpus_dir: Path) -> None:
 
 
 def test_coverage_pair_broken_when_every_ac_covered(corpus_dir: Path) -> None:
-    # tag every declared AC of both feature files, leaving none uncovered corpus-wide
+    # tag every countable (non-planned) declared AC, leaving none uncovered corpus-wide;
+    # the planned ACs (US-001-03, FUNC-001-03) are excluded from the invariant either way
     target = corpus_dir / US_FEATURE
     target.write_text(target.read_text(encoding="utf-8").replace(
         "  @AC:US-001-01\n",
-        "  @AC:US-001-01\n  @AC:US-001-02\n  @AC:US-001-03\n",
+        "  @AC:US-001-01\n  @AC:US-001-02\n",
     ), encoding="utf-8")
     func = corpus_dir / FUNC_FEATURE
     func.write_text(func.read_text(encoding="utf-8").replace(
         "  @AC:FUNC-001-01/aspect:minimum-length\n",
-        "  @AC:FUNC-001-01/aspect:minimum-length\n  @AC:FUNC-001-02\n  @AC:FUNC-001-03\n",
+        "  @AC:FUNC-001-01/aspect:minimum-length\n  @AC:FUNC-001-02\n",
     ), encoding="utf-8")
 
     findings = findings_for(corpus_dir)
