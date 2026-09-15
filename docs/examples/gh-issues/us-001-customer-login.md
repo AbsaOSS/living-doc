@@ -8,6 +8,10 @@ Layout: see ../README.md (GitHub issue-body layout)
 
 As a registered customer, I can sign in with my email and password, so that I can reach my account area.
 
+## Status
+
+active
+
 ## Business Value
 
 - Registered customers can reach their account area, so returning users convert without friction.
@@ -25,3 +29,11 @@ As a registered customer, I can sign in with my email and password, so that I ca
 ### AC:US-001-02 (v1.0.0 - active)
 
 - An inline error is shown when the customer submits invalid credentials, without leaving the login screen.
+
+### AC:US-001-03 (v1.1.0 - planned)
+
+- A customer who forgot the password can request a reset link from the login screen.
+
+### AC:US-001-04 (v1.0.0 - deprecated - removal planned v2.0.0)
+
+- A "Remember me" choice keeps the customer signed in across browser restarts.

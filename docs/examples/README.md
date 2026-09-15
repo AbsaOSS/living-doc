@@ -34,6 +34,12 @@ pinned collector that alters the mined output surfaces here. These files double 
 reference for anyone integrating the collector. To regenerate after an intended change, see
 [CONTRIBUTING.md § Regenerating the collector snapshots](../../CONTRIBUTING.md#regenerating-the-collector-snapshots).
 
+The snapshots record what the **pinned** collector mines, which is not always all of what the corpus
+says. The pinned `collector-gh` predates the version-less backlog AC form, so it skips
+`AC:FUNC-001-03 (planned)` as a malformed header and `_expected/` shows `FUNC-001` with two ACs
+instead of three. That gap is the point of the snapshot: it is visible here, and it closes when the
+pin moves to a collector whose AC grammar accepts the backlog form.
+
 ## GitHub issue-body layout (canonical)
 
 The `.feature` / header-block format is fully specified in
@@ -52,21 +58,30 @@ table (`description` / `business_value` / `preconditions` / `acceptance_criteria
 - Section headings are `##`-level and map 1:1 to the fields of the equivalent feature-file header;
   the heading text is the Title-Case form of the synonym-table key.
 - AC blocks are `###` sub-headings using the same `AC:<id> (v<version> - <state>)` grammar as the
-  [glossary](../guides/living-doc-glossary.md#acceptance-criterion-ac). Feature-level `Preconditions`
-  / `Not In Scope` are inherited by all ACs; AC-level extensions go under the AC sub-heading.
+  [glossary](../guides/living-doc-glossary.md#acceptance-criterion-ac) — including the version-less
+  backlog form `AC:<id> (planned)`. Feature-level `Preconditions` / `Not In Scope` are inherited by
+  all ACs; AC-level extensions go under the AC sub-heading.
 - Anything outside this heading set is treated as free prose and ignored by the miner.
 
 | Entity | Required headings | Optional headings |
 |---|---|---|
-| User Story | `## Description`, `## Business Value`, `## Acceptance Criteria` | `## Preconditions`, `## Not In Scope` |
-| Feature | `## Description`, `## Surface Type`, `## Owners`, `## Status`, `## User Stories`, `## Functionalities` | `## External Dependencies` |
-| Functionality | `## Description`, `## Parent Feature`, `## Func Type`, `## Acceptance Criteria` | `## Rationale`, `## Preconditions`, `## Not In Scope` |
+| User Story | `## Description`, `## Status`, `## Business Value`, `## Acceptance Criteria` | `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By` |
+| Feature | `## Description`, `## Surface Type`, `## Owners`, `## User Stories`, `## Functionalities` | `## External Dependencies`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By` |
+| Functionality | `## Description`, `## Status`, `## Parent Feature`, `## Func Type`, `## Acceptance Criteria` | `## Rationale`, `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By` |
+
+**Status is required on a User Story and a Functionality, and has no place on a Feature** — a
+Feature's state is derived from its Functionalities, never authored. See
+[Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature).
 
 ## Conventions used by this corpus
 
 - **Minimal.** Each entity file carries every required field plus one optional field — just enough to
   show one field extension, no more. (`.project-profile.yaml` is shown complete: it is pure config
   with no optional-field layer.)
+- **AC states are part of the AC grammar, not optional field extensions.** A `planned`, `in_review`,
+  `active` or `deprecated` AC — with or without a target version, with or without a removal note — is
+  the grammar of [`AC:<id> (…)`](../guides/living-doc-glossary.md#acceptance-criterion-ac) doing its
+  job, so it does not count against the one-optional-extension-per-file rule above.
 - **Field extensions**, spread across the corpus so each is shown once in isolation — one per file,
   no file carrying two:
   - AC-level `preconditions` extension — `gherkin/liv_doc_us/us-001-customer-login.feature`
@@ -79,10 +94,27 @@ table (`description` / `business_value` / `preconditions` / `acceptance_criteria
 - **Coverage pair.** `AC:US-001-01` and `AC:FUNC-001-01` are covered by scenarios;
   `AC:US-001-02` and `AC:FUNC-001-02` are declared but have no scenario (a deliberate gap, so the
   coverage matrix shows both the covered and the uncovered verdict).
-- **Feature status vs surface status.** `FEAT-001` is an `active` entity (delivered, linked to
-  `US-001`), while its PageObject *surface* is `status: candidate` — the login template is not yet
-  instrumented for test automation. These are independent axes; see
-  [Header Types § status: candidate](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file).
+- **AC states, once each.** Beyond the `active` ACs above, `AC:US-001-03 (v1.1.0 - planned)` shows a
+  `planned` AC that targets a version, `AC:FUNC-001-03 (planned)` shows the version-less backlog form,
+  and `AC:US-001-04 (v1.0.0 - deprecated - removal planned v2.0.0)` shows a deprecated AC with its
+  removal note — covered by a scenario, because a deprecated AC still describes shipped behaviour and
+  is still counted.
+- **Derived Feature state, no surface status.** `FEAT-001` carries no authored status in either form:
+  its issue body has no `## Status` heading and `LoginPage.ts` has no `status:` field. The Feature's
+  state is derived from `FUNC-001`. The login template is not yet instrumented for test automation,
+  and the PageObject says so with `stub-reason:` — the instrumentation marker, which is removed once
+  the surface is instrumented. See
+  [Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file).
+- **Two forms per entity, in step.** `US-001` and `FUNC-001` each exist as a GitHub issue body and as
+  a `.feature` header, and `FEAT-001` as an issue body and a PageObject header. The two forms of an
+  entity carry the same required content and, for `US-001` / `FUNC-001`, the same AC set; only the
+  optional field extension differs, by the assignment above.
+- **Expected `STALE_AC_REF` on the `gh-issues` chain.** `Aspect:` is a `.feature`-header extension, so
+  `AC:FUNC-001-01` declares its two aspects only in the `gherkin/` form. A pipeline that takes its
+  technical project from `gh-issues/` and its test catalog from `gherkin/` therefore sees the
+  `@AC:FUNC-001-01/aspect:…` scenario tags reference aspects the mined AC does not declare, and
+  reports `STALE_AC_REF` for them. That is expected of this corpus, not a defect: the `doc-source`
+  chain (`gherkin/` + `pageobject/`) is the pairing the `_expected/` snapshots exercise.
 
 ## Sync obligation
 

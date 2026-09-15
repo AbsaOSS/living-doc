@@ -13,7 +13,7 @@
                 "scenario_name": "Password shorter than the minimum length is rejected",
                 "source": {
                   "file": "liv_doc_func/func-001-validate-password-strength.feature",
-                  "line": 25,
+                  "line": 28,
                   "org": "AbsaOSS",
                   "repo": "living-doc"
                 },
@@ -24,7 +24,7 @@
                 "scenario_name": "Password missing a required character class is rejected",
                 "source": {
                   "file": "liv_doc_func/func-001-validate-password-strength.feature",
-                  "line": 32,
+                  "line": 35,
                   "org": "AbsaOSS",
                   "repo": "living-doc"
                 },
@@ -60,7 +60,7 @@
         "covered_acs": 0,
         "total_acs": 2
       },
-      "title": "Login Page — Validate Password Strength"
+      "title": "Login Page - Validate Password Strength"
     }
   ],
   "generated_at": "<normalized-for-snapshot>",
@@ -70,7 +70,7 @@
     "active_acs": 0,
     "coverage_pct": null,
     "covered_acs": 0,
-    "total_acs": 4,
+    "total_acs": 6,
     "total_features": 0,
     "total_functionalities": 1,
     "total_user_stories": 1
@@ -89,7 +89,7 @@
                 "scenario_name": "Customer signs in with valid credentials",
                 "source": {
                   "file": "liv_doc_us/us-001-customer-login.feature",
-                  "line": 28,
+                  "line": 36,
                   "org": "AbsaOSS",
                   "repo": "living-doc"
                 },
@@ -112,6 +112,40 @@
           "id": "US-001-02",
           "state": "active",
           "version": "v1.0.0"
+        },
+        {
+          "coverage": {
+            "status": "not_covered",
+            "test_count": 0,
+            "tests": []
+          },
+          "description": "A customer who forgot the password can request a reset link from the login screen.",
+          "id": "US-001-03",
+          "state": "planned",
+          "version": "v1.1.0"
+        },
+        {
+          "coverage": {
+            "status": "covered",
+            "test_count": 1,
+            "tests": [
+              {
+                "id": "AbsaOSS/living-doc/liv_doc_us/us-001-customer-login.feature/remembered-customer-is-still-signed-in-after-a-browser-restart",
+                "scenario_name": "Remembered customer is still signed in after a browser restart",
+                "source": {
+                  "file": "liv_doc_us/us-001-customer-login.feature",
+                  "line": 43,
+                  "org": "AbsaOSS",
+                  "repo": "living-doc"
+                },
+                "tags": []
+              }
+            ]
+          },
+          "description": "A \"Remember me\" choice keeps the customer signed in across browser restarts.",
+          "id": "US-001-04",
+          "state": "deprecated",
+          "version": "v1.0.0"
         }
       ],
       "full_id": "AbsaOSS/living-doc/US-001",
@@ -121,7 +155,7 @@
         "active_acs": 0,
         "coverage_pct": null,
         "covered_acs": 0,
-        "total_acs": 2
+        "total_acs": 4
       },
       "title": "Customer Login"
     }

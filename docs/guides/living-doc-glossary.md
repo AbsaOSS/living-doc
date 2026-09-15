@@ -27,6 +27,20 @@ For the file-header schemas that carry these entities (feature file headers, Pag
 
 ## Core entities
 
+> **Tracker state is never entity status.** A GitHub issue being open or closed, or an Azure DevOps
+> work item's `System.State`, says where the *work item* stands in a tracker. The entity status below
+> is authored in the documentation itself and is the only status a living-doc document renders. A
+> collector records the tracker value as provenance (`source_ref.tracker_state`) and never derives an
+> entity status from it.
+
+> **Where status and deprecation metadata are authored.** `## Status`, `## Deprecated At`,
+> `## Deprecation Reason` and `## Superseded By` as headings in an issue body; `# status:`,
+> `# deprecated_at:`, `# deprecation_reason:` and `# superseded_by:` as keys in a feature-file
+> header. Of these only the status is required, and only on a User Story and a Functionality — a
+> Feature has no authored status at all. See the
+> [GitHub issue-body layout](../examples/README.md#github-issue-body-layout-canonical) and
+> [Living Doc Header Types](living-doc-header-types.md).
+
 ### User Story (US)
 
 A business-level requirement expressed from the perspective of a named actor.
@@ -41,11 +55,13 @@ so that <business outcome>.
 - Name: short imperative title (e.g. "Customer Login")
 - Owns: end-to-end **Acceptance Criteria (AC)**
 - Links to: one or more **Features** (system surfaces the User Story touches)
-- Status: `planned | in_review | active | deprecated` (lowercase with underscores per the Project Profile `ac_states`)
-- Deprecation metadata (set when `status: deprecated`):
+- Status: **authored**, and required — `planned | in_review | active | deprecated` (lowercase with
+  underscores per the Project Profile `ac_states`). Written as `## Status` in the issue body and
+  `# status:` in the feature-file header.
+- Deprecation metadata (optional; authored when `status: deprecated`):
   - `deprecated_at` — date the entity was deprecated
   - `deprecation_reason` — why it was deprecated
-  - `superseded_by` — ID of the replacement entity (optional)
+  - `superseded_by` — ID of the replacement entity
 
 > Feature file template: see [Living Doc Header Types — User Story in a Gherkin Feature File](living-doc-header-types.md#1-user-story-in-a-gherkin-feature-file).
 
@@ -65,11 +81,17 @@ A named system surface — the structural layer between User Stories and atomic 
 - Owns: one or more **Functionalities**
 - Links to: one or more **User Stories**
 - `owners`: team or person responsible for this Feature
-- Status: `planned | in_review | active | deprecated` (lowercase with underscores per the Project Profile `ac_states`)
-- Deprecation metadata (set when `status: deprecated`):
+- Status: **derived from its Functionalities — never authored.** A Feature is the structural node
+  that names a visible surface; the behaviour that can be planned, reviewed, shipped or retired lives
+  in its Functionalities and their ACs. A hand-written Feature status can therefore only restate them
+  or contradict them, so there is no place to write one: a Feature issue body carries no `## Status`
+  heading, and a PageObject header carries no `status:` field. The pipeline computes the state and
+  marks it `derived`.
+- Deprecation metadata (optional; authored when the surface is retired — the *state* still follows
+  the Functionalities):
   - `deprecated_at` — date the entity was deprecated
   - `deprecation_reason` — why it was deprecated
-  - `superseded_by` — ID of the replacement entity (optional)
+  - `superseded_by` — ID of the replacement entity
 - Ownership change metadata (set when `owners` changes):
   - `owner_changed_at` — date of ownership transfer
   - `owner_change_reason` — reason for the transfer
@@ -81,18 +103,20 @@ A named system surface — the structural layer between User Stories and atomic 
 An atomic, fast-testable behavior — a single verb phrase describing one responsibility.
 
 - ID format: `FUNC-<nnn>` (e.g. `FUNC-001`)
-- Name: `<parent Feature name> – <behavior phrase>` (e.g. "Login Page – Validate Password Strength")
+- Name: `<parent Feature name> - <behavior phrase>` (e.g. "Login Page - Validate Password Strength")
 - Belongs to: one parent **Feature**
 - Owns: **Functionality-level Acceptance Criteria** (atomic input to output statements)
 - Test anchor: a **Functionality feature file** under `features/liv_doc_func/` — one file per
   Functionality, containing all AC-linked system-test scenarios once implemented.
   File name pattern: `func-<nnn>-<feature-name-kebab>-<behavior-kebab>.feature`
   e.g. `func-001-authentication-screen-credential-based-login.feature`
-- Status: `planned | in_review | active | deprecated` (lowercase with underscores per the Project Profile `ac_states`)
-- Deprecation metadata (set when `status: deprecated`):
+- Status: **authored**, and required — `planned | in_review | active | deprecated` (lowercase with
+  underscores per the Project Profile `ac_states`). Written as `## Status` in the issue body and
+  `# status:` in the feature-file header.
+- Deprecation metadata (optional; authored when `status: deprecated`):
   - `deprecated_at` — date the entity was deprecated
   - `deprecation_reason` — why it was deprecated
-  - `superseded_by` — ID of the replacement entity (optional)
+  - `superseded_by` — ID of the replacement entity
 
 Functionalities differ from User Story ACs: they are atomic and fast-testable, not end-to-end.
 A single User Story may trigger multiple Functionalities.
@@ -127,19 +151,44 @@ Each AC is:
 **AC identifier and state format** (in file header and entity files):
 
 ```
-AC:<parent-id>-<nn> (v<version> - <State>)
+AC:<parent-id>-<nn> (v<version> - <state>)
    - <atomic description, with at most one {placeholder} for a variable value>
    - <Placeholder>: value1, value2, ...
    - Rationale: <business context, policy reference, or design decision>  ← optional
 ```
 
-State values: `planned | in_review | active | deprecated` (lowercase with underscores per the Project Profile `ac_states`).
+**States** — exactly four, lowercase with underscores (the Project Profile `ac_states`):
+
+| State | Meaning |
+|---|---|
+| `planned` | Agreed, not built yet |
+| `in_review` | Built, not yet accepted |
+| `active` | Accepted, part of the shipped solution |
+| `deprecated` | Shipped behaviour on its way out; carries a removal note |
+
+**Version rule** — a version is required in every state except `planned`:
+
+| Form | Meaning |
+|---|---|
+| `AC:<id> (v<x.y.z> - active)` | shipped in `v<x.y.z>` (same shape for `in_review`) |
+| `AC:<id> (v<x.y.z> - planned)` | planned for the target version `v<x.y.z>` |
+| `AC:<id> (planned)` | **backlog**: agreed, no target version yet |
+| `AC:<id> (v<x.y.z> - deprecated - removal planned v<x.y.z>)` | deprecated; the removal note is required on a `deprecated` AC and valid on no other state |
+
+An AC deferred out of the current scope keeps its `planned` state and gains no extra fields: drop the
+target version so it reads `AC:<id> (planned)`, and record why in the AC's `Rationale` bullet.
+
+> **Canonical form and normalisation.** The canon uses `-` (hyphen-minus) in every structural
+> position — AC headers, AC bullets, entity names and the `# AC:` comment separator. Dash, letter-case
+> and short-version variants an authoring tool may emit (`–` / `—` for `-`, `In Review` for
+> `in_review`, `v1.1` for `v1.1.0`) are rewritten to the canonical form when a collector reads the
+> input; they are never canon themselves. Every generated document shows the canonical form above.
 
 **Scenario traceability:** living-doc scenarios (US and Functionality feature files) carry two
 complementary annotations — a human-readable `# AC:` comment and a machine-readable `@AC:` tag:
 
 ```gherkin
-# AC:US-1-01 (v1.0.0 - active) — customer places an order with a saved payment method
+# AC:US-1-01 (v1.0.0 - active) - customer places an order with a saved payment method
 @AC:US-1-01
 Scenario: Customer successfully places an order
   ...
@@ -149,7 +198,7 @@ When a scenario covers only **one aspect** of a multi-aspect AC, encode the aspe
 the `@AC:` tag using the `/param:value` param syntax, and mirror it in the comment:
 
 ```gherkin
-# AC:US-1-01 (v1.0.0 - active) — displays {required field} on login screen | aspect: username input
+# AC:US-1-01 (v1.0.0 - active) - displays {required field} on login screen | aspect: username input
 @AC:US-1-01/aspect:username-input
 Scenario: Login form shows the username input field
   ...
@@ -158,8 +207,8 @@ Scenario: Login form shows the username input field
 Multiple ACs — one comment + tag pair per AC:
 
 ```gherkin
-# AC:US-1-01 (v1.0.0 - active) — invalid credentials show an error message
-# AC:US-1-02 (v1.0.0 - active) — account lockout after 3 failed attempts
+# AC:US-1-01 (v1.0.0 - active) - invalid credentials show an error message
+# AC:US-1-02 (v1.0.0 - active) - account lockout after 3 failed attempts
 @AC:US-1-01
 @AC:US-1-02
 @Regression
@@ -175,7 +224,9 @@ Scenario: User is locked out after repeated failed logins
 
 Additional `/param:value` segments can be appended as needed — the format is open for extension.
 
-- The `# AC:` comment is human-readable context: AC ID, version, state, description, optional aspect.
+- The `# AC:` comment is human-readable context: the canonical AC header, then ` - ` and the
+  description, plus an optional `| aspect: <value>` suffix. The separator is a hyphen-minus, never an
+  en or em dash.
 - The `@AC:` Cucumber tag is machine-readable: drives script scanning, coverage reports, and sync checks.
 - US scenarios: `@AC:US-<n>-<nn>` (e.g. `@AC:US-1-01`)
 - Functionality scenarios: `@AC:FUNC-<nnn>-<nn>` (e.g. `@AC:FUNC-001-01`)
@@ -186,22 +237,6 @@ Additional `/param:value` segments can be appended as needed — the format is o
   documentation. They live in one or more folders *parallel* to the living-doc directories (named
   `tutorials/` or `tutorial_<group>/`), carry a `@tutorial` scenario flag, and are out of scope for every
   collector mode — no collector mines them (a post-v1 roadmap item).
-
-Deprecated ACs include a removal note:
-
-```
-AC:<parent-id>-<nn> (v<version> – DEPRECATED – removal planned v<version>)
-```
-
-**Descoped ACs** (deferred mid-sprint — state stays `PLANNED`):
-
-```
-AC:<parent-id>-<nn> (v<version> – PLANNED)
-   – <description>
-   – descoped_at: <date>           ← date AC was deferred out of the current sprint
-   – descoped_reason: <text>
-   – future_release: <sprint/tag>  ← optional; target sprint or release
-```
 
 **User Story AC examples** (in the `# Acceptance Criteria:` file header block):
 
@@ -232,27 +267,38 @@ AC:FUNC-001-02 (v1.0.0 - active)
 
 AC:FUNC-001-03 (v1.0.0 - active)
    - Rejects passwords shorter than 8 characters.
+
+AC:FUNC-001-04 (planned)
+   - Rejects a password found in the breached-password list.
+   - Rationale: Backlog — no target version; the breach-feed contract is not agreed yet.
 ```
 
 ### ID uniqueness
 
-Entity IDs (`US-`, `FEAT-`, `FUNC-`) and AC IDs must be **globally unique across every source** that
-feeds a living-doc pipeline — not merely unique within one repo or Azure DevOps project. There must be
-no `US-1` that means one thing in a GitHub repo and something else in an ADO project.
+**One project, one pipeline, one documentation source.** A living-doc pipeline documents exactly one
+project, and it mines the entities of that project from exactly one documentation source — one
+collector mode over one configured set of repositories, or one Azure DevOps project. The test catalog
+may come from elsewhere; the technical project may not.
 
-Why: a cross-source coverage matrix joins a technical project to a test catalog on these IDs. When the
-two sides come from different sources, that join is only meaningful if an ID denotes the same entity
-everywhere it appears. Colliding IDs cannot be reconciled after mining — the merge either collides
-records or silently mismatches a scenario to the wrong AC, producing a coverage matrix that is wrong
-in a way no downstream tool can detect.
+Within that source, entity IDs (`US-`, `FEAT-`, `FUNC-`) and AC IDs are unique. **The same ID
+appearing twice is always an input error**, reported as `DUPLICATE_ENTITY_ID` (or `DUPLICATE_AC_ID`)
+listing every occurrence. There is no precedence rule and never will be: the pipeline does not pick a
+winner, because either choice silently produces a document that is wrong.
 
-Guidance: when more than one source may contribute to the same technical project, prefix or namespace
-IDs per source (e.g. `GH-US-1` / `ADO-US-1`) so collisions cannot occur.
+Why: a coverage matrix joins the technical project to the test catalog on these IDs. That join is
+only meaningful if an ID denotes the same entity everywhere it appears. Colliding IDs cannot be
+reconciled after mining — the merge either collides records or silently mismatches a scenario to the
+wrong AC, producing a coverage matrix that is wrong in a way no downstream tool can detect.
+
+**Across projects**, identity is the pair `(project_id, entity_id)`. Two projects may each own a
+`US-001`; they are different entities because `project_id` differs, and nothing joins them. Do not
+prefix or namespace IDs per source to dodge a collision — a collision inside one project means that
+project has two entities claiming one ID, and that is the thing to fix.
 
 This mirrors the *coverage-matrix* prerequisites in [Living Doc Document Types](living-doc-document-types.md#coverage-matrix)
 and the `Data Flows & Schemas` spec §8 ("Multiple sources and multiple generators"). The toolkit
 [`coverage_matrix` service README](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/packages/services/coverage_matrix/README.md)
-describes the merge-before-`coverage-matrix` rule and the false-gap failure mode.
+describes the false-gap failure mode when the two sides of the join do not describe the same system.
 
 ---
 

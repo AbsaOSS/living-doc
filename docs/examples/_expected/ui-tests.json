@@ -16,7 +16,7 @@
       "scenario_type": "Scenario",
       "source": {
         "file": "liv_doc_func/func-001-validate-password-strength.feature",
-        "line": 25,
+        "line": 28,
         "org": "AbsaOSS",
         "repo": "living-doc"
       },
@@ -53,7 +53,7 @@
       "scenario_type": "Scenario",
       "source": {
         "file": "liv_doc_func/func-001-validate-password-strength.feature",
-        "line": 32,
+        "line": 35,
         "org": "AbsaOSS",
         "repo": "living-doc"
       },
@@ -90,7 +90,7 @@
       "scenario_type": "Scenario",
       "source": {
         "file": "liv_doc_us/us-001-customer-login.feature",
-        "line": 28,
+        "line": 36,
         "org": "AbsaOSS",
         "repo": "living-doc"
       },
@@ -102,6 +102,43 @@
         {
           "keyword": "When",
           "text": "the customer submits valid credentials"
+        },
+        {
+          "keyword": "Then",
+          "text": "the account dashboard is displayed"
+        }
+      ],
+      "tags": [],
+      "us_id": "US-001"
+    },
+    {
+      "ac_ids": [
+        "US-001-04"
+      ],
+      "ac_links": [
+        {
+          "aspect": null,
+          "id": "US-001-04"
+        }
+      ],
+      "func_id": null,
+      "id": "AbsaOSS/living-doc/liv_doc_us/us-001-customer-login.feature/remembered-customer-is-still-signed-in-after-a-browser-restart",
+      "scenario_name": "Remembered customer is still signed in after a browser restart",
+      "scenario_type": "Scenario",
+      "source": {
+        "file": "liv_doc_us/us-001-customer-login.feature",
+        "line": 43,
+        "org": "AbsaOSS",
+        "repo": "living-doc"
+      },
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "a registered customer signed in with \"Remember me\" selected"
+        },
+        {
+          "keyword": "When",
+          "text": "the customer reopens the browser"
         },
         {
           "keyword": "Then",
