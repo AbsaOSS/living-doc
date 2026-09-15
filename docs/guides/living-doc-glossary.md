@@ -162,7 +162,7 @@ AC:<parent-id>-<nn> (v<version> - <state>)
 | State | Meaning |
 |---|---|
 | `planned` | Agreed, not built yet |
-| `in_review` | Built, not yet accepted |
+| `in_review` | Built on a branch, not yet accepted into `master` |
 | `active` | Accepted, part of the shipped solution |
 | `deprecated` | Shipped behaviour on its way out; carries a removal note |
 
