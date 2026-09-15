@@ -14,8 +14,6 @@ paths:
 
 ac_states: [planned, in_review, active, deprecated]
 
-pageobject_statuses: [planned, candidate, active, deprecated]
-
 scenario_conventions:
   feature_tag:     true
   domain_tag:      true       # optional convention: allow a second feature-level tag, e.g. @domain_authentication

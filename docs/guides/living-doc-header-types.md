@@ -61,6 +61,9 @@ Holds all US metadata and is mined during living documentation output generation
 # =============================================================================
 # source:          https://github.com/<org>/<repo>/issues/<n>    ← optional
 # status:          active        ← one of profile `ac_states` (planned | in_review | active | deprecated)
+# deprecated_at:   <date>                                        ← optional; with status: deprecated
+# deprecation_reason: <why the User Story was deprecated>        ← optional; with status: deprecated
+# superseded_by:   US-<n>                                        ← optional; replacement entity
 # business_value:
 #   - <bullet describing the business outcome>
 # preconditions:                                                 ← optional; inherited by all ACs
@@ -70,7 +73,7 @@ Holds all US metadata and is mined during living documentation output generation
 #
 # acceptance_criteria:
 #
-#   AC:US-<n>-01 (v<version> - <State>)
+#   AC:US-<n>-01 (v<version> - <state>)          ← `(planned)` with no version = backlog
 #     - <description of the AC>
 #     - Aspect: <value1>, <value2>        ← optional; default keyword — no {placeholder} needed in AC text
 #     preconditions:                      ← optional; extends feature-level preconditions for this AC only
@@ -78,7 +81,7 @@ Holds all US metadata and is mined during living documentation output generation
 #     not_in_scope:                       ← optional; extends feature-level not_in_scope for this AC only
 #       - <AC-specific exclusion>
 #
-#   AC:US-<n>-02 (v<version> - <State>)
+#   AC:US-<n>-02 (v<version> - <state>)
 #     - <description of the AC with optional {placeholder-name} for parameterised variants>
 #     - <placeholder-name>: <value1>, <value2>  ← optional; custom keyword — matches {placeholder-name} in AC text; ALL values must be covered
 # =============================================================================
@@ -90,17 +93,17 @@ Feature: <US Title>
   Background:                              ← optional
     Given <shared precondition>
 
-  # AC:US-<n>-01 (v<version> - <State>) — <AC description>
+  # AC:US-<n>-01 (v<version> - <state>) - <AC description>
   @AC:US-<n>-01
   Scenario: <scenario title>             ← single scenario = full AC coverage (no aspect split)
     ...
 
-  # — when Aspect values are declared and need individual scenarios:
+  # - when Aspect values are declared and need individual scenarios:
   @AC:US-<n>-01/aspect:<value1>
   Scenario: <scenario title for value1 branch>
     ...
 
-  # — when a custom {placeholder-name} keyword is used (both US and Func):
+  # - when a custom {placeholder-name} keyword is used (both US and Func):
   @AC:US-<n>-02/<placeholder-name>:<value1>
   Scenario: <scenario title for value1>
     ...
@@ -115,7 +118,10 @@ Feature: <US Title>
 | Field | Required | Purpose |
 |---|---|---|
 | `# source:` | Optional | Link to the original issue tracker entry or the pre-BDD living doc location |
-| `# status:` | Yes | `planned` · `in_review` · `active` · `deprecated` (lowercase with underscores per profile `ac_states`) |
+| `# status:` | Yes | `planned` · `in_review` · `active` · `deprecated` (lowercase with underscores per profile `ac_states`). A User Story always carries an authored status. |
+| `# deprecated_at:` | Optional | Date the User Story was deprecated; authored with `status: deprecated` |
+| `# deprecation_reason:` | Optional | Why it was deprecated |
+| `# superseded_by:` | Optional | ID of the replacement entity |
 | `# business_value:` | Yes | Why this User Story exists (bullets) |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at US level; inherited and extended by all ACs |
@@ -132,7 +138,12 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 
 **In this section:** [Required fields](#required-fields) · [Full vs cross-reference headers](#two-header-formats-full-vs-cross-reference) · [Maintaining the header](#maintaining-a-pageobject-header) · [Where operational notes belong](#where-operational-notes-belong) · [Common mistakes](#common-mistakes)
 
-**Example:** [`docs/examples/pageobject/LoginPage.ts`](../examples/pageobject/LoginPage.ts) — full header with the `status: candidate` + `stub-reason:` optional field.
+**Example:** [`docs/examples/pageobject/LoginPage.ts`](../examples/pageobject/LoginPage.ts) — full header with the `stub-reason:` optional field.
+
+> **No surface status.** A PageObject header carries **no `status:` field**. The Feature it documents
+> has no authored status either — a Feature's state is derived from its Functionalities (see
+> [Living Doc Glossary — Feature](living-doc-glossary.md#feature)). A surface that is known but not
+> yet instrumented for test automation says so with `stub-reason:`, not with a status value.
 
 ### Required fields
 
@@ -141,7 +152,6 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 | `surface_type` | `UI` · `API` · `Service` · `Worker` · `Module` · `Library` |
 | `route` | URL path — use `{param}` for dynamic segments |
 | `owners` | Team name(s), comma-separated |
-| `status` | `active` · `planned` · `candidate` · `deprecated` |
 | `purpose` | One-to-two sentence description in business language |
 | `user_stories` | `US-N` IDs, comma-separated — or `none` (triggers orphan warning in gap reports) |
 | `functionalities` | `FUNC-N` IDs, comma-separated — or `none` (triggers a reminder to define FUNCs) |
@@ -153,7 +163,7 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 | Field | When |
 |---|---|
 | `wizard-steps` | Multi-step wizard UI — list the named steps in order |
-| `stub-reason` | `status: candidate` — one-to-two sentence statement of **why** the surface is not yet fully instrumented; treated as tech-debt resolvable by instrumenting the template and re-scanning |
+| `stub-reason` | The surface is documented but not yet fully instrumented — one-to-two sentence statement of **why**; treated as tech-debt resolvable by instrumenting the template and re-scanning. Its presence *is* the marker; there is no status value for this. |
 
 ### Two header formats: Full vs Cross-reference
 
@@ -179,7 +189,6 @@ A PageObject file uses one of two formats depending on whether it is the **prima
  * surface_type:          UI
  * route:                 /app/accounts/setup
  * owners:                Platform Team
- * status:                active
  * wizard-steps:          Profile · Preferences · Review · Confirm
  * purpose:               Multi-step wizard for creating and configuring a new account.
  * user_stories:          US-10, US-12
@@ -198,7 +207,6 @@ A PageObject file uses one of two formats depending on whether it is the **prima
 | `parent-feat` | `FEAT-<nnn>` — ID of the primary Feature that owns this surface. **Required.** |
 | `route` | URL path of this specific sub-surface — use `{param}` for dynamic segments |
 | `owners` | Team name(s), comma-separated |
-| `status` | `active` · `planned` · `candidate` · `deprecated` |
 | `purpose` | One sentence: what this step or sub-surface does, in business language — no FEAT IDs |
 | `page-object` | Filename of this PageObject |
 | `functionalities` | Optional: `FUNC-<nnn>, ...` — subset of parent Feature's Functionalities that this step implements. Omit if all sub-pages equally implement all parent Feature Functionalities. |
@@ -219,7 +227,6 @@ The following fields are **intentionally omitted** from the cross-reference head
  * parent-feat:     FEAT-042
  * route:           /app/accounts/setup  (wizard stays on this URL)
  * owners:          Platform Team
- * status:          active
  * functionalities: FUNC-005              ← Step 1 (Profile) implements profile-specific field validation
  * purpose:         Step 1 (Profile) — user profile fields: display name, email address,
  *                  and role selection.
@@ -230,9 +237,9 @@ The following fields are **intentionally omitted** from the cross-reference head
 ### Maintaining a PageObject header
 
 **By hand.** The header block *is* the registry — there is no separate file to keep in sync. Edit
-the fields in place as the surface changes: keep `status:`, `owners:`, `user_stories:`, and
+the fields in place as the surface changes: keep `owners:`, `user_stories:`, and
 `functionalities:` current, and when a surface is known but its template carries no `data-cy`
-attributes yet, set `status: candidate` with a one-line `stub-reason:`. None of this needs
+attributes yet, add a one-line `stub-reason:`. None of this needs
 `seed.yaml` or `manifest.json` — those back the scan workflow only. Maintained by hand, the rule for
 scan-style detail (scan dates, gap lists, open-issue references) is simply: it has no home in the
 file — leave it out.
@@ -241,13 +248,13 @@ file — leave it out.
 [`living-doc-bdd-copilot`](../projects/agentic-toolkit.md) skills are large maintenance helpers here
 and produce the identical header format — nothing about a scanned header differs from a hand-written
 one. `living-doc-pageobject-scan` writes and refreshes the header and locators from a live scan of
-the running app; `data-cy-instrument` adds the missing `data-cy` attributes a `candidate` surface is
-waiting on; `living-doc-gap-finder` reports orphaned surfaces and uncovered User Stories. They are
+the running app; `data-cy-instrument` adds the missing `data-cy` attributes a `stub-reason:` surface
+is waiting on; `living-doc-gap-finder` reports orphaned surfaces and uncovered User Stories. They are
 accelerators, not a requirement.
 
 ### Where operational notes belong
 
-The PageObject **header block and class JSDoc are living-doc contracts** — they encode identity, traceability, and status. They are not a changelog, scan diary, or issue tracker.
+The PageObject **header block and class JSDoc are living-doc contracts** — they encode identity and traceability. They are not a changelog, scan diary, or issue tracker.
 
 When the scan workflow *is* in use, scan-derived detail has a home outside the header — the table
 below says where. (Without the scan workflow, none of these rows apply: the data simply is not
@@ -260,16 +267,16 @@ produced, and the header stays clean by default.)
 | Proposed `data-cy` names for missing elements | `manifest.json` → `coverage_gaps[].suggested_test_id` (normalized; maps to root `test_id_attribute`) | Header or class body |
 | Open issue reference (e.g. OI-08, P1) | `manifest.json` → `coverage_gaps[].note` | Header or class JSDoc |
 | Scan date or scan session tag | `manifest.json` → `last_scanned` | Header or class JSDoc |
-| `@stub` / `@pending` JSDoc tags on the class | — (use `status: candidate` + `stub-reason:`) | Class JSDoc |
+| `@stub` / `@pending` JSDoc tags on the class | — (use `stub-reason:`) | Class JSDoc |
 | Implementation note explaining a locator strategy | Inline code comment on the locator or method | Header block |
 
-**`status: candidate` and `stub-reason:` as resolvable tech-debt**
+**`stub-reason:` as resolvable tech-debt**
 
-A `status: candidate` surface is **not a permanent state** — it is a living-doc tech-debt item. The surface is known, documented, and linked to User Stories; what is missing is template instrumentation (`data-cy` attributes) that would allow full PageObject locators to be written. The resolution path is always:
+A surface carrying `stub-reason:` is **not in a permanent state** — it is a living-doc tech-debt item. The surface is known, documented, and linked to User Stories; what is missing is template instrumentation (`data-cy` attributes) that would allow full PageObject locators to be written. `stub-reason:` is the instrumentation marker: while it is present the surface is not fully instrumented, and removing it is what records that it now is. The resolution path is always:
 
 1. Instrument the component template with the `data-cy` values listed in `manifest.json` `coverage_gaps[]` (use the `data-cy-instrument` skill).
 2. Re-scan — the scan session updates the PageObject locators.
-3. Promote `status: candidate` → `status: active` and remove `stub-reason:`.
+3. Remove `stub-reason:` — the surface is instrumented.
 
 `stub-reason:` records the factual state at time of discovery (≤ two lines). The value must be free of:
 - internal tool or file references (e.g. `issue-missing-data-cy.md`)
@@ -285,8 +292,8 @@ A `status: candidate` surface is **not a permanent state** — it is a living-do
 |---|---|
 | `type: screen` | `surface_type: UI` |
 | `owner: Team` | `owners: Team` (plural key) |
-| `status: ACTIVE` | `status: active` (lowercase) |
-| `status: STUB` | `status: candidate` + `stub-reason:` field |
+| `status:` on a PageObject header (any value) | Remove it — a surface has no status; a Feature's state is derived from its Functionalities |
+| `status: STUB` / `status: candidate` | Remove `status`, keep `stub-reason:` |
 | `functionalities:` omitted | `functionalities: none` |
 | `user_stories:` omitted | `user_stories: none` |
 | `external_dependencies:` omitted | `external_dependencies: none` |
@@ -295,7 +302,7 @@ A `status: candidate` surface is **not a permanent state** — it is a living-do
 | `user_stories:` duplicated in cross-reference file | These fields live only on the primary Feature file; omit from cross-references |
 | Multiple files claiming the same Feature without `[cross-reference]` tag | Only one file carries the full header; all others must use `[cross-reference]` format |
 | NOTE block in header about missing `data-cy` or open issues | Move to `manifest.json` `coverage_gaps[]`; keep only `stub-reason:` in the header |
-| `@stub` or `@pending` on the class JSDoc | Use `status: candidate` + `stub-reason:` in the header instead |
+| `@stub` or `@pending` on the class JSDoc | Use `stub-reason:` in the header instead |
 | `purpose: Step 1 of FEAT-006 — ...` | `purpose` must not contain FEAT IDs — use `Step 1 (About) — ...` instead; the ID is already in the title line and `parent-feat` |
 | `purpose:` contains "NOT a …" or "Accessed via …" | Purpose describes what the surface does; exclude defensive statements and navigation instructions |
 | `route:` contains a `data-cy` attribute name (e.g. `btn-import-domain`) | `route:` is a URL path or "modal overlay — no dedicated URL"; locator IDs belong in the PageObject body |
@@ -315,10 +322,13 @@ Header comment block at the top of every Functionality feature file —
 
 ```gherkin
 # =============================================================================
-# LIVING DOC — FUNC-<nnn> · <Feature Name> — <Functionality Name>
+# LIVING DOC — FUNC-<nnn> · <Feature Name> - <Functionality Name>
 # =============================================================================
 # source:    https://github.com/<org>/<repo>/issues/<n>          ← optional
 # status:    planned | in_review | active | deprecated
+# deprecated_at:      <date>                                     ← optional; with status: deprecated
+# deprecation_reason: <why this Functionality was deprecated>    ← optional; with status: deprecated
+# superseded_by:      FUNC-<nnn>                                 ← optional; replacement entity
 # parent:    FEAT-<nnn>
 # func_type: component_state | component_action | button_action |
 #            field_validation | calculation | visibility | navigation_rule
@@ -331,7 +341,7 @@ Header comment block at the top of every Functionality feature file —
 #
 # acceptance_criteria:
 #
-#   AC:FUNC-<nnn>-01 (v<version> - <State>)
+#   AC:FUNC-<nnn>-01 (v<version> - <state>)      ← `(planned)` with no version = backlog
 #     - <description in business language — no data-cy IDs in AC text>
 #     - Aspect: <value1>, <value2>        ← optional; default keyword — no {placeholder} needed
 #     preconditions:                      ← optional; extends feature-level preconditions for this AC only
@@ -339,13 +349,13 @@ Header comment block at the top of every Functionality feature file —
 #     not_in_scope:                       ← optional; extends feature-level not_in_scope for this AC only
 #       - <AC-specific exclusion>
 #
-#   AC:FUNC-<nnn>-02 (v<version> - <State>)
+#   AC:FUNC-<nnn>-02 (v<version> - <state>)
 #     - <description — may contain a {placeholder-name} for parameterised variants>
 #     - <placeholder-name>: <value1>, <value2>  ← optional; custom keyword — matches {placeholder-name} in AC text; ALL values must be covered
 # =============================================================================
 
 @FUNC_ID:FUNC-<nnn>
-Feature: <Feature Name> — <Functionality Name>
+Feature: <Feature Name> - <Functionality Name>
   <Purpose: one-to-two sentences describing what this FUNC covers, in business
   language. Present only when purpose adds context beyond the title.>   ← optional
 
@@ -359,7 +369,10 @@ Feature: <Feature Name> — <Functionality Name>
 | Field | Required | Purpose |
 |---|---|---|
 | `# source:` | Optional | Link to the original issue tracker entry or the pre-BDD living doc location |
-| `# status:` | Yes | `planned` · `in_review` · `active` · `deprecated` (lowercase with underscores per profile `ac_states`) |
+| `# status:` | Yes | `planned` · `in_review` · `active` · `deprecated` (lowercase with underscores per profile `ac_states`). A Functionality always carries an authored status. |
+| `# deprecated_at:` | Optional | Date the Functionality was deprecated; authored with `status: deprecated` |
+| `# deprecation_reason:` | Optional | Why it was deprecated |
+| `# superseded_by:` | Optional | ID of the replacement entity |
 | `# parent:` | Yes | Parent Feature ID (`FEAT-<nnn>`) |
 | `# func_type:` | Yes | Category of behavior this Functionality represents (see table below) |
 | `# rationale:` | Optional | **Why** this FUNC is scoped the way it is — business context, a deliberate design decision, or a constraint that explains the boundary. Not for implementation notes. |
@@ -425,9 +438,6 @@ paths:
 # AC state vocabulary as written inside `# AC:` blocks and feature-file headers (lowercase with underscores).
 ac_states: [planned, in_review, active, deprecated]
 
-# PageObject header `status:` vocabulary (lowercase).
-pageobject_statuses: [planned, candidate, active, deprecated]
-
 # Scenario tagging conventions (see "Feature file tags" below).
 scenario_conventions:
   feature_tag:        true     # @US_ID:<id> / @FUNC_ID:<id> on the Feature
@@ -446,13 +456,13 @@ manifest_shape: object         # manifest is an object with routes array (see Ma
 | `paths.bdd_artifacts` | pageobject-scan, data-cy-instrument | `.copilot/bdd` |
 | `paths.pageobjects` / `paths.steps` | pageobject-scan, gherkin-step | `playwright/pages` / `playwright/steps` |
 | `ac_states` | all catalog skills, scenario-creator, gherkin-living-doc-sync | `active` etc. (lowercase with underscores) |
-| `pageobject_statuses` | pageobject-scan | `active` etc. (lowercase) |
 | `scenario_conventions` | scenario-creator, gherkin-living-doc-sync | as shown |
 
-> **Casing rule:** AC states use **lowercase with underscores** inside `# AC:` blocks and entity files
-> (e.g. `- active`, `- in_review`). PageObject header `status:` is also lowercase (`status: active`).
-> Wherever this document or a skill shows `ACTIVE`/`PLANNED` in upper-case prose, it refers to the
-> *logical* state; the *written* form is always lowercase with underscores.
+> **Casing rule:** AC and entity states use **lowercase with underscores** inside `# AC:` blocks,
+> entity files and issue bodies (e.g. `active`, `in_review`). Wherever a skill shows `ACTIVE` or
+> `PLANNED` in upper-case prose, it refers to the *logical* state; the *written* form is always
+> lowercase with underscores. There is no PageObject `status:` field — see
+> [Feature in a PageObject File](#2-feature-in-a-pageobject-file).
 
 ---
 

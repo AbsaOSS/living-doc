@@ -1,6 +1,7 @@
 <!--
 GitHub issue body for a Feature mined by collector-gh `doc-issues`.
 Label: DocumentedFeature    Title: FEAT-001 · Login Page
+A Feature carries no `## Status`: its state is derived from its Functionalities.
 Layout: see ../README.md (GitHub issue-body layout)
 -->
 
@@ -15,10 +16,6 @@ UI
 ## Owners
 
 Identity Team
-
-## Status
-
-active
 
 ## User Stories
 

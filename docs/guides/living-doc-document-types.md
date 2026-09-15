@@ -30,9 +30,9 @@ status.
 **Structure**
 
 ```
-User Story  (US-nnn)  — actor, capability, business value, ACs
-  └─ Feature  (FEAT-nnn)  — a system surface (page, API), owner, status
-       └─ Functionality  (FUNC-nnn)  — one atomic behaviour, ACs
+User Story  (US-nnn)  — actor, capability, business value, authored status, ACs
+  └─ Feature  (FEAT-nnn)  — a system surface (page, API), owner; state derived from its Functionalities
+       └─ Functionality  (FUNC-nnn)  — one atomic behaviour, authored status, ACs
 ```
 
 See the [relationship diagram](living-doc-glossary.md#relationship-diagram) for the full model.
@@ -101,7 +101,7 @@ Feature file  (@US_ID / @FUNC_ID)
        └─ steps
 ```
 
-Scenario-to-AC traceability comes from the `# AC:` comment and `@AC:` tag on each scenario — see
+Scenario-to-AC traceability comes from the `# AC:` comment and `@AC:` tag on each scenario; see
 [Living Doc Glossary § Acceptance Criterion](living-doc-glossary.md#acceptance-criterion-ac).
 
 **Built from** — Gherkin `.feature` files in the living-doc directories
@@ -140,8 +140,9 @@ ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined
 - both mined from the same repository, or merged into one dataset if they come from different sources.
 
 **Worked example** — the [`docs/examples/`](../examples/README.md) corpus is a complete coverage-matrix
-input: `AC:US-001-01` and `AC:FUNC-001-01` are covered by scenarios, `AC:US-001-02` and
-`AC:FUNC-001-02` are declared with no scenario (uncovered).
+input: `AC:US-001-01`, `AC:US-001-04` and `AC:FUNC-001-01` are covered by scenarios, while
+`AC:US-001-02` and `AC:FUNC-001-02` are declared with no scenario (uncovered). The `planned` ACs
+(`AC:US-001-03`, `AC:FUNC-001-03`) are not counted either way.
 
 **Generator input:** `document-type: coverage-matrix`, reading the `toolkit`-normalized artifact
 produced from `coverage-matrix.json` — never raw collector output.
@@ -153,7 +154,7 @@ produced from `coverage-matrix.json` — never raw collector output.
 | To produce… | You need | Which in turn needs |
 |---|---|---|
 | Technical project | A collector source (issues, source code, or work items) | Entities authored in the [documented format](living-doc-header-types.md) |
-| Test catalog | Gherkin `.feature` files with `@AC:` tags | — |
+| Test catalog | Gherkin `.feature` files with `@AC:` tags | nothing further |
 | Coverage matrix | Technical project **+** test catalog, same system | Both of the above; AC IDs consistent across the two |
 
 ## Related

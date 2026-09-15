@@ -41,7 +41,7 @@
       "parent": "FEAT-001",
       "repository_name": "living-doc",
       "state": "active",
-      "title": "Login Page — Validate Password Strength"
+      "title": "Login Page - Validate Password Strength"
     }
   ],
   "metadata": {
@@ -103,6 +103,32 @@
           "preconditions": [],
           "removal_planned": null,
           "state": "active",
+          "version": "v1.0.0"
+        },
+        {
+          "aspect": [],
+          "descoped_at": null,
+          "descoped_reason": null,
+          "description": "A customer who forgot the password can request a reset link from the login screen.",
+          "future_release": null,
+          "id": "US-001-03",
+          "not_in_scope": [],
+          "preconditions": [],
+          "removal_planned": null,
+          "state": "planned",
+          "version": "v1.1.0"
+        },
+        {
+          "aspect": [],
+          "descoped_at": null,
+          "descoped_reason": null,
+          "description": "A \"Remember me\" choice keeps the customer signed in across browser restarts.",
+          "future_release": null,
+          "id": "US-001-04",
+          "not_in_scope": [],
+          "preconditions": [],
+          "removal_planned": "v2.0.0",
+          "state": "deprecated",
           "version": "v1.0.0"
         }
       ],

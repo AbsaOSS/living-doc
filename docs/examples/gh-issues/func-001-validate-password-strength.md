@@ -1,12 +1,16 @@
 <!--
 GitHub issue body for a Functionality mined by collector-gh `doc-issues`.
-Label: DocumentedFunctionality    Title: FUNC-001 · Login Page — Validate Password Strength
+Label: DocumentedFunctionality    Title: FUNC-001 · Login Page - Validate Password Strength
 Layout: see ../README.md (GitHub issue-body layout)
 -->
 
 ## Description
 
 Validates a candidate password against the account complexity policy before the login form is submitted.
+
+## Status
+
+active
 
 ## Parent Feature
 
@@ -30,3 +34,7 @@ field_validation
 ### AC:FUNC-001-02 (v1.0.0 - active)
 
 - Returns valid=true when the candidate password satisfies every complexity rule.
+
+### AC:FUNC-001-03 (planned)
+
+- Returns valid=false when the candidate password appears in the breached-password list.
