@@ -55,7 +55,7 @@ What the pipeline produces. Each can be rendered as Markdown or PDF.
 | **Test catalog** — the behaviours covered by Gherkin scenarios | Mined from `.feature` files | Gherkin feature files in the repo |
 | **Coverage matrix** — which acceptance criteria have tests | Cross-referencing the two above | Technical project **and** test catalog, for the same system |
 
-The **technical project** has two views: *inner* (everything, as-is) and *release* (planned and no-longer-active / delivered ACs filtered out). Full structure, purpose, and the prerequisite matrix: [Living Documentation Document Types](docs/guides/living-doc-document-types.md).
+The **technical project** has two views: *inner* (everything, as-is) and *release* (`planned` and `in_review` entities and ACs filtered out; `deprecated` kept). Full structure, purpose, and the prerequisite matrix: [Living Documentation Document Types](docs/guides/living-doc-document-types.md).
 
 ### What you get
 
