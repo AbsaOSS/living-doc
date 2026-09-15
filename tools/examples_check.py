@@ -124,7 +124,7 @@ FORBIDDEN_ISSUE_HEADINGS = {"FEAT": {"Status"}}
 # use `-` (hyphen-minus); an en or em dash there is an autocorrect defect, not an input variant.
 _DASHES = "–—"  # en dash, em dash
 NON_CANONICAL_PATTERNS = [
-    (re.compile(rf"AC:.*[{_DASHES}]"),
+    (re.compile(rf"^\s*(?:###\s+|#\s*)AC:.*[{_DASHES}]"),
      "en/em dash on an 'AC:' line (AC header, '### AC:' sub-heading or '# AC:' comment)"),
     (re.compile(rf"^\s*(#\s*)?[{_DASHES}] "),
      "en/em dash used as a bullet marker"),
@@ -427,7 +427,15 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
                     "add at least one 'AC:<id> (v<version> - <state>)' line")
     for ac_id, aspects in acs.items():
         corpus.declare_ac(ac_id, aspects)
-        corpus.feature_file_acs.add(ac_id)
+        header_m = AC_HEADER_RE.match(ac_headers.get(ac_id, ""))
+        if not (header_m and header_m.group("state") == "planned"):
+            corpus.feature_file_acs.add(ac_id)
+
+    if entity_id is not None:
+        fields = _feature_pair_fields(header, top_keys, raw, kind)
+        extensions.update(f"{key}:" for key in OPTIONAL_FEATURE_KEYS if key in top_keys)
+        corpus.declare_form(entity_id, "feature-file header", rel, fields,
+                            ac_headers, sorted(extensions))
 
     if entity_id is not None:
         fields = _feature_pair_fields(header, top_keys, raw, kind)
@@ -736,7 +744,14 @@ def form_parity(corpus: Corpus) -> None:
                             "the corpus shows each extension once, in isolation - move the extra "
                             "one to the file the conventions table assigns it to "
                             "(docs/examples/README.md#conventions-used-by-this-corpus)")
-        if len(forms) < 2:
+        if len(forms) != 2:
+            form = next(iter(forms.values()))
+            corpus.fail(
+                form["file"], None,
+                f"PAIR_MISMATCH: {entity_id} must have exactly two authored forms "
+                f"(found {len(forms)})",
+                "restore the missing form or remove the unexpected extra form",
+            )
             continue
         (name_a, a), (name_b, b) = sorted(forms.items())
         for field in sorted(set(a["fields"]) & set(b["fields"])):
