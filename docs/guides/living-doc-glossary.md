@@ -92,9 +92,6 @@ A named system surface — the structural layer between User Stories and atomic 
   - `deprecated_at` — date the entity was deprecated
   - `deprecation_reason` — why it was deprecated
   - `superseded_by` — ID of the replacement entity
-- Ownership change metadata (set when `owners` changes):
-  - `owner_changed_at` — date of ownership transfer
-  - `owner_change_reason` — reason for the transfer
 
 > PageObject file header schemas (full header, cross-reference, operational notes, common mistakes): see [Living Doc Header Types — Feature in a PageObject File](living-doc-header-types.md#2-feature-in-a-pageobject-file).
 
