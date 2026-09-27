@@ -242,14 +242,53 @@ def test_feat_surface_type_worker_fails(corpus_dir: Path) -> None:
                for f in findings), findings
 
 
-def test_deprecated_at_heading_accepted(corpus_dir: Path) -> None:
+def test_feat_deprecated_at_heading_fails(corpus_dir: Path) -> None:
+    # A Feature's deprecation date is derived with its state, so the heading has no home here.
     target = corpus_dir / FEAT_ISSUE
+    text = target.read_text(encoding="utf-8") + "\n## Deprecated At\n\n2026-09-15\n"
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(FEAT_ISSUE in f.file
+               and "'## Deprecated At' has no place in the FEAT issue-body layout" in f.rule
+               for f in findings), findings
+
+
+def test_us_deprecated_at_heading_accepted(corpus_dir: Path) -> None:
+    # `## Deprecated At` stays optional on a User Story. Swap it in for `## Not In Scope` rather
+    # than adding it alongside, so the file keeps exactly one optional field extension.
+    target = corpus_dir / US_ISSUE
     text = target.read_text(encoding="utf-8").replace(
-        "## External Dependencies\n\nauth-api", "## Deprecated At\n\n2026-09-15")
+        "## Not In Scope\n\n"
+        "- Social-identity (OAuth) sign-in — tracked separately as US-002.\n",
+        "## Deprecated At\n\n2026-09-15\n")
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
     assert not any("Deprecated At" in f.rule for f in findings), findings
+
+
+def test_notes_heading_is_optional(corpus_dir: Path) -> None:
+    # The corpus's single `## Notes` instance lives in the FEAT issue body (its presence is
+    # covered by test_pristine_corpus_passes); dropping it must change nothing.
+    target = corpus_dir / FEAT_ISSUE
+    text = target.read_text(encoding="utf-8")
+    # `rindex`, not `index`: the header comment names the section too.
+    target.write_text(text[:text.rindex("\n## Notes\n")] + "\n", encoding="utf-8")
+
+    assert findings_for(corpus_dir) == []
+
+
+def test_notes_heading_is_not_an_optional_field_extension(corpus_dir: Path) -> None:
+    # `## Notes` is exempt from the one-extension rule: FUNC already spends its extension on
+    # `## Rationale`, and a second entity type carrying `## Notes` must still validate clean.
+    target = corpus_dir / FUNC_ISSUE
+    text = target.read_text(encoding="utf-8") + (
+        "\n## Notes\n\n"
+        "- The complexity policy is owned by the account service; this check mirrors it client-side.\n")
+    target.write_text(text, encoding="utf-8")
+
+    assert findings_for(corpus_dir) == []
 
 
 def test_deprecation_reason_heading_accepted(corpus_dir: Path) -> None:

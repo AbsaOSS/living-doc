@@ -89,12 +89,18 @@ CANONICAL_ENTITIES = {"US-001", "FEAT-001", "FUNC-001"}
 
 # docs/examples/README.md — GitHub issue-body layout table
 # `## Status` is required for US and FUNC and has no place on a Feature: a Feature's state is
-# derived from its Functionalities (docs/guides/living-doc-glossary.md#feature).
+# derived from its Functionalities (docs/guides/living-doc-glossary.md#feature). `## Deprecated At`
+# follows the state, so it has no place on a Feature either; `## Deprecation Reason` and
+# `## Superseded By` stay authored there and drive nothing.
 DEPRECATION_HEADINGS = ["Deprecated At", "Deprecation Reason", "Superseded By"]
+FEAT_DEPRECATION_HEADINGS = ["Deprecation Reason", "Superseded By"]
+# `## Notes` — entity-level human context, optional on every entity type
+# (docs/guides/living-doc-glossary.md#core-entities).
+NOTES_HEADING = "Notes"
 ISSUE_HEADINGS = {
     "US": {
         "required": ["Description", "Status", "Business Value", "Acceptance Criteria"],
-        "optional": ["Preconditions", "Not In Scope", *DEPRECATION_HEADINGS],
+        "optional": ["Preconditions", "Not In Scope", *DEPRECATION_HEADINGS, NOTES_HEADING],
     },
     "FEAT": {
         "required": [
@@ -104,7 +110,7 @@ ISSUE_HEADINGS = {
             "User Stories",
             "Functionalities",
         ],
-        "optional": ["External Dependencies", *DEPRECATION_HEADINGS],
+        "optional": ["External Dependencies", *FEAT_DEPRECATION_HEADINGS, NOTES_HEADING],
     },
     "FUNC": {
         "required": [
@@ -114,11 +120,22 @@ ISSUE_HEADINGS = {
             "Func Type",
             "Acceptance Criteria",
         ],
-        "optional": ["Rationale", "Preconditions", "Not In Scope", *DEPRECATION_HEADINGS],
+        "optional": ["Rationale", "Preconditions", "Not In Scope", *DEPRECATION_HEADINGS,
+                     NOTES_HEADING],
     },
 }
-# `## Status` on a Feature gets its own message rather than the generic "unknown heading" one.
-FORBIDDEN_ISSUE_HEADINGS = {"FEAT": {"Status"}}
+# A heading a derived field would author gets its own message rather than the generic
+# "unknown heading" one: heading -> the fix hint explaining why it has no home.
+FORBIDDEN_ISSUE_HEADINGS = {
+    "FEAT": {
+        "Status": "a Feature has no authored status - its state is derived from its "
+                  "Functionalities (living-doc-glossary.md#feature); remove the heading",
+        "Deprecated At": "a Feature has no authored deprecation date - it is derived with the "
+                         "state, which follows the Functionalities "
+                         "(living-doc-glossary.md#feature); keep '## Deprecation Reason' / "
+                         "'## Superseded By' if the surface is being retired",
+    },
+}
 
 # docs/guides/living-doc-glossary.md — "Canonical form and normalisation". Structural positions
 # use `-` (hyphen-minus); an en or em dash there is an autocorrect defect, not an input variant.
@@ -143,7 +160,9 @@ PAIR_FIELD_MAP = {
     "FEAT": {"Description": "purpose", "Surface Type": "surface_type", "Owners": "owners",
              "User Stories": "user_stories", "Functionalities": "functionalities"},
 }
-# Optional extensions a `.feature` header may carry, beyond the required keys.
+# Optional extensions a `.feature` / PageObject header may carry, beyond the required keys.
+# `notes:` is deliberately absent from both: it is available on every entity and counts as no
+# file's one optional extension (see `NOTES_HEADING`).
 OPTIONAL_FEATURE_KEYS = ["source", "rationale", "preconditions", "not_in_scope",
                          "deprecated_at", "deprecation_reason", "superseded_by"]
 OPTIONAL_PO_KEYS = ["wizard-steps", "stub-reason"]
@@ -564,13 +583,12 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
 
     spec = ISSUE_HEADINGS[etype]
     allowed = set(spec["required"]) | set(spec["optional"])
-    forbidden = FORBIDDEN_ISSUE_HEADINGS.get(etype, set())
+    forbidden = FORBIDDEN_ISSUE_HEADINGS.get(etype, {})
     present = {h for _, h in headings}
     for i, h in headings:
         if h in forbidden:
             corpus.fail(rel, i, f"'## {h}' has no place in the {etype} issue-body layout",
-                        "a Feature has no authored status - its state is derived from its "
-                        "Functionalities (living-doc-glossary.md#feature); remove the heading")
+                        forbidden[h])
         elif h not in allowed:
             corpus.fail(rel, i, f"'## {h}' is not a heading in the {etype} issue-body layout",
                         f"allowed headings: {sorted(allowed)} (docs/examples/README.md)")
@@ -606,8 +624,12 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
     if title_m:
         fields = {key: sections[heading]
                   for heading, key in PAIR_FIELD_MAP[etype].items() if heading in sections}
+        # `## Notes` is available on every entity and extends no mined field set, so - like the AC
+        # states - it does not count as the file's one optional field extension
+        # (docs/examples/README.md#conventions-used-by-this-corpus).
         corpus.declare_form(title_m.group(1), "issue body", rel, fields, ac_headers,
-                            [f"## {h}" for h in spec["optional"] if h in present])
+                            [f"## {h}" for h in spec["optional"]
+                             if h in present and h != NOTES_HEADING])
 
     # parent references carried in issue-body sections
     section = None
