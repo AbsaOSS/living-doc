@@ -170,6 +170,30 @@ def test_pageobject_stub_reason_is_optional(corpus_dir: Path) -> None:
     assert not any(PAGEOBJECT in f.file for f in findings), findings
 
 
+def test_pageobject_surface_type_service_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / PAGEOBJECT
+    text = target.read_text(encoding="utf-8").replace(
+        " * surface_type:          UI\n",
+        " * surface_type:          Service\n",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(PAGEOBJECT in f.file and "is not 'UI'" in f.rule for f in findings), findings
+
+
+def test_pageobject_surface_type_api_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / PAGEOBJECT
+    text = target.read_text(encoding="utf-8").replace(
+        " * surface_type:          UI\n",
+        " * surface_type:          API\n",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(PAGEOBJECT in f.file and "is not 'UI'" in f.rule for f in findings), findings
+
+
 def test_missing_project_profile_fails(corpus_dir: Path) -> None:
     (corpus_dir / "project-profile" / ".project-profile.yaml").unlink()
     findings = findings_for(corpus_dir)
@@ -204,6 +228,17 @@ def test_feat_status_heading_fails(corpus_dir: Path) -> None:
     findings = findings_for(corpus_dir)
     assert any(FEAT_ISSUE in f.file
                and "has no place in the FEAT issue-body layout" in f.rule
+               for f in findings), findings
+
+
+def test_feat_surface_type_worker_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FEAT_ISSUE
+    text = target.read_text(encoding="utf-8").replace(
+        "## Surface Type\n\nUI\n", "## Surface Type\n\nWorker\n")
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(FEAT_ISSUE in f.file and "is not documented" in f.rule and "Worker" in f.rule
                for f in findings), findings
 
 
