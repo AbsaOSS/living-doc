@@ -13,12 +13,11 @@
  * page-object:           LoginPage.ts
  * ============================================================================= */
 
-// A PageObject header carries no status and no deprecation date: the FEAT-001
-// entity's state is derived from its Functionalities, and `deprecated_at` is
-// derived with it. This surface is documented but not yet instrumented —
-// the login template has no test-id attributes — which is what `stub-reason:`
-// records. Locators follow once it is instrumented, and `stub-reason:` is then
-// removed.
+// A PageObject header carries no `status:` and no `deprecated_at:` — see the
+// FEAT-001 issue body for why. This surface is documented but not yet
+// instrumented — the login template has no test-id attributes — which is what
+// `stub-reason:` records. Locators follow once it is instrumented, and
+// `stub-reason:` is then removed.
 export class LoginPage {
   constructor(private readonly page: import("@playwright/test").Page) {}
 

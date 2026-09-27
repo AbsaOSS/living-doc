@@ -70,7 +70,7 @@ Holds all US metadata and is mined during living documentation output generation
 #   - <system state required before test>
 # not_in_scope:                                                  ← optional; inherited by all ACs
 #   - <item excluded from this US>
-# notes:                                                         ← optional; human context, never parsed
+# notes:                                                         ← optional; human context
 #   - <a fact worth recording that drives nothing>
 #
 # acceptance_criteria:
@@ -127,7 +127,7 @@ Feature: <US Title>
 | `# business_value:` | Yes | Why this User Story exists (bullets) |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at US level; inherited and extended by all ACs |
-| `# notes:` | Optional | Human context at User Story level — a bullet list, one note per bullet. Never parsed for semantics: it drives no state and nothing is derived from it (see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities)) |
+| `# notes:` | Optional | Human context at User Story level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities) |
 | `# acceptance_criteria:` | Yes | Full AC listing with IDs, versions, and states; each AC may extend inherited preconditions and not_in_scope |
 | `@US_ID:US-<n>` tag | Yes | Machine-parseable User Story ID (feature-level tag) |
 
@@ -167,7 +167,7 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 |---|---|
 | `wizard-steps` | Multi-step wizard UI — list the named steps in order |
 | `stub-reason` | The surface is documented but not yet fully instrumented — one-to-two sentence statement of **why**; treated as tech-debt resolvable by instrumenting the template and re-scanning. Its presence *is* the marker; there is no status value for this. |
-| `notes` | Human context at Feature level — a bullet list under the key, one note per bullet. Never parsed for semantics: it drives no state and nothing is derived from it (see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities)). Not a scan diary — the rows under [Where operational notes belong](#where-operational-notes-belong) keep their homes. |
+| `notes` | Human context at Feature level — a bullet list under the key, one note per bullet; see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities). Not a scan diary — the rows under [Where operational notes belong](#where-operational-notes-belong) keep their homes. |
 
 ### Two header formats: Full vs Cross-reference
 
@@ -344,7 +344,7 @@ Header comment block at the top of every Functionality feature file —
 #   - <system state required before test>
 # not_in_scope:                                                  ← optional; inherited by all ACs
 #   - <exclusion>
-# notes:                                                         ← optional; human context, never parsed
+# notes:                                                         ← optional; human context
 #   - <a fact worth recording that drives nothing>
 #
 # acceptance_criteria:
@@ -386,7 +386,7 @@ Feature: <Feature Name> - <Functionality Name>
 | `# rationale:` | Optional | **Why** this FUNC is scoped the way it is — business context, a deliberate design decision, or a constraint that explains the boundary. Not for implementation notes. |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at FUNC level; inherited and extended by all ACs |
-| `# notes:` | Optional | Human context at Functionality level — a bullet list, one note per bullet. Never parsed for semantics: it drives no state and nothing is derived from it (see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities)) |
+| `# notes:` | Optional | Human context at Functionality level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities) |
 | `# acceptance_criteria:` | Yes | Full AC listing in business language — do not include `data-cy` IDs or implementation names in AC text; each AC may extend inherited preconditions and not_in_scope |
 | `@FUNC_ID:FUNC-<nnn>` tag | Yes | Machine-parseable Functionality ID (feature-level tag) |
 | Feature description (below `Feature:`) | Optional | One-to-two sentence purpose in business language. Use when the title alone is not self-explanatory. |
@@ -416,7 +416,8 @@ Feature: <Feature Name> - <Functionality Name>
 
 > `test_type` (unit vs integration vs system) is not a living-doc field — not on a FUNC header, and not a
 > tag this documentation defines. How a test is executed is a test-framework concern. A `@test_type:` tag
-> written by a test framework may appear in a scenario file; the pipeline ignores it.
+> written by a test framework may appear in a scenario file; the pipeline does not interpret it — it
+> travels with the scenario's other tags, and nothing in living-doc reads it.
 
 ---
 

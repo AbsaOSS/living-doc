@@ -87,11 +87,9 @@ AC_TAG_RE = re.compile(r"@AC:(?P<id>[A-Z]+-\d+-\d+)(?:/(?P<param>[a-z_]+):(?P<va
 
 CANONICAL_ENTITIES = {"US-001", "FEAT-001", "FUNC-001"}
 
-# docs/examples/README.md — GitHub issue-body layout table
-# `## Status` is required for US and FUNC and has no place on a Feature: a Feature's state is
-# derived from its Functionalities (docs/guides/living-doc-glossary.md#feature). `## Deprecated At`
-# follows the state, so it has no place on a Feature either; `## Deprecation Reason` and
-# `## Superseded By` stay authored there and drive nothing.
+# docs/examples/README.md — GitHub issue-body layout table. Why `## Status` and `## Deprecated At`
+# have no FEAT row: docs/guides/living-doc-glossary.md#feature; the fix hints below say it to the
+# author.
 DEPRECATION_HEADINGS = ["Deprecated At", "Deprecation Reason", "Superseded By"]
 FEAT_DEPRECATION_HEADINGS = ["Deprecation Reason", "Superseded By"]
 # `## Notes` — entity-level human context, optional on every entity type
@@ -624,9 +622,7 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
     if title_m:
         fields = {key: sections[heading]
                   for heading, key in PAIR_FIELD_MAP[etype].items() if heading in sections}
-        # `## Notes` is available on every entity and extends no mined field set, so - like the AC
-        # states - it does not count as the file's one optional field extension
-        # (docs/examples/README.md#conventions-used-by-this-corpus).
+        # `NOTES_HEADING` is excluded for the reason given at `OPTIONAL_FEATURE_KEYS`.
         corpus.declare_form(title_m.group(1), "issue body", rel, fields, ac_headers,
                             [f"## {h}" for h in spec["optional"]
                              if h in present and h != NOTES_HEADING])

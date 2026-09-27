@@ -226,9 +226,12 @@ def test_feat_status_heading_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any(FEAT_ISSUE in f.file
-               and "has no place in the FEAT issue-body layout" in f.rule
-               for f in findings), findings
+    match = [f for f in findings
+             if FEAT_ISSUE in f.file
+             and "'## Status' has no place in the FEAT issue-body layout" in f.rule]
+    assert match, findings
+    # The hint is per heading, so assert this heading's own advice - not the other's.
+    assert "remove the heading" in match[0].hint, match[0].hint
 
 
 def test_feat_surface_type_worker_fails(corpus_dir: Path) -> None:
@@ -249,9 +252,15 @@ def test_feat_deprecated_at_heading_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any(FEAT_ISSUE in f.file
-               and "'## Deprecated At' has no place in the FEAT issue-body layout" in f.rule
-               for f in findings), findings
+    match = [f for f in findings
+             if FEAT_ISSUE in f.file
+             and "'## Deprecated At' has no place in the FEAT issue-body layout" in f.rule]
+    assert match, findings
+    # The hint is user-facing tool output and the whole point of the per-heading dict: a Feature
+    # author must be told to keep the two fields that stay authored, not given the `## Status`
+    # advice to remove the heading.
+    assert "derived with the state" in match[0].hint, match[0].hint
+    assert "keep '## Deprecation Reason'" in match[0].hint, match[0].hint
 
 
 def test_us_deprecated_at_heading_accepted(corpus_dir: Path) -> None:
@@ -273,8 +282,7 @@ def test_notes_heading_is_optional(corpus_dir: Path) -> None:
     # covered by test_pristine_corpus_passes); dropping it must change nothing.
     target = corpus_dir / FEAT_ISSUE
     text = target.read_text(encoding="utf-8")
-    # `rindex`, not `index`: the header comment names the section too.
-    target.write_text(text[:text.rindex("\n## Notes\n")] + "\n", encoding="utf-8")
+    target.write_text(text[:text.index("\n## Notes\n")] + "\n", encoding="utf-8")
 
     assert findings_for(corpus_dir) == []
 
@@ -286,6 +294,18 @@ def test_notes_heading_is_not_an_optional_field_extension(corpus_dir: Path) -> N
     text = target.read_text(encoding="utf-8") + (
         "\n## Notes\n\n"
         "- The complexity policy is owned by the account service; this check mirrors it client-side.\n")
+    target.write_text(text, encoding="utf-8")
+
+    assert findings_for(corpus_dir) == []
+
+
+def test_us_notes_heading_accepted(corpus_dir: Path) -> None:
+    # The third entity type. The User Story is the strongest case for the one-extension exemption:
+    # `us-001` already spends its extension on `## Not In Scope`, so `## Notes` arrives alongside it.
+    target = corpus_dir / US_ISSUE
+    text = target.read_text(encoding="utf-8") + (
+        "\n## Notes\n\n"
+        "- The customer-facing name of this flow is \"Sign in\"; the test suite uses the US title.\n")
     target.write_text(text, encoding="utf-8")
 
     assert findings_for(corpus_dir) == []
