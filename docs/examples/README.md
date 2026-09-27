@@ -65,13 +65,14 @@ table (`description` / `business_value` / `preconditions` / `acceptance_criteria
 
 | Entity | Required headings | Optional headings |
 |---|---|---|
-| User Story | `## Description`, `## Status`, `## Business Value`, `## Acceptance Criteria` | `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By` |
-| Feature | `## Description`, `## Surface Type`, `## Owners`, `## User Stories`, `## Functionalities` | `## External Dependencies`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By` |
-| Functionality | `## Description`, `## Status`, `## Parent Feature`, `## Func Type`, `## Acceptance Criteria` | `## Rationale`, `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By` |
+| User Story | `## Description`, `## Status`, `## Business Value`, `## Acceptance Criteria` | `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
+| Feature | `## Description`, `## Surface Type`, `## Owners`, `## User Stories`, `## Functionalities` | `## External Dependencies`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
+| Functionality | `## Description`, `## Status`, `## Parent Feature`, `## Func Type`, `## Acceptance Criteria` | `## Rationale`, `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
 
-**Status is required on a User Story and a Functionality, and has no place on a Feature** — a
-Feature's state is derived from its Functionalities, never authored. See
-[Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature).
+**`## Status` and `## Deprecated At` have no place on a Feature**, and `## Notes` is available on
+every entity as a bullet list of human context. Both rules, and why, are in
+[Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature) and
+[Core entities](../guides/living-doc-glossary.md#core-entities).
 
 ## Conventions used by this corpus
 
@@ -82,6 +83,13 @@ Feature's state is derived from its Functionalities, never authored. See
   `active` or `deprecated` AC — with or without a target version, with or without a removal note — is
   the grammar of [`AC:<id> (…)`](../guides/living-doc-glossary.md#acceptance-criterion-ac) doing its
   job, so it does not count against the one-optional-extension-per-file rule above.
+- **`## Notes` is not a field extension either.** It extends no mined field set, so the one instance in
+  the corpus does not count against the one-optional-extension-per-file rule above. It is shown once, on
+  [`gh-issues/feat-001-login-page.md`](gh-issues/feat-001-login-page.md): a Feature is the entity whose
+  state and deprecation date are both derived, so a human note is what is left to record there. Until
+  `notes` is part of the entity contract, `living-doc-utilities` drops an authored value and warns —
+  `UNKNOWN_SECTION` from the issue-body parser, `IGNORED_AUTHORED_KEY` from the `.feature` and
+  PageObject header parsers.
 - **Field extensions**, spread across the corpus so each is shown once in isolation — one per file,
   no file carrying two:
   - AC-level `preconditions` extension — `gherkin/liv_doc_us/us-001-customer-login.feature`
@@ -100,10 +108,10 @@ Feature's state is derived from its Functionalities, never authored. See
   removal note — covered by a scenario, because a deprecated AC still describes shipped behaviour and
   is still counted.
 - **Derived Feature state, no surface status.** `FEAT-001` carries no authored status in either form:
-  its issue body has no `## Status` heading and `LoginPage.ts` has no `status:` field. The Feature's
-  state is derived from `FUNC-001`. The login template is not yet instrumented for test automation,
-  and the PageObject says so with `stub-reason:` — the instrumentation marker, which is removed once
-  the surface is instrumented. See
+  its issue body has no `## Status` heading and `LoginPage.ts` has no `status:` field, and neither form
+  carries a `deprecated_at`. The Feature's state is derived from `FUNC-001`. The login template is not
+  yet instrumented for test automation, and the PageObject says so with `stub-reason:` — the
+  instrumentation marker, which is removed once the surface is instrumented. See
   [Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file).
 - **Two forms per entity, in step.** `US-001` and `FUNC-001` each exist as a GitHub issue body and as
   a `.feature` header, and `FEAT-001` as an issue body and a PageObject header. The two forms of an

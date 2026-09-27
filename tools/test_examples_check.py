@@ -159,6 +159,23 @@ def test_pageobject_status_field_fails(corpus_dir: Path) -> None:
     assert any(PAGEOBJECT in f.file and "status:" in f.rule for f in findings), findings
 
 
+def test_pageobject_deprecated_at_field_fails(corpus_dir: Path) -> None:
+    # The source-code twin of test_feat_deprecated_at_heading_fails: a Feature's deprecation date
+    # is derived, so the PageObject form has no place for it either.
+    target = corpus_dir / PAGEOBJECT
+    text = target.read_text(encoding="utf-8").replace(
+        " * surface_type:          UI\n",
+        " * surface_type:          UI\n * deprecated_at:         2026-09-15\n",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings if PAGEOBJECT in f.file and "deprecated_at:" in f.rule]
+    assert match, findings
+    # The hint must use the header's own syntax, not the issue body's headings.
+    assert "'deprecation_reason:'" in match[0].hint, match[0].hint
+
+
 def test_pageobject_stub_reason_is_optional(corpus_dir: Path) -> None:
     target = corpus_dir / PAGEOBJECT
     kept = [ln for ln in target.read_text(encoding="utf-8").splitlines()
@@ -226,9 +243,12 @@ def test_feat_status_heading_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any(FEAT_ISSUE in f.file
-               and "has no place in the FEAT issue-body layout" in f.rule
-               for f in findings), findings
+    match = [f for f in findings
+             if FEAT_ISSUE in f.file
+             and "'## Status' has no place in the FEAT issue-body layout" in f.rule]
+    assert match, findings
+    # The hint is per heading, so assert this heading's own advice - not the other's.
+    assert "remove the heading" in match[0].hint, match[0].hint
 
 
 def test_feat_surface_type_worker_fails(corpus_dir: Path) -> None:
@@ -242,14 +262,70 @@ def test_feat_surface_type_worker_fails(corpus_dir: Path) -> None:
                for f in findings), findings
 
 
-def test_deprecated_at_heading_accepted(corpus_dir: Path) -> None:
+def test_feat_deprecated_at_heading_fails(corpus_dir: Path) -> None:
+    # A Feature's deprecation date is derived with its state, so the heading has no home here.
     target = corpus_dir / FEAT_ISSUE
+    text = target.read_text(encoding="utf-8") + "\n## Deprecated At\n\n2026-09-15\n"
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings
+             if FEAT_ISSUE in f.file
+             and "'## Deprecated At' has no place in the FEAT issue-body layout" in f.rule]
+    assert match, findings
+    # The hint is user-facing tool output and the whole point of the per-heading dict: a Feature
+    # author must be told to keep the two fields that stay authored, not given the `## Status`
+    # advice to remove the heading.
+    assert "derived with the state" in match[0].hint, match[0].hint
+    assert "keep '## Deprecation Reason'" in match[0].hint, match[0].hint
+
+
+def test_us_deprecated_at_heading_accepted(corpus_dir: Path) -> None:
+    # `## Deprecated At` stays optional on a User Story. Swap it in for `## Not In Scope` rather
+    # than adding it alongside, so the file keeps exactly one optional field extension.
+    target = corpus_dir / US_ISSUE
     text = target.read_text(encoding="utf-8").replace(
-        "## External Dependencies\n\nauth-api", "## Deprecated At\n\n2026-09-15")
+        "## Not In Scope\n\n"
+        "- Social-identity (OAuth) sign-in — tracked separately as US-002.\n",
+        "## Deprecated At\n\n2026-09-15\n")
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
     assert not any("Deprecated At" in f.rule for f in findings), findings
+
+
+def test_notes_heading_is_optional(corpus_dir: Path) -> None:
+    # The corpus's single `## Notes` instance lives in the FEAT issue body (its presence is
+    # covered by test_pristine_corpus_passes); dropping it must change nothing.
+    target = corpus_dir / FEAT_ISSUE
+    text = target.read_text(encoding="utf-8")
+    target.write_text(text[:text.index("\n## Notes\n")] + "\n", encoding="utf-8")
+
+    assert findings_for(corpus_dir) == []
+
+
+def test_notes_heading_is_not_an_optional_field_extension(corpus_dir: Path) -> None:
+    # `## Notes` is exempt from the one-extension rule: FUNC already spends its extension on
+    # `## Rationale`, and a second entity type carrying `## Notes` must still validate clean.
+    target = corpus_dir / FUNC_ISSUE
+    text = target.read_text(encoding="utf-8") + (
+        "\n## Notes\n\n"
+        "- The complexity policy is owned by the account service; this check mirrors it client-side.\n")
+    target.write_text(text, encoding="utf-8")
+
+    assert findings_for(corpus_dir) == []
+
+
+def test_us_notes_heading_accepted(corpus_dir: Path) -> None:
+    # The third entity type. The User Story is the strongest case for the one-extension exemption:
+    # `us-001` already spends its extension on `## Not In Scope`, so `## Notes` arrives alongside it.
+    target = corpus_dir / US_ISSUE
+    text = target.read_text(encoding="utf-8") + (
+        "\n## Notes\n\n"
+        "- The customer-facing name of this flow is \"Sign in\"; the test suite uses the US title.\n")
+    target.write_text(text, encoding="utf-8")
+
+    assert findings_for(corpus_dir) == []
 
 
 def test_deprecation_reason_heading_accepted(corpus_dir: Path) -> None:

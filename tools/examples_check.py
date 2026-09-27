@@ -87,14 +87,18 @@ AC_TAG_RE = re.compile(r"@AC:(?P<id>[A-Z]+-\d+-\d+)(?:/(?P<param>[a-z_]+):(?P<va
 
 CANONICAL_ENTITIES = {"US-001", "FEAT-001", "FUNC-001"}
 
-# docs/examples/README.md — GitHub issue-body layout table
-# `## Status` is required for US and FUNC and has no place on a Feature: a Feature's state is
-# derived from its Functionalities (docs/guides/living-doc-glossary.md#feature).
+# docs/examples/README.md — GitHub issue-body layout table. Why `## Status` and `## Deprecated At`
+# have no FEAT row: docs/guides/living-doc-glossary.md#feature; the fix hints below say it to the
+# author.
 DEPRECATION_HEADINGS = ["Deprecated At", "Deprecation Reason", "Superseded By"]
+FEAT_DEPRECATION_HEADINGS = ["Deprecation Reason", "Superseded By"]
+# `## Notes` — entity-level human context, optional on every entity type
+# (docs/guides/living-doc-glossary.md#core-entities).
+NOTES_HEADING = "Notes"
 ISSUE_HEADINGS = {
     "US": {
         "required": ["Description", "Status", "Business Value", "Acceptance Criteria"],
-        "optional": ["Preconditions", "Not In Scope", *DEPRECATION_HEADINGS],
+        "optional": ["Preconditions", "Not In Scope", *DEPRECATION_HEADINGS, NOTES_HEADING],
     },
     "FEAT": {
         "required": [
@@ -104,7 +108,7 @@ ISSUE_HEADINGS = {
             "User Stories",
             "Functionalities",
         ],
-        "optional": ["External Dependencies", *DEPRECATION_HEADINGS],
+        "optional": ["External Dependencies", *FEAT_DEPRECATION_HEADINGS, NOTES_HEADING],
     },
     "FUNC": {
         "required": [
@@ -114,11 +118,22 @@ ISSUE_HEADINGS = {
             "Func Type",
             "Acceptance Criteria",
         ],
-        "optional": ["Rationale", "Preconditions", "Not In Scope", *DEPRECATION_HEADINGS],
+        "optional": ["Rationale", "Preconditions", "Not In Scope", *DEPRECATION_HEADINGS,
+                     NOTES_HEADING],
     },
 }
-# `## Status` on a Feature gets its own message rather than the generic "unknown heading" one.
-FORBIDDEN_ISSUE_HEADINGS = {"FEAT": {"Status"}}
+# A heading a derived field would author gets its own message rather than the generic
+# "unknown heading" one: heading -> the fix hint explaining why it has no home.
+FORBIDDEN_ISSUE_HEADINGS = {
+    "FEAT": {
+        "Status": "a Feature has no authored status - its state is derived from its "
+                  "Functionalities (living-doc-glossary.md#feature); remove the heading",
+        "Deprecated At": "a Feature has no authored deprecation date - it is derived with the "
+                         "state, which follows the Functionalities "
+                         "(living-doc-glossary.md#feature); keep '## Deprecation Reason' / "
+                         "'## Superseded By' if the surface is being retired",
+    },
+}
 
 # docs/guides/living-doc-glossary.md — "Canonical form and normalisation". Structural positions
 # use `-` (hyphen-minus); an en or em dash there is an autocorrect defect, not an input variant.
@@ -143,7 +158,9 @@ PAIR_FIELD_MAP = {
     "FEAT": {"Description": "purpose", "Surface Type": "surface_type", "Owners": "owners",
              "User Stories": "user_stories", "Functionalities": "functionalities"},
 }
-# Optional extensions a `.feature` header may carry, beyond the required keys.
+# Optional extensions a `.feature` / PageObject header may carry, beyond the required keys.
+# `notes:` is deliberately absent from both: it is available on every entity and counts as no
+# file's one optional extension (see `NOTES_HEADING`).
 OPTIONAL_FEATURE_KEYS = ["source", "rationale", "preconditions", "not_in_scope",
                          "deprecated_at", "deprecation_reason", "superseded_by"]
 OPTIONAL_PO_KEYS = ["wizard-steps", "stub-reason"]
@@ -512,6 +529,14 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
                     "its Functionalities; an uninstrumented surface says so with 'stub-reason:' "
                     "(see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
 
+    if "deprecated_at" in keys:
+        corpus.fail(rel, keys["deprecated_at"][0],
+                    "PageObject header carries a 'deprecated_at:' field",
+                    "remove it - a Feature's deprecation date is derived with its state, which "
+                    "follows the Functionalities; keep 'deprecation_reason:' / 'superseded_by:' if "
+                    "the surface is being retired "
+                    "(see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
+
     entity_id: str | None = None
     for _, banner in header:
         bm = re.search(r"LIVING DOC\s+[—-]\s+(FEAT-\d+)", banner)
@@ -564,13 +589,12 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
 
     spec = ISSUE_HEADINGS[etype]
     allowed = set(spec["required"]) | set(spec["optional"])
-    forbidden = FORBIDDEN_ISSUE_HEADINGS.get(etype, set())
+    forbidden = FORBIDDEN_ISSUE_HEADINGS.get(etype, {})
     present = {h for _, h in headings}
     for i, h in headings:
         if h in forbidden:
             corpus.fail(rel, i, f"'## {h}' has no place in the {etype} issue-body layout",
-                        "a Feature has no authored status - its state is derived from its "
-                        "Functionalities (living-doc-glossary.md#feature); remove the heading")
+                        forbidden[h])
         elif h not in allowed:
             corpus.fail(rel, i, f"'## {h}' is not a heading in the {etype} issue-body layout",
                         f"allowed headings: {sorted(allowed)} (docs/examples/README.md)")
@@ -606,8 +630,10 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
     if title_m:
         fields = {key: sections[heading]
                   for heading, key in PAIR_FIELD_MAP[etype].items() if heading in sections}
+        # `NOTES_HEADING` is excluded for the reason given at `OPTIONAL_FEATURE_KEYS`.
         corpus.declare_form(title_m.group(1), "issue body", rel, fields, ac_headers,
-                            [f"## {h}" for h in spec["optional"] if h in present])
+                            [f"## {h}" for h in spec["optional"]
+                             if h in present and h != NOTES_HEADING])
 
     # parent references carried in issue-body sections
     section = None
