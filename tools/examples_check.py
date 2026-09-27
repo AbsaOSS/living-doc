@@ -529,6 +529,14 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
                     "its Functionalities; an uninstrumented surface says so with 'stub-reason:' "
                     "(see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
 
+    if "deprecated_at" in keys:
+        corpus.fail(rel, keys["deprecated_at"][0],
+                    "PageObject header carries a 'deprecated_at:' field",
+                    "remove it - a Feature's deprecation date is derived with its state, which "
+                    "follows the Functionalities; keep 'deprecation_reason:' / 'superseded_by:' if "
+                    "the surface is being retired "
+                    "(see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
+
     entity_id: str | None = None
     for _, banner in header:
         bm = re.search(r"LIVING DOC\s+[—-]\s+(FEAT-\d+)", banner)

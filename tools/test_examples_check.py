@@ -159,6 +159,23 @@ def test_pageobject_status_field_fails(corpus_dir: Path) -> None:
     assert any(PAGEOBJECT in f.file and "status:" in f.rule for f in findings), findings
 
 
+def test_pageobject_deprecated_at_field_fails(corpus_dir: Path) -> None:
+    # The source-code twin of test_feat_deprecated_at_heading_fails: a Feature's deprecation date
+    # is derived, so the PageObject form has no place for it either.
+    target = corpus_dir / PAGEOBJECT
+    text = target.read_text(encoding="utf-8").replace(
+        " * surface_type:          UI\n",
+        " * surface_type:          UI\n * deprecated_at:         2026-09-15\n",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings if PAGEOBJECT in f.file and "deprecated_at:" in f.rule]
+    assert match, findings
+    # The hint must use the header's own syntax, not the issue body's headings.
+    assert "'deprecation_reason:'" in match[0].hint, match[0].hint
+
+
 def test_pageobject_stub_reason_is_optional(corpus_dir: Path) -> None:
     target = corpus_dir / PAGEOBJECT
     kept = [ln for ln in target.read_text(encoding="utf-8").splitlines()

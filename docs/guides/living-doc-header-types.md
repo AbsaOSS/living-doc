@@ -300,6 +300,7 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 | `owner: Team` | `owners: Team` (plural key) |
 | `status:` on a PageObject header (any value) | Remove it — a surface has no status; a Feature's state is derived from its Functionalities |
 | `status: STUB` / `status: candidate` | Remove `status`, keep `stub-reason:` |
+| `deprecated_at:` on a PageObject header | Remove it — a Feature's deprecation date is derived with its state; keep `deprecation_reason:` / `superseded_by:` if the surface is being retired |
 | `functionalities:` omitted | `functionalities: none` |
 | `user_stories:` omitted | `user_stories: none` |
 | `external_dependencies:` omitted | `external_dependencies: none` |
