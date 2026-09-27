@@ -67,8 +67,8 @@ FUNC_TYPES = [
     "visibility",
     "navigation_rule",
 ]
-# docs/guides/living-doc-header-types.md#required-fields (PageObject)
-SURFACE_TYPES = ["UI", "API", "Service", "Worker", "Module", "Library"]
+# docs/guides/living-doc-glossary.md#feature
+SURFACE_TYPES = ["UI", "API"]
 
 # docs/guides/living-doc-glossary.md#acceptance-criterion-ac
 #   AC:<parent-id>-<nn> (v<version> - <state>)          e.g. AC:US-001-01 (v1.0.0 - active)
@@ -499,10 +499,12 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
             corpus.fail(rel, 1, f"required PageObject header field '{key}:' missing",
                         f"see living-doc-header-types.md#required-fields ({kind_note})")
 
-    if "surface_type" in keys and keys["surface_type"][1] not in SURFACE_TYPES:
+    if "surface_type" in keys and keys["surface_type"][1] != "UI":
         corpus.fail(rel, keys["surface_type"][0],
-                    f"surface_type '{keys['surface_type'][1]}' is not documented",
-                    f"use one of {SURFACE_TYPES}")
+                    f"surface_type '{keys['surface_type'][1]}' is not 'UI'",
+                    "a PageObject is the test abstraction for a UI surface only; an API surface "
+                    "has no PageObject and carries no header here "
+                    "(see living-doc-header-types.md#required-fields)")
 
     if "status" in keys:
         corpus.fail(rel, keys["status"][0], "PageObject header carries a 'status:' field",
@@ -581,6 +583,10 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
     if "Status" in sections and sections["Status"] not in AC_STATES:
         corpus.fail(rel, 1, f"'## Status' value '{sections['Status']}' is not a documented state",
                     f"use one of {AC_STATES} (project-profile ac_states)")
+    if "Surface Type" in sections and sections["Surface Type"] not in SURFACE_TYPES:
+        corpus.fail(rel, 1,
+                    f"'## Surface Type' value '{sections['Surface Type']}' is not documented",
+                    f"use one of {SURFACE_TYPES} (living-doc-glossary.md#feature)")
 
     # AC sub-headings share the glossary grammar
     ac_headers: dict[str, str] = {}
