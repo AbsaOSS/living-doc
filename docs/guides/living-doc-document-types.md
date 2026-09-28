@@ -48,9 +48,10 @@ See the [relationship diagram](living-doc-glossary.md#relationship-diagram) for 
 **Prerequisites** — a collector source, nothing else. This is the base document; the other two build
 on it.
 
-**Worked example** — the entities `US-001` / `FEAT-001` / `FUNC-001` in
+**Worked example** — the entities `US-001` / `FEAT-001` / `FUNC-001` / `FUNC-002` in
 [`docs/examples/`](../examples/README.md) (`gh-issues/` as issue bodies, `gherkin/` + `pageobject/`
-as source-code headers).
+as source-code headers), plus `FEAT-002`, the `API` Feature `FUNC-002` depends on — an issue body
+only, because an API contract anchor carries no living-doc header yet.
 
 **Two views.** The same technical project is generated in one of two views:
 
@@ -142,7 +143,7 @@ ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined
 **Worked example** — the [`docs/examples/`](../examples/README.md) corpus is a complete coverage-matrix
 input: `AC:US-001-01`, `AC:US-001-04` and `AC:FUNC-001-01` are covered by scenarios, while
 `AC:US-001-02` and `AC:FUNC-001-02` are declared with no scenario (uncovered). The `planned` ACs
-(`AC:US-001-03`, `AC:FUNC-001-03`) are not counted either way.
+(`AC:US-001-03`, `AC:FUNC-002-01`) are not counted either way.
 
 **Generator input:** `document-type: coverage-matrix`, reading the `toolkit`-normalized artifact
 produced from `coverage-matrix.json` — never raw collector output.

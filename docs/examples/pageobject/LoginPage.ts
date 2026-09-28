@@ -8,7 +8,7 @@
  *                        documented from the interface spec. discovered 2026-09-08
  * purpose:               The screen where a registered customer enters an email and password to sign in.
  * user_stories:          US-001
- * functionalities:       FUNC-001
+ * functionalities:       FUNC-001, FUNC-002
  * external_dependencies: auth-api
  * page-object:           LoginPage.ts
  * ============================================================================= */

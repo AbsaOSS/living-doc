@@ -86,11 +86,21 @@ A named system surface — the structural layer between User Stories and atomic 
 | Type | Description | Test abstraction |
 |---|---|---|
 | `UI` | A web page, modal, or named screen | **PageObject** design pattern — class encapsulating selectors and user interactions for one screen. Selector preference: `getByTestId()` (resolves to the Project Profile `test_id_attribute`, default `data-cy`) > `aria-label`/role > CSS class. |
-| `API` | A request/response or event-driven service contract: a REST/GraphQL endpoint (or endpoint group), or a message-broker topic (e.g. Kafka) documented via an AsyncAPI (or equivalent) specification. A backend service or event producer/consumer is documented as an API Feature representing its public contract. | **Annotated endpoint method or annotated event handler** — for request/response, the endpoint method with its API documentation header (OpenAPI annotation, JSDoc, etc.); for event-driven, the producer/consumer handler with its AsyncAPI (or equivalent schema-registry) annotation. Either serves as the living contract anchor. |
+| `API` | A request/response or event-driven service contract: a REST/GraphQL endpoint (or endpoint group), or a message-broker topic (e.g. Kafka) documented via an AsyncAPI (or equivalent) specification. A backend service or event producer/consumer is documented as an API Feature representing its public contract. | **Annotated endpoint method or annotated event handler** — for request/response, the endpoint method with its API documentation header (OpenAPI annotation, JSDoc, etc.); for event-driven, the producer/consumer handler with its AsyncAPI (or equivalent schema-registry) annotation. Either serves as the living contract anchor. **That anchor carries no living-doc header yet**, so a project documented in source code cannot document an `API` Feature; a project documented in GitHub Issues or in Azure DevOps work items can. |
 
 - Owns: one or more **Functionalities**
 - Links to: one or more **User Stories**
 - `owners`: team or person responsible for this Feature
+- `external_dependencies`: systems this surface calls that are **not Features themselves** — they have no
+  canonical test-abstraction anchor, so nothing in the catalog can carry their contract. The Features that
+  call such a system record it here, **by name**; the name resolves to nothing and nothing validates it.
+  When the system gains an anchor it becomes an `API` Feature in its own right, and the entry leaves every
+  `external_dependencies` list that named it.
+- `feature_dependencies`: **derived from its Functionalities — never authored.** The value is the union of
+  its Functionalities' targets, for the same reason the status is derived: the Feature is a structural node,
+  and what calls another surface is a behaviour. A Feature issue body carries no `## Feature Dependencies`
+  heading and a PageObject header no `feature_dependencies:` field. See
+  [Functionality](#functionality-func) for where it *is* written.
 - Status: **derived from its Functionalities — never authored.** A Feature is the structural node
   that names a visible surface; the behaviour that can be planned, reviewed, shipped or retired lives
   in its Functionalities and their ACs. A hand-written Feature status can therefore only restate them
@@ -117,6 +127,23 @@ An atomic, fast-testable behavior — a single verb phrase describing one respon
 - Name: `<parent Feature name> - <behavior phrase>` (e.g. "Login Page - Validate Password Strength")
 - Belongs to: one parent **Feature**
 - Owns: **Functionality-level Acceptance Criteria** (atomic input to output statements)
+- `feature_dependencies` (optional): the Features this behaviour calls — a list of `FEAT-` ids,
+  **authored here** and derived upward to the parent Feature (see [Feature](#feature)). Three rules:
+  - **The target must be an `API` Feature.** You can only call what has a contract anchor. A `UI` target is
+    an error today; the rule can be loosened later if UI composition needs it, which is cheaper than the
+    reverse.
+  - **Only the caller authors it.** The reverse direction — who depends on this Feature — is derived by the
+    pipeline and never written by hand.
+  - **It is authored on the Functionality, not on the Feature.** Coverage of a dependency edge is described
+    by a Functionality and its ACs — roughly one endpoint of the called surface — and scenarios already link
+    to ACs by `@AC:` tag. Written where the ACs are, a declared dependency with no linked scenario is a
+    computable untested integration point, with no second "test → edge" concept. Written at Feature level it
+    would be a second source of truth for a derived value.
+
+  A target the pipeline cannot resolve is reported as `UNRESOLVED_RELATION`. In a project documented in
+  source code that is the **expected** outcome, not a defect: no `API` Feature can exist there, because the
+  contract anchor carries no living-doc header yet (see [Feature](#feature)). The field resolves fully in a
+  project documented in GitHub Issues or in Azure DevOps work items.
 - Test anchor: a **Functionality feature file** under `features/liv_doc_func/` — one file per
   Functionality, containing all AC-linked system-test scenarios once implemented.
   File name pattern: `func-<nnn>-<feature-name-kebab>-<behavior-kebab>.feature`
@@ -331,6 +358,9 @@ User Story (US)
                                     |              @FUNC_ID tag + @AC:FUNC-nnn-nn tagged scenarios
                                     |              └── implemented by: Step Definitions
                                     └── can map to: unit/integration tests
+                                    └── can depend on: Feature (FEAT, surface_type: API)
+                                                   feature_dependencies - authored here,
+                                                   derived upward to the parent Feature
   └── owns: User Story ACs (in # Acceptance Criteria: header block)
                   └── linked via: @AC:US-n-nn tags on Scenarios
                   └── can map to: E2E BDD Scenarios (<feature_dirs.user_story>/*.feature)

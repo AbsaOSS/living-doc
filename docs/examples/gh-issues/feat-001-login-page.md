@@ -25,7 +25,7 @@ US-001
 
 ## Functionalities
 
-FUNC-001
+FUNC-001, FUNC-002
 
 ## External Dependencies
 

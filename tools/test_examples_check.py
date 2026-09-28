@@ -34,10 +34,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 REAL_EXAMPLES = REPO_ROOT / "docs" / "examples"
 US_FEATURE = "gherkin/liv_doc_us/us-001-customer-login.feature"
 FUNC_FEATURE = "gherkin/liv_doc_func/func-001-validate-password-strength.feature"
+FUNC2_FEATURE = "gherkin/liv_doc_func/func-002-reject-breached-password.feature"
 PAGEOBJECT = "pageobject/LoginPage.ts"
 US_ISSUE = "gh-issues/us-001-customer-login.md"
 FEAT_ISSUE = "gh-issues/feat-001-login-page.md"
+API_FEAT_ISSUE = "gh-issues/feat-002-breached-password-check.md"
 FUNC_ISSUE = "gh-issues/func-001-validate-password-strength.md"
+FUNC2_ISSUE = "gh-issues/func-002-reject-breached-password.md"
 
 
 @pytest.fixture
@@ -121,7 +124,7 @@ def test_issue_body_extra_heading_fails(corpus_dir: Path) -> None:
 
 def test_coverage_pair_broken_when_every_ac_covered(corpus_dir: Path) -> None:
     # tag every countable (non-planned) declared AC, leaving none uncovered corpus-wide;
-    # the planned ACs (US-001-03, FUNC-001-03) are excluded from the invariant either way
+    # the planned ACs (US-001-03, FUNC-002-01) are excluded from the invariant either way
     target = corpus_dir / US_FEATURE
     target.write_text(target.read_text(encoding="utf-8").replace(
         "  @AC:US-001-01\n",
@@ -426,6 +429,157 @@ def test_two_optional_field_extensions_fail(corpus_dir: Path) -> None:
 
     findings = findings_for(corpus_dir)
     assert any(US_ISSUE in f.file and "more than one optional field extension" in f.rule
+               for f in findings), findings
+
+
+# --- feature_dependencies: the four rules a declared edge must satisfy --------------------
+#
+# These are the first checks the canon can make on a dependency at all: a free-form
+# `external_dependencies` name resolves to nothing, while a `FEAT-` id can be resolved,
+# surface-typed and lifecycle-checked. One negative case each.
+
+
+def test_feature_dependency_unknown_target_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC2_FEATURE
+    target.write_text(target.read_text(encoding="utf-8").replace(
+        "# feature_dependencies: FEAT-002", "# feature_dependencies: FEAT-404"),
+        encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(FUNC2_FEATURE in f.file
+               and "feature_dependencies target 'FEAT-404' has no matching entity" in f.rule
+               for f in findings), findings
+
+
+def test_feature_dependency_ui_target_fails(corpus_dir: Path) -> None:
+    # Retype the target rather than repointing the edge: pointing FUNC-002 at the only other
+    # UI Feature in the corpus would be its own parent, which is the self-reference rule.
+    # Retyping also drops FEAT-002 to two expected forms, so a PAIR_MISMATCH rides along.
+    target = corpus_dir / API_FEAT_ISSUE
+    target.write_text(target.read_text(encoding="utf-8").replace(
+        "## Surface Type\n\nAPI\n", "## Surface Type\n\nUI\n"), encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(FUNC2_FEATURE in f.file
+               and "feature_dependencies target 'FEAT-002' is not an 'API' Feature" in f.rule
+               and "surface type: UI" in f.rule
+               for f in findings), findings
+
+
+def test_feature_dependency_deprecated_target_fails(corpus_dir: Path) -> None:
+    # A Feature's deprecation is derived, so what marks a retiring surface in its authored
+    # form is the deprecation metadata it does carry.
+    target = corpus_dir / API_FEAT_ISSUE
+    target.write_text(target.read_text(encoding="utf-8")
+                      + "\n## Deprecation Reason\n\nReplaced by the credential-risk service.\n",
+                      encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(FUNC2_FEATURE in f.file
+               and "feature_dependencies target 'FEAT-002' is being retired" in f.rule
+               for f in findings), findings
+
+
+def test_feature_dependency_self_reference_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC2_FEATURE
+    target.write_text(target.read_text(encoding="utf-8").replace(
+        "# feature_dependencies: FEAT-002", "# feature_dependencies: FEAT-001"),
+        encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings
+             if FUNC2_FEATURE in f.file
+             and "feature_dependencies target 'FEAT-001' is FUNC-002's own parent Feature"
+             in f.rule]
+    assert match, findings
+    # The self-reference is reported on its own — not also as a surface-type failure.
+    assert not any("is not an 'API' Feature" in f.rule for f in findings), findings
+
+
+# --- feature_dependencies: where it may and may not be authored ---------------------------
+
+
+def test_feature_dependencies_accepted_in_issue_body_form(corpus_dir: Path) -> None:
+    # The same edge authored in the other Functionality form — the spelling the corpus itself
+    # cannot show, because FUNC-002's issue body spends its one extension on `## Preconditions`.
+    # Both are swapped, so each file keeps exactly one optional field extension.
+    func_feature = corpus_dir / FUNC2_FEATURE
+    func_feature.write_text(func_feature.read_text(encoding="utf-8").replace(
+        "# feature_dependencies: FEAT-002\n", ""), encoding="utf-8")
+    issue = corpus_dir / FUNC2_ISSUE
+    text = issue.read_text(encoding="utf-8")
+    start, end = text.index("## Preconditions"), text.index("## Acceptance Criteria")
+    issue.write_text(text[:start] + "## Feature Dependencies\n\n- FEAT-002\n\n" + text[end:],
+                     encoding="utf-8")
+
+    assert findings_for(corpus_dir) == []
+
+
+def test_feat_feature_dependencies_heading_fails(corpus_dir: Path) -> None:
+    # A Feature's value is the union of its Functionalities' targets — authoring it on the
+    # Feature would be the two-sources-of-truth defect the derived fields exist to avoid.
+    target = corpus_dir / FEAT_ISSUE
+    target.write_text(target.read_text(encoding="utf-8")
+                      + "\n## Feature Dependencies\n\n- FEAT-002\n", encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings
+             if FEAT_ISSUE in f.file
+             and "'## Feature Dependencies' has no place in the FEAT issue-body layout" in f.rule]
+    assert match, findings
+    assert "union of its Functionalities' targets" in match[0].hint, match[0].hint
+
+
+def test_us_feature_dependencies_heading_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / US_ISSUE
+    target.write_text(target.read_text(encoding="utf-8")
+                      + "\n## Feature Dependencies\n\n- FEAT-002\n", encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings
+             if US_ISSUE in f.file
+             and "'## Feature Dependencies' has no place in the US issue-body layout" in f.rule]
+    assert match, findings
+    assert "a User Story has no dependencies" in match[0].hint, match[0].hint
+
+
+def test_pageobject_feature_dependencies_field_fails(corpus_dir: Path) -> None:
+    # The source-code twin of test_feat_feature_dependencies_heading_fails.
+    target = corpus_dir / PAGEOBJECT
+    target.write_text(target.read_text(encoding="utf-8").replace(
+        " * surface_type:          UI\n",
+        " * surface_type:          UI\n * feature_dependencies: FEAT-002\n"), encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings
+             if PAGEOBJECT in f.file and "'feature_dependencies:' field" in f.rule]
+    assert match, findings
+    # The hint must use the header's own syntax, not the issue body's headings.
+    assert "'# feature_dependencies:'" in match[0].hint, match[0].hint
+
+
+def test_us_feature_file_feature_dependencies_key_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / US_FEATURE
+    target.write_text(target.read_text(encoding="utf-8").replace(
+        "# status:          active", "# status:          active\n# feature_dependencies: FEAT-002"),
+        encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_FEATURE in f.file
+               and "User Story header carries a 'feature_dependencies:' field" in f.rule
+               for f in findings), findings
+
+
+def test_api_feature_with_two_forms_fails(corpus_dir: Path) -> None:
+    # The Part 3b rule, enforced: an API contract anchor carries no living-doc header yet, so
+    # a second authored form of an API Feature cannot exist.
+    target = corpus_dir / PAGEOBJECT
+    text = target.read_text(encoding="utf-8").replace(
+        "FEAT-001 · Login Page", "FEAT-002 · Breached Password Check")
+    (corpus_dir / "pageobject" / "BreachedPasswordCheckPage.ts").write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any("FEAT-002 must have exactly 1 authored form(s) (found 2)" in f.rule
                for f in findings), findings
 
 

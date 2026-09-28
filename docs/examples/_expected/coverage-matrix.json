@@ -61,6 +61,21 @@
         "total_acs": 2
       },
       "title": "Login Page - Validate Password Strength"
+    },
+    {
+      "acceptance_criteria": [],
+      "full_id": "AbsaOSS/living-doc/FUNC-002",
+      "func_type": "field_validation",
+      "id": "FUNC-002",
+      "parent": "FEAT-001",
+      "state": "planned",
+      "summary": {
+        "active_acs": 0,
+        "coverage_pct": null,
+        "covered_acs": 0,
+        "total_acs": 0
+      },
+      "title": "Login Page - Reject Breached Password"
     }
   ],
   "generated_at": "<normalized-for-snapshot>",
@@ -72,7 +87,7 @@
     "covered_acs": 0,
     "total_acs": 6,
     "total_features": 0,
-    "total_functionalities": 1,
+    "total_functionalities": 2,
     "total_user_stories": 1
   },
   "unlinked_tests": [],
