@@ -13,9 +13,6 @@
 #
 #   AC:FUNC-001-02 (v1.0.0 - active)
 #     - Returns valid=true when the candidate password satisfies every complexity rule.
-#
-#   AC:FUNC-001-03 (planned)
-#     - Returns valid=false when the candidate password appears in the breached-password list.
 # =============================================================================
 
 @FUNC_ID:FUNC-001
@@ -40,4 +37,5 @@ Feature: Login Page - Validate Password Strength
   # AC:FUNC-001-02 (v1.0.0 - active) is intentionally left UNCOVERED: no scenario
   # carries @AC:FUNC-001-02. Both declared aspects of AC:FUNC-001-01 have a
   # scenario, so that AC is fully covered; FUNC-001-02 is the uncovered counterpart.
-  # AC:FUNC-001-03 (planned) is a backlog AC - no target version, not counted.
+  # The breach check is a separate behaviour: see FUNC-002, which declares the dependency
+  # on the API Feature that performs it.

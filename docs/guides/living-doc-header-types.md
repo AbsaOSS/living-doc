@@ -152,13 +152,13 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 
 | Field | Canonical values |
 |---|---|
-| `surface_type` | `UI` — a PageObject is the test abstraction for a UI surface only (see [Living Doc Glossary — Feature](living-doc-glossary.md#feature)); an API surface has no PageObject and carries no header here |
+| `surface_type` | `UI` — a PageObject is the test abstraction for a UI surface only (see [Living Doc Glossary — Feature](living-doc-glossary.md#feature)); an API surface has no PageObject and [carries no header here](living-doc-glossary.md#feature) |
 | `route` | URL path — use `{param}` for dynamic segments |
 | `owners` | Team name(s), comma-separated |
 | `purpose` | One-to-two sentence description in business language |
 | `user_stories` | `US-N` IDs, comma-separated — or `none` (triggers orphan warning in gap reports) |
 | `functionalities` | `FUNC-N` IDs, comma-separated — or `none` (triggers a reminder to define FUNCs) |
-| `external_dependencies` | Service or API names this surface calls — or `none` |
+| `external_dependencies` | Names of systems this surface calls that are **not** Features themselves — or `none`. A system that has a canonical anchor is an `API` Feature instead, and the call is declared on the Functionality as `feature_dependencies` (see [Living Doc Glossary — Feature](living-doc-glossary.md#feature)) |
 | `page-object` | Filename of this PageObject |
 
 **Optional fields:**
@@ -218,6 +218,12 @@ A PageObject file uses one of two formats depending on whether it is the **prima
 | `functionalities` | Optional: `FUNC-<nnn>, ...` — subset of parent Feature's Functionalities that this step implements. Omit if all sub-pages equally implement all parent Feature Functionalities. |
 
 The following fields are **intentionally omitted** from the cross-reference header — they belong only on the primary Feature file: `surface_type`, `user_stories`, `external_dependencies`.
+
+`feature_dependencies` is **intentionally omitted from both** PageObject header formats, for a different
+reason: a Feature's value is derived from its Functionalities and is never authored, so writing it on a
+surface would be a second source of truth for a derived value. It is authored on the Functionality — see
+[Living Doc Glossary — Functionality](living-doc-glossary.md#functionality-func) and
+[§3](#3-functionality-in-a-gherkin-feature-file).
 
 **Optional inclusion of `functionalities`:** You may list this field in a cross-reference header to scope step-specific atomic behaviors to that sub-page. Use this when a step implements distinct Functionalities not shared across the entire Feature. If the sub-page's Functionality list is identical to the parent Feature's, omit this field to avoid duplication and keep the primary Feature as the authoritative source.
 
@@ -301,6 +307,7 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 | `status:` on a PageObject header (any value) | Remove it — a surface has no status; a Feature's state is derived from its Functionalities |
 | `status: STUB` / `status: candidate` | Remove `status`, keep `stub-reason:` |
 | `deprecated_at:` on a PageObject header | Remove it — a Feature's deprecation date is derived with its state; keep `deprecation_reason:` / `superseded_by:` if the surface is being retired |
+| `feature_dependencies:` on a PageObject header | Remove it — a Feature's value is derived from its Functionalities; author `# feature_dependencies:` on the Functionality that makes the call |
 | `functionalities:` omitted | `functionalities: none` |
 | `user_stories:` omitted | `user_stories: none` |
 | `external_dependencies:` omitted | `external_dependencies: none` |
@@ -325,7 +332,7 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 Header comment block at the top of every Functionality feature file —
 `<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
 
-**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file (`Aspect:` on an AC), split across two scenarios (covered), and one uncovered AC.
+**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file (`Aspect:` on an AC), split across two scenarios (covered), and one uncovered AC. [`func-002-reject-breached-password.feature`](../examples/gherkin/liv_doc_func/func-002-reject-breached-password.feature) shows `# feature_dependencies:`, on a `planned` Functionality with no scenario yet.
 
 ```gherkin
 # =============================================================================
@@ -339,6 +346,7 @@ Header comment block at the top of every Functionality feature file —
 # parent:    FEAT-<nnn>
 # func_type: component_state | component_action | button_action |
 #            field_validation | calculation | visibility | navigation_rule
+# feature_dependencies: FEAT-<nnn>, FEAT-<nnn>                   ← optional; API Features this behaviour calls
 # rationale:                                                     ← optional
 #   - <why this FUNC is scoped this way — business or design decision context>
 # preconditions:                                                 ← optional; inherited by all ACs
@@ -384,6 +392,7 @@ Feature: <Feature Name> - <Functionality Name>
 | `# superseded_by:` | Optional | ID of the replacement entity |
 | `# parent:` | Yes | Parent Feature ID (`FEAT-<nnn>`) |
 | `# func_type:` | Yes | Category of behavior this Functionality represents (see table below) |
+| `# feature_dependencies:` | Optional | The Features this behaviour calls — `FEAT-<nnn>` IDs, comma-separated. Each target must be an `API` Feature, and only the caller writes the field; the reverse direction is derived. Authored here and derived upward to the parent Feature — see [Living Doc Glossary — Functionality](living-doc-glossary.md#functionality-func). A system with no canonical anchor is not a target: it is a Feature-level `external_dependencies` entry instead. |
 | `# rationale:` | Optional | **Why** this FUNC is scoped the way it is — business context, a deliberate design decision, or a constraint that explains the boundary. Not for implementation notes. |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at FUNC level; inherited and extended by all ACs |
