@@ -28,7 +28,7 @@ from pathlib import Path
 
 import pytest
 
-from examples_check import check_corpus
+from examples_check import AC_HEADER_RE, AC_TAG_RE, check_corpus
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REAL_EXAMPLES = REPO_ROOT / "docs" / "examples"
@@ -111,6 +111,41 @@ def test_broken_ac_grammar_fails(corpus_dir: Path) -> None:
 
     findings = findings_for(corpus_dir)
     assert any("glossary grammar" in f.rule for f in findings), findings
+
+
+@pytest.mark.parametrize("bad_id", ["FEAT-001-02", "JIRA-12-01"])
+def test_ac_header_with_non_owner_prefix_fails(corpus_dir: Path, bad_id: str) -> None:
+    target = corpus_dir / US_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "#   AC:US-001-02 (v1.0.0 - active)", f"#   AC:{bad_id} (v1.0.0 - active)"
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_FEATURE in f.file and "glossary grammar" in f.rule for f in findings), findings
+
+
+@pytest.mark.parametrize("bad_id", ["FEAT-001-01", "JIRA-12-01"])
+def test_ac_tag_with_non_owner_prefix_fails(corpus_dir: Path, bad_id: str) -> None:
+    target = corpus_dir / US_FEATURE
+    text = target.read_text(encoding="utf-8").replace("  @AC:US-001-01\n", f"  @AC:{bad_id}\n")
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_FEATURE in f.file and f"@AC:{bad_id}" in f.rule and "tag format" in f.rule
+               for f in findings), findings
+
+
+@pytest.mark.parametrize("ac_id", ["US-001-01", "FUNC-001-01"])
+def test_ac_header_accepts_owner_prefix(ac_id: str) -> None:
+    m = AC_HEADER_RE.match(f"AC:{ac_id} (v1.0.0 - active)")
+    assert m is not None and m.group("id") == ac_id
+
+
+@pytest.mark.parametrize("ac_id", ["US-001-01", "FUNC-001-01"])
+def test_ac_tag_accepts_owner_prefix(ac_id: str) -> None:
+    m = AC_TAG_RE.match(f"@AC:{ac_id}/aspect:minimum-length")
+    assert m is not None and m.group("id") == ac_id
 
 
 def test_issue_body_extra_heading_fails(corpus_dir: Path) -> None:

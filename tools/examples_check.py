@@ -80,14 +80,15 @@ SURFACE_TYPES = ["UI", "API"]
 #   AC:<parent-id>-<nn> (v<version> - deprecated - removal planned v<version>)
 # The version group is optional in the pattern so a version-less non-`planned` AC is reported
 # as the specific rule it breaks, not as a generic grammar failure.
+# Only a User Story or a Functionality owns acceptance criteria, so <parent-id> is `US-` or `FUNC-`.
 AC_HEADER_RE = re.compile(
-    r"^AC:(?P<id>[A-Z]+-\d+-\d+)\s+\("
+    r"^AC:(?P<id>(?:US|FUNC)-\d+-\d+)\s+\("
     r"(?:v(?P<version>\d+\.\d+\.\d+)\s*-\s*)?(?P<state>[a-z_]+)"
     r"(?P<removal>\s*-\s*removal planned v\d+\.\d+\.\d+)?\)$"
 )
 ENTITY_ID_RE = re.compile(r"\b((?:US|FEAT|FUNC)-\d+)\b")
 # @AC:<id>[/param:value] scenario tag — glossary "Tag format"
-AC_TAG_RE = re.compile(r"@AC:(?P<id>[A-Z]+-\d+-\d+)(?:/(?P<param>[a-z_]+):(?P<value>[A-Za-z0-9-]+))?")
+AC_TAG_RE = re.compile(r"@AC:(?P<id>(?:US|FUNC)-\d+-\d+)(?:/(?P<param>[a-z_]+):(?P<value>[A-Za-z0-9-]+))?")
 
 # `FUNC-002` declares a `feature_dependencies` edge to `FEAT-002`, the `API` Feature the corpus
 # needs as a resolvable target (docs/examples/README.md, "The dependency pair").
@@ -500,7 +501,15 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
         s = line.strip()
         if not s.startswith("@"):
             continue
-        for m in AC_TAG_RE.finditer(s):
+        for token in s.split():
+            if not token.startswith("@AC:"):
+                continue
+            m = AC_TAG_RE.match(token)
+            if m is None:
+                corpus.fail(rel, i, f"scenario tag '{token}' does not match the glossary tag format",
+                            "use '@AC:<parent-id>-<nn>[/<param>:<value>]' with a US- or FUNC- "
+                            "parent id (living-doc-glossary.md#acceptance-criterion-ac)")
+                continue
             corpus.feature_file_covered.add(m.group("id"))
             corpus.pending_ac_tags.append(
                 (m.group("id"), m.group("param"), m.group("value"), rel, i))

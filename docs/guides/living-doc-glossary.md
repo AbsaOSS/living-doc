@@ -197,6 +197,10 @@ AC:<parent-id>-<nn> (v<version> - <state>)
    - Rationale: <business context, policy reference, or design decision>  ← optional
 ```
 
+`<parent-id>` is the id of the User Story (`US-<nnn>`) or Functionality (`FUNC-<nnn>`) that owns the AC — the only two
+entity kinds that own acceptance criteria. A Feature owns Functionalities, not criteria, so `AC:FEAT-…` is not a valid
+AC id; neither is any foreign key such as `AC:JIRA-12-01`.
+
 **States** — exactly four, lowercase with underscores (the Project Profile `ac_states`):
 
 | State | Meaning |
