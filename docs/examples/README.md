@@ -44,8 +44,10 @@ says. The pinned `collector-gh` predates the version-less backlog AC form, so it
 `AC:FUNC-002-01 (planned)` as a malformed header — and that is `FUNC-002`'s only AC, so `_expected/`
 shows the Functionality with none. That gap is the point of the snapshot: it is visible here, and it
 closes when the pin moves to a collector whose AC grammar accepts the backlog form. The pinned
-collector likewise has no `feature_dependencies` in its schema and drops the authored key, so the
-edge `FUNC-002` declares is not in `_expected/` yet either.
+collector likewise predates `feature_dependencies` and `notes`, which `living-doc-utilities` carries
+from `0.5.0`, and drops both authored keys, so the edge `FUNC-002` declares and the notes on `FEAT-001`
+are not in `_expected/` yet either. Both gaps close when the pin moves to a collector built on
+`living-doc-utilities` `0.5.0` or later.
 
 ## GitHub issue-body layout (canonical)
 
@@ -99,10 +101,10 @@ The heading stays required; `none` is how a Feature says it has no link of that 
 - **`## Notes` is not a field extension either.** It extends no mined field set, so the one instance in
   the corpus does not count against the one-optional-extension-per-file rule above. It is shown once, on
   [`gh-issues/feat-001-login-page.md`](gh-issues/feat-001-login-page.md): a Feature is the entity whose
-  state and deprecation date are both derived, so a human note is what is left to record there. Until
-  `notes` is part of the entity contract, `living-doc-utilities` drops an authored value and warns —
-  `UNKNOWN_SECTION` from the issue-body parser, `IGNORED_AUTHORED_KEY` from the `.feature` and
-  PageObject header parsers.
+  state and deprecation date are both derived, so a human note is what is left to record there.
+  `living-doc-utilities` carries `notes` in the entity contract from `0.5.0` and never interprets a
+  note; an earlier release drops an authored value and warns — `UNKNOWN_SECTION` from the issue-body
+  parser, `IGNORED_AUTHORED_KEY` from the `.feature` and PageObject header parsers.
 - **Field extensions**, spread across the corpus so each is shown once in isolation — one per file,
   no file carrying two:
   - AC-level `preconditions` extension — `gherkin/liv_doc_us/us-001-customer-login.feature`
@@ -147,11 +149,12 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   the call. `FUNC-002` is `planned` and carries no scenario, so the corpus also holds the shape of an
   **untested integration point**: a declared edge with no linked scenario. That is deliberate, not a
   gap to close.
-- **The dependency is authored in the `.feature` form only.** Until the pipeline carries the field, an
-  authored value is dropped on the way in — `IGNORED_AUTHORED_KEY`, as for `notes` above — so
-  `_expected/` does not show it yet. When the pipeline does carry it, the edge will not resolve in this
-  chain: `FEAT-002` is authored in `gh-issues/`, and a pipeline that takes its technical project from
-  `gherkin/` + `pageobject/` reports `UNRESOLVED_RELATION` for a target it cannot see. That is expected
+- **The dependency is authored in the `.feature` form only.** `living-doc-utilities` carries the field
+  from `0.5.0`; an earlier release drops an authored value on the way in — `IGNORED_AUTHORED_KEY`, as
+  for `notes` above — and the pinned collector is one, so `_expected/` does not show it yet. Carried,
+  the edge does not resolve in this chain: `FEAT-002` is authored in `gh-issues/`, and a pipeline that
+  takes its technical project from `gherkin/` + `pageobject/` reports `UNRESOLVED_RELATION` for a
+  target it cannot see. That is expected
   of this corpus — the same shape as the `STALE_AC_REF` note below, one chain referencing what the
   other declares — and it is what a source-code project sees in general, since no `API` Feature can be
   authored there yet. The `gh-issues/` form of `FUNC-002` spends its one extension on
