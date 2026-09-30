@@ -37,6 +37,12 @@ This is the *grammar + cross-reference* gate for the copyable input corpus:
 6. **Feature dependencies** — ``feature_dependencies`` is authored on a Feature only, as
    comma-separated ``FEAT-`` ids with no ``none`` value; every target resolves to a corpus
    entity, is not the declaring Feature itself, is an ``API`` Feature, and is not being retired.
+7. **Indentation levels** — every ``.feature`` header, PageObject header and issue body uses the
+   canonical levels, spaces only. Each line's indent is compared with the template level for its
+   line kind; an item's kind is set by the key or ``AC:`` above it, and wrapped text is measured
+   against the last ``- ``. No stack of open items is kept - that is the parsers' job in
+   ``living-doc-utilities``. Valid non-canonical layouts, the flat one among them, are test data
+   there, not corpus content.
 
 Canonical references:
   docs/guides/living-doc-header-types.md
@@ -106,6 +112,10 @@ NOTES_HEADING = "Notes"
 # (docs/guides/living-doc-glossary.md#feature).
 FEATURE_DEPS_HEADING = "Feature Dependencies"
 FEATURE_DEPS_KEY = "feature_dependencies"
+# Headings whose section holds ids, never a nested list item
+# (docs/guides/living-doc-header-types.md#indentation).
+ID_LIST_HEADINGS = ["User Stories", "Functionalities", FEATURE_DEPS_HEADING, "Parent Feature",
+                    "Superseded By"]
 ISSUE_HEADINGS = {
     "US": {
         "required": ["Description", "Status", "Business Value", "Acceptance Criteria"],
@@ -322,6 +332,141 @@ def _validate_ac_header(m: "re.Match[str]", corpus: Corpus, rel: str, lineno: in
                     "the removal note is only valid on a 'deprecated' AC")
 
 
+# --- indentation levels -----------------------------------------------------------------
+# docs/guides/living-doc-header-types.md#indentation. The corpus requires the canonical levels,
+# not the relative rule the parsers in `living-doc-utilities` apply: the flat layout stays valid
+# for authors, but, like a NON_CANONICAL_FORM variant, it is normalisation test data.
+
+INDENT_REF = "living-doc-header-types.md#indentation"
+_LEVEL_KEY_RE = re.compile(r"[a-z_][a-z0-9_-]*:(?:\s|$)")
+_PO_KEY_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*:\s")
+_FEATURE_INDENT_RE = re.compile(r"\s*#([ \t ]*)")
+_PO_INDENT_RE = re.compile(r"\s*(?:/\*+|\*+)?([ \t ]*)")
+_ISSUE_INDENT_RE = re.compile(r"([ \t ]*)")
+_FEATURE_ITEM_KINDS = {0: "entity field item", 2: "criterion item", 4: "sub-key item"}
+
+
+def _indent(text: str) -> int:
+    return len(text) - len(text.lstrip(" "))
+
+
+def _spaces_only(corpus: Corpus, rel: str, lineno: int, lead: str) -> bool:
+    """Report a tab or no-break space in an indent; True when the indent is spaces only."""
+    if "\t" in lead or " " in lead:
+        corpus.fail(rel, lineno, "tab or no-break space in an indent",
+                    f"indent with spaces only ({INDENT_REF})")
+        return False
+    return True
+
+
+def _item_level(corpus: Corpus, rel: str, lineno: int, kind: str, n: int, first: int,
+                prev_item: int | None) -> None:
+    """An item sits at ``first``, or one step deeper than the item above it (a nested item)."""
+    deepest = first if prev_item is None else max(first, prev_item + 2)
+    if n < first or n > deepest or (n - first) % 2:
+        nested = f", or {first + 2}..{deepest} for a nested item" if deepest > first else ""
+        corpus.fail(rel, lineno, f"{kind} at indent {n}, expected {first}{nested}",
+                    f"use the template levels ({INDENT_REF})")
+
+
+def check_feature_levels(header: list[tuple[int, str]], raw: list[str], corpus: Corpus,
+                         rel: str) -> None:
+    """Template levels of a ``.feature`` header, counted after ``# ``.
+
+    Entity keys and ``acceptance_criteria:`` at 0, their items at 2; ``AC:`` at 2, criterion
+    items and sub-keys at 4; sub-key items at 6; wrapped text deeper than its ``- ``.
+    """
+    seen_ac = False
+    marker = 0                  # template level of the key or ``AC:`` the next item sits under
+    item: int | None = None     # indent of the last ``- `` under that marker
+    for lineno, text in header:
+        if _is_banner(text):
+            continue
+        lead = _FEATURE_INDENT_RE.match(raw[lineno - 1])
+        if not _spaces_only(corpus, rel, lineno, lead.group(1) if lead else ""):
+            continue
+        n, body = _indent(text), text.strip()
+        if body.startswith("- "):
+            _item_level(corpus, rel, lineno, _FEATURE_ITEM_KINDS.get(marker, "item"), n,
+                        marker + 2, item)
+            item = n
+        elif body.startswith("AC:"):
+            seen_ac, marker, item = True, 2, None
+            if n != 2:
+                corpus.fail(rel, lineno, f"criterion header 'AC:' at indent {n}, expected 2",
+                            f"use the template levels ({INDENT_REF})")
+        elif item is not None and n > item:
+            continue            # wrapped text of the item above
+        elif _LEVEL_KEY_RE.match(body):
+            marker, item = (4 if seen_ac else 0), None
+            if n != marker:
+                what = "criterion sub-key" if seen_ac else "entity key"
+                corpus.fail(rel, lineno, f"{what} '{body.split(':')[0]}:' at indent {n}, "
+                            f"expected {marker}", f"use the template levels ({INDENT_REF})")
+        else:
+            above = marker if item is None else item
+            if n <= above:
+                corpus.fail(rel, lineno, f"wrapped text at indent {n}, expected deeper than "
+                            f"{above}", f"indent a wrapped line past its '- ' or key ({INDENT_REF})")
+
+
+def check_pageobject_levels(header: list[tuple[int, str]], raw: list[str], corpus: Corpus,
+                            rel: str) -> None:
+    """Keys at the banner's base level; items and wrapped lines deeper than their key."""
+    seen_key = False
+    for lineno, text in header:
+        if _is_banner(text):
+            continue
+        lead = _PO_INDENT_RE.match(raw[lineno - 1])
+        if not _spaces_only(corpus, rel, lineno, lead.group(1) if lead else ""):
+            continue
+        n = _indent(text)
+        if n == 0 and _PO_KEY_RE.match(text):
+            seen_key = True
+        elif seen_key and n == 0:
+            what = "item" if text.startswith("- ") else "wrapped line"
+            corpus.fail(rel, lineno, f"{what} at indent 0, expected deeper than its key at 0",
+                        f"indent it under its key, e.g. to the value column ({INDENT_REF})")
+
+
+def check_issue_body_levels(lines: list[str], corpus: Corpus, rel: str) -> None:
+    """Top-level items at column 0; nested items only outside the id-list headings."""
+    section: str | None = None
+    item: int | None = None     # indent of the last ``- `` in the current list
+    after_blank = False
+    in_comment = False
+    for i, line in enumerate(lines, 1):
+        if in_comment or line.lstrip().startswith("<!--"):
+            in_comment = "-->" not in line
+            continue
+        if not line.strip():
+            after_blank = True
+            continue
+        if line.startswith("#"):
+            h2 = re.match(r"##\s+(.+?)\s*$", line)
+            if h2 and not line.startswith("###"):
+                section = h2.group(1)
+            item, after_blank = None, False
+            continue
+        if not _spaces_only(corpus, rel, i, _ISSUE_INDENT_RE.match(line).group(1)):
+            continue
+        n, body = _indent(line), line.strip()
+        if body.startswith("- "):
+            if n > 0 and item is not None and section in ID_LIST_HEADINGS:
+                corpus.fail(rel, i, f"nested item under '## {section}', expected 0",
+                            "an id-list section holds ids only; nest items under a bullet-list "
+                            f"heading ({INDENT_REF})")
+            else:
+                _item_level(corpus, rel, i, "list item", n, 0, item)
+            item = n
+        elif item is not None and not after_blank and n <= item:
+            corpus.fail(rel, i, f"wrapped text at indent {n}, expected deeper than {item}",
+                        f"indent a wrapped line past its '- ' ({INDENT_REF})")
+        elif n == 0:
+            item = None         # a paragraph ends the list
+        after_blank = False
+
+
 def _parse_ac_block(header: list[tuple[int, str]], corpus: Corpus, rel: str,
                     parent_id: str, states: list[str],
                     headers: dict[str, str] | None = None,
@@ -435,6 +580,7 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
         corpus.fail(rel, 1, "no leading '# ' living-doc header block",
                     "add the '# LIVING DOC — ...' comment banner from living-doc-header-types.md")
         return
+    check_feature_levels(header, raw, corpus, rel)
 
     top_keys: dict[str, int] = {}
     for lineno, text in header:
@@ -557,6 +703,7 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
         corpus.fail(rel, 1, "no leading '/* ... */' living-doc header banner",
                     "open the file with the '/* LIVING DOC — FEAT-<nnn> ... */' block")
         return
+    check_pageobject_levels(header, raw, corpus, rel)
 
     keys: dict[str, tuple[int, str]] = {}
     for lineno, text in header:
@@ -646,6 +793,7 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
                     "add 'Title: <US|FEAT|FUNC>-<nnn> · <name>'")
     else:
         corpus.declared_entities.add(title_m.group(1))
+    check_issue_body_levels(lines, corpus, rel)
 
     headings: list[tuple[int, str]] = []
     sub_headings: list[tuple[int, str]] = []

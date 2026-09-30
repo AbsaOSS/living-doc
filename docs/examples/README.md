@@ -72,6 +72,12 @@ table (`description` / `business_value` / `preconditions` / `acceptance_criteria
   [glossary](../guides/living-doc-glossary.md#acceptance-criterion-ac) — including the version-less
   backlog form `AC:<id> (planned)`. Feature-level `Preconditions` / `Not In Scope` are inherited by
   all ACs; AC-level extensions go under the AC sub-heading.
+- Bullet sections are ordinary Markdown lists. An item indented under another item's text is that
+  item's child and stays part of it. A nested item may sit under a bullet-list heading
+  (`## Business Value`, `## Preconditions`, `## Not In Scope`, `## Rationale`, `## Notes`), never
+  under an id-list heading (`## User Stories`, `## Functionalities`, `## Feature Dependencies`,
+  `## Parent Feature`, `## Superseded By`). A flat list stays valid. The shared rule is in
+  [Header Types § Indentation](../guides/living-doc-header-types.md#indentation).
 - Anything outside this heading set is treated as free prose and ignored by the miner.
 
 | Entity | Required headings | Optional headings |
