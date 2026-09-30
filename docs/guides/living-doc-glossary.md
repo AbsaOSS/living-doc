@@ -37,9 +37,17 @@ For the file-header schemas that carry these entities (feature file headers, Pag
 > `## Deprecation Reason` and `## Superseded By` as headings in an issue body; `# status:`,
 > `# deprecated_at:`, `# deprecation_reason:` and `# superseded_by:` as keys in a feature-file
 > header. Of these only the status is required, and only on a User Story and a Functionality — a
-> Feature has no authored status at all. See the
-> [GitHub issue-body layout](../examples/README.md#github-issue-body-layout-canonical) and
+> Feature has no authored status at all, and `deprecated_at` is authored on a User Story and a
+> Functionality only — see [Feature](#feature) for what a Feature derives instead.
+> See the [GitHub issue-body layout](../examples/README.md#github-issue-body-layout-canonical) and
 > [Living Doc Header Types](living-doc-header-types.md).
+
+> **`## Notes` — the one place for human context.** Every entity may carry an optional `## Notes`
+> section in an issue body (`# notes:` in a source-code header): a **bullet list, one note per
+> bullet**, at **entity level only** — never on an acceptance criterion. A note is **never parsed for
+> semantics: it drives no state, and nothing is derived from it.** Anything that must drive behaviour
+> has to be a typed field, not a note. `deprecation_reason` stays its own typed field and does not
+> migrate into a note.
 
 ### User Story (US)
 
@@ -62,6 +70,8 @@ so that <business outcome>.
   - `deprecated_at` — date the entity was deprecated
   - `deprecation_reason` — why it was deprecated
   - `superseded_by` — ID of the replacement entity
+- Notes (optional): human context as a bullet list — see *`## Notes` — the one place for human
+  context* above
 
 > Feature file template: see [Living Doc Header Types — User Story in a Gherkin Feature File](living-doc-header-types.md#1-user-story-in-a-gherkin-feature-file).
 
@@ -76,22 +86,46 @@ A named system surface — the structural layer between User Stories and atomic 
 | Type | Description | Test abstraction |
 |---|---|---|
 | `UI` | A web page, modal, or named screen | **PageObject** design pattern — class encapsulating selectors and user interactions for one screen. Selector preference: `getByTestId()` (resolves to the Project Profile `test_id_attribute`, default `data-cy`) > `aria-label`/role > CSS class. |
-| `API` | A request/response or event-driven service contract: a REST/GraphQL endpoint (or endpoint group), or a message-broker topic (e.g. Kafka) documented via an AsyncAPI (or equivalent) specification. A backend service or event producer/consumer is documented as an API Feature representing its public contract. | **Annotated endpoint method or annotated event handler** — for request/response, the endpoint method with its API documentation header (OpenAPI annotation, JSDoc, etc.); for event-driven, the producer/consumer handler with its AsyncAPI (or equivalent schema-registry) annotation. Either serves as the living contract anchor. |
+| `API` | A request/response or event-driven service contract: a REST/GraphQL endpoint (or endpoint group), or a message-broker topic (e.g. Kafka) documented via an AsyncAPI (or equivalent) specification. A backend service or event producer/consumer is documented as an API Feature representing its public contract. | **Annotated endpoint method or annotated event handler** — for request/response, the endpoint method with its API documentation header (OpenAPI annotation, JSDoc, etc.); for event-driven, the producer/consumer handler with its AsyncAPI (or equivalent schema-registry) annotation. Either serves as the living contract anchor. **That anchor carries no living-doc header yet**, so a project documented in source code cannot document an `API` Feature; a project documented in GitHub Issues or in Azure DevOps work items can. |
 
 - Owns: one or more **Functionalities**
 - Links to: one or more **User Stories**
 - `owners`: team or person responsible for this Feature
+- `external_dependencies`: systems this surface calls that are **not Features themselves** — they have no
+  canonical test-abstraction anchor, so nothing in the catalog can carry their contract. The Features that
+  call such a system record it here, **by name**; the name resolves to nothing and nothing validates it.
+  When the system gains an anchor it becomes an `API` Feature in its own right, and the entry leaves every
+  `external_dependencies` list that named it.
+- `feature_dependencies` (optional): the Features this surface calls — a list of `FEAT-` ids, **authored**
+  by a person or an agent. Where `external_dependencies` names a system with no anchor, this field names a
+  documented `API` Feature by id. Any Feature may carry it, `UI` or `API` — an `API` Feature calling another
+  `API` Feature is allowed. Three rules:
+  - **The target must be an `API` Feature.** You can only call what has a contract anchor.
+  - **Only the caller authors it.** The reverse direction — who depends on this Feature — is not authored.
+  - **Omit it when the Feature calls nothing.** There is no `none` value.
+
+  Written as `## Feature Dependencies` in the issue body and `feature_dependencies:` in the PageObject full
+  header, as comma-separated ids in both forms. A PageObject cross-reference header does not carry it.
+
+  A target the pipeline cannot resolve is reported as `UNRESOLVED_RELATION`. In a project documented in
+  source code that is the **expected** outcome, not a defect: a `UI` Feature's PageObject header can name an
+  `API` Feature that such a project cannot document, because the contract anchor carries no living-doc header
+  yet. The field resolves fully in a project documented in GitHub Issues or in Azure DevOps work items.
 - Status: **derived from its Functionalities — never authored.** A Feature is the structural node
   that names a visible surface; the behaviour that can be planned, reviewed, shipped or retired lives
   in its Functionalities and their ACs. A hand-written Feature status can therefore only restate them
   or contradict them, so there is no place to write one: a Feature issue body carries no `## Status`
   heading, and a PageObject header carries no `status:` field. The pipeline computes the state and
   marks it `derived`.
-- Deprecation metadata (optional; authored when the surface is retired — the *state* still follows
-  the Functionalities):
-  - `deprecated_at` — date the entity was deprecated
-  - `deprecation_reason` — why it was deprecated
-  - `superseded_by` — ID of the replacement entity
+- Deprecation metadata: `deprecated_at` is **derived, never authored** — it is generated after parsing,
+  alongside the state, and follows the Functionalities like the state does. A Feature issue body
+  carries no `## Deprecated At` heading and a PageObject header no `deprecated_at:` field. What stays
+  authored on a Feature (optional, and neither one drives the state):
+  - `deprecation_reason` — why the surface is being retired; human intent, which nothing can derive
+  - `superseded_by` — ID of the replacement entity; a typed entity link the pipeline traverses as a
+    relation edge
+- Notes (optional): human context as a bullet list — see *`## Notes` — the one place for human
+  context* above
 
 > PageObject file header schemas (full header, cross-reference, operational notes, common mistakes): see [Living Doc Header Types — Feature in a PageObject File](living-doc-header-types.md#2-feature-in-a-pageobject-file).
 
@@ -114,6 +148,8 @@ An atomic, fast-testable behavior — a single verb phrase describing one respon
   - `deprecated_at` — date the entity was deprecated
   - `deprecation_reason` — why it was deprecated
   - `superseded_by` — ID of the replacement entity
+- Notes (optional): human context as a bullet list — see *`## Notes` — the one place for human
+  context* above
 
 Functionalities differ from User Story ACs: they are atomic and fast-testable, not end-to-end.
 A single User Story may trigger multiple Functionalities.
@@ -153,6 +189,10 @@ AC:<parent-id>-<nn> (v<version> - <state>)
    - <Placeholder>: value1, value2, ...
    - Rationale: <business context, policy reference, or design decision>  ← optional
 ```
+
+`<parent-id>` is the id of the User Story (`US-<nnn>`) or Functionality (`FUNC-<nnn>`) that owns the AC — the only two
+entity kinds that own acceptance criteria. A Feature owns Functionalities, not criteria, so `AC:FEAT-…` is not a valid
+AC id; neither is any foreign key such as `AC:JIRA-12-01`.
 
 **States** — exactly four, lowercase with underscores (the Project Profile `ac_states`):
 
@@ -308,6 +348,8 @@ describes the false-gap failure mode when the two sides of the join do not descr
 ```
 User Story (US)
   └── links to: Feature (FEAT)
+                    └── can depend on: Feature (FEAT, surface_type: API)
+                    |              feature_dependencies
                     └── owns: Functionality (FUNC)
                                     └── owns: Functionality ACs
                                     └── maps to: Functionality feature file (system test)

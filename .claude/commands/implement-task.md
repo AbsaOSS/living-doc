@@ -17,6 +17,9 @@ Task-list source (optional override): `$2`
   GitHub issue if the task names one.
 - Write the acceptance criteria out as a numbered checklist you will verify against code /
   docs in step 5. Do not start work until this list is explicit.
+- Always add one criterion the task may not list: **the change stays inside the frame in
+  `docs/introduction/principles.md`, or names the frame row it bends and adds the exception
+  there.**
 
 ## 2. Read every file the task references — before writing any code or docs
 
@@ -78,6 +81,7 @@ these sections, per `CONTRIBUTING.md`:
 
 - `## Overview` — what changed and why.
 - `## Release Notes` — at least one real user-facing bullet (no `TBD`).
+- `## Framework` — tick the matching box from `.github/pull_request_template.md`.
 - `## Related` — `Closes #<issue>` for the task's issue.
 
 Include a short "Acceptance criteria" checklist mapping each criterion to the `file:line`

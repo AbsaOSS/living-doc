@@ -42,6 +42,18 @@
       "repository_name": "living-doc",
       "state": "active",
       "title": "Login Page - Validate Password Strength"
+    },
+    {
+      "acceptance_criteria": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "func_type": "field_validation",
+      "id": "AbsaOSS/living-doc/FUNC-002",
+      "not_in_scope": [],
+      "parent": "FEAT-001",
+      "repository_name": "living-doc",
+      "state": "planned",
+      "title": "Login Page - Reject Breached Password"
     }
   ],
   "metadata": {

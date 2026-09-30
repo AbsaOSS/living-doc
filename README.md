@@ -9,6 +9,7 @@ This repository is the entry point for the whole topic: it explains the concept,
 - [Living Documentation in 5 Minutes](docs/introduction/quickstart.md) — copy one workflow file and go
 - [What is Living Documentation?](docs/introduction/what-is-living-documentation.md) — the concept and why it exists
 - [Architecture](docs/introduction/architecture.md) — how collectors, the toolkit, and generators fit together
+- [Principles](docs/introduction/principles.md) — what each part is for, what it must not do, and the deliberate exceptions
 - [Getting Started](docs/guides/getting-started.md) — set up your first pipeline
 
 ## Guides

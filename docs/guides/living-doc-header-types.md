@@ -70,6 +70,8 @@ Holds all US metadata and is mined during living documentation output generation
 #   - <system state required before test>
 # not_in_scope:                                                  ← optional; inherited by all ACs
 #   - <item excluded from this US>
+# notes:                                                         ← optional; human context
+#   - <a fact worth recording that drives nothing>
 #
 # acceptance_criteria:
 #
@@ -125,6 +127,7 @@ Feature: <US Title>
 | `# business_value:` | Yes | Why this User Story exists (bullets) |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at US level; inherited and extended by all ACs |
+| `# notes:` | Optional | Human context at User Story level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities) |
 | `# acceptance_criteria:` | Yes | Full AC listing with IDs, versions, and states; each AC may extend inherited preconditions and not_in_scope |
 | `@US_ID:US-<n>` tag | Yes | Machine-parseable User Story ID (feature-level tag) |
 
@@ -138,7 +141,7 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 
 **In this section:** [Required fields](#required-fields) · [Full vs cross-reference headers](#two-header-formats-full-vs-cross-reference) · [Maintaining the header](#maintaining-a-pageobject-header) · [Where operational notes belong](#where-operational-notes-belong) · [Common mistakes](#common-mistakes)
 
-**Example:** [`docs/examples/pageobject/LoginPage.ts`](../examples/pageobject/LoginPage.ts) — full header with the `stub-reason:` optional field.
+**Example:** [`docs/examples/pageobject/LoginPage.ts`](../examples/pageobject/LoginPage.ts) — full header with the `stub-reason:` optional field. [`docs/examples/pageobject/RegistrationPage.ts`](../examples/pageobject/RegistrationPage.ts) — an instrumented surface, full header with the `feature_dependencies:` optional field.
 
 > **No surface status.** A PageObject header carries **no `status:` field**. The Feature it documents
 > has no authored status either — a Feature's state is derived from its Functionalities (see
@@ -149,21 +152,23 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 
 | Field | Canonical values |
 |---|---|
-| `surface_type` | `UI` — a PageObject is the test abstraction for a UI surface only (see [Living Doc Glossary — Feature](living-doc-glossary.md#feature)); an API surface has no PageObject and carries no header here |
+| `surface_type` | `UI` — a PageObject is the test abstraction for a UI surface only (see [Living Doc Glossary — Feature](living-doc-glossary.md#feature)); an API surface has no PageObject and [carries no header here](living-doc-glossary.md#feature) |
 | `route` | URL path — use `{param}` for dynamic segments |
 | `owners` | Team name(s), comma-separated |
 | `purpose` | One-to-two sentence description in business language |
 | `user_stories` | `US-N` IDs, comma-separated — or `none` (triggers orphan warning in gap reports) |
 | `functionalities` | `FUNC-N` IDs, comma-separated — or `none` (triggers a reminder to define FUNCs) |
-| `external_dependencies` | Service or API names this surface calls — or `none` |
+| `external_dependencies` | Names of systems this surface calls that are **not** Features themselves — or `none`. A system that has a canonical anchor is an `API` Feature instead, and the call is declared as `feature_dependencies` on the same header (see [Living Doc Glossary — Feature](living-doc-glossary.md#feature)) |
 | `page-object` | Filename of this PageObject |
 
 **Optional fields:**
 
 | Field | When |
 |---|---|
+| `feature_dependencies` | The surface calls a documented `API` Feature — `FEAT-<nnn>` IDs, comma-separated. Any Feature may carry it, `UI` or `API`; each target must be an `API` Feature. Only the caller writes it; the reverse direction is not authored. Omit the key when the Feature calls nothing — there is no `none` value. See [Living Doc Glossary — Feature](living-doc-glossary.md#feature). |
 | `wizard-steps` | Multi-step wizard UI — list the named steps in order |
 | `stub-reason` | The surface is documented but not yet fully instrumented — one-to-two sentence statement of **why**; treated as tech-debt resolvable by instrumenting the template and re-scanning. Its presence *is* the marker; there is no status value for this. |
+| `notes` | Human context at Feature level — a bullet list under the key, one note per bullet; see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities). Not a scan diary — the rows under [Where operational notes belong](#where-operational-notes-belong) keep their homes. |
 
 ### Two header formats: Full vs Cross-reference
 
@@ -194,7 +199,10 @@ A PageObject file uses one of two formats depending on whether it is the **prima
  * user_stories:          US-10, US-12
  * functionalities:       FUNC-005, FUNC-006
  * external_dependencies: accounts-api
+ * feature_dependencies:  FEAT-051
  * page-object:           AccountSetupWizardPage.ts
+ * notes:
+ *   - Step order is fixed; the review step cannot be skipped even for a returning customer.
  * ============================================================================= */
 ```
 
@@ -211,7 +219,7 @@ A PageObject file uses one of two formats depending on whether it is the **prima
 | `page-object` | Filename of this PageObject |
 | `functionalities` | Optional: `FUNC-<nnn>, ...` — subset of parent Feature's Functionalities that this step implements. Omit if all sub-pages equally implement all parent Feature Functionalities. |
 
-The following fields are **intentionally omitted** from the cross-reference header — they belong only on the primary Feature file: `surface_type`, `user_stories`, `external_dependencies`.
+The following fields are **intentionally omitted** from the cross-reference header — they belong only on the primary Feature file: `surface_type`, `user_stories`, `external_dependencies`, `feature_dependencies`.
 
 **Optional inclusion of `functionalities`:** You may list this field in a cross-reference header to scope step-specific atomic behaviors to that sub-page. Use this when a step implements distinct Functionalities not shared across the entire Feature. If the sub-page's Functionality list is identical to the parent Feature's, omit this field to avoid duplication and keep the primary Feature as the authoritative source.
 
@@ -294,12 +302,15 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 | `owner: Team` | `owners: Team` (plural key) |
 | `status:` on a PageObject header (any value) | Remove it — a surface has no status; a Feature's state is derived from its Functionalities |
 | `status: STUB` / `status: candidate` | Remove `status`, keep `stub-reason:` |
+| `deprecated_at:` on a PageObject header | Remove it — a Feature's deprecation date is derived with its state; keep `deprecation_reason:` / `superseded_by:` if the surface is being retired |
+| `# feature_dependencies:` on a Functionality header | Move it to the parent Feature's full header |
+| `feature_dependencies: none` | Omit the key — the field has no `none` value |
 | `functionalities:` omitted | `functionalities: none` |
 | `user_stories:` omitted | `user_stories: none` |
 | `external_dependencies:` omitted | `external_dependencies: none` |
 | `parent-feat:` omitted from cross-reference file | Every secondary file for a shared Feature must declare `parent-feat` |
 | `page-object:` omitted from cross-reference file | `page-object:` is required in both formats — it names the file being read |
-| `user_stories:` duplicated in cross-reference file | These fields live only on the primary Feature file; omit from cross-references |
+| `user_stories:` or `feature_dependencies:` in cross-reference file | These fields live only on the primary Feature file; omit from cross-references |
 | Multiple files claiming the same Feature without `[cross-reference]` tag | Only one file carries the full header; all others must use `[cross-reference]` format |
 | NOTE block in header about missing `data-cy` or open issues | Move to `manifest.json` `coverage_gaps[]`; keep only `stub-reason:` in the header |
 | `@stub` or `@pending` on the class JSDoc | Use `stub-reason:` in the header instead |
@@ -318,7 +329,7 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 Header comment block at the top of every Functionality feature file —
 `<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
 
-**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file (`Aspect:` on an AC), split across two scenarios (covered), and one uncovered AC.
+**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file (`Aspect:` on an AC), split across two scenarios (covered), and one uncovered AC. [`func-002-reject-breached-password.feature`](../examples/gherkin/liv_doc_func/func-002-reject-breached-password.feature) shows a `planned` Functionality with no scenario yet.
 
 ```gherkin
 # =============================================================================
@@ -338,6 +349,8 @@ Header comment block at the top of every Functionality feature file —
 #   - <system state required before test>
 # not_in_scope:                                                  ← optional; inherited by all ACs
 #   - <exclusion>
+# notes:                                                         ← optional; human context
+#   - <a fact worth recording that drives nothing>
 #
 # acceptance_criteria:
 #
@@ -378,6 +391,7 @@ Feature: <Feature Name> - <Functionality Name>
 | `# rationale:` | Optional | **Why** this FUNC is scoped the way it is — business context, a deliberate design decision, or a constraint that explains the boundary. Not for implementation notes. |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at FUNC level; inherited and extended by all ACs |
+| `# notes:` | Optional | Human context at Functionality level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities) |
 | `# acceptance_criteria:` | Yes | Full AC listing in business language — do not include `data-cy` IDs or implementation names in AC text; each AC may extend inherited preconditions and not_in_scope |
 | `@FUNC_ID:FUNC-<nnn>` tag | Yes | Machine-parseable Functionality ID (feature-level tag) |
 | Feature description (below `Feature:`) | Optional | One-to-two sentence purpose in business language. Use when the title alone is not self-explanatory. |
@@ -405,7 +419,10 @@ Feature: <Feature Name> - <Functionality Name>
 - **`visibility`** — use when an element's presence or state depends on a condition. The condition is descriptive context in the AC, not a required field. Distinct from `component_state` (always-true on load) and `component_action` (response to interaction).
 - **`navigation_rule`** — only for routing behaviors with a distinct precondition or business rule. A redirect that is always the result of a button action is an AC on that `button_action` FUNC, not a separate `navigation_rule`.
 
-> `test_type` (unit vs integration vs system) is NOT a FUNC header field — it belongs at scenario level as a tag (e.g. `@test_type:system`).
+> `test_type` (unit vs integration vs system) is not a living-doc field — not on a FUNC header, and not a
+> tag this documentation defines. How a test is executed is a test-framework concern. A `@test_type:` tag
+> written by a test framework may appear in a scenario file; the pipeline does not interpret it — it
+> travels with the scenario's other tags, and nothing in living-doc reads it.
 
 ---
 
