@@ -6,8 +6,8 @@ collector reads, not the documents a generator produces. For the formats these f
 [Living Doc Glossary](../guides/living-doc-glossary.md).
 
 All examples describe **one coherent mini technical project** — `US-001` / `FEAT-001` / `FUNC-001` /
-`FUNC-002`, plus `FEAT-002`, the `API` Feature `FUNC-002` declares a dependency on — so that, taken
-together, the `.feature` files plus the entities form a complete
+`FUNC-002`, plus `FEAT-002`, an `API` Feature, and `FEAT-003`, the `UI` Feature that declares a
+dependency on it — so that, taken together, the `.feature` files plus the entities form a complete
 [coverage-matrix](../guides/living-doc-document-types.md#coverage-matrix) input: in each of the two
 `.feature` files that carry scenarios, one AC is covered by a scenario and one is left uncovered, so
 the matrix shows both verdicts.
@@ -20,11 +20,13 @@ the matrix shows both verdicts.
 | [gherkin/liv_doc_func/func-001-validate-password-strength.feature](gherkin/liv_doc_func/func-001-validate-password-strength.feature) | [Header Types § Functionality](../guides/living-doc-header-types.md#3-functionality-in-a-gherkin-feature-file) |
 | [gherkin/liv_doc_func/func-002-reject-breached-password.feature](gherkin/liv_doc_func/func-002-reject-breached-password.feature) | [Header Types § Functionality](../guides/living-doc-header-types.md#3-functionality-in-a-gherkin-feature-file) |
 | [pageobject/LoginPage.ts](pageobject/LoginPage.ts) | [Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file) |
+| [pageobject/RegistrationPage.ts](pageobject/RegistrationPage.ts) | [Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file) |
 | [project-profile/.project-profile.yaml](project-profile/.project-profile.yaml) | [Header Types § Project Profile](../guides/living-doc-header-types.md#project-profile-config-driven-conventions) |
 | [project-profile/seed.yaml](project-profile/seed.yaml) | [Header Types § seed.yaml](../guides/living-doc-header-types.md#seedyaml-business-seed) |
 | [gh-issues/us-001-customer-login.md](gh-issues/us-001-customer-login.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
 | [gh-issues/feat-001-login-page.md](gh-issues/feat-001-login-page.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
 | [gh-issues/feat-002-breached-password-check.md](gh-issues/feat-002-breached-password-check.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
+| [gh-issues/feat-003-registration-page.md](gh-issues/feat-003-registration-page.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
 | [gh-issues/func-001-validate-password-strength.md](gh-issues/func-001-validate-password-strength.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
 | [gh-issues/func-002-reject-breached-password.md](gh-issues/func-002-reject-breached-password.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
 
@@ -45,7 +47,7 @@ says. The pinned `collector-gh` predates the version-less backlog AC form, so it
 shows the Functionality with none. That gap is the point of the snapshot: it is visible here, and it
 closes when the pin moves to a collector whose AC grammar accepts the backlog form. The pinned
 collector likewise predates `feature_dependencies` and `notes`, which `living-doc-utilities` carries
-from `0.5.0`, and drops both authored keys, so the edge `FUNC-002` declares and the notes on `FEAT-001`
+from `0.5.0`, and drops both authored keys, so the edge `FEAT-003` declares and the notes on `FEAT-001`
 are not in `_expected/` yet either. Both gaps close when the pin moves to a collector built on
 `living-doc-utilities` `0.5.0` or later.
 
@@ -75,14 +77,14 @@ table (`description` / `business_value` / `preconditions` / `acceptance_criteria
 | Entity | Required headings | Optional headings |
 |---|---|---|
 | User Story | `## Description`, `## Status`, `## Business Value`, `## Acceptance Criteria` | `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
-| Feature | `## Description`, `## Surface Type`, `## Owners`, `## User Stories`, `## Functionalities` | `## External Dependencies`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
-| Functionality | `## Description`, `## Status`, `## Parent Feature`, `## Func Type`, `## Acceptance Criteria` | `## Feature Dependencies`, `## Rationale`, `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
+| Feature | `## Description`, `## Surface Type`, `## Owners`, `## User Stories`, `## Functionalities` | `## External Dependencies`, `## Feature Dependencies`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
+| Functionality | `## Description`, `## Status`, `## Parent Feature`, `## Func Type`, `## Acceptance Criteria` | `## Rationale`, `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
 
-**`## Status`, `## Deprecated At` and `## Feature Dependencies` have no place on a Feature**, and
-`## Notes` is available on every entity as a bullet list of human context. All three rules, and why,
-are in [Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature) and
-[Core entities](../guides/living-doc-glossary.md#core-entities): a Feature's status, deprecation date
-and feature dependencies are all derived from its Functionalities.
+**`## Status` and `## Deprecated At` have no place on a Feature**, and `## Notes` is available on
+every entity as a bullet list of human context. The rules, and why, are in
+[Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature) and
+[Core entities](../guides/living-doc-glossary.md#core-entities): a Feature's status and deprecation
+date are both derived from its Functionalities.
 
 **`## User Stories` and `## Functionalities` take `none`** — the same value and the same meaning as the
 matching PageObject header fields (see
@@ -112,7 +114,8 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   - `External Dependencies` — `gh-issues/feat-001-login-page.md`
   - `Aspect:` on an AC — `gherkin/liv_doc_func/func-001-validate-password-strength.feature`
   - `Rationale` — `gh-issues/func-001-validate-password-strength.md`
-  - `feature_dependencies` — `gherkin/liv_doc_func/func-002-reject-breached-password.feature`
+  - `Feature Dependencies` — `gh-issues/feat-003-registration-page.md`
+  - `feature_dependencies:` — `pageobject/RegistrationPage.ts`
   - feature-level `Preconditions` — `gh-issues/func-002-reject-breached-password.md`
 - **`@domain_*` tag** — `.project-profile.yaml` sets `scenario_conventions.domain_tag: true`, and all
   three `.feature` files carry `@domain_authentication` as the optional second feature-level tag.
@@ -131,35 +134,31 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   yet instrumented for test automation, and the PageObject says so with `stub-reason:` — the
   instrumentation marker, which is removed once the surface is instrumented. See
   [Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file).
+  `RegistrationPage.ts` is the instrumented counterpart: real `getByTestId()` locators and no
+  `stub-reason:`.
 - **Two forms per entity, in step.** `US-001`, `FUNC-001` and `FUNC-002` each exist as a GitHub issue
-  body and as a `.feature` header, and `FEAT-001` as an issue body and a PageObject header. The two
-  forms of an entity carry the same required content and, for the User Story and the Functionalities,
-  the same AC set; only the optional field extension differs, by the assignment above.
+  body and as a `.feature` header, and `FEAT-001` and `FEAT-003` as an issue body and a PageObject
+  header. The two forms of an entity carry the same required content and, for the User Story and the
+  Functionalities, the same AC set; only the optional field extension differs, by the assignment above.
 - **One form for an `API` Feature.** `FEAT-002` exists as an issue body only. An `API` Feature's
   contract anchor carries no living-doc header yet, so there is no source-code form to write — see
   [Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature). It is documented at
   surface level (`## Functionalities` is `none`): the corpus needs it as a resolvable **target**, and a
   dependency resolves on the Feature id.
 - **The dependency pair.** `FEAT-001` records `auth-api` under `External Dependencies` — a system with
-  no canonical anchor, named as free text. `FUNC-002` records `FEAT-002` under `feature_dependencies` —
-  a system that *has* an anchor, named by id and validated by `tools/examples_check.py`. The two fields
-  side by side are the distinction the [glossary](../guides/living-doc-glossary.md#feature) draws.
-  Splitting the breach check out of `FUNC-001` is what puts the field where it belongs: `FUNC-001`
-  checks the complexity policy client-side and calls nothing, `FUNC-002` is the behaviour that makes
-  the call. `FUNC-002` is `planned` and carries no scenario, so the corpus also holds the shape of an
-  **untested integration point**: a declared edge with no linked scenario. That is deliberate, not a
-  gap to close.
-- **The dependency is authored in the `.feature` form only.** `living-doc-utilities` carries the field
-  from `0.5.0`; an earlier release drops an authored value on the way in — `IGNORED_AUTHORED_KEY`, as
-  for `notes` above — and the pinned collector is one, so `_expected/` does not show it yet. Carried,
-  the edge does not resolve in this chain: `FEAT-002` is authored in `gh-issues/`, and a pipeline that
-  takes its technical project from `gherkin/` + `pageobject/` reports `UNRESOLVED_RELATION` for a
-  target it cannot see. That is expected
+  no canonical anchor, named as free text. `FEAT-003` records `FEAT-002` under `feature_dependencies` —
+  an `API` Feature, named by id and validated by `tools/examples_check.py`. The two fields side by side
+  are the distinction the [glossary](../guides/living-doc-glossary.md#feature) draws. `FEAT-003` is
+  documented at surface level (`User Stories` and `Functionalities` are `none`), like `FEAT-002`.
+- **The dependency is authored in both `FEAT-003` forms**, as the one optional extension of each.
+  `living-doc-utilities` carries the field from `0.5.0`; an earlier release drops an authored value on
+  the way in — `IGNORED_AUTHORED_KEY`, as for `notes` above — and the pinned collector is one, so
+  `_expected/` does not show it yet. Carried, the edge does not resolve in the `doc-source` chain:
+  `FEAT-002` is authored in `gh-issues/`, and a pipeline that takes its technical project from
+  `gherkin/` + `pageobject/` reports `UNRESOLVED_RELATION` for a target it cannot see. That is expected
   of this corpus — the same shape as the `STALE_AC_REF` note below, one chain referencing what the
   other declares — and it is what a source-code project sees in general, since no `API` Feature can be
-  authored there yet. The `gh-issues/` form of `FUNC-002` spends its one extension on
-  `## Preconditions`, so the issue-body spelling of the field is shown by the layout table above and
-  exercised by `tools/test_examples_check.py`, not by a corpus file.
+  authored there yet.
 - **Expected `STALE_AC_REF` on the `gh-issues` chain.** `Aspect:` is a `.feature`-header extension, so
   `AC:FUNC-001-01` declares its two aspects only in the `gherkin/` form. A pipeline that takes its
   technical project from `gh-issues/` and its test catalog from `gherkin/` therefore sees the

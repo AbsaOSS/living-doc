@@ -27,6 +27,8 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 - Must flag unsafe input handling and insecure defaults in `tools/*.py`.
 - Must check that `tools/test_examples_check.py` covers the success and failure path of any changed rule in `tools/examples_check.py`.
 - Must check that a `docs/examples/**` fixture change carries a matching `docs/examples/_expected/**` regeneration when it changes what the real collector/toolkit mines (see `CONTRIBUTING.md` § "Regenerating the collector snapshots").
+- Must flag a change that gives a part of the ecosystem a responsibility beyond its row in `docs/introduction/principles.md` without adding the matching exception there — name the frame row (F1–F7) it bends.
+- Must check that the PR description's `## Framework` box is ticked and matches the diff.
 - Prefer calling out unnecessary complexity, duplication, and unclear naming or structure.
 - Avoid style notes unless they reduce readability or break a repo convention.
 

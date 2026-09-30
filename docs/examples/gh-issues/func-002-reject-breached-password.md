@@ -1,8 +1,7 @@
 <!--
 GitHub issue body for a Functionality mined by collector-gh `doc-issues`.
 Label: DocumentedFunctionality    Title: FUNC-002 · Login Page - Reject Breached Password
-The dependency on FEAT-002 is authored in the `.feature` form of this Functionality; this form
-spends its one optional field extension on the Preconditions section instead.
+This form spends its one optional field extension on the Preconditions section.
 Layout: see ../README.md (GitHub issue-body layout)
 -->
 

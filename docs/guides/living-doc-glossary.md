@@ -96,11 +96,21 @@ A named system surface — the structural layer between User Stories and atomic 
   call such a system record it here, **by name**; the name resolves to nothing and nothing validates it.
   When the system gains an anchor it becomes an `API` Feature in its own right, and the entry leaves every
   `external_dependencies` list that named it.
-- `feature_dependencies`: **derived from its Functionalities — never authored.** The value is the union of
-  its Functionalities' targets, for the same reason the status is derived: the Feature is a structural node,
-  and what calls another surface is a behaviour. A Feature issue body carries no `## Feature Dependencies`
-  heading and a PageObject header no `feature_dependencies:` field. See
-  [Functionality](#functionality-func) for where it *is* written.
+- `feature_dependencies` (optional): the Features this surface calls — a list of `FEAT-` ids, **authored**
+  by a person or an agent. Where `external_dependencies` names a system with no anchor, this field names a
+  documented `API` Feature by id. Any Feature may carry it, `UI` or `API` — an `API` Feature calling another
+  `API` Feature is allowed. Three rules:
+  - **The target must be an `API` Feature.** You can only call what has a contract anchor.
+  - **Only the caller authors it.** The reverse direction — who depends on this Feature — is not authored.
+  - **Omit it when the Feature calls nothing.** There is no `none` value.
+
+  Written as `## Feature Dependencies` in the issue body and `feature_dependencies:` in the PageObject full
+  header, as comma-separated ids in both forms. A PageObject cross-reference header does not carry it.
+
+  A target the pipeline cannot resolve is reported as `UNRESOLVED_RELATION`. In a project documented in
+  source code that is the **expected** outcome, not a defect: a `UI` Feature's PageObject header can name an
+  `API` Feature that such a project cannot document, because the contract anchor carries no living-doc header
+  yet. The field resolves fully in a project documented in GitHub Issues or in Azure DevOps work items.
 - Status: **derived from its Functionalities — never authored.** A Feature is the structural node
   that names a visible surface; the behaviour that can be planned, reviewed, shipped or retired lives
   in its Functionalities and their ACs. A hand-written Feature status can therefore only restate them
@@ -127,23 +137,6 @@ An atomic, fast-testable behavior — a single verb phrase describing one respon
 - Name: `<parent Feature name> - <behavior phrase>` (e.g. "Login Page - Validate Password Strength")
 - Belongs to: one parent **Feature**
 - Owns: **Functionality-level Acceptance Criteria** (atomic input to output statements)
-- `feature_dependencies` (optional): the Features this behaviour calls — a list of `FEAT-` ids,
-  **authored here** and derived upward to the parent Feature (see [Feature](#feature)). Three rules:
-  - **The target must be an `API` Feature.** You can only call what has a contract anchor. A `UI` target is
-    an error today; the rule can be loosened later if UI composition needs it, which is cheaper than the
-    reverse.
-  - **Only the caller authors it.** The reverse direction — who depends on this Feature — is derived by the
-    pipeline and never written by hand.
-  - **It is authored on the Functionality, not on the Feature.** Coverage of a dependency edge is described
-    by a Functionality and its ACs — roughly one endpoint of the called surface — and scenarios already link
-    to ACs by `@AC:` tag. Written where the ACs are, a declared dependency with no linked scenario is a
-    computable untested integration point, with no second "test → edge" concept. Written at Feature level it
-    would be a second source of truth for a derived value.
-
-  A target the pipeline cannot resolve is reported as `UNRESOLVED_RELATION`. In a project documented in
-  source code that is the **expected** outcome, not a defect: no `API` Feature can exist there, because the
-  contract anchor carries no living-doc header yet (see [Feature](#feature)). The field resolves fully in a
-  project documented in GitHub Issues or in Azure DevOps work items.
 - Test anchor: a **Functionality feature file** under `features/liv_doc_func/` — one file per
   Functionality, containing all AC-linked system-test scenarios once implemented.
   File name pattern: `func-<nnn>-<feature-name-kebab>-<behavior-kebab>.feature`
@@ -355,6 +348,8 @@ describes the false-gap failure mode when the two sides of the join do not descr
 ```
 User Story (US)
   └── links to: Feature (FEAT)
+                    └── can depend on: Feature (FEAT, surface_type: API)
+                    |              feature_dependencies
                     └── owns: Functionality (FUNC)
                                     └── owns: Functionality ACs
                                     └── maps to: Functionality feature file (system test)
@@ -362,9 +357,6 @@ User Story (US)
                                     |              @FUNC_ID tag + @AC:FUNC-nnn-nn tagged scenarios
                                     |              └── implemented by: Step Definitions
                                     └── can map to: unit/integration tests
-                                    └── can depend on: Feature (FEAT, surface_type: API)
-                                                   feature_dependencies - authored here,
-                                                   derived upward to the parent Feature
   └── owns: User Story ACs (in # Acceptance Criteria: header block)
                   └── linked via: @AC:US-n-nn tags on Scenarios
                   └── can map to: E2E BDD Scenarios (<feature_dirs.user_story>/*.feature)
