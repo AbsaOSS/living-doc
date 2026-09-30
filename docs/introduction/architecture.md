@@ -54,6 +54,8 @@ flowchart LR
 | Normalize | `toolkit` | Take one or more collector outputs and produce a single canonical dataset — resolving format differences between sources. |
 | Generate | `generator-markdown`, `generator-pdf` | Take the canonical dataset and render one target format. |
 
+What each part must not do, and the deliberate exceptions, are fixed in [Principles](principles.md).
+
 ## Typical run (GitHub Action)
 
 ```mermaid

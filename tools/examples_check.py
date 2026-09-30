@@ -34,9 +34,9 @@ This is the *grammar + cross-reference* gate for the copyable input corpus:
    source-code header) agree on required content and on their AC set, and no single file
    carries more than one optional field extension per level. An ``API`` Feature is the one
    entity with a single authored form: its contract anchor carries no living-doc header yet.
-6. **Feature dependencies** — every ``feature_dependencies`` target resolves to a corpus
-   entity, is an ``API`` Feature, is not being retired, and is not the declaring
-   Functionality's own parent Feature.
+6. **Feature dependencies** — ``feature_dependencies`` is authored on a Feature only, as
+   comma-separated ``FEAT-`` ids with no ``none`` value; every target resolves to a corpus
+   entity, is not the declaring Feature itself, is an ``API`` Feature, and is not being retired.
 
 Canonical references:
   docs/guides/living-doc-header-types.md
@@ -90,9 +90,9 @@ ENTITY_ID_RE = re.compile(r"\b((?:US|FEAT|FUNC)-\d+)\b")
 # @AC:<id>[/param:value] scenario tag — glossary "Tag format"
 AC_TAG_RE = re.compile(r"@AC:(?P<id>(?:US|FUNC)-\d+-\d+)(?:/(?P<param>[a-z_]+):(?P<value>[A-Za-z0-9-]+))?")
 
-# `FUNC-002` declares a `feature_dependencies` edge to `FEAT-002`, the `API` Feature the corpus
+# `FEAT-003` declares a `feature_dependencies` edge to `FEAT-002`, the `API` Feature the corpus
 # needs as a resolvable target (docs/examples/README.md, "The dependency pair").
-CANONICAL_ENTITIES = {"US-001", "FEAT-001", "FEAT-002", "FUNC-001", "FUNC-002"}
+CANONICAL_ENTITIES = {"US-001", "FEAT-001", "FEAT-002", "FEAT-003", "FUNC-001", "FUNC-002"}
 
 # docs/examples/README.md — GitHub issue-body layout table. Why `## Status` and `## Deprecated At`
 # have no FEAT row: docs/guides/living-doc-glossary.md#feature; the fix hints below say it to the
@@ -102,8 +102,8 @@ FEAT_DEPRECATION_HEADINGS = ["Deprecation Reason", "Superseded By"]
 # `## Notes` — entity-level human context, optional on every entity type
 # (docs/guides/living-doc-glossary.md#core-entities).
 NOTES_HEADING = "Notes"
-# `## Feature Dependencies` — authored on the Functionality only
-# (docs/guides/living-doc-glossary.md#functionality-func).
+# `## Feature Dependencies` — authored on the Feature only
+# (docs/guides/living-doc-glossary.md#feature).
 FEATURE_DEPS_HEADING = "Feature Dependencies"
 FEATURE_DEPS_KEY = "feature_dependencies"
 ISSUE_HEADINGS = {
@@ -119,7 +119,8 @@ ISSUE_HEADINGS = {
             "User Stories",
             "Functionalities",
         ],
-        "optional": ["External Dependencies", *FEAT_DEPRECATION_HEADINGS, NOTES_HEADING],
+        "optional": ["External Dependencies", FEATURE_DEPS_HEADING, *FEAT_DEPRECATION_HEADINGS,
+                     NOTES_HEADING],
     },
     "FUNC": {
         "required": [
@@ -129,8 +130,8 @@ ISSUE_HEADINGS = {
             "Func Type",
             "Acceptance Criteria",
         ],
-        "optional": [FEATURE_DEPS_HEADING, "Rationale", "Preconditions", "Not In Scope",
-                     *DEPRECATION_HEADINGS, NOTES_HEADING],
+        "optional": ["Rationale", "Preconditions", "Not In Scope", *DEPRECATION_HEADINGS,
+                     NOTES_HEADING],
     },
 }
 # A heading a derived field would author gets its own message rather than the generic
@@ -143,15 +144,16 @@ FORBIDDEN_ISSUE_HEADINGS = {
                          "state, which follows the Functionalities "
                          "(living-doc-glossary.md#feature); keep '## Deprecation Reason' / "
                          "'## Superseded By' if the surface is being retired",
+    },
+    "FUNC": {
         FEATURE_DEPS_HEADING:
-            "a Feature has no authored feature dependencies - its value is the union of its "
-            "Functionalities' targets (living-doc-glossary.md#feature); author "
-            "'## Feature Dependencies' on the Functionality that makes the call",
+            "move it to the parent Feature's issue body - a dependency is declared by the Feature "
+            "that makes the call (living-doc-glossary.md#feature)",
     },
     "US": {
         FEATURE_DEPS_HEADING:
-            "a User Story has no dependencies - a dependency is declared by the Functionality "
-            "that makes the call (living-doc-glossary.md#functionality-func)",
+            "a User Story has no dependencies - a dependency is declared by the Feature that "
+            "makes the call (living-doc-glossary.md#feature)",
     },
 }
 
@@ -181,9 +183,9 @@ PAIR_FIELD_MAP = {
 # Optional extensions a `.feature` / PageObject header may carry, beyond the required keys.
 # `notes:` is deliberately absent from both: it is available on every entity and counts as no
 # file's one optional extension (see `NOTES_HEADING`).
-OPTIONAL_FEATURE_KEYS = ["source", FEATURE_DEPS_KEY, "rationale", "preconditions", "not_in_scope",
+OPTIONAL_FEATURE_KEYS = ["source", "rationale", "preconditions", "not_in_scope",
                          "deprecated_at", "deprecation_reason", "superseded_by"]
-OPTIONAL_PO_KEYS = ["wizard-steps", "stub-reason"]
+OPTIONAL_PO_KEYS = ["wizard-steps", "stub-reason", FEATURE_DEPS_KEY]
 LABEL_TO_TYPE = {
     "DocumentedUserStory": "US",
     "DocumentedFeature": "FEAT",
@@ -218,8 +220,8 @@ class Corpus:
         self.forms: dict[str, dict[str, dict]] = {}
         self.surface_types: dict[str, str] = {}           # FEAT id -> declared surface type
         self.retiring_features: dict[str, str] = {}       # FEAT id -> the field that says so
-        # (declaring FUNC id, its parent FEAT id, target FEAT id, file, line)
-        self.feature_deps: list[tuple[str, str | None, str, str, int]] = []
+        # (declaring FEAT id, target FEAT id, file, line)
+        self.feature_deps: list[tuple[str, str, str, int]] = []
 
     def declare_form(self, entity_id: str, form: str, file: str, fields: dict[str, str],
                      acs: dict[str, str], optional: list[str]) -> None:
@@ -274,6 +276,24 @@ def _collapse(value: str) -> str:
 def _is_banner(text: str) -> bool:
     t = text.strip()
     return t == "" or t.startswith("=") or t.startswith("LIVING DOC")
+
+
+def _declare_feature_deps(value: str, declaring: str, corpus: Corpus, rel: str,
+                          lineno: int) -> None:
+    """Parse a Feature's ``feature_dependencies`` value - ``FEAT-`` ids, comma-separated."""
+    items = [item.strip() for item in value.split(",") if item.strip()]
+    if not items or [i.lower() for i in items] == ["none"]:
+        corpus.fail(rel, lineno, "feature_dependencies has no 'none' value",
+                    "omit the field when the Feature calls nothing "
+                    "(living-doc-glossary.md#feature)")
+        return
+    for item in items:
+        if re.fullmatch(r"FEAT-\d+", item) is None:
+            corpus.fail(rel, lineno, f"feature_dependencies entry '{item}' is not a Feature id",
+                        "list 'FEAT-<nnn>' ids, comma-separated on one line "
+                        "(living-doc-glossary.md#feature)")
+            continue
+        corpus.feature_deps.append((declaring, item, rel, lineno))
 
 
 def _validate_ac_header(m: "re.Match[str]", corpus: Corpus, rel: str, lineno: int,
@@ -479,22 +499,14 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
                             ac_headers, sorted(extensions))
 
     if FEATURE_DEPS_KEY in top_keys:
-        lineno = top_keys[FEATURE_DEPS_KEY]
-        value = _strip_annotation(
-            next(t for ln, t in header if ln == lineno).split(":", 1)[1])
-        if kind == "US":
-            corpus.fail(rel, lineno,
-                        f"User Story header carries a '{FEATURE_DEPS_KEY}:' field",
-                        "remove it - a dependency is declared by the Functionality that makes "
-                        "the call (living-doc-glossary.md#functionality-func)")
-        else:
-            parent = None
-            if "parent" in top_keys:
-                parent_line = next(t for ln, t in header if ln == top_keys["parent"])
-                parent = _strip_annotation(parent_line.split(":", 1)[1]).strip() or None
-            for target in ENTITY_ID_RE.findall(value):
-                corpus.feature_deps.append(
-                    (entity_id or f"{kind}-000", parent, target, rel, lineno))
+        entity = "User Story" if kind == "US" else "Functionality"
+        corpus.fail(rel, top_keys[FEATURE_DEPS_KEY],
+                    f"{entity} header carries a '{FEATURE_DEPS_KEY}:' field",
+                    "move it to the parent Feature's PageObject full header as "
+                    "'feature_dependencies:' - a dependency is declared by the Feature that makes "
+                    "the call (living-doc-glossary.md#feature)" if kind == "FUNC" else
+                    "remove it - a dependency is declared by the Feature that makes the call "
+                    "(living-doc-glossary.md#feature)")
 
     # scenario tags
     for i, line in enumerate(raw, 1):
@@ -573,13 +585,11 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
                     "its Functionalities; an uninstrumented surface says so with 'stub-reason:' "
                     "(see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
 
-    if FEATURE_DEPS_KEY in keys:
+    if is_xref and FEATURE_DEPS_KEY in keys:
         corpus.fail(rel, keys[FEATURE_DEPS_KEY][0],
-                    f"PageObject header carries a '{FEATURE_DEPS_KEY}:' field",
-                    "remove it - a Feature's feature dependencies are the union of its "
-                    "Functionalities' targets and are never authored; write "
-                    "'# feature_dependencies:' on the Functionality that makes the call "
-                    "(see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
+                    f"cross-reference header carries a '{FEATURE_DEPS_KEY}:' field",
+                    "move it to the primary Feature file's full header - the field belongs only "
+                    "there (see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
 
     if "deprecated_at" in keys:
         corpus.fail(rel, keys["deprecated_at"][0],
@@ -606,6 +616,9 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
         for key in ("deprecation_reason", "superseded_by"):
             if key in keys:
                 corpus.retiring_features.setdefault(entity_id, f"{key}:")
+        if FEATURE_DEPS_KEY in keys:
+            lineno, value = keys[FEATURE_DEPS_KEY]
+            _declare_feature_deps(value, entity_id, corpus, rel, lineno)
 
     for key in ("user_stories", "functionalities", "parent-feat"):
         if key in keys:
@@ -675,11 +688,10 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
         for heading in FEAT_DEPRECATION_HEADINGS:
             if heading in present:
                 corpus.retiring_features.setdefault(title_m.group(1), f"## {heading}")
-    if etype == "FUNC" and title_m and FEATURE_DEPS_HEADING in sections:
-        line = next((i for i, h in headings if h == FEATURE_DEPS_HEADING), 1)
-        for target in ENTITY_ID_RE.findall(sections[FEATURE_DEPS_HEADING]):
-            corpus.feature_deps.append(
-                (title_m.group(1), sections.get("Parent Feature"), target, rel, line))
+        if FEATURE_DEPS_HEADING in sections:
+            line = next((i for i, h in headings if h == FEATURE_DEPS_HEADING), 1)
+            _declare_feature_deps(sections[FEATURE_DEPS_HEADING], title_m.group(1), corpus, rel,
+                                  line)
 
     # AC sub-headings share the glossary grammar
     ac_headers: dict[str, str] = {}
@@ -818,9 +830,9 @@ def feature_dependency_rules(corpus: Corpus) -> None:
     These are the checks typing the field buys: a free-form
     ``external_dependencies`` name can be validated against nothing, while a
     ``FEAT-`` id can be resolved, surface-typed and lifecycle-checked
-    (docs/guides/living-doc-glossary.md#functionality-func).
+    (docs/guides/living-doc-glossary.md#feature).
     """
-    for declaring, parent, target, rel, line in corpus.feature_deps:
+    for declaring, target, rel, line in corpus.feature_deps:
         if target not in corpus.declared_entities:
             corpus.fail(rel, line,
                         f"feature_dependencies target '{target}' has no matching entity "
@@ -828,12 +840,11 @@ def feature_dependency_rules(corpus: Corpus) -> None:
                         "point it at a declared API Feature, or add the Feature the "
                         "behaviour calls")
             continue
-        if parent is not None and target == parent:
+        if target == declaring:
             corpus.fail(rel, line,
-                        f"feature_dependencies target '{target}' is {declaring}'s own parent "
-                        "Feature",
-                        "a Functionality cannot depend on the surface it belongs to - remove "
-                        "the entry, or point it at the Feature actually being called")
+                        f"feature_dependencies target '{target}' is the declaring Feature itself",
+                        "a Feature cannot depend on itself - remove the entry, or point it at "
+                        "the Feature actually being called")
             continue
         surface_type = corpus.surface_types.get(target)
         if surface_type != "API":
@@ -841,7 +852,7 @@ def feature_dependency_rules(corpus: Corpus) -> None:
                         f"feature_dependencies target '{target}' is not an 'API' Feature "
                         f"(surface type: {surface_type or 'none declared'})",
                         "only a Feature with a contract anchor can be a dependency target "
-                        "(living-doc-glossary.md#functionality-func); a system with no anchor "
+                        "(living-doc-glossary.md#feature); a system with no anchor "
                         "belongs in the caller Feature's 'external_dependencies'")
         if target in corpus.retiring_features:
             corpus.fail(rel, line,

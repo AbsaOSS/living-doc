@@ -18,6 +18,9 @@ Task-list source (optional override): `$2`
   on this branch — the guide's field description, the rule in `tools/examples_check.py`,
   the example file's literal content, the `docs/examples/_expected/*.json` diff. **Do not**
   accept "a test with that name passes" as evidence.
+- Always check one extra criterion: the change stays inside the frame in
+  `docs/introduction/principles.md`, or names the frame row it bends and adds the exception
+  there. A new responsibility with no exception is not met.
 - Produce a table: criterion → met / not met → the `file:line` that proves it (or the gap).
 
 ## 2. Run the checks
