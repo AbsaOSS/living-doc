@@ -17,7 +17,8 @@ For entity definitions (IDs, status vocabulary, AC format, relationship diagram)
 
 ## Contents
 
-**File headers you author** — human-editable, one per entity:
+**File headers you author** — human-editable, one per entity, all following the
+[Indentation](#indentation) rule:
 
 1. [User Story in a Gherkin Feature File](#1-user-story-in-a-gherkin-feature-file)
 2. [Feature in a PageObject File](#2-feature-in-a-pageobject-file)
@@ -49,11 +50,63 @@ existing User Story headers, and adding Functionalities does not change Feature 
 
 ---
 
+## Indentation
+
+Indentation is significant in every input you author: a `.feature` header, a PageObject header and
+a GitHub issue body (see the [issue-body layout](../examples/README.md#github-issue-body-layout-canonical)).
+One rule covers all three:
+
+**A line indented deeper than an open item's `- ` belongs to that item**, as wrapped text or as a
+nested item. It is never a sibling of the item and never a new key.
+
+- **Levels are relative.** A line only has to be deeper than its parent; no column is fixed. Indent
+  with spaces. A tab or a no-break space in an indent is normalised to spaces when the input is read.
+- **Flat layout.** Items written at their key's own indent stay valid and are read in line order.
+- **Canonical levels in the corpus.** The example corpus uses the canonical levels only; the flat
+  layout stays valid for authors.
+- **Nesting.** A nested item may sit in a bullet-list field (`business_value`, `preconditions`,
+  `not_in_scope`, `rationale`, `notes`), never in an id-list field (`user_stories`, `functionalities`,
+  `feature_dependencies`, `parent`, `superseded_by`). It stays part of its parent's entry: the field
+  still holds one string per top-level item.
+
+**`.feature` header** — levels counted after `# `; the template levels are the canonical ones:
+
+| Line | Level |
+|---|---|
+| Entity key (`status:`, `business_value:`, …) and `acceptance_criteria:` | 0 |
+| Item of an entity bullet field | deeper than its key (template: 2) |
+| Criterion header `AC:<id> (…)` | 2 |
+| Criterion item, and the criterion sub-keys `preconditions:` / `not_in_scope:` | 4 |
+| Item of a criterion sub-key | 6 |
+| An item's wrapped text or nested item | deeper than its `- ` |
+
+**PageObject header** — levels counted after ` * `:
+
+| Line | Level |
+|---|---|
+| Key (`route:`, `purpose:`, `notes:`, …) | the banner's base level |
+| Item under a key (the `notes:` items) | deeper than the key |
+| Wrapped value (the cross-reference `purpose:`) | deeper than the key; the value column is the usual choice |
+
+A nested item, in a `.feature` header:
+
+```gherkin
+# preconditions:
+#   - A registered customer account exists.
+#     - It is not locked, and its email address is verified.
+#   - The login screen is reachable.
+```
+
+`preconditions` holds two entries here; the nested line is part of the first.
+
+---
+
 ## 1. User Story in a Gherkin Feature File
 
 Header comment block at the top of every User Story feature file —
 `<feature_dirs.user_story>/us-<nnn>-<kebab>.feature` (default `features/liv_doc_us/`).
 Holds all US metadata and is mined during living documentation output generation.
+Indentation in this header is significant — see [Indentation](#indentation).
 
 ```gherkin
 # =============================================================================
@@ -328,6 +381,7 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 
 Header comment block at the top of every Functionality feature file —
 `<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
+Indentation in this header is significant — see [Indentation](#indentation).
 
 **Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file (`Aspect:` on an AC), split across two scenarios (covered), and one uncovered AC. [`func-002-reject-breached-password.feature`](../examples/gherkin/liv_doc_func/func-002-reject-breached-password.feature) shows a `planned` Functionality with no scenario yet.
 

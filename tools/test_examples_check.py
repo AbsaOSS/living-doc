@@ -28,7 +28,8 @@ from pathlib import Path
 
 import pytest
 
-from examples_check import AC_HEADER_RE, AC_TAG_RE, check_corpus
+from examples_check import (AC_HEADER_RE, AC_TAG_RE, FEATURE_STOP_RE, FEATURE_STRIP_RE, Corpus,
+                            _decomment_block, check_corpus, check_feature_levels)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REAL_EXAMPLES = REPO_ROOT / "docs" / "examples"
@@ -660,4 +661,94 @@ def test_retired_project_profile_key_fails(corpus_dir: Path) -> None:
 
     findings = findings_for(corpus_dir)
     assert any(".project-profile.yaml" in f.file and "is retired" in f.rule
+               for f in findings), findings
+
+
+# --- indentation: the corpus uses the template levels only --------------------------------
+#
+# The check is stricter than the canon: the flat layout stays valid for authors, but the corpus
+# shows only the canonical levels (living-doc-header-types.md#indentation).
+
+US_HEADER = """\
+# =============================================================================
+# LIVING DOC — US-001 · Customer Login
+# =============================================================================
+# status:          active
+# business_value:
+#   - Registered customers can reach their account area, so returning users
+#     convert without friction.
+#
+# acceptance_criteria:
+#
+#   AC:US-001-01 (v1.0.0 - active)
+#     - A customer who submits valid credentials lands on the account dashboard.
+#     preconditions:
+#       - A registered customer account exists and is not locked.
+#
+#   AC:US-001-02 (v1.0.0 - active)
+#     - An inline error is shown when the customer submits invalid credentials,
+#       without leaving the login screen.
+# =============================================================================
+"""
+
+
+def test_feature_header_template_levels_pass() -> None:
+    raw = US_HEADER.splitlines()
+    corpus = Corpus()
+    check_feature_levels(_decomment_block(raw, FEATURE_STRIP_RE, FEATURE_STOP_RE), raw, corpus,
+                         US_FEATURE)
+    assert corpus.findings == []
+
+
+def _mutate(corpus_dir: Path, path: str, old: str, new: str) -> None:
+    target = corpus_dir / path
+    text = target.read_text(encoding="utf-8")
+    assert old in text, old
+    target.write_text(text.replace(old, new), encoding="utf-8")
+
+
+def test_criterion_item_at_3_fails(corpus_dir: Path) -> None:
+    _mutate(corpus_dir, US_FEATURE, "#     - A customer who submits valid",
+            "#    - A customer who submits valid")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_FEATURE in f.file and f.rule == "criterion item at indent 3, expected 4"
+               for f in findings), findings
+
+
+def test_flat_layout_sub_key_items_fail(corpus_dir: Path) -> None:
+    # Valid for an author, read by line order - but not the corpus's canonical form.
+    _mutate(corpus_dir, US_FEATURE, "#       - A registered customer account",
+            "#     - A registered customer account")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_FEATURE in f.file and f.rule == "sub-key item at indent 4, expected 6"
+               for f in findings), findings
+
+
+def test_tab_in_indent_fails(corpus_dir: Path) -> None:
+    _mutate(corpus_dir, US_FEATURE, "#     - A customer who submits valid",
+            "#   \t- A customer who submits valid")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_FEATURE in f.file and f.rule == "tab or no-break space in an indent"
+               for f in findings), findings
+
+
+def test_nested_item_under_id_list_heading_fails(corpus_dir: Path) -> None:
+    _mutate(corpus_dir, FEAT_ISSUE, "## Functionalities\n\nFUNC-001, FUNC-002\n",
+            "## Functionalities\n\n- FUNC-001\n  - FUNC-002\n")
+
+    findings = findings_for(corpus_dir)
+    assert any(FEAT_ISSUE in f.file and f.rule == "nested item under '## Functionalities', "
+               "expected 0" for f in findings), findings
+
+
+def test_pageobject_wrapped_line_at_key_indent_fails(corpus_dir: Path) -> None:
+    _mutate(corpus_dir, PAGEOBJECT, " *                        documented from the interface spec",
+            " * documented from the interface spec")
+
+    findings = findings_for(corpus_dir)
+    assert any(PAGEOBJECT in f.file
+               and f.rule == "wrapped line at indent 0, expected deeper than its key at 0"
                for f in findings), findings
