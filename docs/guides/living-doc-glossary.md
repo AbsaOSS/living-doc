@@ -36,7 +36,8 @@ For the file-header schemas that carry these entities (feature file headers, Pag
 > **Where status and deprecation metadata are authored.** `## Status`, `## Deprecated At`,
 > `## Deprecation Reason` and `## Superseded By` as headings in an issue body; `# status:`,
 > `# deprecated_at:`, `# deprecation_reason:` and `# superseded_by:` as keys in a feature-file
-> header. Of these only the status is required, and only on a User Story and a Functionality — a
+> header; `deprecation_reason:` and `superseded_by:` as keys in a PageObject full header. Of these
+> only the status is required, and only on a User Story and a Functionality — a
 > Feature has no authored status at all, and `deprecated_at` exists on a User Story and a
 > Functionality only — see [Feature](#feature).
 > See the [GitHub issue-body layout](../examples/README.md#github-issue-body-layout-canonical) and
