@@ -42,7 +42,7 @@ structure the team wants to maintain — each scope is a superset of the one abo
 | Scope | Headers you maintain | What it gives you |
 |---|---|---|
 | **User Stories only** | User Story feature file headers | Business requirements and their end-to-end acceptance criteria, tracked by version and status. No mapping to concrete system surfaces. |
-| **User Stories + Features** | + Feature (PageObject) file headers | Every User Story is traced to the UI/API surfaces that satisfy it. Orphaned surfaces and uncovered User Stories show up in gap reports. |
+| **User Stories + Features** | + Feature (PageObject) file headers | Every User Story is traced to the UI/API surfaces that satisfy it. Surfaces with no User Story and uncovered User Stories show up in gap reports. |
 | **User Stories + Features + Functionalities** | + Functionality feature file headers | Full atomic-behavior coverage: each surface is broken into fast-testable Functionalities, each with its own ACs and system-test scenarios. |
 
 Moving up a scope never invalidates what you already wrote — adding Features later does not change
@@ -209,7 +209,7 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 | `route` | URL path — use `{param}` for dynamic segments |
 | `owners` | Team name(s), comma-separated |
 | `purpose` | One-to-two sentence description in business language |
-| `user_stories` | `US-N` IDs, comma-separated — or `none` (triggers orphan warning in gap reports) |
+| `user_stories` | `US-N` IDs, comma-separated — or `none` (gap reports flag a Feature with no User Story) |
 | `functionalities` | `FUNC-N` IDs, comma-separated — or `none` (triggers a reminder to define FUNCs) |
 | `external_dependencies` | Names of systems this surface calls that are **not** Features themselves — or `none`. A system that has a canonical anchor is an `API` Feature instead, and the call is declared as `feature_dependencies` on the same header (see [Living Doc Glossary — Feature](living-doc-glossary.md#feature)) |
 | `page-object` | Filename of this PageObject |
@@ -222,6 +222,8 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 | `wizard-steps` | Multi-step wizard UI — list the named steps in order |
 | `stub-reason` | The surface is documented but not yet fully instrumented — one-to-two sentence statement of **why**; treated as tech-debt resolvable by instrumenting the template and re-scanning. Its presence *is* the marker; there is no status value for this. |
 | `notes` | Human context at Feature level — a bullet list under the key, one note per bullet; see [Living Doc Glossary — Core entities](living-doc-glossary.md#core-entities). Not a scan diary — the rows under [Where operational notes belong](#where-operational-notes-belong) keep their homes. |
+| `deprecation_reason` | The surface is being retired — one-to-two sentences on **why**; human intent, which nothing can derive. It drives no state: the Feature's state still comes from its Functionalities. See [Living Doc Glossary — Feature](living-doc-glossary.md#feature). |
+| `superseded_by` | The surface is being retired in favour of another — the replacement's `FEAT-<nnn>` ID, a typed entity link the pipeline traverses as a relation edge. It drives no state. See [Living Doc Glossary — Feature](living-doc-glossary.md#feature). |
 
 ### Two header formats: Full vs Cross-reference
 
@@ -272,7 +274,7 @@ A PageObject file uses one of two formats depending on whether it is the **prima
 | `page-object` | Filename of this PageObject |
 | `functionalities` | Optional: `FUNC-<nnn>, ...` — subset of parent Feature's Functionalities that this step implements. Omit if all sub-pages equally implement all parent Feature Functionalities. |
 
-The following fields are **intentionally omitted** from the cross-reference header — they belong only on the primary Feature file: `surface_type`, `user_stories`, `external_dependencies`, `feature_dependencies`.
+The following fields are **intentionally omitted** from the cross-reference header — they belong only on the primary Feature file: `surface_type`, `user_stories`, `external_dependencies`, `feature_dependencies`, `deprecation_reason`, `superseded_by`.
 
 **Optional inclusion of `functionalities`:** You may list this field in a cross-reference header to scope step-specific atomic behaviors to that sub-page. Use this when a step implements distinct Functionalities not shared across the entire Feature. If the sub-page's Functionality list is identical to the parent Feature's, omit this field to avoid duplication and keep the primary Feature as the authoritative source.
 
@@ -310,7 +312,7 @@ file — leave it out.
 and produce the identical header format — nothing about a scanned header differs from a hand-written
 one. `living-doc-pageobject-scan` writes and refreshes the header and locators from a live scan of
 the running app; `data-cy-instrument` adds the missing `data-cy` attributes a `stub-reason:` surface
-is waiting on; `living-doc-gap-finder` reports orphaned surfaces and uncovered User Stories. They are
+is waiting on; `living-doc-gap-finder` reports surfaces with no User Story and uncovered User Stories. They are
 accelerators, not a requirement.
 
 ### Where operational notes belong
