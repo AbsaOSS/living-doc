@@ -37,8 +37,8 @@ For the file-header schemas that carry these entities (feature file headers, Pag
 > `## Deprecation Reason` and `## Superseded By` as headings in an issue body; `# status:`,
 > `# deprecated_at:`, `# deprecation_reason:` and `# superseded_by:` as keys in a feature-file
 > header. Of these only the status is required, and only on a User Story and a Functionality — a
-> Feature has no authored status at all, and `deprecated_at` is authored on a User Story and a
-> Functionality only — see [Feature](#feature) for what a Feature derives instead.
+> Feature has no authored status at all, and `deprecated_at` exists on a User Story and a
+> Functionality only — see [Feature](#feature).
 > See the [GitHub issue-body layout](../examples/README.md#github-issue-body-layout-canonical) and
 > [Living Doc Header Types](living-doc-header-types.md).
 
@@ -117,10 +117,9 @@ A named system surface — the structural layer between User Stories and atomic 
   or contradict them, so there is no place to write one: a Feature issue body carries no `## Status`
   heading, and a PageObject header carries no `status:` field. The pipeline computes the state and
   marks it `derived`.
-- Deprecation metadata: `deprecated_at` is **derived, never authored** — it is generated after parsing,
-  alongside the state, and follows the Functionalities like the state does. A Feature issue body
-  carries no `## Deprecated At` heading and a PageObject header no `deprecated_at:` field. What stays
-  authored on a Feature (optional, and neither one drives the state):
+- Deprecation metadata: a Feature has **no `deprecated_at`** — a Feature issue body carries no
+  `## Deprecated At` heading and a PageObject header no `deprecated_at:` field. What stays authored on
+  a Feature (optional, and neither one drives the state):
   - `deprecation_reason` — why the surface is being retired; human intent, which nothing can derive
   - `superseded_by` — ID of the replacement entity; a typed entity link the pipeline traverses as a
     relation edge

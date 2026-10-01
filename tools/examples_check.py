@@ -150,8 +150,7 @@ FORBIDDEN_ISSUE_HEADINGS = {
     "FEAT": {
         "Status": "a Feature has no authored status - its state is derived from its "
                   "Functionalities (living-doc-glossary.md#feature); remove the heading",
-        "Deprecated At": "a Feature has no authored deprecation date - it is derived with the "
-                         "state, which follows the Functionalities "
+        "Deprecated At": "a Feature has no deprecation date "
                          "(living-doc-glossary.md#feature); keep '## Deprecation Reason' / "
                          "'## Superseded By' if the surface is being retired",
     },
@@ -741,8 +740,8 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
     if "deprecated_at" in keys:
         corpus.fail(rel, keys["deprecated_at"][0],
                     "PageObject header carries a 'deprecated_at:' field",
-                    "remove it - a Feature's deprecation date is derived with its state, which "
-                    "follows the Functionalities; keep 'deprecation_reason:' / 'superseded_by:' if "
+                    "remove it - a Feature has no deprecation date; "
+                    "keep 'deprecation_reason:' / 'superseded_by:' if "
                     "the surface is being retired "
                     "(see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
 
