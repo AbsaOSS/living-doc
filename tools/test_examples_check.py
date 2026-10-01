@@ -201,8 +201,8 @@ def test_pageobject_status_field_fails(corpus_dir: Path) -> None:
 
 
 def test_pageobject_deprecated_at_field_fails(corpus_dir: Path) -> None:
-    # The source-code twin of test_feat_deprecated_at_heading_fails: a Feature's deprecation date
-    # is derived, so the PageObject form has no place for it either.
+    # The source-code twin of test_feat_deprecated_at_heading_fails: a Feature has no deprecation
+    # date, so the PageObject form has no place for it either.
     target = corpus_dir / PAGEOBJECT
     text = target.read_text(encoding="utf-8").replace(
         " * surface_type:          UI\n",
@@ -304,7 +304,7 @@ def test_feat_surface_type_worker_fails(corpus_dir: Path) -> None:
 
 
 def test_feat_deprecated_at_heading_fails(corpus_dir: Path) -> None:
-    # A Feature's deprecation date is derived with its state, so the heading has no home here.
+    # A Feature has no deprecation date, so the heading has no home here.
     target = corpus_dir / FEAT_ISSUE
     text = target.read_text(encoding="utf-8") + "\n## Deprecated At\n\n2026-09-15\n"
     target.write_text(text, encoding="utf-8")
@@ -317,7 +317,7 @@ def test_feat_deprecated_at_heading_fails(corpus_dir: Path) -> None:
     # The hint is user-facing tool output and the whole point of the per-heading dict: a Feature
     # author must be told to keep the two fields that stay authored, not given the `## Status`
     # advice to remove the heading.
-    assert "derived with the state" in match[0].hint, match[0].hint
+    assert "has no deprecation date" in match[0].hint, match[0].hint
     assert "keep '## Deprecation Reason'" in match[0].hint, match[0].hint
 
 

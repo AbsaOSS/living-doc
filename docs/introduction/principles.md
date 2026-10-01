@@ -37,7 +37,7 @@ it adds (see [Checking a change against the frame](#checking-a-change-against-th
 
 | Id | Exception | Bends | Why |
 |---|---|---|---|
-| **E1** | A Feature's state and deprecation date are derived from its Functionalities, never authored. | F2, F3 — a value the author did not write appears in the dataset. | A Feature is the structural node of a surface; its behaviour lives in its Functionalities, so an authored Feature state would contradict them. Rule: [Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature). |
+| **E1** | A Feature's state is derived from its Functionalities, never authored. | F2, F3 — a value the author did not write appears in the dataset. | A Feature is the structural node of a surface; its behaviour lives in its Functionalities, so an authored Feature state would contradict them. Rule: [Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature). |
 
 An exception is added only together with the pull request that introduces it, and removed when the
 behaviour goes.

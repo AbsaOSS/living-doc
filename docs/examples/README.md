@@ -89,8 +89,8 @@ table (`description` / `business_value` / `preconditions` / `acceptance_criteria
 **`## Status` and `## Deprecated At` have no place on a Feature**, and `## Notes` is available on
 every entity as a bullet list of human context. The rules, and why, are in
 [Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature) and
-[Core entities](../guides/living-doc-glossary.md#core-entities): a Feature's status and deprecation
-date are both derived from its Functionalities.
+[Core entities](../guides/living-doc-glossary.md#core-entities): a Feature's status is derived from its
+Functionalities, and a Feature has no deprecation date.
 
 **`## User Stories` and `## Functionalities` take `none`** — the same value and the same meaning as the
 matching PageObject header fields (see
@@ -109,7 +109,7 @@ The heading stays required; `none` is how a Feature says it has no link of that 
 - **`## Notes` is not a field extension either.** It extends no mined field set, so the one instance in
   the corpus does not count against the one-optional-extension-per-file rule above. It is shown once, on
   [`gh-issues/feat-001-login-page.md`](gh-issues/feat-001-login-page.md): a Feature is the entity whose
-  state and deprecation date are both derived, so a human note is what is left to record there.
+  state is derived and which has no deprecation date, so a human note is what is left to record there.
   `living-doc-utilities` carries `notes` in the entity contract from `0.5.0` and never interprets a
   note; an earlier release drops an authored value and warns — `UNKNOWN_SECTION` from the issue-body
   parser, `IGNORED_AUTHORED_KEY` from the `.feature` and PageObject header parsers.
