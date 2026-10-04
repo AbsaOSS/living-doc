@@ -69,13 +69,41 @@ nested item. It is never a sibling of the item and never a new key.
   `feature_dependencies`, `parent`, `superseded_by`). It stays part of its parent's entry: the field
   still holds one string per top-level item.
 
+**Where a part starts and ends.** A header is read part by part, and each part starts on a clear line:
+
+- **A header names its entity.** It exists only when its title — the first line after the opening rule —
+  carries the entity's id (`LIVING DOC — US-<n> · <title>`). An id is the minimum that identifies an
+  entity: without one nothing in the header is read or normalised, and the file is reported.
+
+- **A key sits at the key level** — the indent of the header's first key. A line shaped `key:` any
+  deeper is content of the part above it, never a new key.
+- **A blank line is layout.** A blank line, with its comment marker or without it, ends nothing: not
+  an item, not a key, not a criterion.
+- **A part ends where the next one starts.** A key's part ends at the next key at the key level. A
+  criterion ends at the next `AC:` header, at a key at the key level, or at a `# =====` rule; a rule
+  inside the header is an optional end of a block, and the last rule ends the header.
+- **One criterion level.** In a `.feature` header every `AC:` line sits at the same indent — the first
+  one sets it (template: 2), with nothing but spaces after the `# `. An `AC:` line anywhere else is read
+  as text and reported.
+- **Every header line carries its marker** (`# ` in a `.feature` header, ` * ` in a PageObject
+  header). A line with text and no marker inside a header breaks the format: it is not read, and it is
+  reported as an error. Above `Feature:`, Gherkin itself rejects such a line.
+- **A value's type decides whether it may wrap.** A key whose value is one token — a state, a date, an
+  id, a URL, a route, a file name, a surface type — takes one line; a further line under it is not read
+  and is reported as an error. A text value and an id list may wrap onto deeper lines.
+- **Recommended order.** Write the keys in the template's order, with `acceptance_criteria:` last. The
+  order is a recommendation only: the reader never relies on it, because indentation decides.
+
+Every line the reader does not take into a field is reported, with its line number, so nothing an
+author writes is lost without a word.
+
 **`.feature` header** — levels counted after `# `; the template levels are the canonical ones:
 
 | Line | Level |
 |---|---|
 | Entity key (`status:`, `business_value:`, …) and `acceptance_criteria:` | 0 |
 | Item of an entity bullet field | deeper than its key (template: 2) |
-| Criterion header `AC:<id> (…)` | 2 |
+| Criterion header `AC:<id> (…)` — every one at the same level | 2 |
 | Criterion item, and the criterion sub-keys `preconditions:` / `not_in_scope:` | 4 |
 | Item of a criterion sub-key | 6 |
 | An item's wrapped text or nested item | deeper than its `- ` |
@@ -273,6 +301,7 @@ A PageObject file uses one of two formats depending on whether it is the **prima
 | `purpose` | One sentence: what this step or sub-surface does, in business language — no FEAT IDs |
 | `page-object` | Filename of this PageObject |
 | `functionalities` | Optional: `FUNC-<nnn>, ...` — subset of parent Feature's Functionalities that this step implements. Omit if all sub-pages equally implement all parent Feature Functionalities. |
+| `notes` | Optional: human context about this page, a bullet list as on the full header. The notes stay with this page and its data; they are never merged into the parent Feature's notes. |
 
 The following fields are **intentionally omitted** from the cross-reference header — they belong only on the primary Feature file: `surface_type`, `user_stories`, `external_dependencies`, `feature_dependencies`, `deprecation_reason`, `superseded_by`.
 
