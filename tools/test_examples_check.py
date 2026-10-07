@@ -122,6 +122,21 @@ def test_ac_with_aspect_and_keyword_fails(corpus_dir: Path) -> None:
     assert any("FUNC-001-03 declares more than one variant" in f.rule for f in findings), findings
 
 
+def test_ac_with_two_aspects_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "#     - Aspect: minimum-length, character-classes, no-username\n",
+        "#     - Aspect: minimum-length, character-classes, no-username\n"
+        "#     - Aspect: maximum-length\n",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(FUNC_FEATURE in f.file
+               and "FUNC-001-01 declares more than one variant: 'aspect' and 'aspect'" in f.rule
+               for f in findings), findings
+
+
 def test_ac_with_two_keywords_fails(corpus_dir: Path) -> None:
     target = corpus_dir / FUNC_FEATURE
     text = target.read_text(encoding="utf-8").replace(
