@@ -18,7 +18,7 @@ For entity definitions (IDs, status vocabulary, AC format, relationship diagram)
 ## Contents
 
 **File headers you author** — human-editable, one per entity, all following the
-[Indentation](#indentation) rule:
+[Indentation](#indentation) rule; the acceptance criteria in them follow the [AC variants](#ac-variants) rule:
 
 1. [User Story in a Gherkin Feature File](#1-user-story-in-a-gherkin-feature-file)
 2. [Feature in a PageObject File](#2-feature-in-a-pageobject-file)
@@ -129,12 +129,41 @@ A nested item, in a `.feature` header:
 
 ---
 
+## AC variants
+
+An acceptance criterion that must hold for several values (fields, rules, roles) declares them in one
+bullet, and its scenarios cover them value by value. One rule covers the User Story and the
+Functionality template:
+
+- **One variant declaration per AC.** Either `- Aspect: <value1>, <value2>`, or one named keyword
+  `- <placeholder-name>: <value1>, <value2>`. The keyword is the other spelling of `Aspect:`: it names
+  what varies, and the AC text shows that name as `{placeholder-name}`. An AC that declares both, or
+  two keywords, is `MALFORMED_AC`: the pipeline drops the criterion until the author picks one.
+- **The name** is lowercase kebab-case and is written the same in the AC text (`{field}`), the bullet
+  (`- field:`) and the scenario tag (`@AC:<id>/field:<value>`). Names are compared case-insensitively,
+  with `-`, `_` and space equal. `aspect` is reserved.
+- **A bullet is a keyword only when the text names it.** Apart from `Aspect:` and `Rationale:`, a
+  `- <name>:` bullet whose name is not a `{<name>}` in the AC text is not a keyword: it is reported as
+  `UNPARSED_AC_LINE`.
+- **Coverage is per value.** The AC is `covered` when every declared value has a scenario,
+  `not_covered` when none has, and `partially_covered` otherwise, shown as covered/declared, e.g.
+  **1/3**, with the per-value breakdown. A bare `@AC:<id>` tag covers the whole AC, every value at once —
+  a data-driven scenario, for example; review confirms that it really does. A tag value the AC does not
+  declare is `STALE_AC_REF`, and a tag carries at most one variant parameter: a tag with two is
+  `MALFORMED_AC`.
+
+The same rule, with the tag format, is in
+[Living Doc Glossary — Acceptance Criterion](living-doc-glossary.md#acceptance-criterion-ac).
+
+---
+
 ## 1. User Story in a Gherkin Feature File
 
 Header comment block at the top of every User Story feature file —
 `<feature_dirs.user_story>/us-<nnn>-<kebab>.feature` (default `features/liv_doc_us/`).
 Holds all US metadata and is mined during living documentation output generation.
-Indentation in this header is significant — see [Indentation](#indentation).
+Indentation in this header is significant — see [Indentation](#indentation). An AC declares its
+variants with `Aspect:` or one named keyword, never both — see [AC variants](#ac-variants).
 
 ```gherkin
 # =============================================================================
@@ -158,15 +187,15 @@ Indentation in this header is significant — see [Indentation](#indentation).
 #
 #   AC:US-<n>-01 (v<version> - <state>)          ← `(planned)` with no version = backlog
 #     - <description of the AC>
-#     - Aspect: <value1>, <value2>        ← optional; default keyword — no {placeholder} needed in AC text
+#     - Aspect: <value1>, <value2>        ← optional; one variant declaration per AC — no {placeholder-name} needed in AC text
 #     preconditions:                      ← optional; extends feature-level preconditions for this AC only
 #       - <AC-specific precondition>
 #     not_in_scope:                       ← optional; extends feature-level not_in_scope for this AC only
 #       - <AC-specific exclusion>
 #
 #   AC:US-<n>-02 (v<version> - <state>)
-#     - <description of the AC with optional {placeholder-name} for parameterised variants>
-#     - <placeholder-name>: <value1>, <value2>  ← optional; custom keyword — matches {placeholder-name} in AC text; ALL values must be covered
+#     - <description of the AC with one {placeholder-name} for parameterised variants>
+#     - <placeholder-name>: <value1>, <value2>  ← optional; named keyword, the other spelling of `Aspect:` — never both on one AC; name = {placeholder-name} in AC text, lowercase kebab-case, not `aspect`
 # =============================================================================
 
 @US_ID:US-<n>
@@ -178,15 +207,16 @@ Feature: <US Title>
 
   # AC:US-<n>-01 (v<version> - <state>) - <AC description>
   @AC:US-<n>-01
-  Scenario: <scenario title>             ← single scenario = full AC coverage (no aspect split)
+  Scenario: <scenario title>             ← a bare tag covers the whole AC, every declared value at once
     ...
 
-  # - when Aspect values are declared and need individual scenarios:
+  # - when Aspect values are declared, one scenario per value:
   @AC:US-<n>-01/aspect:<value1>
   Scenario: <scenario title for value1 branch>
     ...
 
-  # - when a custom {placeholder-name} keyword is used (both US and Func):
+  # - when a named keyword is declared, one scenario per value, tagged with the keyword's name;
+  #   covered once every value has one, partially_covered shows covered/declared (e.g. 1/3):
   @AC:US-<n>-02/<placeholder-name>:<value1>
   Scenario: <scenario title for value1>
     ...
@@ -412,9 +442,10 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 
 Header comment block at the top of every Functionality feature file —
 `<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
-Indentation in this header is significant — see [Indentation](#indentation).
+Indentation in this header is significant — see [Indentation](#indentation). An AC declares its
+variants with `Aspect:` or one named keyword, never both — see [AC variants](#ac-variants).
 
-**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file (`Aspect:` on an AC), split across two scenarios (covered), and one uncovered AC. [`func-002-reject-breached-password.feature`](../examples/gherkin/liv_doc_func/func-002-reject-breached-password.feature) shows a `planned` Functionality with no scenario yet.
+**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](../examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file in both its spellings: `Aspect:` on one AC, split across three scenarios (covered), and a named keyword on another, one value of three with a scenario (partly covered, 1/3); and one uncovered AC. [`func-002-reject-breached-password.feature`](../examples/gherkin/liv_doc_func/func-002-reject-breached-password.feature) shows a `planned` Functionality with no scenario yet.
 
 ```gherkin
 # =============================================================================
@@ -441,15 +472,15 @@ Indentation in this header is significant — see [Indentation](#indentation).
 #
 #   AC:FUNC-<nnn>-01 (v<version> - <state>)      ← `(planned)` with no version = backlog
 #     - <description in business language — no data-cy IDs in AC text>
-#     - Aspect: <value1>, <value2>        ← optional; default keyword — no {placeholder} needed
+#     - Aspect: <value1>, <value2>        ← optional; one variant declaration per AC — no {placeholder-name} needed
 #     preconditions:                      ← optional; extends feature-level preconditions for this AC only
 #       - <AC-specific precondition>
 #     not_in_scope:                       ← optional; extends feature-level not_in_scope for this AC only
 #       - <AC-specific exclusion>
 #
 #   AC:FUNC-<nnn>-02 (v<version> - <state>)
-#     - <description — may contain a {placeholder-name} for parameterised variants>
-#     - <placeholder-name>: <value1>, <value2>  ← optional; custom keyword — matches {placeholder-name} in AC text; ALL values must be covered
+#     - <description — may contain one {placeholder-name} for parameterised variants>
+#     - <placeholder-name>: <value1>, <value2>  ← optional; named keyword, the other spelling of `Aspect:` — never both on one AC; name = {placeholder-name} in AC text, lowercase kebab-case, not `aspect`
 # =============================================================================
 
 @FUNC_ID:FUNC-<nnn>
@@ -458,8 +489,8 @@ Feature: <Feature Name> - <Functionality Name>
   language. Present only when purpose adds context beyond the title.>   ← optional
 
   # No scenarios yet — uncovered ACs flagged by coverage_report.py.
-  # When adding scenarios: include # AC:<id> comment and @AC:<id> or @AC:<id>/<placeholder-name>:<value> tag above each Scenario.
-  # ACs with a {placeholder-name}: one scenario per declared value is required — partial coverage is a gap.
+  # When adding scenarios: include # AC:<id> comment and @AC:<id>, @AC:<id>/aspect:<value> or @AC:<id>/<placeholder-name>:<value> tag above each Scenario.
+  # An AC with variants is covered once every declared value has a scenario — a bare @AC:<id> scenario covers them all; partially_covered shows covered/declared (e.g. 1/3).
 ```
 
 **Header fields:**

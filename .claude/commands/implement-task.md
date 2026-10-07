@@ -41,7 +41,8 @@ Task-list source (optional override): `$2`
   `tools/test_examples_check.py` using the `corpus_dir` fixture — use the `test-author`
   agent for the test surface.
 - Do not change the format contracts (`docs/guides/living-doc-header-types.md` fields, the
-  `AC:<id> (v<version> - <state>)` / `@AC:<id>[/aspect:<value>]` grammar,
+  `AC:<id> (v<version> - <state>)` / `@AC:<id>[/<param>:<value>]` grammar (`<param>` is
+  `aspect` or the AC's keyword name, one per tag),
   `docs/examples/_expected/**` structure) unless the task explicitly calls for it.
 - If the change moves what `docs/examples/**` mines to, or bumps a pin in
   `tools/collector-snapshot-pins.env`, regenerate `docs/examples/_expected/*.json` in this

@@ -16,7 +16,7 @@
       "scenario_type": "Scenario",
       "source": {
         "file": "liv_doc_func/func-001-validate-password-strength.feature",
-        "line": 28,
+        "line": 32,
         "org": "AbsaOSS",
         "repo": "living-doc"
       },
@@ -53,7 +53,7 @@
       "scenario_type": "Scenario",
       "source": {
         "file": "liv_doc_func/func-001-validate-password-strength.feature",
-        "line": 35,
+        "line": 39,
         "org": "AbsaOSS",
         "repo": "living-doc"
       },
@@ -69,6 +69,80 @@
         {
           "keyword": "Then",
           "text": "the result is valid=false"
+        }
+      ],
+      "tags": [],
+      "us_id": null
+    },
+    {
+      "ac_ids": [
+        "FUNC-001-01"
+      ],
+      "ac_links": [
+        {
+          "aspect": "no-username",
+          "id": "FUNC-001-01"
+        }
+      ],
+      "func_id": "FUNC-001",
+      "id": "AbsaOSS/living-doc/liv_doc_func/func-001-validate-password-strength.feature/password-containing-the-username-is-rejected",
+      "scenario_name": "Password containing the username is rejected",
+      "scenario_type": "Scenario",
+      "source": {
+        "file": "liv_doc_func/func-001-validate-password-strength.feature",
+        "line": 46,
+        "org": "AbsaOSS",
+        "repo": "living-doc"
+      },
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "the complexity policy forbids the account username \"jdoe\" in the password"
+        },
+        {
+          "keyword": "When",
+          "text": "the password \"jdoe-Secure-2026\" is validated"
+        },
+        {
+          "keyword": "Then",
+          "text": "the result is valid=false"
+        }
+      ],
+      "tags": [],
+      "us_id": null
+    },
+    {
+      "ac_ids": [
+        "FUNC-001-03"
+      ],
+      "ac_links": [
+        {
+          "aspect": null,
+          "id": "FUNC-001-03"
+        }
+      ],
+      "func_id": "FUNC-001",
+      "id": "AbsaOSS/living-doc/liv_doc_func/func-001-validate-password-strength.feature/password-shorter-than-the-minimum-length-shows-the-minimum-length-rule",
+      "scenario_name": "Password shorter than the minimum length shows the minimum-length rule",
+      "scenario_type": "Scenario",
+      "source": {
+        "file": "liv_doc_func/func-001-validate-password-strength.feature",
+        "line": 53,
+        "org": "AbsaOSS",
+        "repo": "living-doc"
+      },
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "the complexity policy requires at least 12 characters"
+        },
+        {
+          "keyword": "When",
+          "text": "the password \"short\" is validated"
+        },
+        {
+          "keyword": "Then",
+          "text": "the minimum-length rule is shown under the password field"
         }
       ],
       "tags": [],

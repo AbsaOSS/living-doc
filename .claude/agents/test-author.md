@@ -35,8 +35,8 @@ surface** — so you isolate the right boundary on the first try instead of gues
 | An extra, undocumented `##` heading in a `gh-issues/*.md` body | append an out-of-spec heading, assert the finding names it | `test_issue_body_extra_heading_fails` |
 | The coverage-pair rule (every AC covered leaves no deliberate gap) | cover every AC in both `.feature` files with a scenario, assert a `coverage-pair` finding fires | `test_coverage_pair_broken_when_every_ac_covered` |
 | A PageObject missing a required field (e.g. `route:`) | strip the field's comment line, assert the finding names it | `test_pageobject_missing_required_field_fails` |
-| A `candidate`-status PageObject missing its `stub-reason:` | strip the `stub-reason:` block, assert the finding names it | `test_pageobject_candidate_without_stub_reason_fails` |
-| A non-`candidate` PageObject correctly needing no `stub-reason:` | strip `stub-reason:` and change `status:` away from `candidate`, assert **no** such finding | `test_pageobject_non_candidate_needs_no_stub_reason` |
+| A PageObject header carrying a forbidden field (`status:`) | insert the field line after `surface_type:`, assert the finding names the file and the field | `test_pageobject_status_field_fails` |
+| A PageObject correctly needing no `stub-reason:` | strip the `stub-reason:` block, assert **no** finding names the file | `test_pageobject_stub_reason_is_optional` |
 | A missing `.project-profile.yaml` | delete the file, assert the finding names its path | `test_missing_project_profile_fails` |
 | The pristine baseline | assert `check_corpus(REAL_EXAMPLES)` returns `[]` — every mutation test depends on this holding | `test_pristine_corpus_passes` |
 

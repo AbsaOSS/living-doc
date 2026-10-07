@@ -127,8 +127,11 @@ The **cross-reference between acceptance criteria and tests** — for every AC i
 project, whether a scenario in the test catalog covers it, and which one. This is what surfaces
 *gaps* (ACs with no test) and *orphans* (scenarios not tied to any AC).
 
-**Structure** — a matrix of `AC ID × scenario`, with a covered / not-covered verdict per AC and a
-per-Feature rollup.
+**Structure** — a matrix of `AC ID × scenario`, with a verdict per AC and a coverage summary for each
+User Story and Functionality and for the whole matrix. The verdict is `covered`, `not_covered`, or —
+for an AC with variants that has scenarios for only some of its values — `partially_covered`, shown as
+covered/declared (e.g. 1/3) with the per-value breakdown (see
+[Header Types — AC variants](living-doc-header-types.md#ac-variants)).
 
 **Built from** — the technical project (`doc-source.json`: User Stories, Features, Functionalities +
 ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined by
@@ -142,7 +145,10 @@ ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined
 
 **Worked example** — the [`docs/examples/`](../examples/README.md) corpus is a complete coverage-matrix
 input: `AC:US-001-01`, `AC:US-001-04` and `AC:FUNC-001-01` are covered by scenarios, while
-`AC:US-001-02` and `AC:FUNC-001-02` are declared with no scenario (uncovered). The `planned` ACs
+`AC:US-001-02` and `AC:FUNC-001-02` are declared with no scenario (uncovered). `AC:FUNC-001-03` is
+partially covered: one of its three `rule` values has a scenario, **1/3**. The pinned collector does not
+read the keyword yet, so `_expected/` still shows it `covered` (see
+[What the corpus mines to](../examples/README.md#what-the-corpus-mines-to-_expected)). The `planned` ACs
 (`AC:US-001-03`, `AC:FUNC-002-01`) are not counted either way.
 
 **Generator input:** `document-type: coverage-matrix`, reading the `toolkit`-normalized artifact

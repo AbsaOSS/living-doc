@@ -104,7 +104,7 @@ Repo specifics
 - Spec locations
   - Local roadmap/planning content is gitignored — it never lands in a PR (see `.gitignore`). Do not propose committing it or reference it as a contract source in review or spec output.
 - Contract-sensitive outputs
-  - The `docs/examples/**` fixture format (required/optional header fields per entity type, the `AC:<id> (v<version> - <state>)` grammar, the `@AC:<id>[/aspect:<value>]` scenario-tag grammar, the coverage-pair convention) and the `docs/examples/_expected/**` snapshot shape.
+  - The `docs/examples/**` fixture format (required/optional header fields per entity type, the `AC:<id> (v<version> - <state>)` grammar, the `@AC:<id>[/<param>:<value>]` scenario-tag grammar (`<param>` is `aspect` or the AC's keyword name, one per tag), the coverage-pair convention) and the `docs/examples/_expected/**` snapshot shape.
   - The cross-links `.github/workflows/link-check.yml` validates across `docs/**`.
 - High-risk areas
   - `docs/guides/living-doc-header-types.md` and `docs/guides/living-doc-glossary.md` — changing a field name or grammar here without updating `docs/examples/**` in the same PR breaks the corpus's own sync obligation.

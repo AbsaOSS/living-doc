@@ -96,6 +96,129 @@ def test_unknown_aspect_value_fails(corpus_dir: Path) -> None:
     assert any("entropy-score" in f.rule for f in findings), findings
 
 
+def test_ac_tag_with_two_params_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "@AC:FUNC-001-03/rule:minimum-length",
+        "@AC:FUNC-001-03/rule:minimum-length/aspect:minimum-length",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(FUNC_FEATURE in f.file and "more than one variant parameter" in f.rule
+               for f in findings), findings
+
+
+def test_ac_with_aspect_and_keyword_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "#     - rule: minimum-length, character-classes, no-username\n",
+        "#     - rule: minimum-length, character-classes, no-username\n"
+        "#     - Aspect: minimum-length\n",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any("FUNC-001-03 declares more than one variant" in f.rule for f in findings), findings
+
+
+def test_ac_with_two_keywords_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "Shows the failed {rule} under the password field.",
+        "Shows the failed {rule} under the {field}.",
+    ).replace(
+        "#     - rule: minimum-length, character-classes, no-username\n",
+        "#     - rule: minimum-length, character-classes, no-username\n"
+        "#     - field: password\n",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any("FUNC-001-03 declares more than one variant: 'rule' and 'field'" in f.rule
+               for f in findings), findings
+
+
+def test_keyword_bullet_without_placeholder_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "Shows the failed {rule} under", "Shows the failed rule under")
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any("'- rule:' under FUNC-001-03 is not a keyword" in f.rule for f in findings), findings
+
+
+def test_reserved_aspect_keyword_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace("{rule}", "{aspect}").replace(
+        "#     - rule:", "#     - aspect:")
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any("'aspect' is reserved" in f.rule for f in findings), findings
+
+
+def test_keyword_name_not_kebab_case_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace("{rule}", "{failed_rule}").replace(
+        "#     - rule:", "#     - failed_rule:")
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any("keyword 'failed_rule' of FUNC-001-03 is not one lowercase kebab-case name" in f.rule
+               for f in findings), findings
+
+
+@pytest.mark.parametrize("value", ["entropy-score", "Minimum-Length"])
+def test_keyword_tag_undeclared_value_fails(corpus_dir: Path, value: str) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "@AC:FUNC-001-03/rule:minimum-length", f"@AC:FUNC-001-03/rule:{value}")
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(f"'{value}' is not a declared value of 'rule' on FUNC-001-03" in f.rule
+               for f in findings), findings
+
+
+@pytest.mark.parametrize(("tag", "wrong"), [
+    ("@AC:FUNC-001-03/rule:minimum-length", "@AC:FUNC-001-03/rul:minimum-length"),
+    ("@AC:FUNC-001-03/rule:minimum-length", "@AC:FUNC-001-03/aspect:minimum-length"),
+    ("@AC:FUNC-001-01/aspect:minimum-length", "@AC:FUNC-001-01/rule:minimum-length"),
+])
+def test_tag_param_other_than_the_declared_variant_fails(corpus_dir: Path, tag: str,
+                                                         wrong: str) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    target.write_text(target.read_text(encoding="utf-8").replace(tag, wrong), encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any(f.rule.startswith(wrong) and "declares its values as" in f.rule
+               for f in findings), findings
+
+
+def test_variant_tag_on_ac_without_variants_fails(corpus_dir: Path) -> None:
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "  @AC:FUNC-001-03/rule:minimum-length\n",
+        "  @AC:FUNC-001-03/rule:minimum-length\n  @AC:FUNC-001-02/rule:minimum-length\n",
+    )
+    target.write_text(text, encoding="utf-8")
+
+    findings = findings_for(corpus_dir)
+    assert any("FUNC-001-02 declares no variants" in f.rule for f in findings), findings
+
+
+def test_bare_tag_on_ac_with_variants_passes(corpus_dir: Path) -> None:
+    # a bare tag covers the whole AC, every value at once - e.g. a data-driven scenario
+    target = corpus_dir / FUNC_FEATURE
+    text = target.read_text(encoding="utf-8").replace(
+        "@AC:FUNC-001-03/rule:minimum-length", "@AC:FUNC-001-03")
+    target.write_text(text, encoding="utf-8")
+
+    assert findings_for(corpus_dir) == []
+
+
 def test_dangling_parent_link_fails(corpus_dir: Path) -> None:
     target = corpus_dir / FUNC_FEATURE
     text = target.read_text(encoding="utf-8").replace("parent:    FEAT-001", "parent:    FEAT-404")
@@ -149,6 +272,12 @@ def test_ac_header_accepts_owner_prefix(ac_id: str) -> None:
 def test_ac_tag_accepts_owner_prefix(ac_id: str) -> None:
     m = AC_TAG_RE.match(f"@AC:{ac_id}/aspect:minimum-length")
     assert m is not None and m.group("id") == ac_id
+
+
+def test_ac_tag_accepts_kebab_case_keyword_name() -> None:
+    m = AC_TAG_RE.fullmatch("@AC:US-001-01/required-field:username-input")
+    assert m is not None
+    assert (m.group("param"), m.group("value")) == ("required-field", "username-input")
 
 
 def test_issue_body_extra_heading_fails(corpus_dir: Path) -> None:

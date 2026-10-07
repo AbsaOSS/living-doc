@@ -9,8 +9,10 @@ All examples describe **one coherent mini technical project** — `US-001` / `FE
 `FUNC-002`, plus `FEAT-002`, an `API` Feature, and `FEAT-003`, the `UI` Feature that declares a
 dependency on it — so that, taken together, the `.feature` files plus the entities form a complete
 [coverage-matrix](../guides/living-doc-document-types.md#coverage-matrix) input: in each of the two
-`.feature` files that carry scenarios, one AC is covered by a scenario and one is left uncovered, so
-the matrix shows both verdicts.
+`.feature` files that carry scenarios, at least one AC is covered by a scenario and one is left
+uncovered, and `AC:FUNC-001-03` has a scenario for one of its three values, so the matrix shows all
+three verdicts — `covered`, `not_covered` and `partially_covered` (the pinned snapshot does not show
+the third yet; see [What the corpus mines to](#what-the-corpus-mines-to-_expected)).
 
 ## Files
 
@@ -49,7 +51,12 @@ closes when the pin moves to a collector whose AC grammar accepts the backlog fo
 collector likewise predates `feature_dependencies` and `notes`, which `living-doc-utilities` carries
 from `0.5.0`, and drops both authored keys, so the edge `FEAT-003` declares and the notes on `FEAT-001`
 are not in `_expected/` yet either. Both gaps close when the pin moves to a collector built on
-`living-doc-utilities` `0.5.0` or later.
+`living-doc-utilities` `0.5.0` or later. The pinned collector also predates the
+[named keyword](../guides/living-doc-header-types.md#ac-variants): it folds `- rule: …` into the
+description of `AC:FUNC-001-03`, declares no values for it, and reads
+`@AC:FUNC-001-03/rule:minimum-length` as a link to the whole criterion, so `_expected/` shows that AC
+`covered` where the canon says `partially_covered`, 1/3. That gap closes when the pin moves to a collector
+whose `living-doc-utilities` maps the keyword to `aspect`.
 
 ## GitHub issue-body layout (canonical)
 
@@ -118,7 +125,11 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   - AC-level `preconditions` extension — `gherkin/liv_doc_us/us-001-customer-login.feature`
   - feature-level `Not In Scope` — `gh-issues/us-001-customer-login.md`
   - `External Dependencies` — `gh-issues/feat-001-login-page.md`
-  - `Aspect:` on an AC — `gherkin/liv_doc_func/func-001-validate-password-strength.feature`
+  - `Aspect:` on an AC — `gherkin/liv_doc_func/func-001-validate-password-strength.feature`, in both
+    its spellings: `- Aspect:` on `AC:FUNC-001-01`, and the named keyword `- rule:` on `AC:FUNC-001-03`.
+    The keyword is the second spelling of the `Aspect:` extension, not a second extension (see
+    [Header Types § AC variants](../guides/living-doc-header-types.md#ac-variants)), so the file still
+    carries one.
   - `Rationale` — `gh-issues/func-001-validate-password-strength.md`
   - `Feature Dependencies` — `gh-issues/feat-003-registration-page.md`
   - `feature_dependencies:` — `pageobject/RegistrationPage.ts`
@@ -127,7 +138,8 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   three `.feature` files carry `@domain_authentication` as the optional second feature-level tag.
 - **Coverage pair.** `AC:US-001-01` and `AC:FUNC-001-01` are covered by scenarios;
   `AC:US-001-02` and `AC:FUNC-001-02` are declared but have no scenario (a deliberate gap, so the
-  coverage matrix shows both the covered and the uncovered verdict).
+  coverage matrix shows both the covered and the uncovered verdict). `AC:FUNC-001-03` sits between
+  them: one of its three `rule` values has a scenario, so it is partly covered, **1/3**.
 - **AC states, once each.** Beyond the `active` ACs above, `AC:US-001-03 (v1.1.0 - planned)` shows a
   `planned` AC that targets a version, `AC:FUNC-002-01 (planned)` shows the version-less backlog form,
   and `AC:US-001-04 (v1.0.0 - deprecated - removal planned v2.0.0)` shows a deprecated AC with its
@@ -166,11 +178,12 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   other declares — and it is what a source-code project sees in general, since no `API` Feature can be
   authored there yet.
 - **Expected `STALE_AC_REF` on the `gh-issues` chain.** `Aspect:` is a `.feature`-header extension, so
-  `AC:FUNC-001-01` declares its two aspects only in the `gherkin/` form. A pipeline that takes its
-  technical project from `gh-issues/` and its test catalog from `gherkin/` therefore sees the
-  `@AC:FUNC-001-01/aspect:…` scenario tags reference aspects the mined AC does not declare, and
-  reports `STALE_AC_REF` for them. That is expected of this corpus, not a defect: the `doc-source`
-  chain (`gherkin/` + `pageobject/`) is the pairing the `_expected/` snapshots exercise.
+  `AC:FUNC-001-01` declares its three aspects, and `AC:FUNC-001-03` its three `rule` values, only in the
+  `gherkin/` form. A pipeline that takes its technical project from `gh-issues/` and its test catalog
+  from `gherkin/` therefore sees the `@AC:FUNC-001-01/aspect:…` and `@AC:FUNC-001-03/rule:…` scenario
+  tags reference values the mined AC does not declare, and reports `STALE_AC_REF` for them. That is
+  expected of this corpus, not a defect: the `doc-source` chain (`gherkin/` + `pageobject/`) is the
+  pairing the `_expected/` snapshots exercise.
 
 ## Sync obligation
 
