@@ -6,7 +6,8 @@
         {
           "aspect": [
             "minimum-length",
-            "character-classes"
+            "character-classes",
+            "no-username"
           ],
           "descoped_at": null,
           "descoped_reason": null,
