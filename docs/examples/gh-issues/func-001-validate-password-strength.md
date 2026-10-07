@@ -34,3 +34,7 @@ field_validation
 ### AC:FUNC-001-02 (v1.0.0 - active)
 
 - Returns valid=true when the candidate password satisfies every complexity rule.
+
+### AC:FUNC-001-03 (v1.0.0 - active)
+
+- Shows the failed {rule} under the password field.

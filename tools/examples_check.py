@@ -24,7 +24,9 @@ This is the *grammar + cross-reference* gate for the copyable input corpus:
    grammar.
 2. **Cross-corpus identifier consistency** — the corpus declares exactly ``US-001`` /
    ``FEAT-001`` / ``FUNC-001``; every parent link and every ``@AC:`` scenario tag
-   (including the ``@AC:<id>/aspect:<value>`` form) resolves to something declared.
+   resolves to something declared. A tag carries at most one ``/<param>:<value>`` segment, whose
+   ``<param>`` is the AC's variant name (``aspect`` or its named keyword) and ``<value>`` one of
+   its declared values; a bare ``@AC:<id>`` covers the whole AC.
 3. **Coverage-pair invariant** — across the two feature files at least one declared AC is
    covered by a scenario and at least one is left uncovered.
 4. **Canonical form** (``NON_CANONICAL_FORM``) — the corpus is canonical-only: structural
@@ -93,8 +95,15 @@ AC_HEADER_RE = re.compile(
     r"(?P<removal>\s*-\s*removal planned v\d+\.\d+\.\d+)?\)$"
 )
 ENTITY_ID_RE = re.compile(r"\b((?:US|FEAT|FUNC)-\d+)\b")
-# @AC:<id>[/param:value] scenario tag — glossary "Tag format"
-AC_TAG_RE = re.compile(r"@AC:(?P<id>(?:US|FUNC)-\d+-\d+)(?:/(?P<param>[a-z_]+):(?P<value>[A-Za-z0-9-]+))?")
+# AC variants — header types "AC variants": the AC text names a keyword as `{<name>}`, and an
+# AC-level `- <name>: <values>` bullet declares its values. `Aspect:` is the default keyword.
+VARIANT_NAME_RE = re.compile(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*")
+AC_PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
+AC_KEYWORD_BULLET_RE = re.compile(r"-\s*(?P<name>[A-Za-z][A-Za-z0-9 _-]*?):\s*(?P<values>\S.*)$")
+# @AC:<id>[/<param>:<value>] scenario tag — glossary "Tag format". <param> is `aspect` or the AC's
+# keyword name, lowercase kebab-case. A tag is matched whole, so a second `/<param>:<value>` fails.
+AC_TAG_RE = re.compile(rf"@AC:(?P<id>(?:US|FUNC)-\d+-\d+)"
+                       rf"(?:/(?P<param>{VARIANT_NAME_RE.pattern}):(?P<value>[A-Za-z0-9-]+))?")
 
 # `FEAT-003` declares a `feature_dependencies` edge to `FEAT-002`, the `API` Feature the corpus
 # needs as a resolvable target (docs/examples/README.md, "The dependency pair").
@@ -220,7 +229,8 @@ class Corpus:
     def __init__(self) -> None:
         self.findings: list[Finding] = []
         self.declared_entities: set[str] = set()          # from feature tags / PO + issue titles
-        self.declared_acs: dict[str, set[str]] = {}       # ac id -> declared aspect values
+        self.declared_acs: dict[str, set[str]] = {}       # ac id -> declared variant values
+        self.declared_variants: dict[str, str] = {}       # ac id -> 'aspect' or its keyword name
         self.feature_file_acs: set[str] = set()           # ACs declared in the two .feature headers
         self.feature_file_covered: set[str] = set()       # ACs carrying a scenario in a .feature file
         self.entity_refs: list[tuple[str, str, int]] = [] # (referenced id, file, line)
@@ -241,8 +251,10 @@ class Corpus:
     def fail(self, file: str, line: int | None, rule: str, hint: str) -> None:
         self.findings.append(Finding(file, line, rule, hint))
 
-    def declare_ac(self, ac_id: str, aspects: set[str]) -> None:
-        self.declared_acs.setdefault(ac_id, set()).update(aspects)
+    def declare_ac(self, ac_id: str, values: set[str], variant: str | None = None) -> None:
+        self.declared_acs.setdefault(ac_id, set()).update(values)
+        if variant is not None:
+            self.declared_variants[ac_id] = variant
 
 
 # --- shared helpers ---------------------------------------------------------------------
@@ -466,21 +478,46 @@ def check_issue_body_levels(lines: list[str], corpus: Corpus, rel: str) -> None:
         after_blank = False
 
 
+def _variant_key(name: str) -> str:
+    """A variant name as the canon compares it: case-insensitive, with `-`, `_` and space equal."""
+    return re.sub(r"[-_ ]+", "-", name.strip().lower())
+
+
+def _declare_variant(corpus: Corpus, rel: str, lineno: int, ac_id: str, name: str, values: str,
+                     acs: dict[str, set[str]], variants: dict[str, str]) -> None:
+    """Record an AC's one variant declaration - ``aspect`` or a named keyword - and its values."""
+    if ac_id in variants:
+        corpus.fail(rel, lineno,
+                    f"{ac_id} declares more than one variant: '{variants[ac_id]}' and '{name}'",
+                    "keep one - '- Aspect:' or one named keyword, never both and never two "
+                    "(MALFORMED_AC; living-doc-header-types.md#ac-variants)")
+        return
+    variants[ac_id] = name
+    acs[ac_id].update(v.strip() for v in values.split(",") if v.strip())
+
+
 def _parse_ac_block(header: list[tuple[int, str]], corpus: Corpus, rel: str,
                     parent_id: str, states: list[str],
                     headers: dict[str, str] | None = None,
-                    extensions: set[str] | None = None) -> dict[str, set[str]]:
-    """Walk a de-commented header, validating every ``AC:`` line, collecting aspects.
+                    extensions: set[str] | None = None,
+                    variants: dict[str, str] | None = None) -> dict[str, set[str]]:
+    """Walk a de-commented header, validating every ``AC:`` line, collecting variant values.
 
     ``headers`` collects the canonical ``AC:<id> (...)`` text per AC (the PAIR_MISMATCH pass
-    compares AC sets by it); ``extensions`` collects the AC-level optional extensions used.
+    compares AC sets by it); ``extensions`` collects the AC-level optional extensions used;
+    ``variants`` collects each AC's variant name - ``aspect`` or its named keyword.
     """
     acs: dict[str, set[str]] = {}
+    variants = {} if variants is None else variants
     current: str | None = None
+    description = ""                  # the AC text, where a keyword is named as `{<name>}`
+    bullet_indent: int | None = None  # the description bullet's indent; AC-level bullets share it
+    in_description = False
     for lineno, text in header:
         stripped = _strip_annotation(text.strip())
         if stripped.startswith("AC:"):
             current = None
+            description, bullet_indent, in_description = "", None, False
             m = AC_HEADER_RE.match(stripped)
             if m is None:
                 corpus.fail(rel, lineno, "AC line does not match the glossary grammar",
@@ -494,11 +531,44 @@ def _parse_ac_block(header: list[tuple[int, str]], corpus: Corpus, rel: str,
                 headers[current] = stripped
             _validate_ac_header(m, corpus, rel, lineno, parent_id, states)
         elif current is not None:
+            indent = len(text) - len(text.lstrip())
             am = re.match(r"-?\s*Aspect:\s*(.+)$", stripped)
+            if not am and bullet_indent is None and stripped.startswith("- "):
+                description, bullet_indent, in_description = stripped[2:], indent, True
+                continue
+            if in_description and stripped and not stripped.startswith("- ") and indent > bullet_indent:
+                description = f"{description} {stripped}"   # wrapped description text
+                continue
+            in_description = False
+            km = AC_KEYWORD_BULLET_RE.match(stripped) if indent == bullet_indent else None
             if am:
-                acs[current].update(v.strip() for v in am.group(1).split(",") if v.strip())
+                _declare_variant(corpus, rel, lineno, current, "aspect", am.group(1), acs, variants)
                 if extensions is not None:
                     extensions.add("AC-level Aspect:")
+            elif km and km.group("name") != "Rationale":
+                name = km.group("name")
+                key = _variant_key(name)
+                placeholders = {_variant_key(p): p for p in AC_PLACEHOLDER_RE.findall(description)}
+                if key == "aspect":
+                    corpus.fail(rel, lineno, f"'{name}' is reserved and cannot name a keyword of {current}",
+                                "declare the values with '- Aspect:', or pick another name "
+                                "(living-doc-header-types.md#ac-variants)")
+                elif key not in placeholders:
+                    corpus.fail(rel, lineno,
+                                f"'- {name}:' under {current} is not a keyword: the AC text has no "
+                                f"'{{{name}}}'",
+                                f"name the varying value in the AC text as '{{{key}}}', or drop the "
+                                "bullet (UNPARSED_AC_LINE; living-doc-header-types.md#ac-variants)")
+                elif not VARIANT_NAME_RE.fullmatch(name) or placeholders[key] != name:
+                    corpus.fail(rel, lineno,
+                                f"keyword '{name}' of {current} is not one lowercase kebab-case name",
+                                f"write it the same in the AC text, the bullet and the tag: "
+                                f"'{{{key}}}', '- {key}:', '@AC:{current}/{key}:<value>'")
+                else:
+                    _declare_variant(corpus, rel, lineno, current, name, km.group("values"),
+                                     acs, variants)
+                    if extensions is not None:
+                        extensions.add("AC-level Aspect:")   # the keyword is its second spelling
             elif extensions is not None:
                 sub = re.match(r"(preconditions|not_in_scope):$", stripped)
                 if sub:
@@ -626,13 +696,15 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
 
     ac_headers: dict[str, str] = {}
     extensions: set[str] = set()
-    acs = _parse_ac_block(header, corpus, rel, parent_for_ac, AC_STATES, ac_headers, extensions)
+    variants: dict[str, str] = {}
+    acs = _parse_ac_block(header, corpus, rel, parent_for_ac, AC_STATES, ac_headers, extensions,
+                          variants)
     if "acceptance_criteria" in top_keys and not acs:
         corpus.fail(rel, top_keys["acceptance_criteria"],
                     "acceptance_criteria block declares no AC lines",
                     "add at least one 'AC:<id> (v<version> - <state>)' line")
-    for ac_id, aspects in acs.items():
-        corpus.declare_ac(ac_id, aspects)
+    for ac_id, values in acs.items():
+        corpus.declare_ac(ac_id, values, variants.get(ac_id))
         header_m = AC_HEADER_RE.match(ac_headers.get(ac_id, ""))
         if not (header_m and header_m.group("state") == "planned"):
             corpus.feature_file_acs.add(ac_id)
@@ -661,11 +733,16 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
         for token in s.split():
             if not token.startswith("@AC:"):
                 continue
-            m = AC_TAG_RE.match(token)
+            m = AC_TAG_RE.fullmatch(token)
             if m is None:
-                corpus.fail(rel, i, f"scenario tag '{token}' does not match the glossary tag format",
-                            "use '@AC:<parent-id>-<nn>[/<param>:<value>]' with a US- or FUNC- "
-                            "parent id (living-doc-glossary.md#acceptance-criterion-ac)")
+                if token.count("/") > 1:
+                    corpus.fail(rel, i, f"scenario tag '{token}' carries more than one variant parameter",
+                                "keep one '/<param>:<value>' - a scenario covers one value; tag one "
+                                "scenario per value (living-doc-glossary.md#acceptance-criterion-ac)")
+                else:
+                    corpus.fail(rel, i, f"scenario tag '{token}' does not match the glossary tag format",
+                                "use '@AC:<parent-id>-<nn>[/<param>:<value>]' with a US- or FUNC- "
+                                "parent id (living-doc-glossary.md#acceptance-criterion-ac)")
                 continue
             corpus.feature_file_covered.add(m.group("id"))
             corpus.pending_ac_tags.append(
@@ -964,11 +1041,23 @@ def cross_reference(corpus: Corpus) -> None:
             corpus.fail(rel, line, f"@AC:{ac_id} tag names an AC that no entity declares",
                         "declare the AC in an acceptance_criteria block, or fix the tag id")
             continue
-        if param == "aspect" and value not in corpus.declared_acs[ac_id]:
+        if param is None:
+            continue    # a bare tag covers the whole AC - every value of one with variants
+        variant = corpus.declared_variants.get(ac_id)
+        tag = f"@AC:{ac_id}/{param}:{value}"
+        if variant is None:
+            corpus.fail(rel, line, f"{tag} — {ac_id} declares no variants",
+                        f"tag it '@AC:{ac_id}', or declare the values on the AC "
+                        "(living-doc-header-types.md#ac-variants)")
+        elif param != variant:
+            corpus.fail(rel, line, f"{tag} — {ac_id} declares its values as '{variant}', not '{param}'",
+                        f"use '@AC:{ac_id}/{variant}:<value>' (living-doc-header-types.md#ac-variants)")
+        elif value not in corpus.declared_acs[ac_id]:
+            bullet = "Aspect" if variant == "aspect" else variant
             corpus.fail(rel, line,
-                        f"@AC:{ac_id}/aspect:{value} — '{value}' is not a declared Aspect of {ac_id}",
-                        f"declared aspects: {sorted(corpus.declared_acs[ac_id]) or 'none'} "
-                        "(add it to the AC's '- Aspect:' line)")
+                        f"{tag} — '{value}' is not a declared value of '{variant}' on {ac_id}",
+                        f"declared values: {sorted(corpus.declared_acs[ac_id])} "
+                        f"(add it to the AC's '- {bullet}:' line; STALE_AC_REF)")
 
 
 def feature_dependency_rules(corpus: Corpus) -> None:

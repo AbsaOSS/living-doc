@@ -13,7 +13,7 @@
                 "scenario_name": "Password shorter than the minimum length is rejected",
                 "source": {
                   "file": "liv_doc_func/func-001-validate-password-strength.feature",
-                  "line": 28,
+                  "line": 32,
                   "org": "AbsaOSS",
                   "repo": "living-doc"
                 },
@@ -24,7 +24,7 @@
                 "scenario_name": "Password missing a required character class is rejected",
                 "source": {
                   "file": "liv_doc_func/func-001-validate-password-strength.feature",
-                  "line": 35,
+                  "line": 39,
                   "org": "AbsaOSS",
                   "repo": "living-doc"
                 },
@@ -47,6 +47,29 @@
           "id": "FUNC-001-02",
           "state": "active",
           "version": "v1.0.0"
+        },
+        {
+          "coverage": {
+            "status": "covered",
+            "test_count": 1,
+            "tests": [
+              {
+                "id": "AbsaOSS/living-doc/liv_doc_func/func-001-validate-password-strength.feature/password-shorter-than-the-minimum-length-shows-the-minimum-length-rule",
+                "scenario_name": "Password shorter than the minimum length shows the minimum-length rule",
+                "source": {
+                  "file": "liv_doc_func/func-001-validate-password-strength.feature",
+                  "line": 46,
+                  "org": "AbsaOSS",
+                  "repo": "living-doc"
+                },
+                "tags": []
+              }
+            ]
+          },
+          "description": "Shows the failed {rule} under the password field. rule: minimum-length, character-classes, no-username",
+          "id": "FUNC-001-03",
+          "state": "active",
+          "version": "v1.0.0"
         }
       ],
       "full_id": "AbsaOSS/living-doc/FUNC-001",
@@ -58,7 +81,7 @@
         "active_acs": 0,
         "coverage_pct": null,
         "covered_acs": 0,
-        "total_acs": 2
+        "total_acs": 3
       },
       "title": "Login Page - Validate Password Strength"
     },
@@ -85,7 +108,7 @@
     "active_acs": 0,
     "coverage_pct": null,
     "covered_acs": 0,
-    "total_acs": 6,
+    "total_acs": 7,
     "total_features": 0,
     "total_functionalities": 2,
     "total_user_stories": 1

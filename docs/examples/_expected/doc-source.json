@@ -31,6 +31,19 @@
           "removal_planned": null,
           "state": "active",
           "version": "v1.0.0"
+        },
+        {
+          "aspect": [],
+          "descoped_at": null,
+          "descoped_reason": null,
+          "description": "Shows the failed {rule} under the password field. rule: minimum-length, character-classes, no-username",
+          "future_release": null,
+          "id": "FUNC-001-03",
+          "not_in_scope": [],
+          "preconditions": [],
+          "removal_planned": null,
+          "state": "active",
+          "version": "v1.0.0"
         }
       ],
       "deprecated_at": null,

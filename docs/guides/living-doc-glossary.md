@@ -179,14 +179,14 @@ A binary pass/fail statement that defines a verifiable condition.
 Each AC is:
 - **Atomic** — one input condition, one observable outcome
 - **Binary** — clear pass/fail; no "usually" or "typically"
-- **Single placeholder** — at most ONE `{placeholder}` per AC statement. If two aspects vary independently, write a separate AC for each.
+- **Single placeholder** — at most ONE `{placeholder-name}` per AC statement. If two aspects vary independently, write a separate AC for each.
 
 **AC identifier and state format** (in file header and entity files):
 
 ```
 AC:<parent-id>-<nn> (v<version> - <state>)
-   - <atomic description, with at most one {placeholder} for a variable value>
-   - <Placeholder>: value1, value2, ...
+   - <atomic description, with at most one {placeholder-name} for a variable value>
+   - <placeholder-name>: value1, value2, ...   ← optional; or `Aspect: value1, value2, ...` — one of the two
    - Rationale: <business context, policy reference, or design decision>  ← optional
 ```
 
@@ -221,6 +221,29 @@ target version so it reads `AC:<id> (planned)`, and record why in the AC's `Rati
 > `in_review`, `v1.1` for `v1.1.0`) are rewritten to the canonical form when a collector reads the
 > input; they are never canon themselves. Every generated document shows the canonical form above.
 
+**Variants** — an AC that must hold for several values (fields, rules, roles) declares them in one
+bullet, and its scenarios cover them value by value:
+
+- **One variant declaration per AC.** Either `- Aspect: <value1>, <value2>` (the default keyword; the AC
+  text needs no `{placeholder-name}`), or one named keyword `- <placeholder-name>: <value1>, <value2>`,
+  matching the one `{placeholder-name}` in the AC text. The keyword is the other spelling of `Aspect:`:
+  the same values, the same coverage, a name that reads better. An AC that declares both, or two
+  keywords, is `MALFORMED_AC`: the pipeline drops the criterion until the author picks one.
+- **The name** is lowercase kebab-case and is written the same in the AC text, the bullet and the
+  scenario tag: `{field}`, `- field:`, `@AC:<id>/field:<value>`. Names are compared case-insensitively,
+  with `-`, `_` and space equal, so `- Field:` still matches `{field}`. `aspect` is reserved.
+- **A bullet is a keyword only when the text names it.** Apart from `Aspect:` and `Rationale:`, a
+  `- <name>:` bullet whose name is not a `{<name>}` in the AC text is not a keyword: it is reported as
+  `UNPARSED_AC_LINE`.
+- **Coverage is per value**, the same for a keyword as for `Aspect:`. The AC is `covered` when every
+  declared value has a scenario, `not_covered` when none has, and `partially_covered` otherwise, shown
+  as covered/declared — e.g. **1/3** — followed by the per-value breakdown. A bare `@AC:<id>` tag covers
+  the whole AC, every value at once — a data-driven scenario, for example; review confirms that it
+  really does. A tag value the AC does not declare is `STALE_AC_REF`.
+
+The authoring view of the same rule is
+[Living Doc Header Types — AC variants](living-doc-header-types.md#ac-variants).
+
 **Scenario traceability:** living-doc scenarios (US and Functionality feature files) carry two
 complementary annotations — a human-readable `# AC:` comment and a machine-readable `@AC:` tag:
 
@@ -231,12 +254,13 @@ Scenario: Customer successfully places an order
   ...
 ```
 
-When a scenario covers only **one aspect** of a multi-aspect AC, encode the aspect directly in
-the `@AC:` tag using the `/param:value` param syntax, and mirror it in the comment:
+When a scenario covers only **one value** of an AC with variants (see *Variants* above), encode
+the value directly in the `@AC:` tag using the `/param:value` param syntax — the param is `aspect` or
+the AC's keyword name, whichever the AC declares — and mirror it in the comment:
 
 ```gherkin
-# AC:US-1-01 (v1.0.0 - active) - displays {required field} on login screen | aspect: username input
-@AC:US-1-01/aspect:username-input
+# AC:US-1-01 (v1.0.0 - active) - displays {required-field} on login screen | required-field: username input
+@AC:US-1-01/required-field:username-input
 Scenario: Login form shows the username input field
   ...
 ```
@@ -253,16 +277,18 @@ Scenario: User is locked out after repeated failed logins
   ...
 ```
 
-**Tag format:** `@AC:<id>[/param:value...]`
+**Tag format:** `@AC:<id>[/param:value]`
 
 | Param | Purpose | Example |
 |---|---|---|
-| `/aspect:<kebab-value>` | Names the specific aspect of the AC this scenario covers | `@AC:US-1-01/aspect:username-input` |
+| `/aspect:<kebab-value>` | Names the declared `Aspect:` value this scenario covers | `@AC:FUNC-001-01/aspect:minimum-length` |
+| `/<placeholder-name>:<kebab-value>` | Names the declared value of the AC's keyword this scenario covers; the param is the keyword's name | `@AC:US-1-01/required-field:username-input` |
 
-Additional `/param:value` segments can be appended as needed — the format is open for extension.
+A tag carries at most one variant parameter; a tag with two is `MALFORMED_AC`, and it is skipped.
 
 - The `# AC:` comment is human-readable context: the canonical AC header, then ` - ` and the
-  description, plus an optional `| aspect: <value>` suffix. The separator is a hyphen-minus, never an
+  description, plus an optional `| <param>: <value>` suffix for the value the scenario covers
+  (`| aspect: <value>` or `| <placeholder-name>: <value>`). The separator is a hyphen-minus, never an
   en or em dash.
 - The `@AC:` Cucumber tag is machine-readable: drives script scanning, coverage reports, and sync checks.
 - US scenarios: `@AC:US-<n>-<nn>` (e.g. `@AC:US-1-01`)
@@ -279,8 +305,8 @@ Additional `/param:value` segments can be appended as needed — the format is o
 
 ```
 AC:US-001-01 (v1.0.0 - active)
-   - The login screen displays {required field}.
-   - Required field: username input, password input, login button
+   - The login screen displays {required-field}.
+   - required-field: username-input, password-input, login-button
    - Rationale: Accessibility standard — all interactive controls must be visible on load.
 
 AC:US-001-02 (v1.1.0 - active)
@@ -298,8 +324,7 @@ AC:FUNC-001-01 (v1.0.0 - active)
    - Returns valid=true when the password satisfies all complexity rules.
 
 AC:FUNC-001-02 (v1.0.0 - active)
-   - Raises {error code} when the credential check fails.
-   - Error code: INVALID_PASSWORD, USER_NOT_FOUND, ACCOUNT_LOCKED
+   - Raises INVALID_PASSWORD when the password does not match the stored credential.
    - Rationale: Distinct error codes per failure reason, required by the global auth error contract.
 
 AC:FUNC-001-03 (v1.0.0 - active)
