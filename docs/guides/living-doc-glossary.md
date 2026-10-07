@@ -227,8 +227,9 @@ bullet, and its scenarios cover them value by value:
 - **One variant declaration per AC.** Either `- Aspect: <value1>, <value2>` (the default keyword; the AC
   text needs no `{placeholder-name}`), or one named keyword `- <placeholder-name>: <value1>, <value2>`,
   matching the one `{placeholder-name}` in the AC text. The keyword is the other spelling of `Aspect:`:
-  the same values, the same coverage, a name that reads better. An AC that declares both, or two
-  keywords, is `MALFORMED_AC`: the pipeline drops the criterion until the author picks one.
+  the same values, the same coverage, a name that reads better. An AC that declares both, two
+  keywords, or `Aspect:` twice is `MALFORMED_AC`: the pipeline drops the criterion until the author
+  picks one.
 - **The name** is lowercase kebab-case and is written the same in the AC text, the bullet and the
   scenario tag: `{field}`, `- field:`, `@AC:<id>/field:<value>`. Names are compared case-insensitively,
   with `-`, `_` and space equal, so `- Field:` still matches `{field}`. `aspect` is reserved.

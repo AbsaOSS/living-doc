@@ -94,8 +94,12 @@ nested item. It is never a sibling of the item and never a new key.
 - **Recommended order.** Write the keys in the template's order, with `acceptance_criteria:` last. The
   order is a recommendation only: the reader never relies on it, because indentation decides.
 
-Every line the reader does not take into a field is reported, with its line number, so nothing an
-author writes is lost without a word.
+Every line the reader does not take into a field is reported, so nothing an author writes is lost
+without a word. A report names its entity, its criterion when the criterion has a valid id, its line
+number and, for a source file, the file. The inner view of the generated document shows it under that
+entity; the release view never does (see
+[Document Types — Technical project](living-doc-document-types.md#technical-project), *What was not
+loaded*).
 
 **`.feature` header** — levels counted after `# `; the template levels are the canonical ones:
 
@@ -137,8 +141,9 @@ Functionality template:
 
 - **One variant declaration per AC.** Either `- Aspect: <value1>, <value2>`, or one named keyword
   `- <placeholder-name>: <value1>, <value2>`. The keyword is the other spelling of `Aspect:`: it names
-  what varies, and the AC text shows that name as `{placeholder-name}`. An AC that declares both, or
-  two keywords, is `MALFORMED_AC`: the pipeline drops the criterion until the author picks one.
+  what varies, and the AC text shows that name as `{placeholder-name}`. An AC that declares both, two
+  keywords, or `Aspect:` twice is `MALFORMED_AC`: the pipeline drops the criterion until the author
+  picks one.
 - **The name** is lowercase kebab-case and is written the same in the AC text (`{field}`), the bullet
   (`- field:`) and the scenario tag (`@AC:<id>/field:<value>`). Names are compared case-insensitively,
   with `-`, `_` and space equal. `aspect` is reserved.

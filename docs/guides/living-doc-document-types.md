@@ -57,8 +57,8 @@ only, because an API contract anchor carries no living-doc header yet.
 
 | View | Contains | Use for |
 |---|---|---|
-| **Inner** | Everything, unchanged — `planned`, `in_review`, `active`, and `deprecated` entities and ACs alike | Team-internal planning and traceability; nothing is hidden |
-| **Release** | `planned` / `in_review` entities and ACs dropped; `deprecated` entities and ACs kept (they describe shipped behaviour still part of the solution) — i.e. *what was actually shipped* | A release note / delivery record shared outside the team |
+| **Inner** | Everything, unchanged — `planned`, `in_review`, `active`, and `deprecated` entities and ACs alike — and what was not loaded from the input, under each entity | Team-internal planning and traceability; nothing is hidden |
+| **Release** | `planned` / `in_review` entities and ACs dropped; `deprecated` entities and ACs kept (they describe shipped behaviour still part of the solution) — i.e. *what was actually shipped*. What was not loaded from the input is never shown | A release note / delivery record shared outside the team |
 
 The view is a normalize-time filter over the same mined data — no separate authoring.
 `normalize-issues` selects it with `--view inner|release` (default `inner`), e.g.
@@ -77,6 +77,16 @@ living-doc normalize-issues --input doc-issues.json --output generator-ready.jso
 | `deprecated` | kept | kept |
 
 When an entity is dropped, its ACs go with it; `deprecated` ACs on a retained entity stay.
+
+**What was not loaded.** A collector that cannot read part of an input reports it as a warning and
+goes on; the run does not fail on it (see [Header Types — Indentation](living-doc-header-types.md#indentation)).
+The inner view shows each warning under the entity it names: its code, its message and its line, with
+a link to that line in the source — never the warning's raw `context`. Every collector warning that
+names an entity is shown, not only a dropped criterion (`MALFORMED_AC`): each one means something the
+author wrote did not reach the document. A collector warning that names no entity, or an entity the
+document does not hold — `MISSING_ENTITY_ID`, whose entity was never emitted — is shown once, for the
+whole document, with its file and line. The release view shows none of them. The codes are listed in
+[`living-doc-utilities`' error codes](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/errors.md#codes).
 
 The applied view is recorded in the output's provenance envelope: `meta.view.view`,
 `meta.view.filtered_user_stories`, and `meta.view.filtered_acceptance_criteria` (counts of what the
