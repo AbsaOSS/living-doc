@@ -4,7 +4,7 @@
 
 | File | Description |
 |---|---|
-| `evals/files/catalog-snapshot.json` | Snapshot of the living doc catalog + webapp inventory showing: 8 uncovered US ACs, 5 uncovered Functionality ACs, 1 undocumented screen after normalisation, 2 orphan Features, 1 orphan User Story, 3 orphan tests, and 2 empty Features |
+| `evals/files/catalog-snapshot.json` | Snapshot of the living doc catalog + webapp inventory showing: 8 uncovered US ACs, 5 uncovered Functionality ACs, 1 undocumented screen after normalisation, 2 Features without a User Story, 1 orphan User Story, 3 orphan tests, and 2 Features without a Functionality |
 | `evals/files/gap-report.json` | Expected gap report output produced by compute_gaps.py before normalisation — used as reference for output-format eval |
 
 ## Eval to fixture mapping

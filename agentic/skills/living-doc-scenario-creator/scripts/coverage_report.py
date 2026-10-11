@@ -85,26 +85,69 @@ def canonicalize_numeric_id(parent_type: str, num_str: str) -> str:
     return f"{parent_type}-{num_str}"
 
 
-def get_ac_tags_above(lines: list[str], scenario_index: int) -> list[str]:
-    """Return all @AC: tag values (canonicalized) from consecutive tag lines immediately above a scenario."""
-    ac_ids: list[str] = []
+def get_ac_tags_above(lines: list[str], scenario_index: int) -> list[tuple[str, str | None]]:
+    """Every `@AC:` tag above a scenario, as `(canonical_ac_id, value_or_None)`.
+
+    The value is the tag's one `/<param>:<value>` segment, which names the declared variant
+    value this scenario covers. `None` is a bare tag: it covers the whole AC — every declared
+    value at once, as a data-driven scenario does (living-doc-header-types.md#ac-variants).
+    The parameter name is validated by `scan_ac_links.py`; coverage only needs the value.
+    """
+    tags: list[tuple[str, str | None]] = []
     for line in get_tag_lines_above(lines, scenario_index):
         for m in iter_ac_tags(line):
-            ac_ids.append(canonicalize_ac_id(m.group(1).upper()))
-    return ac_ids
+            ac_id = canonicalize_ac_id(m.group(1).upper())
+            segment = m.group(2) or ""
+            value = segment.split(":", 1)[1] if ":" in segment else None
+            tags.append((ac_id, value))
+    return tags
 
 
-def collect_covered_ac_ids(features_dir: Path) -> dict[str, list[str]]:
-    """Return {ac_id_upper: [feature_filename, ...]} for every @AC: tag above a Scenario."""
-    covered: dict[str, list[str]] = {}
+def collect_covered_ac_ids(features_dir: Path) -> dict[str, dict[str, object]]:
+    """Per AC: which files tag it, which declared values they cover, and whether any tag is bare.
+
+    Returns ``{ac_id: {"files": [...], "values": {value, ...}, "whole": bool}}``, where
+    ``whole`` is True when at least one scenario carries a bare ``@AC:<id>`` — that one covers
+    every declared value, so an AC with variants is `covered` on the strength of it alone.
+    """
+    covered: dict[str, dict[str, object]] = {}
     for feature_file in sorted(features_dir.rglob("*.feature")):
         lines = feature_file.read_text(encoding="utf-8").splitlines()
+        rel = feature_file.relative_to(features_dir).as_posix()
         for i, line in enumerate(lines):
             if not SCENARIO_LINE.match(line):
                 continue
-            for ac_id in get_ac_tags_above(lines, i):
-                covered.setdefault(ac_id, []).append(feature_file.relative_to(features_dir).as_posix())
+            for ac_id, value in get_ac_tags_above(lines, i):
+                entry = covered.setdefault(ac_id, {"files": [], "values": set(), "whole": False})
+                entry["files"].append(rel)  # type: ignore[union-attr]
+                if value is None:
+                    entry["whole"] = True
+                else:
+                    entry["values"].add(value)  # type: ignore[union-attr]
     return covered
+
+
+def ac_coverage_state(
+    declared: list[str], entry: dict[str, object] | None
+) -> tuple[str, list[str]]:
+    """An AC's coverage state and the values still missing.
+
+    Three states, the coverage matrix's own (living-doc-document-types.md): `covered`,
+    `partially_covered`, `not_covered`. Without declared values an AC is binary. With them,
+    coverage is counted per value, and a bare tag counts for every one of them.
+    """
+    if entry is None or not entry["files"]:
+        return "not_covered", list(declared)
+    if not declared:
+        return "covered", []
+    if entry["whole"]:
+        return "covered", []
+    missing = [v for v in declared if v not in entry["values"]]  # type: ignore[operator]
+    if not missing:
+        return "covered", []
+    if len(missing) == len(declared):
+        return "not_covered", missing
+    return "partially_covered", missing
 
 
 def load_user_stories(living_doc_dir: Path) -> list[dict]:
@@ -178,6 +221,7 @@ def main(living_doc_dir: str, features_dir: str) -> None:
 
     total_active = 0
     total_covered = 0
+    total_partial = 0
     total_gaps = 0
 
     for us in sorted(stories, key=lambda s: s.get("id", "")):
@@ -207,18 +251,33 @@ def main(living_doc_dir: str, features_dir: str) -> None:
                 continue
 
             total_active += 1
-            files = covered.get(ac_id, [])
+            entry = covered.get(ac_id)
+            files = list(entry["files"]) if entry else []
+            # The AC's declared variant values, if it declares any — the same list the
+            # `- Aspect:` bullet or the named keyword carries.
+            declared = [str(v) for v in (ac.get("aspect") or [])]
+            state, missing = ac_coverage_state(declared, entry)
+            short = ", ".join(dict.fromkeys(files))
+            figure = f"  {len(declared) - len(missing)}/{len(declared)}" if declared else ""
 
-            if files:
+            if state == "covered":
                 total_covered += 1
-                short = ", ".join(files[:3])
-                suffix = f" (+{len(files) - 3} more)" if len(files) > 3 else ""
-                print(f"  ✅ {ac_id}  [{ac_state}]  — {ac_text}")
-                print(f"       ↳ covered by: {short}{suffix}")
+                print(f"  ✅ {ac_id}  [{ac_state}]{figure}  — {ac_text}")
+                print(f"       ↳ covered by: {short}")
+            elif state == "partially_covered":
+                total_partial += 1
+                total_gaps += 1
+                print(f"  ◐  {ac_id}  [{ac_state}]{figure}  — {ac_text}")
+                print(f"       ↳ covered by: {short}")
+                # Only the missing values are the queue: the covered ones need no scenario.
+                print(f"       ↳ PARTIALLY COVERED — add scenarios for: {', '.join(missing)}")
             else:
                 total_gaps += 1
-                print(f"  ❌ {ac_id}  [{ac_state}]  — {ac_text}")
-                print(f"       ↳ NOT COVERED — add to scenario generation queue")
+                print(f"  ❌ {ac_id}  [{ac_state}]{figure}  — {ac_text}")
+                if missing and declared:
+                    print(f"       ↳ NOT COVERED — add scenarios for: {', '.join(missing)}")
+                else:
+                    print(f"       ↳ NOT COVERED — add to scenario generation queue")
 
     pct = (total_covered * 100 // total_active) if total_active else 0
 
@@ -227,7 +286,8 @@ def main(living_doc_dir: str, features_dir: str) -> None:
     print(f"{'=' * 60}")
     print(f"  ACTIVE / IN_REVIEW ACs : {total_active}")
     print(f"  Covered by scenarios                : {total_covered}  ({pct}%)")
-    print(f"  Gaps (no scenario)                  : {total_gaps}")
+    print(f"  Partially covered (some values)     : {total_partial}")
+    print(f"  Gaps (counting partial)             : {total_gaps}")
 
     sys.exit(0 if total_gaps == 0 else 1)
 

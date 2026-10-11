@@ -5,7 +5,7 @@
       "id": 1,
       "category": "happy-path",
       "prompt": "Run a gap analysis on our living documentation. File: evals/files/catalog-snapshot.json",
-      "expected_output": "Agent analyzes the snapshot and produces a gap report with: Blocker — AC:US-001-02 and AC:US-001-03 have no linked tests; Blocker — AC:US-002-01 and AC:US-002-02 have no linked tests; Blocker — all 4 ACs of US-007 have no linked tests; Blocker — FUNC-002 has 5 ACs with no linked tests (Gap type 1 applies to Functionality ACs — report as UNTESTED_AC Blocker, not UNDOCUMENTED_FUNCTIONALITY); Important — /account/preferences screen discovered in webapp with no Feature entity (after normalisation: /account/orders ↔ FEAT-005, /reports/legacy ↔ FEAT-008 are already documented); Important — FEAT-004 and FEAT-008 each have no linked User Stories (orphan Features); Important — US-007 has no linked Feature (orphan User Story); Important — test_order_history.py, test_login_flow.feature, and the 'View paginated order history' BDD scenario have no linked ACs (orphan tests); Nit — FEAT-005 and FEAT-008 have no Functionalities defined (empty Features). Documentation coverage reported separately for US ACs and Functionality ACs.",
+      "expected_output": "Agent analyzes the snapshot and produces a gap report with: Blocker — AC:US-001-02 and AC:US-001-03 have no linked tests; Blocker — AC:US-002-01 and AC:US-002-02 have no linked tests; Blocker — all 4 ACs of US-007 have no linked tests; Blocker — FUNC-002 has 5 ACs with no linked tests (Gap type 1 applies to Functionality ACs — report as UNTESTED_AC Blocker, not UNDOCUMENTED_FUNCTIONALITY); Important — /account/preferences screen discovered in webapp with no Feature entity (after normalisation: /account/orders ↔ FEAT-005, /reports/legacy ↔ FEAT-008 are already documented); Important — FEAT-004 and FEAT-008 each have no linked User Stories (FEATURE_WITHOUT_USER_STORY); Important — US-007 has no linked Feature (orphan User Story); Important — test_order_history.py, test_login_flow.feature, and the 'View paginated order history' BDD scenario have no linked ACs (orphan tests); Nit — FEAT-005 and FEAT-008 have no Functionalities defined (FEATURE_WITHOUT_FUNCTIONALITY). Documentation coverage reported separately for US ACs and Functionality ACs.",
       "files": [
         "evals/files/catalog-snapshot.json"
       ],
@@ -15,11 +15,11 @@
         "Identifies all 4 US-007 ACs as untested (Blockers)",
         "Identifies FUNC-002 ACs as untested (Blocker, not Nit — Gap type 1 applies to Functionality ACs)",
         "Identifies /account/preferences as undocumented surface (Important)",
-        "Identifies FEAT-004 (promo) as orphan Feature (Important)",
-        "Identifies FEAT-008 (orphan) as orphan Feature (Important)",
+        "Identifies FEAT-004 (promo) as a Feature without a User Story (Important)",
+        "Identifies FEAT-008 (orphan) as a Feature without a User Story (Important)",
         "Identifies test_order_history.py and test_login_flow.feature as orphan tests (Important)",
         "Identifies 'View paginated order history' BDD scenario as orphan test (Important)",
-        "Identifies FEAT-005 and FEAT-008 as empty Features (Nit — no Functionalities)",
+        "Identifies FEAT-005 and FEAT-008 as Features without a Functionality (Nit — no Functionalities)",
         "Identifies US-007 as orphan User Story (Important — no linked Feature)",
         "Normalises undocumented surfaces: only /account/preferences is truly undocumented after matching existing Features",
         "Calculates documentation coverage percentage separately for US ACs and Functionality ACs"
@@ -77,13 +77,13 @@
       "id": 6,
       "category": "paraphrase",
       "prompt": "Where are the holes in our living documentation? I want to make sure everything is covered before the release.",
-      "expected_output": "Agent runs the full gap analysis workflow. Reports: untested ACs (by priority), undocumented surfaces (features visible in code/UI with no Feature entity), orphan tests (tests with no linked AC), orphan Features (no User Stories or Functionalities). Produces documentation coverage percentage. Highlights Blockers first (untested critical ACs), then Important (undocumented surfaces, orphan tests), then Nit (low-priority untested ACs).",
+      "expected_output": "Agent runs the full gap analysis workflow. Reports: untested ACs (by priority), undocumented surfaces (features visible in code/UI with no Feature entity), orphan tests (tests with no linked AC), Features with no linked User Story, and Features with no linked Functionality. Produces documentation coverage percentage. Highlights Blockers first (untested critical ACs), then Important (undocumented surfaces, orphan tests), then Nit (low-priority untested ACs).",
       "files": [],
       "expectations": [
         "Identifies this as a gap analysis request despite 'holes' phrasing",
         "Reports gap types by severity (Blocker/Important/Nit)",
         "Produces documentation coverage percentage",
-        "Covers all four gap types: untested ACs, undocumented surfaces, orphan tests, orphan features"
+        "Covers all four gap types: untested ACs, undocumented surfaces, orphan tests, Features without a User Story"
       ]
     },
     {
@@ -103,12 +103,12 @@
       "id": 8,
       "category": "output-format",
       "prompt": "Run a gap analysis and show me exactly what format the output report uses.",
-      "expected_output": "The gap report is emitted as structured JSON (or a formatted rendering of it) with a top-level `documentation_coverage` section (coverage_percentage, user_stories_with_full_coverage, user_stories_with_gaps) and a `gaps[]` array. Each gap item includes: id (GAP-NNN), type (one of UNTESTED_AC, UNDOCUMENTED_SURFACE, ORPHAN_FEATURE, ORPHAN_USER_STORY, ORPHAN_FUNCTIONALITY, ORPHAN_TEST, STALE_REFERENCE, UNDOCUMENTED_FUNCTIONALITY, EMPTY_FEATURE), severity (Blocker/Important/Nit), entity (the affected entity ID or path), description, and proposed_action. Gaps are ordered by severity (Blocker first, then Important, then Nit). The report is diagnostic only — no entity creation or modification is made.",
+      "expected_output": "The gap report is emitted as structured JSON (or a formatted rendering of it) with a top-level `documentation_coverage` section (coverage_percentage, user_stories_with_full_coverage, user_stories_with_gaps) and a `gaps[]` array. Each gap item includes: id (GAP-NNN), type (one of UNTESTED_AC, UNDOCUMENTED_SURFACE, FEATURE_WITHOUT_USER_STORY, ORPHAN_USER_STORY, ORPHAN_FUNCTIONALITY, ORPHAN_TEST, STALE_REFERENCE, UNDOCUMENTED_FUNCTIONALITY, FEATURE_WITHOUT_FUNCTIONALITY), severity (Blocker/Important/Nit), entity (the affected entity ID or path), description, and proposed_action. Gaps are ordered by severity (Blocker first, then Important, then Nit). The report is diagnostic only — no entity creation or modification is made.",
       "files": [],
       "expectations": [
         "Report includes top-level documentation_coverage section with coverage_percentage",
         "gaps[] array present; each item has id, type, severity, entity, description, proposed_action",
-        "Gap type codes are canonical: UNTESTED_AC, ORPHAN_TEST, ORPHAN_FEATURE, etc.",
+        "Gap type codes are canonical: UNTESTED_AC, ORPHAN_TEST, FEATURE_WITHOUT_USER_STORY, etc.",
         "Gaps ordered by severity (Blocker before Important before Nit)",
         "Diagnostic only — no entity creation or modification"
       ]
@@ -157,23 +157,23 @@
       "id": 12,
       "category": "regression",
       "prompt": "The gap-finder script reports /reports/legacy as an UNDOCUMENTED_SURFACE but there is already a Feature entity 'Legacy Report Screen' (FEAT-008) in the catalog. Should this be reported as a gap?",
-      "expected_output": "No. After normalisation, /reports/legacy is already documented — FEAT-008 (Legacy Report Screen) clearly owns that surface by name and domain meaning. The skill instructs to treat a discovered screen as already documented when an existing Feature clearly owns the same surface by path, name, or domain meaning. Remove this item from the gap report. FEAT-008 still has other gaps (orphan Feature, empty Feature) but UNDOCUMENTED_SURFACE is not one of them.",
+      "expected_output": "No. After normalisation, /reports/legacy is already documented — FEAT-008 (Legacy Report Screen) clearly owns that surface by name and domain meaning. The skill instructs to treat a discovered screen as already documented when an existing Feature clearly owns the same surface by path, name, or domain meaning. Remove this item from the gap report. FEAT-008 still has other gaps (no linked User Story, no linked Functionality) but UNDOCUMENTED_SURFACE is not one of them.",
       "files": [],
       "expectations": [
         "Removes /reports/legacy from UNDOCUMENTED_SURFACE gaps after normalisation",
         "Explains normalisation rule: surface matches by name/domain meaning",
-        "Notes FEAT-008 still has ORPHAN_FEATURE and EMPTY_FEATURE gaps",
+        "Notes FEAT-008 still has FEATURE_WITHOUT_USER_STORY and FEATURE_WITHOUT_FUNCTIONALITY gaps",
         "Distinguishes raw script output from normalised report"
       ]
     },
     {
       "id": 13,
       "prompt": "A Feature entity (e.g., FEAT-001 Checkout Page) exists in the living doc but its functionalities list is empty — no Functionality entities are linked to it. What gap type is this and what is the priority?",
-      "expected_output": "Gap type EMPTY_FEATURE (not \"Gap type 9\"). Priority: Nit. Guidance: define Functionality entities for the behaviors this Feature owns using living-doc-create-functionality.",
+      "expected_output": "Gap type FEATURE_WITHOUT_FUNCTIONALITY (not \"Gap type 9\"). Priority: Nit. Guidance: define Functionality entities for the behaviors this Feature owns using living-doc-create-functionality.",
       "files": [],
       "category": "edge-case",
       "expectations": [
-        "Classifies as EMPTY_FEATURE gap type",
+        "Classifies as FEATURE_WITHOUT_FUNCTIONALITY gap type",
         "Priority is Nit (lowest severity — feature may still be valid but incomplete)",
         "Recommends creating Functionality entities for the behaviors the Feature owns",
         "Routes to living-doc-create-functionality for the fix"
@@ -182,11 +182,11 @@
     {
       "id": 14,
       "prompt": "A Feature (e.g., FEAT-001 Checkout Page) is linked to no User Stories at all. What gap type is this?",
-      "expected_output": "Gap type ORPHAN_FEATURE (not \"Gap type 3\"). Priority: Important. Guidance: link at least one User Story to give the Feature traceable business value.",
+      "expected_output": "Gap type FEATURE_WITHOUT_USER_STORY (not \"Gap type 3\"). Priority: Important. Guidance: link at least one User Story to give the Feature traceable business value.",
       "files": [],
       "category": "edge-case",
       "expectations": [
-        "Classifies as ORPHAN_FEATURE gap type",
+        "Classifies as FEATURE_WITHOUT_USER_STORY gap type",
         "Priority is Important (Feature is unreachable from any User Story)",
         "Recommends linking at least one User Story to the Feature",
         "Routes to living-doc-create-user-story or living-doc-update to create or link a US"
@@ -216,6 +216,31 @@
         "Explains that PLAN mode derives ACs from PageObject descriptions",
         "Output is draft/proposed ACs, not finalized ones"
       ]
+    },
+    {
+      "category": "happy-path",
+      "prompt": "AC:US-042-03 declares three values ('email', 'sms', 'push') and only the email scenario exists. How does the gap report classify it?",
+      "expected_output": "Agent reports it as PARTIALLY_TESTED_AC, shown as 1/3, listing only the missing values 'sms' and 'push' as the scenario queue — the covered value needs no scenario. It is Important, not a Blocker: the behaviour is tested, some declared values are not. The report's coverage figure counts the AC as its covered values over its declared values, 1/3, not as a whole AC either way.",
+      "expectations": [
+        "Classifies as PARTIALLY_TESTED_AC, not UNTESTED_AC",
+        "Shows the figure as 1/3",
+        "Queues only 'sms' and 'push', never the covered 'email'",
+        "Counts the AC as the fraction 1/3 in the coverage figure"
+      ],
+      "id": 17,
+      "files": []
+    },
+    {
+      "category": "edge",
+      "prompt": "An AC declares three values and has no scenario for any of them. Is that partially covered?",
+      "expected_output": "Agent says no: with no value covered the AC is not_covered, reported as UNTESTED_AC and a Blocker, shown as 0/3 with all three values queued. partially_covered means some but not all. A bare '@AC:<id>' tag on one scenario would instead make it covered, every value at once.",
+      "expectations": [
+        "0-of-N is UNTESTED_AC and a Blocker, not partially covered",
+        "Shows 0/3 and queues all three values",
+        "Notes that a bare tag would make it covered"
+      ],
+      "id": 18,
+      "files": []
     }
   ]
 }

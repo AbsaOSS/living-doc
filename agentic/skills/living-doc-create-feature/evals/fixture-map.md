@@ -12,7 +12,7 @@
 |---|---|---|---|
 | 1 | happy-path | _(none — conversational)_ | UI surface: Checkout Page — full elicitation workflow |
 | 2 | happy-path | _(none)_ | API surface: Orders API — surface type identification |
-| 3 | regression | _(none)_ | Orphan Feature warning (no User Stories, no Functionalities) |
+| 3 | regression | _(none)_ | Feature-without-a-User-Story warning (no User Stories, no Functionalities) |
 | 4 | happy-path | _(none)_ | Anti-pattern: verb-phrase Feature name (Process Payment) |
 | 5 | negative | _(none)_ | Routing: User Story creation → living-doc-create-user-story |
 | 6 | paraphrase | _(none)_ | Notification Service — surface type (API-only) identification |

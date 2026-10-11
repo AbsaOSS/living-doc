@@ -28,7 +28,7 @@ _lib_path = Path(__file__).parent.parent.parent / "shared" / "lib"
 sys.path.insert(0, str(_lib_path))
 
 try:
-    from ac_tag import AC_ID_PATTERN
+    from ac_tag import AC_ID_PATTERN, VARIANT_NAME
 except ImportError:
     print(
         f"Error: shared library not found at {_lib_path} — this skill depends on skills/shared/.\n"
@@ -97,11 +97,12 @@ VALID_FUNC_TYPES = {
 STATUSED_ENTITY_TYPES = {"User Story", "Functionality"}
 
 DEPRECATION_FIELDS = ["deprecated_at", "deprecation_reason"]
-# What a *deprecated Feature* should carry. Not the same list: canon derives a Feature's
-# `deprecated_at` alongside its state, after parsing, and says a Feature issue body carries
-# no `## Deprecated At` heading and a PageObject header no `deprecated_at:` field (see the
+# What a *deprecated Feature* should carry. Not the same list: a Feature has **no**
+# `deprecated_at` at all — not authored and not derived. A Feature issue body carries no
+# `## Deprecated At` heading and a PageObject header no `deprecated_at:` field (see the
 # glossary's Feature entry and Header Types' "Common mistakes"). Warning a Feature for a
-# missing `deprecated_at` would therefore instruct the agent to author a derived field.
+# missing `deprecated_at` would therefore ask the agent to author a field that does not exist
+# for this entity type.
 FEATURE_AUTHORED_DEPRECATION_FIELDS = ["deprecation_reason"]
 # Markers a Feature can carry as a record that the surface is being retired — never
 # required, so they stay out of DEPRECATION_FIELDS' missing-field warning loop.
@@ -191,11 +192,14 @@ def load_ac_states_from_profile(profile_path: str) -> set[str] | None:
 def _authored_feature_markers(entity: dict) -> list[str]:
     """The deprecation keys a Feature actually carries, in a stable order.
 
+    `deprecated_at` is not one of them: a Feature has no deprecation date, so authoring the
+    key records no intent and must not read as a retirement marker. It gets its own warning.
+
     Presence, not truthiness — `"deprecation_reason": ""` is still an authored key and a
     malformed one, which the missing-metadata warnings downstream are there to catch."""
     return [
         field
-        for field in (*DEPRECATION_FIELDS, *FEATURE_DEPRECATION_MARKERS)
+        for field in (*FEATURE_AUTHORED_DEPRECATION_FIELDS, *FEATURE_DEPRECATION_MARKERS)
         if field in entity
     ]
 
@@ -222,7 +226,7 @@ def _feature_deprecation_state(
 
     Ownership is the union of the Feature's forward ``functionalities`` list and the
     back-link from each Functionality's ``parent_feature``, matching how the
-    ORPHAN_FEATURE / EMPTY_FEATURE checks below resolve the same relationship."""
+    FEATURE_WITHOUT_USER_STORY / FEATURE_WITHOUT_FUNCTIONALITY checks below resolve the same relationship."""
     authored = _authored_feature_markers(entity)
     fallback_basis = "authored_marker" if authored else None
 
@@ -239,7 +243,7 @@ def _feature_deprecation_state(
     ]
 
     # A Feature that owns no Functionality has no children to derive from. The
-    # EMPTY_FEATURE warning below already reports that; claiming a state on top of it
+    # FEATURE_WITHOUT_FUNCTIONALITY warning below already reports that; claiming a state on top of it
     # would be the exact inference this function exists to avoid.
     if not owned:
         return "unknown", fallback_basis
@@ -326,15 +330,16 @@ def validate(entity: dict, catalog: dict | None = None) -> list[dict]:
         feature_state, basis = _feature_deprecation_state(entity, catalog)
         is_deprecated = feature_state == "deprecated"
         authored = _authored_feature_markers(entity)
-        # `deprecated_at` is derived for a Feature, alongside its state — authoring it here
-        # duplicates a generated value and invites the two to disagree. Canon lists it under
-        # "Common mistakes" ("Remove it"), so this is a warning to remediate, not a rejection.
+        # A Feature has no deprecation date, authored or derived: it retires when everything
+        # under it retires. Canon lists the key under "Common mistakes" ("Remove it"), so this
+        # is a warning to remediate, not a rejection. It is deliberately not counted among the
+        # authored retirement markers below — carrying it records nothing.
         if "deprecated_at" in entity:
             warning(
                 "deprecated_at",
-                "Feature must not author 'deprecated_at' — a Feature's deprecation date is "
-                "derived with its state from its Functionalities. Remove it; keep "
-                "'deprecation_reason' / 'superseded_by' if the surface is being retired",
+                "Feature must not author 'deprecated_at' — a Feature has no deprecation date. "
+                "Remove it; keep 'deprecation_reason' / 'superseded_by' if the surface is "
+                "being retired",
             )
         if feature_state == "unknown" and basis == "authored_marker":
             warning(
@@ -379,13 +384,13 @@ def validate(entity: dict, catalog: dict | None = None) -> list[dict]:
             warning("owners", "Feature has no owners — assign a team or individual")
         no_user_stories = isinstance(entity.get("user_stories"), list) and not entity["user_stories"]
         no_functionalities = isinstance(entity.get("functionalities"), list) and not entity["functionalities"]
-        # gap-finder's ORPHAN_FEATURE gap fires on the absence of a linked User Story alone
+        # gap-finder's FEATURE_WITHOUT_USER_STORY gap fires on the absence of a linked User Story alone
         # (compute_gaps.py), regardless of Functionality links — so mirror that here rather
         # than requiring both lists to be empty. compute_gaps.py also honours the back-link
         # from a User Story's own `features` list (features_linked_from_us), not just the
         # Feature's forward `user_stories` — mirror that here too so a Feature linked only
         # from the User Story side isn't falsely flagged when --catalog is supplied. gap-finder's
-        # EMPTY_FEATURE gap applies the same union-of-forward-and-back-link treatment to
+        # FEATURE_WITHOUT_FUNCTIONALITY gap applies the same union-of-forward-and-back-link treatment to
         # Functionality.parent_feature (feature_func_counts) — mirror that here too.
         catalog_inner = catalog.get("catalog", catalog) if catalog is not None else None
         linked_from_catalog_us = False
@@ -396,9 +401,9 @@ def validate(entity: dict, catalog: dict | None = None) -> list[dict]:
             )
         if no_user_stories and not linked_from_catalog_us:
             warning(
-                "ORPHAN_FEATURE",
+                "FEATURE_WITHOUT_USER_STORY",
                 "Feature has no linked User Stories — "
-                "reported as an ORPHAN_FEATURE condition by living-doc-gap-finder",
+                "reported as a FEATURE_WITHOUT_USER_STORY condition by living-doc-gap-finder",
             )
         linked_from_catalog_func = False
         if no_functionalities and catalog_inner is not None:
@@ -507,6 +512,94 @@ def validate(entity: dict, catalog: dict | None = None) -> list[dict]:
     return issues
 
 
+# ── AC variants (living-doc-header-types.md#ac-variants) ─────────────────────────────
+# An AC that must hold for several values declares them once: either `- Aspect: a, b` or one
+# named keyword `- <name>: a, b`, where the AC text names it as `{<name>}`. In the entity
+# JSON that reaches this validator the declared values land in `aspect`, and a keyword
+# declaration also records its name in `placeholder_values` (the shape
+# `living-doc-utilities`' `AcceptanceCriterion` defines). `living-doc`'s
+# `tools/examples_check.py` runs the same checks over the example corpus and is the reference.
+AC_PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
+VARIANT_NAME_RE = re.compile(VARIANT_NAME)
+RESERVED_VARIANT_NAME = "aspect"
+
+
+def _variant_key(name: str) -> str:
+    """A variant name as the canon compares it: case-insensitive, with `-`, `_` and space equal."""
+    return re.sub(r"[-_ ]+", "-", str(name).strip().lower())
+
+
+def _validate_ac_variants(ac: dict, field_prefix: str, error_fn, warning_fn) -> None:
+    """The one-declaration-per-AC rule, and the keyword's name against the AC text.
+
+    Checked here because the pipeline cannot: by the time an AC is JSON, the two spellings
+    have collapsed into `aspect`, so a doubled declaration or a keyword the text never names
+    is only visible while the name is still carried in `placeholder_values`.
+    """
+    description = ac.get("description") or ""
+    values = ac.get("aspect") or []
+    keywords = ac.get("placeholder_values") or {}
+    if not isinstance(keywords, dict):
+        error_fn(
+            f"{field_prefix}.placeholder_values",
+            f"'placeholder_values' must be an object of '<name>': [values], got "
+            f"{type(keywords).__name__}",
+        )
+        return
+
+    # One declaration per AC: two keywords are two declarations (MALFORMED_AC). `Aspect:` plus
+    # a keyword and `Aspect:` twice collapse into this same shape once parsed.
+    if len(keywords) > 1:
+        error_fn(
+            f"{field_prefix}.placeholder_values",
+            f"AC declares more than one variant ({', '.join(sorted(keywords))}) — keep one "
+            f"'Aspect:' or one named keyword, never both and never two (MALFORMED_AC)",
+        )
+
+    placeholders = {_variant_key(p): p for p in AC_PLACEHOLDER_RE.findall(description)}
+    for name, keyword_values in keywords.items():
+        key = _variant_key(name)
+        if key == RESERVED_VARIANT_NAME:
+            error_fn(
+                f"{field_prefix}.placeholder_values",
+                f"'{name}' is reserved and cannot name a keyword — declare the values with "
+                f"'- Aspect:' instead, or pick another name",
+            )
+        elif key not in placeholders:
+            warning_fn(
+                f"{field_prefix}.placeholder_values",
+                f"'{name}' is not a keyword of this AC: its description has no '{{{name}}}'. "
+                f"Name the varying value in the AC text as '{{{key}}}', or drop the "
+                f"declaration (UNPARSED_AC_LINE)",
+            )
+        elif not VARIANT_NAME_RE.fullmatch(str(name)) or placeholders[key] != name:
+            error_fn(
+                f"{field_prefix}.placeholder_values",
+                f"keyword '{name}' is not one lowercase kebab-case name — write it the same "
+                f"in the AC text, the declaration and the tag: '{{{key}}}', '{key}:', "
+                f"'@AC:<id>/{key}:<value>'",
+            )
+        elif isinstance(keyword_values, list) and values and sorted(
+            str(v) for v in keyword_values
+        ) != sorted(str(v) for v in values):
+            error_fn(
+                f"{field_prefix}.aspect",
+                f"the values of keyword '{name}' and 'aspect' disagree — one declaration "
+                f"means one set of values",
+            )
+
+    # The text names a varying value but nothing declares it: the scenarios have nothing to
+    # cover value by value, and a tag naming it would be STALE_AC_REF.
+    if placeholders and not values:
+        missing = ", ".join(f"{{{p}}}" for p in sorted(placeholders.values()))
+        warning_fn(
+            f"{field_prefix}.aspect",
+            f"the AC text names {missing} but the AC declares no values — add "
+            f"'aspect' values (and the keyword's name in 'placeholder_values'), or write the "
+            f"text without the placeholder",
+        )
+
+
 def _validate_ac(
     ac: dict,
     parent_id: str,
@@ -550,6 +643,7 @@ def _validate_ac(
             f"Invalid AC state '{ac_status}'. "
             f"Expected one of: {sorted(VALID_AC_STATUSES)}",
         )
+    _validate_ac_variants(ac, field_prefix, error_fn, warning_fn)
 
 
 def _feature_dependency_targets(entity: dict) -> list[str]:

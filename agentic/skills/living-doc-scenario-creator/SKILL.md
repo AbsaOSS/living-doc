@@ -81,13 +81,34 @@ Scenario: Customer successfully places an order
   Then the order confirmation is displayed
 ```
 
-Aspect variant (when one scenario covers only one aspect of a multi-aspect AC):
+Variant values — one scenario per declared value, each tagged with that one value. The AC
+declares its values once, in one of two spellings, and the tag uses **the AC's own name**:
 
 ```gherkin
-# AC:US-1-01 (v1.0.0 - active) - displays {required field} on login screen | aspect: username input
+# the AC declared `- Aspect: username-input, password-input`
+# AC:US-1-01 (v1.0.0 - active) - displays the required field on the login screen
 @AC:US-1-01/aspect:username-input
 Scenario: Login form shows the username input field
 ```
+
+```gherkin
+# the AC named it in its text and declared `- channel: email, sms`
+# AC:US-2-01 (v1.0.0 - active) - the reset link is sent to the customer's {channel}
+@AC:US-2-01/channel:email
+Scenario: Reset link is sent by email
+```
+
+Rules, from [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants):
+
+- **One parameter per tag.** A scenario covers one value; write one scenario per value. A tag
+  carrying two (`@AC:US-1-01/aspect:a/field:b`) is `MALFORMED_AC`.
+- **The parameter name is the AC's own.** `aspect` when the AC declared `- Aspect:`, otherwise
+  the keyword's name, spelled the same in the AC text (`{channel}`), the declaration
+  (`- channel:`) and the tag (`@AC:US-2-01/channel:email`). A name the AC does not declare is
+  `STALE_AC_REF`.
+- **A value the AC does not declare** is `STALE_AC_REF`. Add it to the AC's declaration first.
+- **A bare `@AC:<id>`** covers the whole AC — every declared value at once, as a data-driven
+  scenario does. Use it only when the scenario really does cover them all.
 
 Multiple ACs per scenario - one comment + tag pair per AC:
 
@@ -257,6 +278,29 @@ If the user says **"write feature tests for US-007"**, **"full coverage of all a
 After any coverage report with gaps, the uncovered `active` AC rows become the **scenario generation queue**. Invoke `living-doc-scenario-creator` for each uncovered `active` AC **in report order**, generate one scenario per AC, then re-run `coverage_report.py` until gaps reach 0.
 
 ---
+
+## Indentation is significant
+
+A header is read part by part, and indentation decides where each part ends. Full rule:
+[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+writing one:
+
+- **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and
+  no marker is not read, and the file is reported.
+- **A key sits at the key level**, the indent of the header's first key. A line shaped `key:`
+  any deeper is content of the part above it, never a new key.
+- **A deeper line belongs to the item above it** — wrapped text or a nested item, never a
+  sibling and never a new key.
+- **One criterion level.** Every `AC:` line sits at the same indent, the first one setting it
+  (template: 2), with nothing but spaces after the `# `.
+- **A one-token value takes one line** — a state, a date, an id, a URL, a route, a file name, a
+  surface type. A further line under it is not read.
+- **Nest only in a bullet-list field** (`business_value`, `preconditions`, `not_in_scope`,
+  `rationale`, `notes`) — never in an id-list field (`user_stories`, `functionalities`,
+  `feature_dependencies`, `parent`, `superseded_by`), which holds one id per entry.
+- **A blank line is layout**: it ends nothing — not an item, not a key, not a criterion.
+- Indent with spaces. Levels are relative, so no column is fixed, and a flat layout where
+  items sit at their key's own indent stays valid.
 
 ## Gherkin quality rules
 

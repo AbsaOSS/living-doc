@@ -152,12 +152,12 @@
       "type": "happy-path",
       "description": "Developer deprecates a Feature that has been superseded by a new Feature.",
       "prompt": "The 'Legacy Payment Widget' (FEAT-003) has been replaced by the new 'Payment Page' (FEAT-002). How do I deprecate the old Feature in the living doc?",
-      "expected_output": "FEAT-003 never gets a status field — a Feature's state is derived from its Functionalities, never authored. It gets no deprecated_at either: a Feature's deprecation date is derived alongside its state. Add deprecation_reason (e.g. 'Replaced by FEAT-002') and superseded_by: 'FEAT-002' directly on FEAT-003, and nothing else. Never delete the entity — deprecation preserves the audit trail. Deprecate every Functionality owned by FEAT-003 (setting status: deprecated on each, since Functionalities do carry a status) — that, not a field on the Feature, is what makes the surface deprecated. Flag any tests linked to those Functionalities for update or removal.",
+      "expected_output": "FEAT-003 never gets a status field — a Feature's state is derived from its Functionalities, never authored. It gets no deprecated_at either: a Feature has no deprecation date at all, authored or derived — it retires when everything under it retires. Add deprecation_reason (e.g. 'Replaced by FEAT-002') and superseded_by: 'FEAT-002' directly on FEAT-003, and nothing else. Never delete the entity — deprecation preserves the audit trail. Deprecate every Functionality owned by FEAT-003 (setting status: deprecated on each, since Functionalities do carry a status) — that, not a field on the Feature, is what makes the surface deprecated. Flag any tests linked to those Functionalities for update or removal.",
       "files": [],
       "expectations": [
         "Does not set a status field on the Feature — never deletes the entity",
         "Adds deprecation_reason and superseded_by on the Feature",
-        "Does not author deprecated_at on the Feature — it is derived with the state",
+        "Does not author deprecated_at on the Feature — a Feature has no deprecation date",
         "superseded_by points to FEAT-002",
         "Deprecates every owned Functionality as the actual mechanism of retiring the surface",
         "Flags linked tests for update or removal"
@@ -226,7 +226,7 @@
       "id": 17,
       "category": "happy-path",
       "prompt": "The payment-events Kafka topic finally has an AsyncAPI annotation on its producer handler. Checkout Page (FEAT-001) lists payment-events as an external dependency — promote it to a proper Feature and update the living doc. Catalog: evals/files/dependency-promotion-catalog.json",
-      "expected_output": "Agent confirms the trigger (the producer handler now carries an AsyncAPI annotation, so payment-events has a canonical anchor) and routes creation of the new API Feature to living-doc-create-feature rather than restating its anchor rules, returning with the new FEAT id (FEAT-004). It scans external_dependencies on every Feature in the catalog, not only FEAT-001, and finds both FEAT-001 Checkout Page ('payment-events') and FEAT-002 Orders API ('Payment-Events', matched case-insensitively), listing them before editing; FEAT-003 is left untouched. For each, it removes the external_dependencies entry and adds FEAT-004 to feature_dependencies on the Functionality that makes the call (FUNC-001 on Checkout Page, FUNC-003 on Orders API) — never on a Feature, whose feature_dependencies is derived. FUNC-001 and FUNC-003 keep their parent_feature; nothing is re-parented to FEAT-004. Both are flagged for test review because their tests stubbed payment-events and can now test against the documented contract. It reports that FEAT-004 owns no Functionalities yet, so living-doc-gap-finder flags it ORPHAN_FEATURE and its derived state is planned, without inventing placeholder Functionalities. It runs validate_entity.py with --catalog on the new Feature and every edited entity, and emits a change summary naming the new Feature id, every entity the entry moved on, and the Functionalities flagged for test review.",
+      "expected_output": "Agent confirms the trigger (the producer handler now carries an AsyncAPI annotation, so payment-events has a canonical anchor) and routes creation of the new API Feature to living-doc-create-feature rather than restating its anchor rules, returning with the new FEAT id (FEAT-004). It scans external_dependencies on every Feature in the catalog, not only FEAT-001, and finds both FEAT-001 Checkout Page ('payment-events') and FEAT-002 Orders API ('Payment-Events', matched case-insensitively), listing them before editing; FEAT-003 is left untouched. For each, it removes the external_dependencies entry and adds FEAT-004 to feature_dependencies on the Functionality that makes the call (FUNC-001 on Checkout Page, FUNC-003 on Orders API) — never on a Feature, whose feature_dependencies is derived. FUNC-001 and FUNC-003 keep their parent_feature; nothing is re-parented to FEAT-004. Both are flagged for test review because their tests stubbed payment-events and can now test against the documented contract. It reports that FEAT-004 owns no Functionalities yet, so living-doc-gap-finder flags it FEATURE_WITHOUT_USER_STORY and its derived state is planned, without inventing placeholder Functionalities. It runs validate_entity.py with --catalog on the new Feature and every edited entity, and emits a change summary naming the new Feature id, every entity the entry moved on, and the Functionalities flagged for test review.",
       "files": [
         "evals/files/dependency-promotion-catalog.json"
       ],
@@ -237,9 +237,22 @@
         "Adds the new FEAT id to feature_dependencies on the calling Functionalities (FUNC-001, FUNC-003), never on a Feature",
         "Does not re-parent FUNC-001 or FUNC-003 to the new Feature",
         "Flags the Functionalities that stubbed payment-events for test review",
-        "Names ORPHAN_FEATURE and/or the derived planned state for the new Feature without inventing placeholder Functionalities",
+        "Names FEATURE_WITHOUT_USER_STORY and/or the derived planned state for the new Feature without inventing placeholder Functionalities",
         "Emits a change summary with the new Feature id, every entity the entry moved on, and the Functionalities flagged for test review"
       ]
+    },
+    {
+      "category": "regression",
+      "prompt": "AC:US-042-03 already declares '- channel: email, sms'. Add push notification as a third delivery route.",
+      "expected_output": "Agent adds 'push' to the existing '- channel:' declaration, keeping one declaration on the AC — it does not add a second bullet and does not introduce '- Aspect:' alongside the keyword, either of which would be MALFORMED_AC. It flags that a scenario for the new value is missing, so the AC becomes partially covered (2/3) until gherkin-living-doc-sync or living-doc-scenario-creator adds one tagged '@AC:US-042-03/channel:push'.",
+      "expectations": [
+        "Extends the existing '- channel:' declaration rather than adding a second one",
+        "Does not introduce 'Aspect:' alongside the keyword",
+        "Notes the AC becomes partially covered until a scenario for 'push' exists",
+        "Names the tag the new scenario needs"
+      ],
+      "id": 18,
+      "files": []
     }
   ]
 }

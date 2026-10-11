@@ -72,10 +72,10 @@ Ask: *Which User Stories rely on this Feature?*
 
 If unknown at creation time, leave empty `[]` but warn:
 
-> "An orphaned Feature (not linked to any User Story) contributes no traceable business value.
+> "A Feature with no linked User Story contributes no traceable business value.
 > Link at least one User Story once one exists — a Feature has no `status` field to mark it
 > exploratory with.
-> Orphaned Features are reported as an `ORPHAN_FEATURE` condition in living-doc-gap-finder reports."
+> A Feature without a User Story is reported as a `FEATURE_WITHOUT_USER_STORY` condition in living-doc-gap-finder reports."
 
 ## Step 4 — Enumerate Functionalities
 
@@ -183,7 +183,7 @@ If `user_stories` is `[]`, repeat the orphan warning from Step 3 outside the JSO
 |---|---|
 | Feature covers multiple unrelated screens | Split into one Feature per distinct screen |
 | Feature name is a verb (e.g. "Process Payment") | Feature names should be nouns — name the surface. Verb phrases describe *what the surface does*, which belongs in a Functionality entity (use **living-doc-create-functionality**). If it could be a PageObject or service/module class name, it is usually a better Feature name. |
-| Feature has no User Stories and no Functionalities | Orphan Feature — it contributes no traceable business value. Link at least one User Story once one exists, or delete it if it is no longer relevant. A Feature has no `status` field to flag it as exploratory with; living-doc-gap-finder reports it as an `ORPHAN_FEATURE` condition instead. |
+| Feature has no User Stories and no Functionalities | A Feature without a User Story — it contributes no traceable business value. Link at least one User Story once one exists, or delete it if it is no longer relevant. A Feature has no `status` field to flag it as exploratory with; living-doc-gap-finder reports it as a `FEATURE_WITHOUT_USER_STORY` condition instead. |
 | Shared utility library documented as a Feature | A shared utility library is never a Feature — there is no `surface_type` for it (only `UI` and `API` exist). Document it as an `external_dependency` on the consumer Features instead, however substantial it is. Features should map 1:1 to distinct/deployable UI or API surfaces. |
 | Feature name encodes implementation technology (e.g. "React Login Component", "Spring Payment Controller") | Feature names describe the business surface, not the stack. Use "Login Screen" (UI) or "Payment API" (API) — technology choice is an implementation detail that changes without the surface changing. |
 | `surface_type` is `UI` for a backend REST controller or service | A REST endpoint group is an `API` surface. `UI` is reserved for screens a human interacts with directly. Misclassification breaks impact analysis routing between frontend and backend changes. |
@@ -208,6 +208,29 @@ If `user_stories` is `[]`, repeat the orphan warning from Step 3 outside the JSO
 | The new Feature was an `external_dependencies` entry on other Features | **living-doc-update** — "Change a Feature's dependencies" moves the entry off every Feature that named it |
 
 > **Renaming a Feature:** Changing a Feature's `id` or `name` requires cascading updates. Load `living-doc-update` and follow the "Rename a Feature" workflow there. The minimum cascade is: (1) update the Feature entity itself, (2) update every linked Functionality `parent_feature`, (3) update the `feature_registry` entry, (4) update `manifest.json`, (5) update `seed.yaml`, (6) update PageObject file headers, (7) update Gherkin feature file `# Feature:` headers, then run **living-doc-gap-finder** to confirm no orphan references remain.
+
+## Indentation is significant
+
+A header is read part by part, and indentation decides where each part ends. Full rule:
+[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+writing one:
+
+- **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and
+  no marker is not read, and the file is reported.
+- **A key sits at the key level**, the indent of the header's first key. A line shaped `key:`
+  any deeper is content of the part above it, never a new key.
+- **A deeper line belongs to the item above it** — wrapped text or a nested item, never a
+  sibling and never a new key.
+- **One criterion level.** Every `AC:` line sits at the same indent, the first one setting it
+  (template: 2), with nothing but spaces after the `# `.
+- **A one-token value takes one line** — a state, a date, an id, a URL, a route, a file name, a
+  surface type. A further line under it is not read.
+- **Nest only in a bullet-list field** (`business_value`, `preconditions`, `not_in_scope`,
+  `rationale`, `notes`) — never in an id-list field (`user_stories`, `functionalities`,
+  `feature_dependencies`, `parent`, `superseded_by`), which holds one id per entry.
+- **A blank line is layout**: it ends nothing — not an item, not a key, not a criterion.
+- Indent with spaces. Levels are relative, so no column is fixed, and a flat layout where
+  items sit at their key's own indent stays valid.
 
 ## Script — `validate_entity.py`
 

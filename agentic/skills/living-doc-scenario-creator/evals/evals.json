@@ -294,6 +294,43 @@
         "One Scenario for AC:FUNC-001-01 with # AC: comment and @AC: tag immediately above it",
         "Business language steps — no HTTP, selectors, or DB"
       ]
+    },
+    {
+      "category": "happy-path",
+      "prompt": "Generate the scenarios for AC:US-042-03, which reads \"the reset link is sent to the customer's {channel}\" and declares '- channel: email, sms, push'.",
+      "expected_output": "Agent generates three scenarios, one per declared value, each tagged with exactly one variant parameter using the AC's own name: '@AC:US-042-03/channel:email', '@AC:US-042-03/channel:sms', '@AC:US-042-03/channel:push'. It does not put two parameters on one tag, does not use 'aspect' as the parameter name (the AC declared a keyword, not '- Aspect:'), and does not emit a single bare '@AC:US-042-03' tag unless one scenario really covers all three values.",
+      "expectations": [
+        "One scenario per declared value — three scenarios",
+        "Each tag carries exactly one '/<param>:<value>' segment",
+        "The parameter name is the AC's own keyword ('channel'), not 'aspect'",
+        "Does not collapse the three values into one tag"
+      ],
+      "id": 23,
+      "files": []
+    },
+    {
+      "category": "negative",
+      "prompt": "Can I tag one scenario '@AC:US-042-03/channel:email/role:admin' to cover both at once?",
+      "expected_output": "Agent says no: a tag carries at most one variant parameter, because a scenario covers one value — a tag with two is MALFORMED_AC. It explains that the AC itself declares one variant, so there is no second parameter to name, and points at writing one scenario per value instead. If the behaviour genuinely varies along two axes, that is two acceptance criteria.",
+      "expectations": [
+        "States the one-parameter-per-tag rule",
+        "Names MALFORMED_AC",
+        "Proposes one scenario per value, or two ACs if two axes genuinely vary"
+      ],
+      "id": 24,
+      "files": []
+    },
+    {
+      "category": "output-format",
+      "prompt": "AC:US-042-03 declares '- Aspect: email, sms, push' and we have one data-driven scenario that exercises all three. How do we tag it?",
+      "expected_output": "Agent tags it with a bare '@AC:US-042-03' — a bare tag covers the whole AC, every declared value at once, which is exactly what a data-driven scenario does. It notes that review should confirm the scenario really does cover every value, since a bare tag reports the AC as covered rather than partially covered.",
+      "expectations": [
+        "Uses a bare '@AC:<id>' tag, with no variant parameter",
+        "Explains that a bare tag covers every declared value",
+        "Notes that review confirms the scenario really covers them all"
+      ],
+      "id": 25,
+      "files": []
     }
   ]
 }

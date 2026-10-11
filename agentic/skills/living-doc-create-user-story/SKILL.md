@@ -119,6 +119,29 @@ When the User Story has preconditions or explicit exclusions that apply across a
 
 Ask: *Are there any system-level preconditions (required states before any scenario can run) or explicit exclusions (things this US deliberately does not cover)?* If yes, note them for the feature file header — they will be incorporated when `living-doc-scenario-creator` generates the Gherkin.
 
+## Indentation is significant
+
+A header is read part by part, and indentation decides where each part ends. Full rule:
+[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+writing one:
+
+- **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and
+  no marker is not read, and the file is reported.
+- **A key sits at the key level**, the indent of the header's first key. A line shaped `key:`
+  any deeper is content of the part above it, never a new key.
+- **A deeper line belongs to the item above it** — wrapped text or a nested item, never a
+  sibling and never a new key.
+- **One criterion level.** Every `AC:` line sits at the same indent, the first one setting it
+  (template: 2), with nothing but spaces after the `# `.
+- **A one-token value takes one line** — a state, a date, an id, a URL, a route, a file name, a
+  surface type. A further line under it is not read.
+- **Nest only in a bullet-list field** (`business_value`, `preconditions`, `not_in_scope`,
+  `rationale`, `notes`) — never in an id-list field (`user_stories`, `functionalities`,
+  `feature_dependencies`, `parent`, `superseded_by`), which holds one id per entry.
+- **A blank line is layout**: it ends nothing — not an item, not a key, not a criterion.
+- Indent with spaces. Levels are relative, so no column is fixed, and a flat layout where
+  items sit at their key's own indent stays valid.
+
 ## Step 4 — Validate and output
 
 > **ID assignment:** before assigning a `US-nnn` ID, run

@@ -245,6 +245,19 @@
         "States that validate_entity.py reports this as an error, not a warning",
         "Does not invent an eighth value or silently accept the input"
       ]
+    },
+    {
+      "category": "happy-path",
+      "prompt": "FUNC-014 validates the uploaded file. Write the AC — it must reject a file that is empty, too large, or of the wrong type.",
+      "expected_output": "Agent writes one AC declaring the three values once, naming the varying value in the AC text as a placeholder and the declaration with the same name — '{rejection-reason}' in the text and '- rejection-reason: empty, too-large, wrong-type' as the bullet — or '- Aspect:' with no placeholder. One declaration, not both, and not three separate ACs. The same rule covers the User Story and the Functionality template.",
+      "expectations": [
+        "Writes ONE acceptance criterion declaring three values",
+        "One declaration only — never 'Aspect:' plus a keyword",
+        "The keyword name is lowercase kebab-case, identical in the text and the bullet",
+        "Does not split into three ACs"
+      ],
+      "id": 19,
+      "files": []
     }
   ]
 }

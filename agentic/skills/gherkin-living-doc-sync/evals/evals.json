@@ -189,6 +189,30 @@
         "Routes PageObject method rename to living-doc-pageobject-scan HEALING",
         "Does not attempt to rename PO methods within gherkin-living-doc-sync"
       ]
+    },
+    {
+      "category": "regression",
+      "prompt": "Audit this file. The AC declares '- channel: email, sms' and the scenario above is tagged '@AC:US-042-03/aspect:email'.",
+      "expected_output": "Agent reports a SYNC ACTION: the tag's parameter name must be the AC's own variant name. The AC declared the keyword 'channel', so the tag reads '@AC:US-042-03/channel:email'; 'aspect' is the name only when the AC declared '- Aspect:'. It proposes correcting the tag, not the AC, since the AC's declaration is well-formed.",
+      "expectations": [
+        "Detects that the tag's parameter name is not the AC's declared name",
+        "Proposes '@AC:US-042-03/channel:email'",
+        "Corrects the tag rather than the AC's declaration"
+      ],
+      "id": 15,
+      "files": []
+    },
+    {
+      "category": "regression",
+      "prompt": "A scenario is tagged '@AC:US-042-03/channel:fax' and the AC declares '- channel: email, sms'. What do you report?",
+      "expected_output": "Agent reports STALE_AC_REF: 'fax' is not a declared value of 'channel' on AC:US-042-03. It lists the declared values and offers the two resolutions — add 'fax' to the AC's '- channel:' declaration if the behaviour really varies that way, or fix the tag. It does not silently drop the scenario.",
+      "expectations": [
+        "Names STALE_AC_REF",
+        "Lists the AC's declared values",
+        "Offers both resolutions: extend the declaration, or fix the tag"
+      ],
+      "id": 16,
+      "files": []
     }
   ]
 }

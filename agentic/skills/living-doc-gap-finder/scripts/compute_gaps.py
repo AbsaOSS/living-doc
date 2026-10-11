@@ -28,18 +28,23 @@ import argparse
 import json
 import sys
 from datetime import datetime, timezone
+from decimal import Decimal, ROUND_HALF_UP
+from fractions import Fraction
 
 # Gap type → (sort priority, severity label)
 PRIORITIES = {
     "UNTESTED_AC": (1, "Blocker"),
+    # An AC whose variants are only partly covered is a real gap but not a blocker: the
+    # behaviour is tested, some declared values are not (DEC-74's `partially_covered`).
+    "PARTIALLY_TESTED_AC": (1, "Important"),
     "UNDOCUMENTED_SURFACE": (2, "Important"),
-    "ORPHAN_FEATURE": (3, "Important"),
+    "FEATURE_WITHOUT_USER_STORY": (3, "Important"),
     "ORPHAN_USER_STORY": (4, "Important"),
     "ORPHAN_FUNCTIONALITY": (5, "Important"),
     "ORPHAN_TEST": (6, "Important"),
     "STALE_REFERENCE": (7, "Important"),
     "UNDOCUMENTED_FUNCTIONALITY": (8, "Nit"),
-    "EMPTY_FEATURE": (9, "Nit"),
+    "FEATURE_WITHOUT_FUNCTIONALITY": (9, "Nit"),
 }
 
 
@@ -123,13 +128,33 @@ def compute_gaps(snapshot: dict) -> list[dict]:
         if isinstance(link, dict) and link.get("ac_status", "").lower() == "deprecated":
             deprecated_ac_ids.add(ac_id)
 
-    # ── Gap 1 — UNTESTED_AC ────────────────────────────────────────────────────
-    for ac_id, test_link in known_test_links.items():
-        if test_link is None:
+    # ── Gap 1 — UNTESTED_AC / PARTIALLY_TESTED_AC ─────────────────────────────
+    # Counted per declared variant value: an AC with values is a gap until every one of them
+    # has a scenario. Only the missing values go in the proposed action — the covered ones
+    # need no scenario (living-doc-header-types.md#ac-variants, DEC-74).
+    declared = declared_values(catalog)
+    covered_by_value = covered_values(known_test_links)
+    for ac_id in {aid for aid, _ in (_split_link_key(k) for k in known_test_links)}:
+        state, hit, total_values, missing = ac_coverage(ac_id, declared, covered_by_value)
+        if state == "covered":
+            continue
+        figure = f" ({hit}/{total_values})" if ac_id in declared else ""
+        if state == "partially_covered":
+            add_gap(
+                "PARTIALLY_TESTED_AC",
+                ac_id,
+                f"AC '{ac_id}' has no scenario for every declared value{figure}: "
+                f"{', '.join(missing)}",
+                "Generate one scenario per missing value with "
+                "living-doc-scenario-creator, each tagged "
+                f"@{ac_id}/<name>:<value> with the AC's own variant name",
+            )
+        else:
             add_gap(
                 "UNTESTED_AC",
                 ac_id,
-                f"AC '{ac_id}' has no linked test",
+                f"AC '{ac_id}' has no linked test{figure}"
+                + (f": {', '.join(missing)}" if missing else ""),
                 "Generate a BDD scenario using living-doc-scenario-creator, "
                 "or add a unit/integration test and link it to this AC",
             )
@@ -149,7 +174,7 @@ def compute_gaps(snapshot: dict) -> list[dict]:
                 "Create a Feature entity using living-doc-create-feature",
             )
 
-    # ── Gap 3 — ORPHAN_FEATURE ────────────────────────────────────────────────
+    # ── Gap 3 — FEATURE_WITHOUT_USER_STORY ────────────────────────────────────────────────
     # Honour both the Feature's own forward `user_stories` link and the back-link
     # from a User Story's `features` list (features_linked_from_us, built above) —
     # otherwise a Feature linked only from the User Story side is falsely flagged,
@@ -157,7 +182,7 @@ def compute_gaps(snapshot: dict) -> list[dict]:
     for feat in features:
         if not feat.get("user_stories") and feat["id"] not in features_linked_from_us:
             add_gap(
-                "ORPHAN_FEATURE",
+                "FEATURE_WITHOUT_USER_STORY",
                 feat["id"],
                 f"Feature '{feat['id']}' ({feat.get('name', '')}) has no linked User Stories",
                 "Link to an existing User Story or confirm with the product owner whether to deprecate",
@@ -226,11 +251,11 @@ def compute_gaps(snapshot: dict) -> list[dict]:
                 "Create unit or integration tests for this Functionality's ACs and link them",
             )
 
-    # ── Gap 9 — EMPTY_FEATURE ─────────────────────────────────────────────────
+    # ── Gap 9 — FEATURE_WITHOUT_FUNCTIONALITY ─────────────────────────────────────────────────
     for feat in features:
         if feature_func_counts.get(feat["id"], 0) == 0 and not feat.get("functionalities"):
             add_gap(
-                "EMPTY_FEATURE",
+                "FEATURE_WITHOUT_FUNCTIONALITY",
                 feat["id"],
                 f"Feature '{feat['id']}' ({feat.get('name', '')}) has no Functionalities defined",
                 "Create Functionalities for known behaviors using living-doc-create-functionality",
@@ -244,14 +269,110 @@ def compute_gaps(snapshot: dict) -> list[dict]:
     return gaps
 
 
+
+# ── AC variants: coverage per declared value ─────────────────────────────────────────
+# An AC that declares variants is `covered` only when every declared value has a scenario,
+# `not_covered` when none has, `partially_covered` otherwise — the coverage matrix's three
+# states (living-doc-header-types.md#ac-variants). A link may name the value it covers, in
+# the tag's own form (`AC:US-001-01/channel:email`); a bare AC id covers the whole AC, every
+# declared value at once.
+
+
+def declared_values(catalog: dict) -> dict[str, list[str]]:
+    """Each AC's declared variant values, by AC id, from the catalog's entities."""
+    declared: dict[str, list[str]] = {}
+    for group in ("user_stories", "functionalities"):
+        for entity in catalog.get(group, []) or []:
+            for ac in entity.get("acceptance_criteria", []) or []:
+                if not isinstance(ac, dict):
+                    continue
+                ac_id = ac.get("id")
+                values = [str(v) for v in (ac.get("aspect") or [])]
+                if ac_id and values:
+                    declared[ac_id] = values
+    return declared
+
+
+def _split_link_key(key: str) -> tuple[str, str | None]:
+    """An AC link key as `(ac_id, value_or_None)` — `AC:US-1-01/channel:email` names a value."""
+    if "/" in key:
+        ac_id, _, segment = key.partition("/")
+        return ac_id, segment.split(":", 1)[1] if ":" in segment else None
+    return key, None
+
+
+def covered_values(known_test_links: dict) -> dict[str, dict]:
+    """Per AC: the declared values its links cover, and whether any link is for the whole AC."""
+    covered: dict[str, dict] = {}
+    for key, link in known_test_links.items():
+        ac_id, value = _split_link_key(key)
+        entry = covered.setdefault(ac_id, {"linked": False, "values": set(), "whole": False})
+        if link is None:
+            continue
+        entry["linked"] = True
+        if value is None:
+            entry["whole"] = True
+        else:
+            entry["values"].add(value)
+    return covered
+
+
+def ac_coverage(ac_id: str, declared: dict[str, list[str]], covered: dict[str, dict]):
+    """``(state, covered_count, declared_count, missing_values)`` for one AC."""
+    values = declared.get(ac_id, [])
+    entry = covered.get(ac_id) or {"linked": False, "values": set(), "whole": False}
+    if not values:
+        return ("covered" if entry["linked"] else "not_covered"), int(entry["linked"]), 1, []
+    if entry["whole"]:
+        return "covered", len(values), len(values), []
+    missing = [v for v in values if v not in entry["values"]]
+    hit = len(values) - len(missing)
+    if hit == 0:
+        return "not_covered", 0, len(values), missing
+    if missing:
+        return "partially_covered", hit, len(values), missing
+    return "covered", hit, len(values), []
+
+
 def coverage_stats(snapshot: dict, gaps: list[dict]) -> dict:
+    """The three state counts and one weighted figure, by `DEC-74`'s formula.
+
+    A `covered` AC counts 1, `not_covered` 0, and `partially_covered` its covered values over
+    its declared values. The figure is computed from exact fractions and rounded once, to one
+    decimal, half up — not by rounding each AC first, and never as the mean of the entities.
+    `None` when nothing is counted.
+    """
     known_test_links: dict = snapshot.get("known_test_links", {})
-    total = len(known_test_links)
-    covered = sum(1 for v in known_test_links.values() if v is not None)
+    declared = declared_values(snapshot.get("catalog", {}))
+    covered_by_value = covered_values(known_test_links)
+    ac_ids = sorted({aid for aid, _ in (_split_link_key(k) for k in known_test_links)})
+
+    counts = {"covered": 0, "partially_covered": 0, "not_covered": 0}
+    weight = Fraction(0)
+    for ac_id in ac_ids:
+        state, hit, total_values, _ = ac_coverage(ac_id, declared, covered_by_value)
+        counts[state] += 1
+        weight += Fraction(hit, total_values) if total_values else Fraction(0)
+
+    counted = len(ac_ids)
+    pct = None
+    if counted:
+        exact = weight / counted * 100
+        # Decimal with ROUND_HALF_UP: Python's round() is banker's rounding, which would
+        # turn 16.25 into 16.2 where the decision says 16.3.
+        pct = float(
+            (Decimal(exact.numerator) / Decimal(exact.denominator)).quantize(
+                Decimal("0.1"), rounding=ROUND_HALF_UP
+            )
+        )
     return {
-        "total_acs": total,
-        "covered_acs": covered,
-        "coverage_percentage": round(covered / total * 100, 1) if total else 0.0,
+        "total_acs": counted,
+        "counted_acs": counted,
+        "covered_acs": counts["covered"],
+        "partially_covered_acs": counts["partially_covered"],
+        "not_covered_acs": counts["not_covered"],
+        "coverage_percentage": pct,
+        "coverage_pct": pct,
     }
 
 

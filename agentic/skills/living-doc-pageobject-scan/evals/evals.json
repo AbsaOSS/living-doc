@@ -213,6 +213,31 @@
         "Notes the seed check rejects inline credential literals",
         "Does not report done until validators exit 0"
       ]
+    },
+    {
+      "category": "happy-path",
+      "prompt": "Our PageObjects were written two years ago and still carry `status: active` and `deprecated_at:`. We need them on the current canon before the next scan.",
+      "expected_output": "Agent runs `python scripts/migrate_pageobject_headers.py tests/pages` to report, then `--fix` to apply. It explains that `status:` and `deprecated_at:` are removed — a surface has no status and a Feature has no deprecation date — while `deprecation_reason:` and `superseded_by:` stay, since those record a retirement and drive no state. It notes the migration runs before a RE-SCAN, because the scan reads those headers and a stale `status:` would otherwise survive it.",
+      "expectations": [
+        "Runs the migration script in report mode first, then --fix",
+        "States that status: and deprecated_at: are removed",
+        "States that deprecation_reason: and superseded_by: are kept",
+        "Sequences the migration before a RE-SCAN"
+      ],
+      "id": 16,
+      "files": []
+    },
+    {
+      "category": "edge",
+      "prompt": "The migration says `status: STUB` needs a human. Why can't it just delete it?",
+      "expected_output": "Agent explains that `status: STUB` is the only record on that header that the surface is documented but not instrumented. Removing it with no `stub-reason:` present would lose the fact. The fix is to write `stub-reason: <why it is not instrumented>` first, then re-run: the presence of `stub-reason:` is the marker, and there is no status value for it.",
+      "expectations": [
+        "Explains that the status carries the not-instrumented fact",
+        "Tells the author to write stub-reason: first, then re-run",
+        "States that stub-reason:'s presence is the marker, with no status value"
+      ],
+      "id": 17,
+      "files": []
     }
   ]
 }

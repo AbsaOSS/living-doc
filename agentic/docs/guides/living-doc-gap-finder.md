@@ -10,7 +10,7 @@ The skill scans your catalog and reports gaps:
 
 | Output | Description |
 |--------|-------------|
-| **Gap categories** | UNTESTED_AC, UNDOCUMENTED_SURFACE, ORPHAN_TEST, ORPHAN_FEATURE, STALE_REFERENCE, etc. |
+| **Gap categories** | UNTESTED_AC, PARTIALLY_TESTED_AC, UNDOCUMENTED_SURFACE, ORPHAN_TEST, FEATURE_WITHOUT_USER_STORY, STALE_REFERENCE, etc. |
 | **Prioritization** | Ranks by business impact (critical flows first) |
 | **Remediation routing** | Points to the right skill to fix each gap |
 | **Coverage metrics** | Percentage of Features, Functionalities, ACs with scenarios |

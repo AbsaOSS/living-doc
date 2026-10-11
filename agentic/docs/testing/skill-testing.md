@@ -17,6 +17,7 @@ This document provides a comprehensive methodology for testing, evaluating, and 
 
 What you need: an agent harness that can load a skill from a folder and run a prompt against it, with and without that skill enabled. The commands below are written for a Copilot CLI or Chat session driving Anthropic's [`skill-creator`](https://github.com/anthropics/skills/tree/main/skills/skill-creator) skill, which is what this layer was developed with; any harness with the same two abilities works, and `skill-creator` is not vendored here.
 
+0. See what already exists: `python agentic/scripts/evals-inventory.py <skill-name>`
 1. Create eval cases in `agentic/skills/<skill-name>/evals/evals.json`
 2. Add fixture files under `agentic/skills/<skill-name>/evals/files/` when prompts depend on local files
 3. Start a session from the repository root

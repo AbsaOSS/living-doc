@@ -39,8 +39,18 @@ import re
 # scans a whole line (multiple tags may share it) and has no line-level $ anchor to
 # lean on the way a single-token match() does.
 _AC_ID_CORE = r"(?:US|FUNC)-\d+-\d{2}(?!\d)"
-_AC_PARAMS = r"(?:/[a-z][\w-]*:[^\s/@]+)*"
-AC_TAG_PATTERN = re.compile(rf"@AC:({_AC_ID_CORE})({_AC_PARAMS})", re.IGNORECASE)
+# A variant name is one lowercase kebab-case word — the same spelling in the AC text
+# (`{field}`), the bullet (`- field:`) and the tag (`@AC:<id>/field:<value>`). `aspect` is the
+# reserved name for a `- Aspect:` declaration.
+VARIANT_NAME = r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*"
+# At most ONE `/<param>:<value>` segment: a scenario covers one value, so one scenario is
+# tagged per value. A tag with two parameters is MALFORMED_AC and must not match here — the
+# pattern used to allow `(...)*`, which silently accepted `@AC:US-1-01/aspect:a/field:b`.
+# The `(?![\w/-])` guard makes that second segment fail the match instead of being ignored.
+_AC_PARAMS = rf"(?:/{VARIANT_NAME}:[^\s/@]+)?(?![\w/-])"
+# Not IGNORECASE: the id is matched case-insensitively below, but a variant name is
+# lowercase by canon, so `@AC:US-1-01/Aspect:X` must not pass as well-formed.
+AC_TAG_PATTERN = re.compile(rf"@AC:((?i:{_AC_ID_CORE}))({_AC_PARAMS})")
 
 # Bare "AC:US-001-01" form (no leading "@", no /param segments) — for validating an
 # AC's own "id" field in entity JSON (e.g. living-doc-update's validate_entity.py),

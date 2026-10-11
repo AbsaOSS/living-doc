@@ -48,7 +48,17 @@ the script generates for that commit.
 
 CI proves the scripts work. It says nothing about whether a skill *behaves* well — whether it
 triggers on the right prompts and produces the right output. That is eval work, it is manual, and
-it has its own guides:
+it has its own guides.
+
+Before starting a loop, see what material exists and that none of it is broken:
+
+```bash
+python agentic/scripts/evals-inventory.py              # body and trigger counts per skill
+python agentic/scripts/evals-inventory.py --check      # shape only, exit 1 on a problem
+python agentic/scripts/evals-inventory.py <skill>      # one skill
+```
+
+It is an aid, not a test, and deliberately not in CI — nothing here runs an eval. The guides:
 
 - [docs/testing/skill-testing.md](docs/testing/skill-testing.md) — eval cases, fixtures,
   with/without comparison, the regression-first loop, trigger testing, description optimisation

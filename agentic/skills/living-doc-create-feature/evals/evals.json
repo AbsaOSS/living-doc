@@ -34,12 +34,12 @@
       "id": 3,
       "category": "regression",
       "prompt": "My Feature entity has no User Stories linked and no Functionalities. Is that OK?",
-      "expected_output": "Agent warns: an orphaned Feature with no User Stories and no Functionalities contributes no traceable business value. A Feature has no `status` field to flag it as exploratory with. Either link to at least one User Story once one exists, or delete it if it is no longer relevant. Notes that orphan Features are reported by living-doc-gap-finder as an ORPHAN_FEATURE condition.",
+      "expected_output": "Agent warns: a Feature with no linked User Story with no User Stories and no Functionalities contributes no traceable business value. A Feature has no `status` field to flag it as exploratory with. Either link to at least one User Story once one exists, or delete it if it is no longer relevant. Notes that a Feature without a User Story is reported by living-doc-gap-finder as a FEATURE_WITHOUT_USER_STORY condition.",
       "files": [],
       "expectations": [
-        "Warns about orphaned Feature",
+        "Warns about Feature with no linked User Story",
         "Does not suggest a Feature status field (Features have none)",
-        "Notes orphan Features are reported as an ORPHAN_FEATURE condition in gap reports"
+        "Notes a Feature without a User Story is reported as a FEATURE_WITHOUT_USER_STORY condition in gap reports"
       ]
     },
     {

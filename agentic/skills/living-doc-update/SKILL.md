@@ -36,7 +36,7 @@ If the user says "update the story" but the substance is a newly discovered edge
 | Add a linked User Story | Feature | Append to `user_stories` |
 | Add, drop, or promote a dependency | Feature / Functionality | See [Change a Feature's dependencies](#change-a-features-dependencies) — a promotion cascades across every Feature that names the dependency |
 | Deprecate a User Story or Functionality | User Story / Functionality | Set `status: deprecated`; add `deprecated_at`, `deprecation_reason`, and optionally `superseded_by` |
-| Deprecate a Feature | Feature | Add `deprecation_reason` and optionally `superseded_by` — never set a `status` field, and never author `deprecated_at`; the surface's retirement is recorded through its Functionalities being deprecated, and its state and date are derived from them |
+| Deprecate a Feature | Feature | Add `deprecation_reason` and optionally `superseded_by` — never set a `status` field, and never author `deprecated_at`; the surface's retirement is recorded through its Functionalities being deprecated, and its state is derived from them |
 | Delete a Functionality | Functionality | Do not delete — deprecate it, and record the commit that removed the backing code as a `## Notes` bullet |
 
 ## Update a User Story — add or modify ACs
@@ -99,6 +99,29 @@ When promotion is blocked because only a happy-path AC exists, give a concrete e
 
 After promoting a User Story to `active`, trigger `living-doc-scenario-creator` to generate BDD feature files for each `active` AC if they do not yet exist.
 
+## Indentation is significant
+
+A header is read part by part, and indentation decides where each part ends. Full rule:
+[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+writing one:
+
+- **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and
+  no marker is not read, and the file is reported.
+- **A key sits at the key level**, the indent of the header's first key. A line shaped `key:`
+  any deeper is content of the part above it, never a new key.
+- **A deeper line belongs to the item above it** — wrapped text or a nested item, never a
+  sibling and never a new key.
+- **One criterion level.** Every `AC:` line sits at the same indent, the first one setting it
+  (template: 2), with nothing but spaces after the `# `.
+- **A one-token value takes one line** — a state, a date, an id, a URL, a route, a file name, a
+  surface type. A further line under it is not read.
+- **Nest only in a bullet-list field** (`business_value`, `preconditions`, `not_in_scope`,
+  `rationale`, `notes`) — never in an id-list field (`user_stories`, `functionalities`,
+  `feature_dependencies`, `parent`, `superseded_by`), which holds one id per entry.
+- **A blank line is layout**: it ends nothing — not an item, not a key, not a criterion.
+- Indent with spaces. Levels are relative, so no column is fixed, and a flat layout where
+  items sit at their key's own indent stays valid.
+
 ## Deprecate a Feature, Functionality, or User Story
 
 Use this workflow when code backing an entity is deleted or a business capability is retired.
@@ -107,7 +130,7 @@ Set the relevant fields in the project's Storage Profile format:
 | Field | Value | Applies to |
 |---|---|---|
 | `status` | `deprecated` | Functionality and User Story only — a Feature has no `status` field |
-| `deprecated_at` | Date of deprecation | Functionality and User Story only — on a Feature it is **derived** alongside the state, never authored |
+| `deprecated_at` | Date of deprecation | Functionality and User Story only — a Feature has **no deprecation date** at all, authored or derived |
 | `deprecation_reason` | Why it was deprecated | Feature, Functionality, and User Story |
 | `superseded_by` | ID of the replacement entity (if applicable) | Feature, Functionality, and User Story |
 
@@ -121,7 +144,7 @@ Rules:
   not schema. Do not invent a typed field for it — neither the canon nor `living-doc-utilities`
   defines one, and `validate_entity.py` treats any such key as unrecognised.
 - Add `superseded_by` when a replacement entity exists
-- A Feature never gets a `status` field, deprecated or otherwise — its state is derived from its Functionalities. Retiring a Feature means deprecating every Functionality it owns; the Feature entity itself only gains `deprecation_reason` / `superseded_by` as a record of why the surface was retired. Its `deprecated_at` is derived with the state, so do not author one — `validate_entity.py` flags a Feature that carries it.
+- A Feature never gets a `status` field, deprecated or otherwise — its state is derived from its Functionalities. Retiring a Feature means deprecating every Functionality it owns; the Feature entity itself only gains `deprecation_reason` / `superseded_by` as a record of why the surface was retired. A Feature has no `deprecated_at` at all, so do not author one — `validate_entity.py` flags a Feature that carries it.
 - If a deprecated Feature owns Functionalities, flag every owned Functionality for deprecation review before closing the change.
 - Flag any tests linked to the deprecated entity for update or removal
 - If the deprecated entity has `ACTIVE` ACs with linked Gherkin scenarios, trigger
@@ -205,7 +228,7 @@ point the call is an edge to a Feature, and it moves off every Feature that name
    Functionalities whose tests stubbed the dependency for test review — they can now test against a
    documented contract.
 6. **Expect the new Feature to be an orphan.** It owns no Functionalities yet, so
-   `living-doc-gap-finder` reports `ORPHAN_FEATURE`, and its derived state is `planned` until its first
+   `living-doc-gap-finder` reports `FEATURE_WITHOUT_USER_STORY`, and its derived state is `planned` until its first
    Functionality is documented. Report that; do not invent placeholder Functionalities to silence it.
 7. **Validate** the new Feature and every edited entity:
    `python scripts/validate_entity.py <entity>.json --catalog catalog.json`. With the catalog, the
@@ -225,7 +248,7 @@ LIVING DOC UPDATE — 2026-09-29
   Flagged for test review (stubbed payment-events):
     FUNC-003, FUNC-005
   Downstream flags:
-    FEAT-007 is ORPHAN_FEATURE and derives as planned until its first Functionality is documented
+    FEAT-007 is FEATURE_WITHOUT_USER_STORY and derives as planned until its first Functionality is documented
 ```
 
 ## Descope an AC mid-sprint

@@ -140,8 +140,8 @@ def test_feature_surface_type_canonical_set_only():
     print("✓ Feature surface_type accepts only the canonical UI/API set and rejects everything else")
 
 
-def test_orphan_feature_reported_distinctly():
-    """A Feature with no linked User Stories and no Functionalities is an ORPHAN_FEATURE,
+def test_feature_without_user_story_reported_distinctly():
+    """A Feature with no linked User Stories and no Functionalities is a FEATURE_WITHOUT_USER_STORY,
     not a 'candidate' status — there is no status field to tag it with."""
     feat = {
         "entity_type": "Feature",
@@ -154,15 +154,15 @@ def test_orphan_feature_reported_distinctly():
         "owners": ["Team"],
     }
     issues = validate(feat)
-    orphan_issues = [i for i in issues if i["field"] == "ORPHAN_FEATURE"]
-    assert orphan_issues, f"expected an ORPHAN_FEATURE warning, got: {issues}"
-    print("✓ A Feature with no User Stories and no Functionalities is flagged as ORPHAN_FEATURE")
+    without_us_issues = [i for i in issues if i["field"] == "FEATURE_WITHOUT_USER_STORY"]
+    assert without_us_issues, f"expected a FEATURE_WITHOUT_USER_STORY warning, got: {issues}"
+    print("✓ A Feature with no User Stories and no Functionalities is flagged as FEATURE_WITHOUT_USER_STORY")
 
 
-def test_orphan_feature_with_functionalities_still_reported():
-    """gap-finder's ORPHAN_FEATURE gap (compute_gaps.py) fires on a missing User Story link
+def test_feature_without_user_story_with_functionalities_still_reported():
+    """gap-finder's FEATURE_WITHOUT_USER_STORY gap (compute_gaps.py) fires on a missing User Story link
     alone. A Feature that owns Functionalities but has no User Stories must still be flagged
-    as ORPHAN_FEATURE, not downgraded to a generic 'user_stories' warning."""
+    as FEATURE_WITHOUT_USER_STORY, not downgraded to a generic 'user_stories' warning."""
     feat = {
         "entity_type": "Feature",
         "id": "FEAT-3",
@@ -174,16 +174,16 @@ def test_orphan_feature_with_functionalities_still_reported():
         "owners": ["Team"],
     }
     issues = validate(feat)
-    orphan_issues = [i for i in issues if i["field"] == "ORPHAN_FEATURE"]
-    assert orphan_issues, f"expected an ORPHAN_FEATURE warning, got: {issues}"
+    without_us_issues = [i for i in issues if i["field"] == "FEATURE_WITHOUT_USER_STORY"]
+    assert without_us_issues, f"expected a FEATURE_WITHOUT_USER_STORY warning, got: {issues}"
     func_issues = [i for i in issues if i["field"] == "functionalities"]
     assert not func_issues, f"did not expect a functionalities warning, got: {func_issues}"
-    print("✓ A Feature with Functionalities but no User Stories is still flagged as ORPHAN_FEATURE")
+    print("✓ A Feature with Functionalities but no User Stories is still flagged as FEATURE_WITHOUT_USER_STORY")
 
 
-def test_orphan_feature_suppressed_by_catalog_back_link():
+def test_feature_without_user_story_suppressed_by_catalog_back_link():
     """A Feature with an empty own `user_stories` list, but referenced via a User
-    Story's forward `features` link in the catalog, must not be flagged ORPHAN_FEATURE —
+    Story's forward `features` link in the catalog, must not be flagged FEATURE_WITHOUT_USER_STORY —
     matches compute_gaps.py's Gap 3, which honours both link directions."""
     feat = {
         "entity_type": "Feature",
@@ -203,17 +203,17 @@ def test_orphan_feature_suppressed_by_catalog_back_link():
         },
     }
     issues = validate(feat, catalog)
-    orphan_issues = [i for i in issues if i["field"] == "ORPHAN_FEATURE"]
-    assert not orphan_issues, f"did not expect ORPHAN_FEATURE for a catalog back-linked Feature, got: {orphan_issues}"
+    without_us_issues = [i for i in issues if i["field"] == "FEATURE_WITHOUT_USER_STORY"]
+    assert not without_us_issues, f"did not expect FEATURE_WITHOUT_USER_STORY for a catalog back-linked Feature, got: {without_us_issues}"
     print("✓ A Feature linked only via a catalog User Story's forward link is not flagged orphan")
 
 
 def test_functionality_warning_suppressed_by_catalog_back_link():
     """A Feature with an empty own `functionalities` list, but referenced via a
     Functionality's `parent_feature` back-link in the catalog, must not get the
-    'functionalities' warning — matches compute_gaps.py's EMPTY_FEATURE gap, which unions
+    'functionalities' warning — matches compute_gaps.py's FEATURE_WITHOUT_FUNCTIONALITY gap, which unions
     a Feature's forward `functionalities` list with the catalog back-link
-    (feature_func_counts), the same treatment ORPHAN_FEATURE already gets for user_stories."""
+    (feature_func_counts), the same treatment FEATURE_WITHOUT_USER_STORY already gets for user_stories."""
     feat = {
         "entity_type": "Feature",
         "id": "FEAT-5",
@@ -774,10 +774,10 @@ def test_deprecated_feature_with_empty_marker_still_warns():
 
 
 def test_feature_authoring_deprecated_at_is_flagged():
-    """Canon derives a Feature's `deprecated_at` with its state; a Feature issue body
+    """A Feature has no `deprecated_at` at all, authored or derived: a Feature issue body
     carries no `## Deprecated At` heading and a PageObject header no `deprecated_at:`
     field. Authoring it must be reported — and never reported the other way round, as a
-    *missing* field, which would instruct the agent to author a derived value."""
+    *missing* field, which would ask the agent to author a key this entity type lacks."""
     feat = {
         "entity_type": "Feature",
         "id": "FEAT-1",
@@ -908,7 +908,7 @@ def test_feature_deprecation_derived_from_catalog():
     catalog = _feature_catalog(["deprecated", "deprecated"])
     issues = validate(_legacy_feature(superseded_by="FEAT-2"), catalog)
     assert any(i["field"] == "deprecation_reason" for i in issues), issues
-    # deprecated_at is derived for a Feature, so it is never reported as missing.
+    # A Feature has no deprecation date, so deprecated_at is never reported as missing.
     assert not [i for i in issues if i["field"] == "deprecated_at"], issues
     # The state was derived, so no authored-marker basis disclaimer is emitted.
     assert not [i for i in issues if i["field"] == "deprecation"], issues
@@ -930,7 +930,7 @@ def test_feature_not_deprecated_when_a_functionality_is_live():
 
 def test_feature_with_no_owned_functionalities_claims_no_state():
     """A catalog that gives the Feature no Functionalities leaves nothing to derive from.
-    The EMPTY_FEATURE warning already covers that; the validator must not additionally
+    The FEATURE_WITHOUT_FUNCTIONALITY warning already covers that; the validator must not additionally
     invent a deprecation state."""
     catalog = {"features": [{"id": "FEAT-1"}], "user_stories": [], "functionalities": []}
     issues = validate(_legacy_feature(functionalities=[], superseded_by="FEAT-2"), catalog)
@@ -1173,7 +1173,7 @@ def test_user_story_missing_error_path_warns():
 def test_reference_missing_feature_for_user_story_warns():
     """A User Story referencing a Feature ID absent from the catalog must warn — this
     exercises _validate_references(), which no prior test invoked directly (the existing
-    catalog-based tests all target the ORPHAN_FEATURE/functionalities back-link logic,
+    catalog-based tests all target the FEATURE_WITHOUT_USER_STORY/functionalities back-link logic,
     not this function)."""
     us = {
         "entity_type": "User Story",
@@ -1450,6 +1450,143 @@ def test_cli_stdin_input():
     print("✓ '-' reads the entity from stdin")
 
 
+# ── AC variants (living-doc-header-types.md#ac-variants) ─────────────────────────────
+# One declaration per AC, the keyword's name in the AC text, `aspect` reserved. The entity
+# JSON carries the declared values in `aspect` and a keyword's name in `placeholder_values`,
+# the shape `living-doc-utilities`' `AcceptanceCriterion` defines. `living-doc`'s
+# `tools/examples_check.py` runs the same checks over the corpus and is the reference.
+
+
+def _us_with_ac(ac: dict) -> dict:
+    """A minimal valid User Story carrying one AC, so only the AC's own issues surface."""
+    return {
+        "entity_type": "User Story",
+        "id": "US-1",
+        "name": "Reset a password",
+        "status": "active",
+        "features": ["FEAT-1"],
+        "acceptance_criteria": [ac],
+    }
+
+
+def _variant_issues(ac: dict) -> list[dict]:
+    issues = validate(_us_with_ac(ac))
+    return [
+        i
+        for i in issues
+        if "placeholder_values" in i["field"] or i["field"].endswith(".aspect")
+    ]
+
+
+def test_ac_keyword_variant_accepted():
+    """The named keyword is the other spelling of `Aspect:`: a lowercase kebab-case name, the
+    same in the AC text as `{name}`, with its values. Nothing to report."""
+    issues = _variant_issues({
+        "id": "AC:US-1-01",
+        "description": "the reset link is sent to the customer's {channel}",
+        "state": "active",
+        "aspect": ["email", "sms"],
+        "placeholder_values": {"channel": ["email", "sms"]},
+    })
+    assert not issues, issues
+    print("\u2713 A well-formed keyword variant is accepted")
+
+
+def test_ac_aspect_spelling_accepted():
+    """`- Aspect:` declares the values without naming them, so the AC text needs no
+    placeholder and `placeholder_values` stays empty."""
+    issues = _variant_issues({
+        "id": "AC:US-1-01",
+        "description": "the reset link is sent to the customer",
+        "state": "active",
+        "aspect": ["email", "sms"],
+    })
+    assert not issues, issues
+    print("\u2713 The Aspect: spelling is accepted without a keyword name")
+
+
+def test_ac_two_keywords_rejected():
+    """Two keywords are two declarations — MALFORMED_AC. `Aspect:` plus a keyword and
+    `Aspect:` twice collapse into this same shape once parsed."""
+    issues = _variant_issues({
+        "id": "AC:US-1-01",
+        "description": "the reset link is sent to {channel} for {role}",
+        "state": "active",
+        "aspect": ["email"],
+        "placeholder_values": {"channel": ["email"], "role": ["email"]},
+    })
+    assert any(i["severity"] == "error" and "more than one variant" in i["message"]
+               for i in issues), issues
+    print("\u2713 An AC declaring two variants is rejected")
+
+
+def test_ac_keyword_named_aspect_rejected():
+    """`aspect` is reserved: it names the `- Aspect:` spelling, so no keyword may take it."""
+    issues = _variant_issues({
+        "id": "AC:US-1-01",
+        "description": "the reset link is sent for each {aspect}",
+        "state": "active",
+        "aspect": ["email"],
+        "placeholder_values": {"aspect": ["email"]},
+    })
+    assert any(i["severity"] == "error" and "reserved" in i["message"] for i in issues), issues
+    print("\u2713 A keyword named 'aspect' is rejected")
+
+
+def test_ac_keyword_not_named_in_text_reported():
+    """A `- <name>:` bullet is a keyword only when the AC text names it as `{<name>}`;
+    otherwise it is UNPARSED_AC_LINE, reported so the author either names it or drops it."""
+    issues = _variant_issues({
+        "id": "AC:US-1-01",
+        "description": "the reset link is sent to the customer",
+        "state": "active",
+        "aspect": ["email"],
+        "placeholder_values": {"channel": ["email"]},
+    })
+    assert any("is not a keyword of this AC" in i["message"] for i in issues), issues
+    print("\u2713 A keyword the AC text never names is reported")
+
+
+def test_ac_keyword_name_must_be_kebab_case():
+    """The name is written identically in the text, the declaration and the tag, which only
+    holds if it is one lowercase kebab-case word."""
+    issues = _variant_issues({
+        "id": "AC:US-1-01",
+        "description": "the reset link is sent to {Channel}",
+        "state": "active",
+        "aspect": ["email"],
+        "placeholder_values": {"Channel": ["email"]},
+    })
+    assert any(i["severity"] == "error" and "kebab-case" in i["message"] for i in issues), issues
+    print("\u2713 A keyword name that is not lowercase kebab-case is rejected")
+
+
+def test_ac_keyword_and_aspect_values_must_agree():
+    """One declaration means one set of values: the keyword's values and `aspect` are two
+    views of the same list, and a disagreement means the AC was edited in one place only."""
+    issues = _variant_issues({
+        "id": "AC:US-1-01",
+        "description": "the reset link is sent to {channel}",
+        "state": "active",
+        "aspect": ["email", "sms"],
+        "placeholder_values": {"channel": ["email", "push"]},
+    })
+    assert any(i["severity"] == "error" and "disagree" in i["message"] for i in issues), issues
+    print("\u2713 Disagreeing keyword and aspect values are rejected")
+
+
+def test_ac_placeholder_without_declaration_reported():
+    """The AC text names a varying value but declares none: the scenarios have nothing to
+    cover value by value, and a tag naming one would be STALE_AC_REF."""
+    issues = _variant_issues({
+        "id": "AC:US-1-01",
+        "description": "the reset link is sent to {channel}",
+        "state": "active",
+    })
+    assert any("declares no values" in i["message"] for i in issues), issues
+    print("\u2713 A placeholder with no declared values is reported")
+
+
 if __name__ == "__main__":
     try:
         test_single_digit_entity_ids_accepted()
@@ -1461,9 +1598,9 @@ if __name__ == "__main__":
         test_end_to_end_slug_feature_id_flagged()
         test_feature_with_status_field_rejected()
         test_feature_surface_type_canonical_set_only()
-        test_orphan_feature_reported_distinctly()
-        test_orphan_feature_with_functionalities_still_reported()
-        test_orphan_feature_suppressed_by_catalog_back_link()
+        test_feature_without_user_story_reported_distinctly()
+        test_feature_without_user_story_with_functionalities_still_reported()
+        test_feature_without_user_story_suppressed_by_catalog_back_link()
         test_functionality_warning_suppressed_by_catalog_back_link()
         test_functionality_warning_still_reported_without_back_link()
         test_profile_missing_pyyaml_hard_fails()
@@ -1491,6 +1628,14 @@ if __name__ == "__main__":
         test_deprecated_feature_via_markers_warns()
         test_deprecated_feature_with_empty_marker_still_warns()
         test_feature_authoring_deprecated_at_is_flagged()
+        test_ac_keyword_variant_accepted()
+        test_ac_aspect_spelling_accepted()
+        test_ac_two_keywords_rejected()
+        test_ac_keyword_named_aspect_rejected()
+        test_ac_keyword_not_named_in_text_reported()
+        test_ac_keyword_name_must_be_kebab_case()
+        test_ac_keyword_and_aspect_values_must_agree()
+        test_ac_placeholder_without_declaration_reported()
         test_unknown_deprecation_key_is_not_a_deprecation_marker()
         test_feature_state_not_claimed_without_catalog()
         test_feature_with_no_markers_and_no_catalog_is_silent()

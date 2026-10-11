@@ -16,7 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared" / "lib"))
 from ac_tag import iter_ac_tags  # noqa: E402 — path must be set up first
 
-from coverage_report import get_ac_tags_above  # noqa: E402
+from coverage_report import ac_coverage_state, get_ac_tags_above  # noqa: E402
 
 
 def test_valid_tag_matches():
@@ -62,14 +62,62 @@ def test_get_ac_tags_above_excludes_truncated_id():
 
 
 def test_get_ac_tags_above_still_canonicalizes_valid_id():
+    """A bare tag yields `(canonical_id, None)` — None meaning it covers the whole AC."""
     lines = [
         "  @AC:US-1-01",
         "  Scenario: Something",
         "    Given a step",
     ]
-    ac_ids = get_ac_tags_above(lines, 1)
-    assert ac_ids == ["US-001-01"], ac_ids
+    tags = get_ac_tags_above(lines, 1)
+    assert tags == [("US-001-01", None)], tags
     print("✓ get_ac_tags_above() still canonicalizes a valid tag")
+
+
+def test_get_ac_tags_above_returns_the_variant_value():
+    """A tag's one `/<param>:<value>` segment names the declared value the scenario covers."""
+    lines = [
+        "  @AC:US-1-01/channel:email",
+        "  Scenario: Reset link by email",
+        "    Given a step",
+    ]
+    tags = get_ac_tags_above(lines, 1)
+    assert tags == [("US-001-01", "email")], tags
+    print("✓ get_ac_tags_above() returns the tag's variant value")
+
+
+def test_two_parameter_tag_excluded_from_coverage():
+    """A tag carrying two variant parameters is MALFORMED_AC, so it counts for nothing —
+    it used to pass with everything after the first segment silently ignored."""
+    lines = [
+        "  @AC:US-1-01/channel:email/role:admin",
+        "  Scenario: Something",
+        "    Given a step",
+    ]
+    tags = get_ac_tags_above(lines, 1)
+    assert tags == [], f"a two-parameter tag must not count as coverage, got: {tags}"
+    print("✓ A two-parameter tag is excluded from coverage")
+
+
+def test_ac_coverage_state_three_states():
+    """The coverage matrix's three states, counted per declared value, with a bare tag
+    counting for every value (living-doc-header-types.md#ac-variants)."""
+    declared = ["email", "sms", "push"]
+    none_entry = None
+    assert ac_coverage_state(declared, none_entry) == ("not_covered", declared)
+
+    one = {"files": ["a.feature"], "values": {"email"}, "whole": False}
+    assert ac_coverage_state(declared, one) == ("partially_covered", ["sms", "push"])
+
+    all_three = {"files": ["a.feature"], "values": set(declared), "whole": False}
+    assert ac_coverage_state(declared, all_three) == ("covered", [])
+
+    bare = {"files": ["a.feature"], "values": set(), "whole": True}
+    assert ac_coverage_state(declared, bare) == ("covered", [])
+
+    # No declared values: an AC without variants is binary.
+    assert ac_coverage_state([], one) == ("covered", [])
+    assert ac_coverage_state([], None) == ("not_covered", [])
+    print("✓ ac_coverage_state() reports covered / partially_covered / not_covered per value")
 
 
 if __name__ == "__main__":
@@ -79,6 +127,9 @@ if __name__ == "__main__":
         test_trailing_extra_digit_ignored_alongside_other_tags_on_same_line()
         test_get_ac_tags_above_excludes_truncated_id()
         test_get_ac_tags_above_still_canonicalizes_valid_id()
+        test_get_ac_tags_above_returns_the_variant_value()
+        test_two_parameter_tag_excluded_from_coverage()
+        test_ac_coverage_state_three_states()
         test_feat_and_slug_parent_tags_no_longer_covered()
         print("\n✓ All tests passed!")
     except AssertionError as e:

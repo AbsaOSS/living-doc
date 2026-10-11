@@ -67,17 +67,18 @@ Nine types of gaps are detected, in order of risk:
 
 | Priority | Gap type | Description |
 |---|---|---|
-| 1 — Blocker | **Untested AC** | An `active` AC in a User Story or Functionality has no linked test. |
+| 1 — Blocker | **Untested AC** | An `active` AC in a User Story or Functionality has no linked test. An AC that declares variant values is untested while **none** of them has a scenario. |
+| 1 — Important | **Partially tested AC** | An `active` AC that declares variant values has a scenario for some of them, not all — reported as covered/declared (e.g. 1/3) with the missing values. |
 | 2 — Important | **Undocumented UI surface** | A screen or API endpoint exists in the app with no Feature entity |
-| 3 — Important | **Orphan Feature** | A Feature entity exists with no linked User Story |
+| 3 — Important | **Feature without a User Story** | A Feature entity exists with no linked User Story |
 | 4 — Important | **Orphan User Story** | A User Story exists with no linked Feature |
 | 5 — Important | **Orphan Functionality** | A Functionality exists with no parent Feature |
 | 6 — Important | **Orphan test** | A test exists with no linked AC |
 | 7 — Important | **Stale reference** | An active test references a deprecated AC |
 | 8 — Nit | **Undocumented Functionality** | A Functionality entity exists with no associated tests |
-| 9 — Nit | **Empty Feature** | A Feature entity exists with no Functionalities defined |
+| 9 — Nit | **Feature without a Functionality** | A Feature entity exists with no Functionalities defined |
 
-> **Resolution routing:** `UNTESTED_AC` → `living-doc-scenario-creator`; `UNDOCUMENTED_SURFACE` / `ORPHAN_FUNCTIONALITY` / `EMPTY_FEATURE` → `living-doc-create-*`; `ORPHAN_FEATURE` / `ORPHAN_USER_STORY` → `living-doc-update` (add missing link); `ORPHAN_TEST` → `gherkin-living-doc-sync`; **`STALE_REFERENCE`** → `living-doc-update` (deprecate the AC or update the test `@AC:` tag); `UNDOCUMENTED_FUNCTIONALITY` → `living-doc-scenario-creator`.
+> **Resolution routing:** `UNTESTED_AC` and `PARTIALLY_TESTED_AC` → `living-doc-scenario-creator`; `UNDOCUMENTED_SURFACE` / `ORPHAN_FUNCTIONALITY` / `FEATURE_WITHOUT_FUNCTIONALITY` → `living-doc-create-*`; `FEATURE_WITHOUT_USER_STORY` / `ORPHAN_USER_STORY` → `living-doc-update` (add missing link); `ORPHAN_TEST` → `gherkin-living-doc-sync`; **`STALE_REFERENCE`** → `living-doc-update` (deprecate the AC or update the test `@AC:` tag); `UNDOCUMENTED_FUNCTIONALITY` → `living-doc-scenario-creator`.
 
 > **ORPHAN_TEST — never delete a test to resolve the gap.** Deleting a test removes coverage; it does not close the gap — it masks it. Instead: (1) find an existing AC that matches the test's intent and add the `@AC:` link, or (2) if no AC exists, create a Functionality with `living-doc-create-functionality` and link the test to the new AC. Only delete a test after explicit product owner confirmation that the behavior is no longer required.
 
@@ -108,13 +109,29 @@ Traverse the entity graph top-down, starting from User Stories as roots:
 
 For each gap type:
 
-**UNTESTED_AC:**
+**UNTESTED_AC / PARTIALLY_TESTED_AC:**
+
+Coverage is counted **per declared variant value**. An AC that declares values with
+`- Aspect:` or a named keyword is covered only once every value has a scenario; a bare
+`@AC:<id>` tag covers the whole AC, every value at once. See
+[AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
+
 ```
 For each AC in (UserStory.ACs + Functionality.ACs)
-  where status == active
-  where no linked test exists:
-    GAP: UNTESTED_AC
+  where status == active:
+    declared = the AC's variant values (empty when it declares none)
+    covered   = the values its linked tests name, or all of them for a bare @AC: link
+    where declared is empty and no linked test exists:
+      GAP: UNTESTED_AC
+    where no value is covered:
+      GAP: UNTESTED_AC            — report 0/N and list the values
+    where some but not all are covered:
+      GAP: PARTIALLY_TESTED_AC    — report covered/N and list only the MISSING values
 ```
+
+The report's coverage figure is weighted: a covered AC counts 1, an untested one 0, and a
+partially tested one its covered values over its declared values — computed from exact
+fractions and rounded once, to one decimal, half up. It is `null` when nothing is counted.
 
 **UNDOCUMENTED_SURFACE:**
 ```
@@ -123,11 +140,11 @@ For each item in inventory (screens, API endpoints)
     GAP: UNDOCUMENTED_SURFACE
 ```
 
-**ORPHAN_FEATURE:**
+**FEATURE_WITHOUT_USER_STORY:**
 ```
 For each Feature reachable via entity relationships
   where user_stories == []:
-    GAP: ORPHAN_FEATURE
+    GAP: FEATURE_WITHOUT_USER_STORY
 ```
 
 **ORPHAN_USER_STORY:**
@@ -168,14 +185,14 @@ For each Functionality reachable via Feature `functionalities` links
     GAP: UNDOCUMENTED_FUNCTIONALITY
 ```
 
-**EMPTY_FEATURE:**
+**FEATURE_WITHOUT_FUNCTIONALITY:**
 ```
 For each Feature reachable via entity relationships
   where functionalities is missing OR functionalities == []:
-    GAP: EMPTY_FEATURE
+    GAP: FEATURE_WITHOUT_FUNCTIONALITY
 ```
 
-`EMPTY_FEATURE` is independent of whether the Feature has linked User Stories. A Feature with linked User Stories but no Functionalities (for example `FEAT-005`) is still an `EMPTY_FEATURE`.
+`FEATURE_WITHOUT_FUNCTIONALITY` is independent of whether the Feature has linked User Stories. A Feature with linked User Stories but no Functionalities (for example `FEAT-005`) is still a `FEATURE_WITHOUT_FUNCTIONALITY`.
 
 ### Step 4 — Prioritise by risk
 
@@ -192,13 +209,13 @@ For each gap, propose the living doc action:
 |---|---|
 | UNTESTED_AC | Create a test for the uncovered AC — use `living-doc-create-functionality` to define the behavior if not yet documented |
 | UNDOCUMENTED_SURFACE | Create Feature entity — `living-doc-create-feature` |
-| ORPHAN_FEATURE | (1) Confirm the Feature entity actually exists in the storage profile — a broken reference may mean the Feature was renamed or deleted without updating the link. (2) If the Feature exists: link it to an existing User Story or propose creating one. (3) If deletion is the right action: **always confirm with the user before deleting** — state the Feature ID, name, and any Functionalities it owns, and ask explicitly: *"No User Story references FEAT-nnn. Delete this Feature and its N Functionalities?"* |
+| FEATURE_WITHOUT_USER_STORY | (1) Confirm the Feature entity actually exists in the storage profile — a broken reference may mean the Feature was renamed or deleted without updating the link. (2) If the Feature exists: link it to an existing User Story or propose creating one. (3) If deletion is the right action: **always confirm with the user before deleting** — state the Feature ID, name, and any Functionalities it owns, and ask explicitly: *"No User Story references FEAT-nnn. Delete this Feature and its N Functionalities?"* |
 | ORPHAN_USER_STORY | Link to an existing Feature, or create the missing Feature — `living-doc-create-feature` |
 | ORPHAN_FUNCTIONALITY | Link to an existing Feature, or delete if the behavior has no owning surface. Do not delete if tests reference this Functionality's ACs — resolve those first (see ORPHAN_TEST). |
 | ORPHAN_TEST | Link test to an existing AC, or create a Functionality — `living-doc-create-functionality`. **Never delete a test to resolve an orphan — that would silently remove coverage.** If the linked AC ID no longer exists (broken link), choose from: (1) recreate the AC/Functionality if the behavior is still required; (2) update the link to the merged AC ID if the entity was merged; (3) delete the test only after product owner confirmation that the behavior has been intentionally removed. |
 | STALE_REFERENCE | Use `living-doc-update` to manage the AC state first: reinstate the AC if the deprecation was in error, or confirm the deprecation is intentional. Then update the test to reference the active replacement AC, or delete the test after product owner confirmation if the behavior has been intentionally retired. |
 | UNDOCUMENTED_FUNCTIONALITY | Create unit/integration tests for the Functionality's ACs |
-| EMPTY_FEATURE | Create Functionalities for the Feature's known behaviors — `living-doc-create-functionality` |
+| FEATURE_WITHOUT_FUNCTIONALITY | Create Functionalities for the Feature's known behaviors — `living-doc-create-functionality` |
 
 ## Out-of-scope routing
 
@@ -258,11 +275,11 @@ A project with 100% documentation coverage has every AC backed by at least one t
 
 **Classification reminders for final reports:**
 - If `US-007.features == []`, emit `ORPHAN_USER_STORY — US-007 has no linked Feature entity`.
-- If `FEAT-005.functionalities == []`, emit `EMPTY_FEATURE — FEAT-005 has no Functionalities defined`.
-- If `FEAT-008.functionalities == []`, emit `EMPTY_FEATURE — FEAT-008 has no Functionalities defined`.
+- If `FEAT-005.functionalities == []`, emit `FEATURE_WITHOUT_FUNCTIONALITY — FEAT-005 has no Functionalities defined`.
+- If `FEAT-008.functionalities == []`, emit `FEATURE_WITHOUT_FUNCTIONALITY — FEAT-008 has no Functionalities defined`.
 - If `FUNC-002` has ACs but no linked tests, list it only once under `UNTESTED_AC` Blockers — not again under `UNDOCUMENTED_FUNCTIONALITY`.
 - If a `.feature` file itself has no `@AC:` tag **and** one of its scenarios is also independently unlinked, report both orphan-test artifacts separately (for example `test_login_flow.feature` and `View paginated order history`).
-- Do not infer `EMPTY_FEATURE` from lack of User Stories; only emit it when `functionalities == []`. In the worked snapshot, `FEAT-004` is an orphan Feature, while `FEAT-005` and `FEAT-008` are the empty Features.
+- Do not infer `FEATURE_WITHOUT_FUNCTIONALITY` from lack of User Stories; only emit it when `functionalities == []`. In the worked snapshot, `FEAT-004` is a Feature without a User Story, while `FEAT-005` and `FEAT-008` are the Features without a Functionality.
 
 ## Large-scale analysis: batching guidance
 

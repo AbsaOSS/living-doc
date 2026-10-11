@@ -72,16 +72,26 @@ Use the report in this repair order: broken links first, then missing links, the
 Scenario: Customer successfully places an order
 ```
 
-With aspect param - when the scenario covers only one aspect of a multi-aspect AC:
+With a variant parameter - when the scenario covers one declared value of the AC. The
+parameter name is the AC's own: `aspect` when it declared `- Aspect:`, otherwise its keyword,
+spelled the same in the AC text, the declaration and the tag:
 
 ```gherkin
-# AC:US-1-01 (v1.0.0 - active) - displays {required field} on login screen | aspect: username input
+# the AC declared `- Aspect: username-input, password-input`
+# AC:US-1-01 (v1.0.0 - active) - displays the required field on the login screen
 @AC:US-1-01/aspect:username-input
 Scenario: Login form shows the username input field
 ```
 
+```gherkin
+# the AC named it in its text and declared `- channel: email, sms`
+# AC:US-2-01 (v1.0.0 - active) - the reset link is sent to the customer's {channel}
+@AC:US-2-01/channel:email
+Scenario: Reset link is sent by email
+```
+
 - `# AC:` comment: human-readable context - ID, version, state, description, optional aspect.
-- `@AC:` Cucumber tag: `@AC:<id>[/param:value...]` - machine-readable link. The `/param:value` format is extensible.
+- `@AC:` Cucumber tag: `@AC:<id>[/<param>:<value>]` - machine-readable link, with **at most one** `/<param>:<value>` segment. A scenario covers one value, so one scenario is tagged per value; a tag carrying two parameters is `MALFORMED_AC`. `<param>` is the AC's own variant name - `aspect`, or its keyword - in lowercase kebab-case. See [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
 - The `@AC:` tag(s) must appear on the lines immediately above `Scenario:` or `Scenario Outline:`. Additional tags (e.g. `@Regression`, `@skip`) may appear in the same block.
 - Full AC details (version, state, description) live in the file's `# Acceptance Criteria:` header block.
 
@@ -227,6 +237,29 @@ description, and aspect if relevant) - not just the `@AC:` tag.
 | Step text describes implementation (selector, endpoint) | Gherkin business-language violation — refer to `living-doc-scenario-creator` |
 
 ---
+
+## Indentation is significant
+
+A header is read part by part, and indentation decides where each part ends. Full rule:
+[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+writing one:
+
+- **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and
+  no marker is not read, and the file is reported.
+- **A key sits at the key level**, the indent of the header's first key. A line shaped `key:`
+  any deeper is content of the part above it, never a new key.
+- **A deeper line belongs to the item above it** — wrapped text or a nested item, never a
+  sibling and never a new key.
+- **One criterion level.** Every `AC:` line sits at the same indent, the first one setting it
+  (template: 2), with nothing but spaces after the `# `.
+- **A one-token value takes one line** — a state, a date, an id, a URL, a route, a file name, a
+  surface type. A further line under it is not read.
+- **Nest only in a bullet-list field** (`business_value`, `preconditions`, `not_in_scope`,
+  `rationale`, `notes`) — never in an id-list field (`user_stories`, `functionalities`,
+  `feature_dependencies`, `parent`, `superseded_by`), which holds one id per entry.
+- **A blank line is layout**: it ends nothing — not an item, not a key, not a criterion.
+- Indent with spaces. Levels are relative, so no column is fixed, and a flat layout where
+  items sit at their key's own indent stays valid.
 
 ## Out-of-scope routing
 

@@ -46,6 +46,24 @@ Run this check **before any other step, in every mode**:
 
 **Dry-run / example-answer exception:** for expected output shapes or starter artifacts — e.g. **"bootstrap a PageObject for /checkout"** or **"Maintain mode output?"** — provide the PageObject / manifest / report shape from the route and elements unless the prompt says MCP is unavailable. Reserve the hard stop above for unavailable MCP or scan/rescan requests.
 
+## Indentation is significant
+
+A header is read part by part, and indentation decides where each part ends. Full rule:
+[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+writing a PageObject header:
+
+- **Every header line carries its marker** — ` * ` in a PageObject header. A line with text and
+  no marker is not read, and the file is reported.
+- **A key sits at the key level.** A line shaped `key:` any deeper is content of the part above
+  it — which is how a wrapped `purpose:` or `stub-reason:` is read — never a new key.
+- **A one-token value takes one line** — `surface_type`, `route`, `page-object`, an id. A
+  further line under it is not read. `purpose:`, `stub-reason:` and `deprecation_reason:` are
+  prose and may wrap.
+- **Nest only under `notes:`**, the one bullet-list field here — never under an id-list field
+  (`user_stories`, `functionalities`, `feature_dependencies`, `superseded_by`).
+- **A blank line is layout**: it ends nothing.
+- Indent with spaces; levels are relative, so the value column is convention, not grammar.
+
 ## Create mode
 
 ### Step 0 — Business Seed assembly
@@ -216,6 +234,33 @@ guided_steps:
 | **RE-SCAN** | New feature shipped, UI refactored, or significant route changes | Full manifest — all routes re-visited, new routes actively discovered |
 | **HEALING** | Test suite failures due to selector drift or PageObject mismatch | Failing tests only — do not touch passing tests or unrelated PageObjects |
 
+### Migrating an existing header
+
+A PageObject header written before the canon dropped a surface's state carries keys the
+pipeline now rejects or ignores: `status:` (any value), `deprecated_at:`, and the old
+spellings `type:` / `owner:`. A project cannot find them all by hand.
+
+```bash
+python scripts/migrate_pageobject_headers.py tests/pages            # report
+python scripts/migrate_pageobject_headers.py tests/pages --fix      # apply the safe changes
+```
+
+`--fix` removes `status:` and `deprecated_at:`, renames `type:` to `surface_type:` (with
+`screen` becoming `UI`) and `owner:` to `owners:`, and keeps the value column aligned. It
+leaves `deprecation_reason:` and `superseded_by:` in place — those are what record a
+retirement, and they drive no state.
+
+Three cases are reported rather than rewritten, because the fix needs a decision:
+
+- **`status: STUB` with no `stub-reason:`** — the status is the only record that the surface is
+  not instrumented. Write `stub-reason: <why>` first, then re-run.
+- **`feature_dependencies: none`** — the field has no `none` value; omit the key entirely.
+- **a missing required key** — `user_stories:`, `functionalities:` and
+  `external_dependencies:` take `none`, they are not optional.
+
+Run it before a RE-SCAN on a project whose headers predate these rules: the scan reads those
+headers, and a stale `status:` would otherwise survive the re-scan untouched.
+
 ### RE-SCAN scope
 
 #### Step 0 — Load and prioritise
@@ -294,7 +339,7 @@ After confirming changes: set `last_scanned`, update `elements`, `coverage_gaps`
 {"test_id_attribute":"data-cy","routes":[{"elements":[{"test_id":"confirm-order-btn"}],"coverage_gaps":[{"suggested_test_id":"promo-info"}],"navigation_context":"log in, open checkout"}]}
 ```
 
-Before closeout, validate and canonicalize with `python skills/living-doc-pageobject-scan/scripts/validate_artifacts.py manifest <bdd_artifacts>/manifest.json --canonicalize`.
+Before closeout, validate and canonicalize with `python scripts/validate_artifacts.py manifest <bdd_artifacts>/manifest.json --canonicalize`.
 
 ## Output artifacts
 
@@ -314,8 +359,8 @@ Before reporting the scan complete, run the artifact validators and **do not fin
 
 ```bash
 # Canonicalize (sort routes by url, elements by data-cy) AND validate in one step:
-python skills/living-doc-pageobject-scan/scripts/validate_artifacts.py manifest <bdd_artifacts>/manifest.json --canonicalize
-python skills/living-doc-pageobject-scan/scripts/validate_artifacts.py seed     <bdd_artifacts>/seed.yaml
+python scripts/validate_artifacts.py manifest <bdd_artifacts>/manifest.json --canonicalize
+python scripts/validate_artifacts.py seed     <bdd_artifacts>/seed.yaml
 ```
 
 - The **manifest** check rejects object-keyed routes, `data_cy`/`suggested_data_cy` snake_case keys, and object `navigation_context`; `--canonicalize` rewrites the file with sorted routes/elements and JSON keys for stable diffs.

@@ -48,4 +48,4 @@ cascades. The promotion (17) is the one situation that does.
 | validate_entity.py post-update check | 13 |
 | Minor version bump for a business-rule change to an active AC | 15 |
 | Feature rename cascade | 16 |
-| Dependency promotion: route creation to living-doc-create-feature, scan every Feature's `external_dependencies`, record the edge on the calling Functionality, no re-parenting, `ORPHAN_FEATURE` on the new Feature | 17 |
+| Dependency promotion: route creation to living-doc-create-feature, scan every Feature's `external_dependencies`, record the edge on the calling Functionality, no re-parenting, `FEATURE_WITHOUT_USER_STORY` on the new Feature | 17 |

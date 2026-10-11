@@ -242,6 +242,69 @@
         "Provides a rewritten AC in present simple active voice",
         "Names 'active voice' and 'present simple tense' as the rules"
       ]
+    },
+    {
+      "category": "happy-path",
+      "prompt": "Write an AC for US-042: the password reset link has to be delivered by email, SMS and push notification. One criterion, not three.",
+      "expected_output": "Agent writes one AC that names the varying value in its text as a placeholder and declares the values once, in one of the two spellings: either '- Aspect: email, sms, push' with no placeholder needed, or the named keyword '- channel: email, sms, push' with '{channel}' in the AC text. It does not write both, and it does not write three separate ACs. It states that the scenarios then cover the values one by one, tagged '@AC:US-042-nn/channel:email' with the AC's own name.",
+      "expectations": [
+        "Writes ONE acceptance criterion, not three",
+        "Declares the values exactly once — '- Aspect:' or one named keyword, never both",
+        "With the keyword spelling, names it in the AC text as '{channel}' and spells it the same in the bullet",
+        "Mentions one scenario per value, tagged with the AC's own variant name"
+      ],
+      "id": 19,
+      "files": []
+    },
+    {
+      "category": "regression",
+      "prompt": "I wrote this AC and the validator complains:\n# AC:US-042-03 (v1.0.0 - active)\n  - the reset link is sent to the customer's {channel} for their {role}\n  - channel: email, sms\n  - role: admin, customer\nWhat is wrong?",
+      "expected_output": "Agent explains that an AC declares its variants once: two keywords are two declarations, which is MALFORMED_AC, and the pipeline drops the criterion until one is picked. It proposes splitting the criterion into two ACs — one varying by channel, one by role — rather than keeping both declarations, and does not suggest 'Aspect:' plus a keyword as a fix, which is the same error.",
+      "expectations": [
+        "Names the rule: one variant declaration per AC",
+        "Names MALFORMED_AC and that the criterion is dropped until fixed",
+        "Proposes splitting into two ACs, one varying value each",
+        "Does not propose 'Aspect:' plus a keyword as a workaround"
+      ],
+      "id": 20,
+      "files": []
+    },
+    {
+      "category": "negative",
+      "prompt": "Can I name the varying value 'aspect' in my AC, like '- aspect: email, sms' with '{aspect}' in the text?",
+      "expected_output": "Agent says no: 'aspect' is reserved — it is the name of the '- Aspect:' spelling, so no keyword may take it. Either declare the values with '- Aspect:' and leave the AC text without a placeholder, or pick a descriptive name such as 'channel'. Names are compared case-insensitively with '-', '_' and space equal, so 'Aspect', 'aspect' and 'as pect' are all the reserved name.",
+      "expectations": [
+        "States that 'aspect' is reserved and cannot name a keyword",
+        "Offers both valid alternatives: '- Aspect:' or a descriptive name",
+        "Notes the case-insensitive, separator-insensitive comparison"
+      ],
+      "id": 21,
+      "files": []
+    },
+    {
+      "category": "regression",
+      "prompt": "Here is my header. Why is the pipeline ignoring business_value?\n# LIVING DOC — US-7 · Reset a password\n# status: active\n#   business_value:\n#     - fewer support calls\n# acceptance_criteria:",
+      "expected_output": "Agent explains that indentation is significant: `business_value:` sits deeper than the header's key level, so it is read as content of the `status:` part above it, not as a new key. Moving it back to the key level — the indent of the header's first key — fixes it. The nested bullet under it is fine: business_value is a bullet-list field, and a line deeper than an open item belongs to that item.",
+      "expectations": [
+        "Names indentation, not a missing or misspelled key, as the cause",
+        "States the rule: a `key:`-shaped line deeper than the key level is content of the part above",
+        "Tells the author to move the key back to the key level",
+        "Confirms the nested bullet is valid in a bullet-list field"
+      ],
+      "id": 22,
+      "files": []
+    },
+    {
+      "category": "negative",
+      "prompt": "Can I list the User Story's features one per indented line under `features:`?",
+      "expected_output": "Agent says no: `features` is an id-list field and holds one id per top-level entry, so nesting is not allowed there — the nesting rule covers bullet-list fields only (`business_value`, `preconditions`, `not_in_scope`, `rationale`, `notes`). The ids go on the key's own line, comma-separated.",
+      "expectations": [
+        "Distinguishes id-list fields from bullet-list fields",
+        "Names which fields may be nested",
+        "Gives the correct form: comma-separated ids on the key's line"
+      ],
+      "id": 23,
+      "files": []
     }
   ]
 }

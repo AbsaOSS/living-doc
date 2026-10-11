@@ -179,7 +179,7 @@ When a User Story or Feature is deprecated, three skills fire in sequence. Compl
 
 | Step | Skill | Action |
 |---|---|---|
-| 1 | `living-doc-update` | For a User Story, set `status: deprecated`. A Feature has no `status` field — its state is derived from its Functionalities; deprecate the Feature by deprecating every Functionality it owns instead. A User Story or Functionality gets `deprecated_at`, `deprecation_reason`, and optionally `superseded_by`; the Feature itself gets only `deprecation_reason` and optionally `superseded_by` — its `deprecated_at` is derived with its state, never authored |
+| 1 | `living-doc-update` | For a User Story, set `status: deprecated`. A Feature has no `status` field — its state is derived from its Functionalities; deprecate the Feature by deprecating every Functionality it owns instead. A User Story or Functionality gets `deprecated_at`, `deprecation_reason`, and optionally `superseded_by`; the Feature itself gets only `deprecation_reason` and optionally `superseded_by` — a Feature has no `deprecated_at` at all, authored or derived |
 | 2 | `gherkin-living-doc-sync` | Find all scenarios tagged `@AC:<id>` for the deprecated entity's ACs; add `@deprecated` and `@review-needed` |
 | 3 | `bdd-maintain` (REMOVE) | Confirm file deletion list with user; remove confirmed `.feature` files, PageObjects, and step definitions; update `manifest.json` |
 
@@ -188,6 +188,8 @@ Do not skip steps or run them out of order. Complete catalog changes (step 1) be
 **Manifest loading rule:** Use targeted line ranges for the current route(s). Load full manifest only for RE-SCAN. `seed.yaml`: always load in full. When PageObject generation discovers a route with no linked Feature entity, set `feature_id: FEAT-UNKNOWN`, flag the route as needing a Feature entity, and cross-load `living-doc-create-feature` to create it before continuing.
 
 **living-doc-bdd-schemas:** Load [agentic/skills/shared/references/living-doc-bdd-schemas.md](../skills/shared/references/living-doc-bdd-schemas.md) only when generating or validating feature file headers, PageObject headers, seed.yaml form_fixtures, or manifest.json route entries.
+
+**Indentation is significant** in every header you write or edit — the marker on every line, keys at the key level, a deeper line belonging to the item above it, one `AC:` level, a one-token value on one line, nesting only in a bullet-list field. Load [Indentation](../skills/shared/references/living-doc-bdd-schemas.md#indentation) before editing a header by hand; each skill's own body carries the short form.
 
 ---
 

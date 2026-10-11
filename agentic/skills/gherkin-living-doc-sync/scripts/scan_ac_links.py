@@ -84,6 +84,26 @@ def get_ac_comments_above(lines: list[str], scenario_index: int) -> set[str]:
     return ac_ids
 
 
+def _malformed_tag_detail(tag: str) -> str:
+    """Why a tag failed the canonical grammar, in the author's terms.
+
+    The two-parameter case earns its own message: a scenario covers one value, so one
+    scenario is tagged per value (living-doc-header-types.md#ac-variants). It used to pass,
+    with everything after the first segment silently ignored.
+    """
+    if tag.count("/") > 1:
+        return (
+            f"'{tag}' carries more than one variant parameter. Keep one "
+            "'/<param>:<value>' — a scenario covers one value; write one scenario per "
+            "value (MALFORMED_AC)."
+        )
+    return (
+        f"'{tag}' does not match @AC:<parent>-<nn>[/<param>:<value>] format "
+        "(e.g. @AC:US-1-01, @AC:US-001-01/aspect:username-input). The parameter name is "
+        "the AC's own variant name in lowercase kebab-case."
+    )
+
+
 def scan_file(path: Path) -> list[dict]:
     issues = []
     try:
@@ -132,10 +152,7 @@ def scan_file(path: Path) -> list[dict]:
                     "scenario": scenario_title,
                     "issue": "malformed_ac_id",
                     "severity": "error",
-                    "detail": (
-                        f"'{tag}' does not match @AC:<parent>-<nn>[/param:value] format "
-                        "(e.g. @AC:US-1-01, @AC:US-001-01/aspect:username-input)."
-                    ),
+                    "detail": _malformed_tag_detail(tag),
                 })
                 continue
             ac_id_raw = "AC:" + m.group(1)  # reconstruct full AC ID
