@@ -68,6 +68,41 @@ It is an aid, not a test, and deliberately not in CI — nothing here runs an ev
 Nothing in this repository executes an eval. The files under `evals/` are the source material for
 those loops.
 
+## How much to re-test after a change
+
+CI tells you the scripts still work. It cannot tell you the skills still *behave*, and that is
+what an author depends on. So every change to the layer gets an eval run — scoped to what
+changed, measured against the recorded baseline in `agentic-evals-workspace/BASELINE.md`, which
+names the commit, the models and the per-skill pass rate of the last full run.
+
+The aim is not a passing score. It is a version of these skills and this agent that can be
+relied on by an author who will never read an eval result.
+
+| What you changed | What to re-run |
+|---|---|
+| A skill's `SKILL.md` body | that skill's body evals |
+| A skill's `description:` | that skill's trigger evals |
+| A script under a skill's `scripts/` | that script's `test_*.py`, then the owning skill's body evals |
+| `shared/lib/ac_tag.py` | `gherkin-living-doc-sync`, `living-doc-scenario-creator`, `living-doc-update` |
+| `shared/lib/living_doc_id.py` | `gherkin-living-doc-sync`, `living-doc-update` and the three `living-doc-create-*` skills |
+| `shared/references/agentic-formats.md` | `living-doc-pageobject-scan` (it owns the Project Profile, `seed.yaml` and `manifest.json` flows) |
+| A canon page under `docs/` | regenerate the copies, then the body evals of every skill whose rules the change touches |
+| `agents/living-doc-bdd-copilot.agent.md` | the agent's body evals — an agent is `@`-mentioned, so it has no trigger evals |
+| A new skill | its full body **and** trigger set, plus a description pass |
+| Anything at all | the whole regression gate above |
+
+Two rules that hold whatever the scope:
+
+- **Compare against the baseline, not against zero.** A skill that passes 15 of 18 where it
+  passed 17 before has regressed, even though nothing is red. Update `BASELINE.md` only when
+  the new numbers are the ones you want to be held to.
+- **A failing eval never justifies breaking the canon.** If a case seems to ask for one
+  declaration rule to be loosened, or a Feature to carry a status, the case is wrong — fix the
+  case and say so in the pull request.
+
+The full suite — all 12 skills, the agent, body and trigger — is the baseline run, worth
+repeating when the canon moves substantially or before a release, not on every change.
+
 ## Pull request checklist
 
 For a change to a skill:
@@ -82,6 +117,8 @@ For a change to a skill:
 - [ ] Every script in `scripts/` is referenced from `SKILL.md` with usage guidance
 - [ ] The description does not shadow or conflict with another skill's
 - [ ] Evals exist, or a note in the PR says why they do not apply
+- [ ] The eval run scoped to this change was done, and the PR states the result against
+      the baseline — or says why this change needs none
 - [ ] `agentskills validate agentic/skills/<name>` passes
 - [ ] The skill is listed in the catalog table in [README.md](README.md)
 
