@@ -17,8 +17,8 @@ license: Apache-2.0
 
 # Living Doc — Scenario Creator
 
-> **Glossary:** User Story, AC, Feature, PageObject — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/living-doc-glossary.md)).
-> **BDD schemas:** Project Profile, US and Functionality feature file templates — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/living-doc-bdd-schemas.md)).
+> **Glossary:** User Story, AC, Feature, PageObject — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md)).
+> **BDD schemas:** Project Profile, US and Functionality feature file templates — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md)).
 
 **Project Profile:** Read `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`) for feature directories (`feature_dirs.*`), the AC state vocabulary (`ac_states`), and scenario tag conventions. All paths and tags below show the reference-project defaults; profile values win.
 
