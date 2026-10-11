@@ -43,7 +43,7 @@ except ImportError:
     print(
         f"Error: shared library not found at {lib_path} — this skill depends on skills/shared/.\n"
         "If you installed this skill standalone, also install the shared library skill:\n"
-        "  npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill shared\n"
+        "  npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared\n"
         "(or use a full repo clone instead of a single-skill install).",
         file=sys.stderr,
     )
@@ -71,7 +71,7 @@ except ImportError:
     print(
         f"Error: shared library not found at {lib_path} — this skill depends on skills/shared/.\n"
         "If you installed this skill standalone, also install the shared library skill:\n"
-        "  npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill shared\n"
+        "  npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared\n"
         "(or use a full repo clone instead of a single-skill install).",
         file=sys.stderr,
     )
@@ -97,14 +97,14 @@ directory alongside any dependent skill. A single-skill install of, say,
 `living-doc-create-feature` still needs a second, explicit install of `shared`:
 
 ```bash
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-create-feature
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill shared
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-create-feature
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared
 ```
 
 There's no dependency graph in the install tooling, so this has to be a documented
 manual step, not something the CLI resolves automatically. The full install-command
 list for every skill that needs `shared` is kept centrally in
-[.github/agents/living-doc-bdd-copilot.agent.md](../../../.github/agents/living-doc-bdd-copilot.agent.md)
+[agentic/agents/living-doc-bdd-copilot.agent.md](../../../agents/living-doc-bdd-copilot.agent.md)
 rather than repeated in each dependent skill's own `SKILL.md` — one place to keep in
 sync as new shared-lib consumers are added. The `try`/`except` above is the fallback
 for when a user installs a skill without following that list.

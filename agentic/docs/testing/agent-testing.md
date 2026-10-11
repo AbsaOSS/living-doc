@@ -1,6 +1,12 @@
 # Agent Testing Guide
 
-This document describes how to test, evaluate, and tune `.agent.md` files by validating body output quality through manual testing. This is the practical equivalent of [skill-testing.md](./skill-testing.md) applied to agents, but simpler because agents are manually invoked (no auto-triggering to test).
+This document describes how to test, evaluate, and tune the agentic layer's `.agent.md` file by validating body output quality through manual testing. This is the practical equivalent of [skill-testing.md](./skill-testing.md) applied to agents, but simpler because agents are manually invoked (no auto-triggering to test).
+
+> **Nothing here runs in CI.** `.github/workflows/agentic-tests.yml` covers the layer's Python
+> script tests, the canon copies and the `SKILL.md` folder format — it does not touch
+> `.agent.md`, and it runs no eval. Every loop below is manual, and the eval files under
+> `agentic/agents/evals/` are its source material rather than a CI suite. See
+> [agentic/CONTRIBUTING.md](../../CONTRIBUTING.md) for what is automated.
 
 ---
 
@@ -21,7 +27,7 @@ The key insight: an agent's `description:` is **documentation only** — it does
 
 Since agents are invoked explicitly via `@agent-name` (not by description matching), skip trigger evals and focus on body quality:
 
-1. Create body eval cases in `.github/agents/evals/<agent-name>/evals.json`
+1. Create body eval cases in `agentic/agents/evals/<agent-name>/evals.json`
 2. Start a Copilot Chat session from the repository root
 3. Invoke the agent with `@agent-name` and test the prompts from your evals
 4. Review output quality against expected results
@@ -35,7 +41,7 @@ Since agents are invoked explicitly via `@agent-name` (not by description matchi
 ## 2. File layout
 
 ```
-.github/
+agentic/
   agents/
     my-agent.agent.md          ← agent definition
     evals/
@@ -44,7 +50,11 @@ Since agents are invoked explicitly via `@agent-name` (not by description matchi
         files/                 ← fixture files referenced by evals
 ```
 
-Store at `.github/agents/evals/<agent-name>/evals.json`. Same schema as skill evals:
+The layer's own agent sits at `agentic/agents/living-doc-bdd-copilot.agent.md`, apart from this
+repository's development agents in `.github/agents/`, which are a different thing and not covered
+by this guide.
+
+Store at `agentic/agents/evals/<agent-name>/evals.json`. Same schema as skill evals:
 
 ```json
 {
@@ -72,7 +82,7 @@ Store at `.github/agents/evals/<agent-name>/evals.json`. Same schema as skill ev
 }
 ```
 
-## 4. Running body evals
+## 3. Running body evals
 
 When testing your agent, manually invoke it with `@agent-name` using the prompts from `evals.json`:
 
@@ -94,7 +104,7 @@ Verify the output against the `expected_output` field. Repeat for each eval case
 
 ---
 
-## 5. Structural edits
+## 4. Structural edits
 
 When body evals reveal a section is wrong (wrong scope, missing tool, bad handoff), edit the `.agent.md` file directly:
 
@@ -104,7 +114,7 @@ When body evals reveal a section is wrong (wrong scope, missing tool, bad handof
 
 ---
 
-## 6. What to tune — agent-specific checklist
+## 5. What to tune — agent-specific checklist
 
 | Check | Good signal | Bad signal |
 |---|---|---|
@@ -116,7 +126,7 @@ When body evals reveal a section is wrong (wrong scope, missing tool, bad handof
 
 ---
 
-## 7. Description best practices
+## 6. Description best practices
 
 Since the `description:` field is documentation-only (not an activation trigger), use it to communicate the agent's purpose, domain, and key scope boundaries to users:
 
@@ -154,7 +164,7 @@ The `NOT for:` clause is as important as the positive terms — it prevents the 
 
 ---
 
-## 9. Body eval iteration loop
+## 7. Body eval iteration loop
 
 Repeat until all body evals pass:
 

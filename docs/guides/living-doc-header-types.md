@@ -7,7 +7,7 @@ Templates and schemas for BDD automation files. Two kinds of file are covered he
 
 For entity definitions (IDs, status vocabulary, AC format, relationship diagram), see [Living Doc Glossary](living-doc-glossary.md).
 
-> **Source of truth.** This page is the canonical definition of this format. `agentic-toolkit`'s `skills/shared/references/living-doc-bdd-schemas.md` is synced from it.
+> **Source of truth.** This page is the canonical definition of this format. The agentic layer's copy, `agentic/skills/shared/references/living-doc-bdd-schemas.md`, is generated from it at the same commit by `agentic/scripts/sync-canon-copies.sh`; CI fails if the two differ.
 
 > **Worked examples.** A minimal, copyable example of every format on this page lives in
 > [`docs/examples/`](../examples/README.md). **Sync obligation:** when a field or rule on this page

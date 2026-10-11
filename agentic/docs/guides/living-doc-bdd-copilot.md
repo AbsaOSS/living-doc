@@ -171,7 +171,7 @@ For concerns outside this agent's scope:
 ## Installation
 
 ```bash
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g
+npx skills add https://github.com/AbsaOSS/living-doc -g
 ```
 
-See [Getting Started](../getting-started.md) for the full install guide.
+See [the layer README](../../README.md) for the full install guide.

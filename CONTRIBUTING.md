@@ -58,6 +58,15 @@ The pinned `collector-gh` / `toolkit` refs live in one place — `tools/collecto
 Bumping a pin is a reviewed change, exactly like a dependency bump: change the ref there and
 commit the regenerated snapshots in the same PR.
 
+## The agentic layer
+
+The skills and the `living-doc-bdd-copilot` agent that help an author write living-doc input live
+in [`agentic/`](agentic/) and ship from this repository. They are optional — the pipeline is
+AI-free and runs without them.
+
+A change there has its own conventions, its own test commands and its own PR checklist:
+see [`agentic/CONTRIBUTING.md`](agentic/CONTRIBUTING.md).
+
 ## Target Branches
 
 PRs have to target `main`, `master`, `support/*`, or `release/*`.

@@ -17,8 +17,8 @@ license: Apache-2.0
 
 # Living Doc — Scenario Creator
 
-> **Glossary:** User Story, AC, Feature, PageObject — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/agentic-toolkit/blob/master/skills/shared/references/living-doc-glossary.md)).
-> **BDD schemas:** Project Profile, US and Functionality feature file templates — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/agentic-toolkit/blob/master/skills/shared/references/living-doc-bdd-schemas.md)).
+> **Glossary:** User Story, AC, Feature, PageObject — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/living-doc-glossary.md)).
+> **BDD schemas:** Project Profile, US and Functionality feature file templates — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/living-doc-bdd-schemas.md)).
 
 **Project Profile:** Read `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`) for feature directories (`feature_dirs.*`), the AC state vocabulary (`ac_states`), and scenario tag conventions. All paths and tags below show the reference-project defaults; profile values win.
 
@@ -114,7 +114,7 @@ AC tag prefix matches the parent entity: `@AC:US-<n>-<nn>` for User Story, `@AC:
 - Scenario-level: the `@AC:<id>` tag(s), plus optional suite tags such as `@Regression`.
 - Section banners may group scenarios, e.g. `# *** Happy day scenarios ***` and `# *** Negative scenarios ***`.
 
-**US feature file example** — copy this skeleton verbatim and replace only the `<...>` placeholders and AC lines; do not reorder the header blocks or rename the tags. The header comment block follows the canonical schema in [living-doc-bdd-schemas.md](../shared/references/living-doc-bdd-schemas.md#us-feature-file-header) exactly — do not shorten it:
+**US feature file example** — copy this skeleton verbatim and replace only the `<...>` placeholders and AC lines; do not reorder the header blocks or rename the tags. The header comment block follows the canonical schema in [living-doc-bdd-schemas.md](../shared/references/living-doc-bdd-schemas.md#1-user-story-in-a-gherkin-feature-file) exactly — do not shorten it:
 
 ```gherkin
 # =============================================================================
@@ -161,7 +161,7 @@ Feature: Place an online order
     Then an error message is shown and the order is not placed
 ```
 
-**Functionality feature file example** — the header comment block follows the canonical schema in [living-doc-bdd-schemas.md](../shared/references/living-doc-bdd-schemas.md#functionality-feature-file-header) exactly — do not start the file at the `@FUNC_ID:` tag:
+**Functionality feature file example** — the header comment block follows the canonical schema in [living-doc-bdd-schemas.md](../shared/references/living-doc-bdd-schemas.md#3-functionality-in-a-gherkin-feature-file) exactly — do not start the file at the `@FUNC_ID:` tag:
 
 ```gherkin
 # =============================================================================

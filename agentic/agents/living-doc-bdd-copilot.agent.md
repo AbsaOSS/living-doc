@@ -21,33 +21,33 @@ Full living documentation agent. Owns both the catalog layer (requirements, enti
 ## Installation
 
 This agent dispatches to all 12 skills listed under [Skills](#skills) below, several of
-which import from `skills/shared/lib/` (the canonical AC-ID grammar and entity-ID
-assignment logic — see [skills/shared/lib/README.md](../../skills/shared/lib/README.md)).
+which import from `agentic/skills/shared/lib/` (the canonical AC-ID grammar and entity-ID
+assignment logic — see [agentic/skills/shared/lib/README.md](../skills/shared/lib/README.md)).
 The install tooling has no dependency resolution — a single-skill install
 (`--skill <name>`) copies only that one folder — so a full install for this agent means
 running every command below, `shared` included:
 
 ```bash
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill shared
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-create-user-story
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-create-feature
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-create-functionality
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-update
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-impact-analysis
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-gap-finder
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-pageobject-scan
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill data-cy-instrument
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill living-doc-scenario-creator
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill bdd-maintain
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill gherkin-step
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill gherkin-living-doc-sync
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-create-user-story
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-create-feature
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-create-functionality
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-update
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-impact-analysis
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-gap-finder
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-pageobject-scan
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill data-cy-instrument
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill living-doc-scenario-creator
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill bdd-maintain
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill gherkin-step
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill gherkin-living-doc-sync
 ```
 
 Or, to skip the per-skill list entirely, install every skill in the repo (this family
 plus everything else, e.g. `pr-review`, `test-unit-write`):
 
 ```bash
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g
+npx skills add https://github.com/AbsaOSS/living-doc -g
 ```
 
 If a skill was installed without `shared`, its script fails with an actionable error
@@ -61,7 +61,7 @@ naming the missing companion command, rather than a raw import traceback.
 `.copilot/bdd/.project-profile.yaml`. It holds every project-specific convention skills must not
 hardcode: the test-id attribute, feature/PageObject/steps directories, AC state and PageObject
 status vocabularies, scenario tag conventions, and the manifest shape. If it is absent, create it
-from the defaults in the [BDD schemas reference — Project Profile](skills/shared/references/living-doc-bdd-schemas.md) and confirm each value with the user. Once loaded, profile values override any default path, attribute, or casing shown in a skill.
+from the defaults in the [BDD schemas reference — Project Profile](../skills/shared/references/living-doc-bdd-schemas.md) and confirm each value with the user. Once loaded, profile values override any default path, attribute, or casing shown in a skill.
 
 **Storage Profile (catalog layer).** When the user is setting up living documentation for the first time, also ask:
 
@@ -187,7 +187,7 @@ Do not skip steps or run them out of order. Complete catalog changes (step 1) be
 
 **Manifest loading rule:** Use targeted line ranges for the current route(s). Load full manifest only for RE-SCAN. `seed.yaml`: always load in full. When PageObject generation discovers a route with no linked Feature entity, set `feature_id: FEAT-UNKNOWN`, flag the route as needing a Feature entity, and cross-load `living-doc-create-feature` to create it before continuing.
 
-**living-doc-bdd-schemas:** Load [skills/shared/references/living-doc-bdd-schemas.md](skills/shared/references/living-doc-bdd-schemas.md) only when generating or validating feature file headers, PageObject headers, seed.yaml form_fixtures, or manifest.json route entries.
+**living-doc-bdd-schemas:** Load [agentic/skills/shared/references/living-doc-bdd-schemas.md](../skills/shared/references/living-doc-bdd-schemas.md) only when generating or validating feature file headers, PageObject headers, seed.yaml form_fixtures, or manifest.json route entries.
 
 ---
 
@@ -272,7 +272,7 @@ Plan: Loading `living-doc-gap-finder` (top-down). First action: create session s
 
 ## Living Doc Conventions
 
-Full model: [living-doc-glossary](skills/shared/references/living-doc-glossary.md) — load only if creating or validating entities.
+Full model: [living-doc-glossary](../skills/shared/references/living-doc-glossary.md) — load only if creating or validating entities.
 
 **Entity IDs:** `US-<nnn>` · `FEAT-<nnn>` · `FUNC-<nnn>`
 
@@ -301,23 +301,23 @@ Aspect variant: `@AC:US-1-01/aspect:username-input`. The `@AC:` tag is the singl
 
 | Skill | Intent | Path | When to load |
 |---|---|---|---|
-| `living-doc-create-user-story` | Create US with business-level ACs | `skills/living-doc-create-user-story/SKILL.md` | New US or narrative request |
-| `living-doc-create-feature` | Document a system surface | `skills/living-doc-create-feature/SKILL.md` | New Feature or inbound surface from EXPLORE mode |
-| `living-doc-create-functionality` | Define an atomic, testable behaviour | `skills/living-doc-create-functionality/SKILL.md` | New Functionality or atomic-behaviour AC request |
-| `living-doc-update` | Amend or deprecate entities | `skills/living-doc-update/SKILL.md` | Updating, promoting, or deprecating an entity or AC; changing a Feature's dependencies |
-| `living-doc-impact-analysis` | Trace which entities a code change affects | `skills/living-doc-impact-analysis/SKILL.md` | PR review or change-trace request |
-| `living-doc-gap-finder` | Find catalog gaps (top-down) and uncovered ACs (bottom-up) | `skills/living-doc-gap-finder/SKILL.md` | HEALING mode, gap audit, or scenario gap detection |
+| `living-doc-create-user-story` | Create US with business-level ACs | `agentic/skills/living-doc-create-user-story/SKILL.md` | New US or narrative request |
+| `living-doc-create-feature` | Document a system surface | `agentic/skills/living-doc-create-feature/SKILL.md` | New Feature or inbound surface from EXPLORE mode |
+| `living-doc-create-functionality` | Define an atomic, testable behaviour | `agentic/skills/living-doc-create-functionality/SKILL.md` | New Functionality or atomic-behaviour AC request |
+| `living-doc-update` | Amend or deprecate entities | `agentic/skills/living-doc-update/SKILL.md` | Updating, promoting, or deprecating an entity or AC; changing a Feature's dependencies |
+| `living-doc-impact-analysis` | Trace which entities a code change affects | `agentic/skills/living-doc-impact-analysis/SKILL.md` | PR review or change-trace request |
+| `living-doc-gap-finder` | Find catalog gaps (top-down) and uncovered ACs (bottom-up) | `agentic/skills/living-doc-gap-finder/SKILL.md` | HEALING mode, gap audit, or scenario gap detection |
 
 ### Automation skills
 
 | Skill | Intent | Path | When to load |
 |---|---|---|---|
-| `living-doc-pageobject-scan` | Seed assembly, crawl, PageObject generation, manifest; RE-SCAN and HEALING scopes | `skills/living-doc-pageobject-scan/SKILL.md` | EXPLORE, RE-SCAN, or HEALING mode |
-| `data-cy-instrument` | Audit and add missing `data-cy` attributes; sync PageObjects | `skills/data-cy-instrument/SKILL.md` | DATA-CY mode |
-| `living-doc-scenario-creator` | Generate full feature files (header + scenarios + step bodies) from ACs | `skills/living-doc-scenario-creator/SKILL.md` | SCENARIO-GEN mode |
-| `bdd-maintain` | REMOVE deprecated BDD files; DEAD CODE AUDIT | `skills/bdd-maintain/SKILL.md` | REMOVE or DEAD CODE AUDIT mode |
-| `gherkin-step` | Implement step definitions | `skills/gherkin-step/SKILL.md` | Step authoring request |
-| `gherkin-living-doc-sync` | Sync feature files with living doc traceability | `skills/gherkin-living-doc-sync/SKILL.md` | Traceability sync request |
+| `living-doc-pageobject-scan` | Seed assembly, crawl, PageObject generation, manifest; RE-SCAN and HEALING scopes | `agentic/skills/living-doc-pageobject-scan/SKILL.md` | EXPLORE, RE-SCAN, or HEALING mode |
+| `data-cy-instrument` | Audit and add missing `data-cy` attributes; sync PageObjects | `agentic/skills/data-cy-instrument/SKILL.md` | DATA-CY mode |
+| `living-doc-scenario-creator` | Generate full feature files (header + scenarios + step bodies) from ACs | `agentic/skills/living-doc-scenario-creator/SKILL.md` | SCENARIO-GEN mode |
+| `bdd-maintain` | REMOVE deprecated BDD files; DEAD CODE AUDIT | `agentic/skills/bdd-maintain/SKILL.md` | REMOVE or DEAD CODE AUDIT mode |
+| `gherkin-step` | Implement step definitions | `agentic/skills/gherkin-step/SKILL.md` | Step authoring request |
+| `gherkin-living-doc-sync` | Sync feature files with living doc traceability | `agentic/skills/gherkin-living-doc-sync/SKILL.md` | Traceability sync request |
 
 ---
 

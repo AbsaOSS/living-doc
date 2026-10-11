@@ -18,8 +18,8 @@ skill unit (per `CONTRIBUTING.md`'s one-dir-one-skill convention), which lets it
 installed as a **sibling** directory alongside any skill that depends on it:
 
 ```bash
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill <dependent-skill>
-npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill shared
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill <dependent-skill>
+npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared
 ```
 
 Each dependent skill's own `sys.path` lookup (`Path(__file__).parent.parent.parent / "shared" / "lib"`)

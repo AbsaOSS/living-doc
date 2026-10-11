@@ -42,7 +42,7 @@ except ImportError:
     print(
         f"Error: shared library not found at {_lib_path} — this skill depends on skills/shared/.\n"
         "If you installed this skill standalone, also install the shared library skill:\n"
-        "  npx skills add https://github.com/AbsaOSS/agentic-toolkit -g --skill shared\n"
+        "  npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared\n"
         "(or use a full repo clone instead of a single-skill install).",
         file=sys.stderr,
     )

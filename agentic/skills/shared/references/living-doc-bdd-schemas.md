@@ -1,26 +1,27 @@
-<!-- synced from AbsaOSS/living-doc@86c756d88e04184b724d3326b27ae001bbb261f6 — run scripts/sync-living-doc-reference.sh bdd-schemas 86c756d88e04184b724d3326b27ae001bbb261f6 to refresh -->
+<!-- generated from docs/guides/living-doc-header-types.md by agentic/scripts/sync-canon-copies.sh — do not edit -->
 <!-- Generated file — do not edit by hand. CI re-runs the sync and fails on any diff. -->
 
 # Living Doc Header Types
 
 Templates and schemas for BDD automation files. Two kinds of file are covered here:
 
-- **File headers you author** — the header blocks that carry a **User Story**, a **Feature**, or a **Functionality**. A human can write any of these by hand (no AI agent required — see [agentic-toolkit](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/projects/agentic-toolkit.md)) as long as the file follows the format below.
+- **File headers you author** — the header blocks that carry a **User Story**, a **Feature**, or a **Functionality**. A human can write any of these by hand (no AI agent required — see [agentic-toolkit](https://github.com/AbsaOSS/living-doc/blob/master/docs/projects/agentic-toolkit.md)) as long as the file follows the format below.
 - **Tooling files the AI agent manages** — the Project Profile (`.project-profile.yaml`), `seed.yaml`, and `manifest.json`. The `agentic-toolkit` agent creates and maintains these as configuration and durable local memory between runs; they are not written by hand.
 
-For entity definitions (IDs, status vocabulary, AC format, relationship diagram), see [Living Doc Glossary](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md).
+For entity definitions (IDs, status vocabulary, AC format, relationship diagram), see [Living Doc Glossary](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md).
 
-> **Source of truth.** This page is the canonical definition of this format. `agentic-toolkit`'s `skills/shared/references/living-doc-bdd-schemas.md` is synced from it.
+> **Source of truth.** This page is the canonical definition of this format. The agentic layer's copy, `agentic/skills/shared/references/living-doc-bdd-schemas.md`, is generated from it at the same commit by `agentic/scripts/sync-canon-copies.sh`; CI fails if the two differ.
 
 > **Worked examples.** A minimal, copyable example of every format on this page lives in
-> [`docs/examples/`](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/examples/README.md). **Sync obligation:** when a field or rule on this page
+> [`docs/examples/`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md). **Sync obligation:** when a field or rule on this page
 > changes, the matching example in `docs/examples/` changes in the same PR.
 
 ---
 
 ## Contents
 
-**File headers you author** — human-editable, one per entity:
+**File headers you author** — human-editable, one per entity, all following the
+[Indentation](#indentation) rule; the acceptance criteria in them follow the [AC variants](#ac-variants) rule:
 
 1. [User Story in a Gherkin Feature File](#1-user-story-in-a-gherkin-feature-file)
 2. [Feature in a PageObject File](#2-feature-in-a-pageobject-file)
@@ -44,11 +45,123 @@ structure the team wants to maintain — each scope is a superset of the one abo
 | Scope | Headers you maintain | What it gives you |
 |---|---|---|
 | **User Stories only** | User Story feature file headers | Business requirements and their end-to-end acceptance criteria, tracked by version and status. No mapping to concrete system surfaces. |
-| **User Stories + Features** | + Feature (PageObject) file headers | Every User Story is traced to the UI/API surfaces that satisfy it. Orphaned surfaces and uncovered User Stories show up in gap reports. |
+| **User Stories + Features** | + Feature (PageObject) file headers | Every User Story is traced to the UI/API surfaces that satisfy it. Surfaces with no User Story and uncovered User Stories show up in gap reports. |
 | **User Stories + Features + Functionalities** | + Functionality feature file headers | Full atomic-behavior coverage: each surface is broken into fast-testable Functionalities, each with its own ACs and system-test scenarios. |
 
 Moving up a scope never invalidates what you already wrote — adding Features later does not change
 existing User Story headers, and adding Functionalities does not change Feature headers.
+
+---
+
+## Indentation
+
+Indentation is significant in every input you author: a `.feature` header, a PageObject header and
+a GitHub issue body (see the [issue-body layout](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md#github-issue-body-layout-canonical)).
+One rule covers all three:
+
+**A line indented deeper than an open item's `- ` belongs to that item**, as wrapped text or as a
+nested item. It is never a sibling of the item and never a new key.
+
+- **Levels are relative.** A line only has to be deeper than its parent; no column is fixed. Indent
+  with spaces. A tab or a no-break space in an indent is normalised to spaces when the input is read.
+- **Flat layout.** Items written at their key's own indent stay valid and are read in line order.
+- **Canonical levels in the corpus.** The example corpus uses the canonical levels only; the flat
+  layout stays valid for authors.
+- **Nesting.** A nested item may sit in a bullet-list field (`business_value`, `preconditions`,
+  `not_in_scope`, `rationale`, `notes`), never in an id-list field (`user_stories`, `functionalities`,
+  `feature_dependencies`, `parent`, `superseded_by`). It stays part of its parent's entry: the field
+  still holds one string per top-level item.
+
+**Where a part starts and ends.** A header is read part by part, and each part starts on a clear line:
+
+- **A header names its entity.** It exists only when its title — the first line after the opening rule —
+  carries the entity's id (`LIVING DOC — US-<n> · <title>`). An id is the minimum that identifies an
+  entity: without one nothing in the header is read or normalised, and the file is reported.
+
+- **A key sits at the key level** — the indent of the header's first key. A line shaped `key:` any
+  deeper is content of the part above it, never a new key.
+- **A blank line is layout.** A blank line, with its comment marker or without it, ends nothing: not
+  an item, not a key, not a criterion.
+- **A part ends where the next one starts.** A key's part ends at the next key at the key level. A
+  criterion ends at the next `AC:` header, at a key at the key level, or at a `# =====` rule; a rule
+  inside the header is an optional end of a block, and the last rule ends the header.
+- **One criterion level.** In a `.feature` header every `AC:` line sits at the same indent — the first
+  one sets it (template: 2), with nothing but spaces after the `# `. An `AC:` line anywhere else is read
+  as text and reported.
+- **Every header line carries its marker** (`# ` in a `.feature` header, ` * ` in a PageObject
+  header). A line with text and no marker inside a header breaks the format: it is not read, and it is
+  reported as an error. Above `Feature:`, Gherkin itself rejects such a line.
+- **A value's type decides whether it may wrap.** A key whose value is one token — a state, a date, an
+  id, a URL, a route, a file name, a surface type — takes one line; a further line under it is not read
+  and is reported as an error. A text value and an id list may wrap onto deeper lines.
+- **Recommended order.** Write the keys in the template's order, with `acceptance_criteria:` last. The
+  order is a recommendation only: the reader never relies on it, because indentation decides.
+
+Every line the reader does not take into a field is reported, so nothing an author writes is lost
+without a word. A report names its entity, its criterion when the criterion has a valid id, its line
+number and, for a source file, the file. The inner view of the generated document shows it under that
+entity; the release view never does (see
+[Document Types — Technical project](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-document-types.md#technical-project), *What was not
+loaded*).
+
+**`.feature` header** — levels counted after `# `; the template levels are the canonical ones:
+
+| Line | Level |
+|---|---|
+| Entity key (`status:`, `business_value:`, …) and `acceptance_criteria:` | 0 |
+| Item of an entity bullet field | deeper than its key (template: 2) |
+| Criterion header `AC:<id> (…)` — every one at the same level | 2 |
+| Criterion item, and the criterion sub-keys `preconditions:` / `not_in_scope:` | 4 |
+| Item of a criterion sub-key | 6 |
+| An item's wrapped text or nested item | deeper than its `- ` |
+
+**PageObject header** — levels counted after ` * `:
+
+| Line | Level |
+|---|---|
+| Key (`route:`, `purpose:`, `notes:`, …) | the banner's base level |
+| Item under a key (the `notes:` items) | deeper than the key |
+| Wrapped value (the cross-reference `purpose:`) | deeper than the key; the value column is the usual choice |
+
+A nested item, in a `.feature` header:
+
+```gherkin
+# preconditions:
+#   - A registered customer account exists.
+#     - It is not locked, and its email address is verified.
+#   - The login screen is reachable.
+```
+
+`preconditions` holds two entries here; the nested line is part of the first.
+
+---
+
+## AC variants
+
+An acceptance criterion that must hold for several values (fields, rules, roles) declares them in one
+bullet, and its scenarios cover them value by value. One rule covers the User Story and the
+Functionality template:
+
+- **One variant declaration per AC.** Either `- Aspect: <value1>, <value2>`, or one named keyword
+  `- <placeholder-name>: <value1>, <value2>`. The keyword is the other spelling of `Aspect:`: it names
+  what varies, and the AC text shows that name as `{placeholder-name}`. An AC that declares both, two
+  keywords, or `Aspect:` twice is `MALFORMED_AC`: the pipeline drops the criterion until the author
+  picks one.
+- **The name** is lowercase kebab-case and is written the same in the AC text (`{field}`), the bullet
+  (`- field:`) and the scenario tag (`@AC:<id>/field:<value>`). Names are compared case-insensitively,
+  with `-`, `_` and space equal. `aspect` is reserved.
+- **A bullet is a keyword only when the text names it.** Apart from `Aspect:` and `Rationale:`, a
+  `- <name>:` bullet whose name is not a `{<name>}` in the AC text is not a keyword: it is reported as
+  `UNPARSED_AC_LINE`.
+- **Coverage is per value.** The AC is `covered` when every declared value has a scenario,
+  `not_covered` when none has, and `partially_covered` otherwise, shown as covered/declared, e.g.
+  **1/3**, with the per-value breakdown. A bare `@AC:<id>` tag covers the whole AC, every value at once —
+  a data-driven scenario, for example; review confirms that it really does. A tag value the AC does not
+  declare is `STALE_AC_REF`, and a tag carries at most one variant parameter: a tag with two is
+  `MALFORMED_AC`.
+
+The same rule, with the tag format, is in
+[Living Doc Glossary — Acceptance Criterion](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#acceptance-criterion-ac).
 
 ---
 
@@ -57,6 +170,8 @@ existing User Story headers, and adding Functionalities does not change Feature 
 Header comment block at the top of every User Story feature file —
 `<feature_dirs.user_story>/us-<nnn>-<kebab>.feature` (default `features/liv_doc_us/`).
 Holds all US metadata and is mined during living documentation output generation.
+Indentation in this header is significant — see [Indentation](#indentation). An AC declares its
+variants with `Aspect:` or one named keyword, never both — see [AC variants](#ac-variants).
 
 ```gherkin
 # =============================================================================
@@ -80,15 +195,15 @@ Holds all US metadata and is mined during living documentation output generation
 #
 #   AC:US-<n>-01 (v<version> - <state>)          ← `(planned)` with no version = backlog
 #     - <description of the AC>
-#     - Aspect: <value1>, <value2>        ← optional; default keyword — no {placeholder} needed in AC text
+#     - Aspect: <value1>, <value2>        ← optional; one variant declaration per AC — no {placeholder-name} needed in AC text
 #     preconditions:                      ← optional; extends feature-level preconditions for this AC only
 #       - <AC-specific precondition>
 #     not_in_scope:                       ← optional; extends feature-level not_in_scope for this AC only
 #       - <AC-specific exclusion>
 #
 #   AC:US-<n>-02 (v<version> - <state>)
-#     - <description of the AC with optional {placeholder-name} for parameterised variants>
-#     - <placeholder-name>: <value1>, <value2>  ← optional; custom keyword — matches {placeholder-name} in AC text; ALL values must be covered
+#     - <description of the AC with one {placeholder-name} for parameterised variants>
+#     - <placeholder-name>: <value1>, <value2>  ← optional; named keyword, the other spelling of `Aspect:` — never both on one AC; name = {placeholder-name} in AC text, lowercase kebab-case, not `aspect`
 # =============================================================================
 
 @US_ID:US-<n>
@@ -100,15 +215,16 @@ Feature: <US Title>
 
   # AC:US-<n>-01 (v<version> - <state>) - <AC description>
   @AC:US-<n>-01
-  Scenario: <scenario title>             ← single scenario = full AC coverage (no aspect split)
+  Scenario: <scenario title>             ← a bare tag covers the whole AC, every declared value at once
     ...
 
-  # - when Aspect values are declared and need individual scenarios:
+  # - when Aspect values are declared, one scenario per value:
   @AC:US-<n>-01/aspect:<value1>
   Scenario: <scenario title for value1 branch>
     ...
 
-  # - when a custom {placeholder-name} keyword is used (both US and Func):
+  # - when a named keyword is declared, one scenario per value, tagged with the keyword's name;
+  #   covered once every value has one, partially_covered shows covered/declared (e.g. 1/3):
   @AC:US-<n>-02/<placeholder-name>:<value1>
   Scenario: <scenario title for value1>
     ...
@@ -130,11 +246,11 @@ Feature: <US Title>
 | `# business_value:` | Yes | Why this User Story exists (bullets) |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at US level; inherited and extended by all ACs |
-| `# notes:` | Optional | Human context at User Story level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#core-entities) |
+| `# notes:` | Optional | Human context at User Story level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#core-entities) |
 | `# acceptance_criteria:` | Yes | Full AC listing with IDs, versions, and states; each AC may extend inherited preconditions and not_in_scope |
 | `@US_ID:US-<n>` tag | Yes | Machine-parseable User Story ID (feature-level tag) |
 
-**Example:** [`docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature`](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature) — required fields, one covered AC and one uncovered AC, plus the one optional extension for that file (AC-level `preconditions`).
+**Example:** [`docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature) — required fields, one covered AC and one uncovered AC, plus the one optional extension for that file (AC-level `preconditions`).
 
 ---
 
@@ -144,33 +260,36 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 
 **In this section:** [Required fields](#required-fields) · [Full vs cross-reference headers](#two-header-formats-full-vs-cross-reference) · [Maintaining the header](#maintaining-a-pageobject-header) · [Where operational notes belong](#where-operational-notes-belong) · [Common mistakes](#common-mistakes)
 
-**Example:** [`docs/examples/pageobject/LoginPage.ts`](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/examples/pageobject/LoginPage.ts) — full header with the `stub-reason:` optional field.
+**Example:** [`docs/examples/pageobject/LoginPage.ts`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/pageobject/LoginPage.ts) — full header with the `stub-reason:` optional field. [`docs/examples/pageobject/RegistrationPage.ts`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/pageobject/RegistrationPage.ts) — an instrumented surface, full header with the `feature_dependencies:` optional field.
 
 > **No surface status.** A PageObject header carries **no `status:` field**. The Feature it documents
 > has no authored status either — a Feature's state is derived from its Functionalities (see
-> [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#feature)). A surface that is known but not
+> [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature)). A surface that is known but not
 > yet instrumented for test automation says so with `stub-reason:`, not with a status value.
 
 ### Required fields
 
 | Field | Canonical values |
 |---|---|
-| `surface_type` | `UI` — a PageObject is the test abstraction for a UI surface only (see [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#feature)); an API surface has no PageObject and [carries no header here](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#feature) |
+| `surface_type` | `UI` — a PageObject is the test abstraction for a UI surface only (see [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature)); an API surface has no PageObject and [carries no header here](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature) |
 | `route` | URL path — use `{param}` for dynamic segments |
 | `owners` | Team name(s), comma-separated |
 | `purpose` | One-to-two sentence description in business language |
-| `user_stories` | `US-N` IDs, comma-separated — or `none` (triggers orphan warning in gap reports) |
+| `user_stories` | `US-N` IDs, comma-separated — or `none` (gap reports flag a Feature with no User Story) |
 | `functionalities` | `FUNC-N` IDs, comma-separated — or `none` (triggers a reminder to define FUNCs) |
-| `external_dependencies` | Names of systems this surface calls that are **not** Features themselves — or `none`. A system that has a canonical anchor is an `API` Feature instead, and the call is declared on the Functionality as `feature_dependencies` (see [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#feature)) |
+| `external_dependencies` | Names of systems this surface calls that are **not** Features themselves — or `none`. A system that has a canonical anchor is an `API` Feature instead, and the call is declared as `feature_dependencies` on the same header (see [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature)) |
 | `page-object` | Filename of this PageObject |
 
 **Optional fields:**
 
 | Field | When |
 |---|---|
+| `feature_dependencies` | The surface calls a documented `API` Feature — `FEAT-<nnn>` IDs, comma-separated. Any Feature may carry it, `UI` or `API`; each target must be an `API` Feature. Only the caller writes it; the reverse direction is not authored. Omit the key when the Feature calls nothing — there is no `none` value. See [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature). |
 | `wizard-steps` | Multi-step wizard UI — list the named steps in order |
 | `stub-reason` | The surface is documented but not yet fully instrumented — one-to-two sentence statement of **why**; treated as tech-debt resolvable by instrumenting the template and re-scanning. Its presence *is* the marker; there is no status value for this. |
-| `notes` | Human context at Feature level — a bullet list under the key, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#core-entities). Not a scan diary — the rows under [Where operational notes belong](#where-operational-notes-belong) keep their homes. |
+| `notes` | Human context at Feature level — a bullet list under the key, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#core-entities). Not a scan diary — the rows under [Where operational notes belong](#where-operational-notes-belong) keep their homes. |
+| `deprecation_reason` | The surface is being retired — one-to-two sentences on **why**; human intent, which nothing can derive. It drives no state: the Feature's state still comes from its Functionalities. See [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature). |
+| `superseded_by` | The surface is being retired in favour of another — the replacement's `FEAT-<nnn>` ID, a typed entity link the pipeline traverses as a relation edge. It drives no state. See [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature). |
 
 ### Two header formats: Full vs Cross-reference
 
@@ -201,6 +320,7 @@ A PageObject file uses one of two formats depending on whether it is the **prima
  * user_stories:          US-10, US-12
  * functionalities:       FUNC-005, FUNC-006
  * external_dependencies: accounts-api
+ * feature_dependencies:  FEAT-051
  * page-object:           AccountSetupWizardPage.ts
  * notes:
  *   - Step order is fixed; the review step cannot be skipped even for a returning customer.
@@ -219,14 +339,9 @@ A PageObject file uses one of two formats depending on whether it is the **prima
 | `purpose` | One sentence: what this step or sub-surface does, in business language — no FEAT IDs |
 | `page-object` | Filename of this PageObject |
 | `functionalities` | Optional: `FUNC-<nnn>, ...` — subset of parent Feature's Functionalities that this step implements. Omit if all sub-pages equally implement all parent Feature Functionalities. |
+| `notes` | Optional: human context about this page, a bullet list as on the full header. The notes stay with this page and its data; they are never merged into the parent Feature's notes. |
 
-The following fields are **intentionally omitted** from the cross-reference header — they belong only on the primary Feature file: `surface_type`, `user_stories`, `external_dependencies`.
-
-`feature_dependencies` is **intentionally omitted from both** PageObject header formats, for a different
-reason: a Feature's value is derived from its Functionalities and is never authored, so writing it on a
-surface would be a second source of truth for a derived value. It is authored on the Functionality — see
-[Living Doc Glossary — Functionality](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#functionality-func) and
-[§3](#3-functionality-in-a-gherkin-feature-file).
+The following fields are **intentionally omitted** from the cross-reference header — they belong only on the primary Feature file: `surface_type`, `user_stories`, `external_dependencies`, `feature_dependencies`, `deprecation_reason`, `superseded_by`.
 
 **Optional inclusion of `functionalities`:** You may list this field in a cross-reference header to scope step-specific atomic behaviors to that sub-page. Use this when a step implements distinct Functionalities not shared across the entire Feature. If the sub-page's Functionality list is identical to the parent Feature's, omit this field to avoid duplication and keep the primary Feature as the authoritative source.
 
@@ -260,11 +375,11 @@ scan-style detail (scan dates, gap lists, open-issue references) is simply: it h
 file — leave it out.
 
 **With the `agentic-toolkit` skills.** The
-[`living-doc-bdd-copilot`](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/projects/agentic-toolkit.md) skills are large maintenance helpers here
+[`living-doc-bdd-copilot`](https://github.com/AbsaOSS/living-doc/blob/master/docs/projects/agentic-toolkit.md) skills are large maintenance helpers here
 and produce the identical header format — nothing about a scanned header differs from a hand-written
 one. `living-doc-pageobject-scan` writes and refreshes the header and locators from a live scan of
 the running app; `data-cy-instrument` adds the missing `data-cy` attributes a `stub-reason:` surface
-is waiting on; `living-doc-gap-finder` reports orphaned surfaces and uncovered User Stories. They are
+is waiting on; `living-doc-gap-finder` reports surfaces with no User Story and uncovered User Stories. They are
 accelerators, not a requirement.
 
 ### Where operational notes belong
@@ -309,14 +424,15 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 | `owner: Team` | `owners: Team` (plural key) |
 | `status:` on a PageObject header (any value) | Remove it — a surface has no status; a Feature's state is derived from its Functionalities |
 | `status: STUB` / `status: candidate` | Remove `status`, keep `stub-reason:` |
-| `deprecated_at:` on a PageObject header | Remove it — a Feature's deprecation date is derived with its state; keep `deprecation_reason:` / `superseded_by:` if the surface is being retired |
-| `feature_dependencies:` on a PageObject header | Remove it — a Feature's value is derived from its Functionalities; author `# feature_dependencies:` on the Functionality that makes the call |
+| `deprecated_at:` on a PageObject header | Remove it — a Feature has no `deprecated_at`; keep `deprecation_reason:` / `superseded_by:` if the surface is being retired |
+| `# feature_dependencies:` on a Functionality header | Move it to the parent Feature's full header |
+| `feature_dependencies: none` | Omit the key — the field has no `none` value |
 | `functionalities:` omitted | `functionalities: none` |
 | `user_stories:` omitted | `user_stories: none` |
 | `external_dependencies:` omitted | `external_dependencies: none` |
 | `parent-feat:` omitted from cross-reference file | Every secondary file for a shared Feature must declare `parent-feat` |
 | `page-object:` omitted from cross-reference file | `page-object:` is required in both formats — it names the file being read |
-| `user_stories:` duplicated in cross-reference file | These fields live only on the primary Feature file; omit from cross-references |
+| `user_stories:` or `feature_dependencies:` in cross-reference file | These fields live only on the primary Feature file; omit from cross-references |
 | Multiple files claiming the same Feature without `[cross-reference]` tag | Only one file carries the full header; all others must use `[cross-reference]` format |
 | NOTE block in header about missing `data-cy` or open issues | Move to `manifest.json` `coverage_gaps[]`; keep only `stub-reason:` in the header |
 | `@stub` or `@pending` on the class JSDoc | Use `stub-reason:` in the header instead |
@@ -334,8 +450,10 @@ A surface carrying `stub-reason:` is **not in a permanent state** — it is a li
 
 Header comment block at the top of every Functionality feature file —
 `<feature_dirs.functionality>/func-<nnn>-<kebab>.feature` (default `features/liv_doc_func/`).
+Indentation in this header is significant — see [Indentation](#indentation). An AC declares its
+variants with `Aspect:` or one named keyword, never both — see [AC variants](#ac-variants).
 
-**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file (`Aspect:` on an AC), split across two scenarios (covered), and one uncovered AC. [`func-002-reject-breached-password.feature`](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/examples/gherkin/liv_doc_func/func-002-reject-breached-password.feature) shows `# feature_dependencies:`, on a `planned` Functionality with no scenario yet.
+**Example:** [`docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature) — required fields plus the one optional extension for that file in both its spellings: `Aspect:` on one AC, split across three scenarios (covered), and a named keyword on another, one value of three with a scenario (partly covered, 1/3); and one uncovered AC. [`func-002-reject-breached-password.feature`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/gherkin/liv_doc_func/func-002-reject-breached-password.feature) shows a `planned` Functionality with no scenario yet.
 
 ```gherkin
 # =============================================================================
@@ -349,7 +467,6 @@ Header comment block at the top of every Functionality feature file —
 # parent:    FEAT-<nnn>
 # func_type: component_state | component_action | button_action |
 #            field_validation | calculation | visibility | navigation_rule
-# feature_dependencies: FEAT-<nnn>, FEAT-<nnn>                   ← optional; API Features this behaviour calls
 # rationale:                                                     ← optional
 #   - <why this FUNC is scoped this way — business or design decision context>
 # preconditions:                                                 ← optional; inherited by all ACs
@@ -363,15 +480,15 @@ Header comment block at the top of every Functionality feature file —
 #
 #   AC:FUNC-<nnn>-01 (v<version> - <state>)      ← `(planned)` with no version = backlog
 #     - <description in business language — no data-cy IDs in AC text>
-#     - Aspect: <value1>, <value2>        ← optional; default keyword — no {placeholder} needed
+#     - Aspect: <value1>, <value2>        ← optional; one variant declaration per AC — no {placeholder-name} needed
 #     preconditions:                      ← optional; extends feature-level preconditions for this AC only
 #       - <AC-specific precondition>
 #     not_in_scope:                       ← optional; extends feature-level not_in_scope for this AC only
 #       - <AC-specific exclusion>
 #
 #   AC:FUNC-<nnn>-02 (v<version> - <state>)
-#     - <description — may contain a {placeholder-name} for parameterised variants>
-#     - <placeholder-name>: <value1>, <value2>  ← optional; custom keyword — matches {placeholder-name} in AC text; ALL values must be covered
+#     - <description — may contain one {placeholder-name} for parameterised variants>
+#     - <placeholder-name>: <value1>, <value2>  ← optional; named keyword, the other spelling of `Aspect:` — never both on one AC; name = {placeholder-name} in AC text, lowercase kebab-case, not `aspect`
 # =============================================================================
 
 @FUNC_ID:FUNC-<nnn>
@@ -380,8 +497,8 @@ Feature: <Feature Name> - <Functionality Name>
   language. Present only when purpose adds context beyond the title.>   ← optional
 
   # No scenarios yet — uncovered ACs flagged by coverage_report.py.
-  # When adding scenarios: include # AC:<id> comment and @AC:<id> or @AC:<id>/<placeholder-name>:<value> tag above each Scenario.
-  # ACs with a {placeholder-name}: one scenario per declared value is required — partial coverage is a gap.
+  # When adding scenarios: include # AC:<id> comment and @AC:<id>, @AC:<id>/aspect:<value> or @AC:<id>/<placeholder-name>:<value> tag above each Scenario.
+  # An AC with variants is covered once every declared value has a scenario — a bare @AC:<id> scenario covers them all; partially_covered shows covered/declared (e.g. 1/3).
 ```
 
 **Header fields:**
@@ -395,11 +512,10 @@ Feature: <Feature Name> - <Functionality Name>
 | `# superseded_by:` | Optional | ID of the replacement entity |
 | `# parent:` | Yes | Parent Feature ID (`FEAT-<nnn>`) |
 | `# func_type:` | Yes | Category of behavior this Functionality represents (see table below) |
-| `# feature_dependencies:` | Optional | The Features this behaviour calls — `FEAT-<nnn>` IDs, comma-separated. Each target must be an `API` Feature, and only the caller writes the field; the reverse direction is derived. Authored here and derived upward to the parent Feature — see [Living Doc Glossary — Functionality](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#functionality-func). A system with no canonical anchor is not a target: it is a Feature-level `external_dependencies` entry instead. |
 | `# rationale:` | Optional | **Why** this FUNC is scoped the way it is — business context, a deliberate design decision, or a constraint that explains the boundary. Not for implementation notes. |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at FUNC level; inherited and extended by all ACs |
-| `# notes:` | Optional | Human context at Functionality level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/guides/living-doc-glossary.md#core-entities) |
+| `# notes:` | Optional | Human context at Functionality level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#core-entities) |
 | `# acceptance_criteria:` | Yes | Full AC listing in business language — do not include `data-cy` IDs or implementation names in AC text; each AC may extend inherited preconditions and not_in_scope |
 | `@FUNC_ID:FUNC-<nnn>` tag | Yes | Machine-parseable Functionality ID (feature-level tag) |
 | Feature description (below `Feature:`) | Optional | One-to-two sentence purpose in business language. Use when the title alone is not self-explanatory. |
@@ -445,7 +561,7 @@ you are expected to write from scratch.
 
 **Location:** `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`).
 
-**Example:** [`docs/examples/project-profile/.project-profile.yaml`](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/examples/project-profile/.project-profile.yaml).
+**Example:** [`docs/examples/project-profile/.project-profile.yaml`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/project-profile/.project-profile.yaml).
 
 ```yaml
 # .copilot/bdd/.project-profile.yaml — defaults shown match the reference (AUL) project.
@@ -500,7 +616,7 @@ routes, test-user roles, and pre-declared form values. The agent creates it, re-
 the start of every scan session, and appends to it as it discovers entities. A human may pre-seed
 known values or correct them, but is not expected to write the file.
 
-**Example:** [`docs/examples/project-profile/seed.yaml`](https://github.com/AbsaOSS/living-doc/blob/86c756d88e04184b724d3326b27ae001bbb261f6/docs/examples/project-profile/seed.yaml) — required keys plus one optional `form_fixtures` entry.
+**Example:** [`docs/examples/project-profile/seed.yaml`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/project-profile/seed.yaml) — required keys plus one optional `form_fixtures` entry.
 
 ```yaml
 # .copilot/bdd/seed.yaml
@@ -690,9 +806,13 @@ tells downstream generators (PageObject, data-cy-instrument) how to map these no
 
 ---
 
-## Toolkit-local additions
+## Layer-local additions
 
-*Not part of the canon above — machine-readable contracts that live only in `agentic-toolkit`.*
+*Not part of the canon above — contracts and formats that belong to the agentic layer.*
+
+**Formats owned by the layer:** the Project Profile, `seed.yaml` and `manifest.json` formats, and
+the matrix of what each skill creates or consumes, are documented in
+[agentic-formats.md](./agentic-formats.md).
 
 **Schema reference:** for JSON schema validation, see the [schemas/](./schemas/) directory:
 

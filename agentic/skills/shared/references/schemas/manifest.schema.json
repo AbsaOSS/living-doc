@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/AbsaOSS/agentic-toolkit/skills/shared/references/schemas/manifest.schema.json",
+  "$id": "https://github.com/AbsaOSS/living-doc/agentic/skills/shared/references/schemas/manifest.schema.json",
   "title": "Exploration Manifest (manifest.json)",
-  "description": "Canonical machine contract for .copilot/bdd/manifest.json. routes is a JSON array. Element and coverage_gap objects use normalized 'test_id' (not attribute-specific) and 'suggested_test_id' keys. test_id_attribute at manifest root specifies what attribute (e.g. data-cy, data-testid) these keys map to downstream. Route and manifest levels allow additional properties. See living-doc-bdd-schemas.md > manifest.json.",
+  "description": "Canonical machine contract for .copilot/bdd/manifest.json. routes is a JSON array. Element and coverage_gap objects use normalized 'test_id' (not attribute-specific) and 'suggested_test_id' keys. test_id_attribute at manifest root specifies what attribute (e.g. data-cy, data-testid) these keys map to downstream. Route and manifest levels allow additional properties. See agentic-formats.md > manifest.json.",
   "type": "object",
   "required": ["generated", "scan_version", "test_id_attribute", "routes"],
   "additionalProperties": true,
