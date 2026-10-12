@@ -77,6 +77,10 @@ Two readings that matter more than the total:
 
 ## Reproducing
 
+Send the prompt in [rerun-prompt.md](rerun-prompt.md), which carries the three facts a run cannot
+derive for itself: which counts legitimately changed, which fixes are expected to lower a score, and
+which of the figures below are not yet confirmed.
+
 ```bash
 git worktree add /tmp/agentic-baseline c6dbcc7      # read-only control arm
 python3 agentic/scripts/evals-inventory.py          # confirm counts before starting

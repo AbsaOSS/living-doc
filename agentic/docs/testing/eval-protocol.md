@@ -130,6 +130,27 @@ generated-copy checks, format validation and link checks are pass/fail infrastru
 after any edit to the layer. **Never make a gate pass by committing a regenerated artifact** — a
 non-empty diff in a generated file means its source changed, which is a finding, not a chore.
 
+**No target may drop on an assertion the grader confirms is correct.** A change must score at least
+as well as the baseline arm; a confirmed-assertion drop blocks the merge until it is fixed and
+re-measured.
+
+State it per assertion, never as an aggregate, because three unrelated things look identical on a
+scoreboard and only the first may block:
+
+| Looks like a drop | Blocks? | What it actually is |
+|---|---|---|
+| The aligned arm does the task worse | **yes** | a regression — fix it |
+| The aligned arm refuses where the baseline guessed | no | a **corrected behaviour**; the assertion rewards fabrication |
+| The assertion is factually wrong | no | an **eval defect** |
+
+A drop of the second or third kind does not block, but it must be filed as a finding in the same
+run. That keeps the exemption honest: it costs an entry on the fix list, not a shrug.
+
+An aggregate gate is actively harmful here. In the run that produced the current figures, the
+cheapest way to satisfy one would have been to restore a `Ran: next_id.py` line the skill had never
+run — reintroducing the fabricated provenance the change had just removed. **One run per arm means
+no variance**, so a ±0.01 move is not signal either; only a confirmed-assertion drop is.
+
 **"What this suite does not test" is a required deliverable.** A gap in the eval set is as much a
 finding as a failing case, and it is the part no score can show. Report it every time.
 
@@ -149,3 +170,6 @@ finding as a failing case, and it is the part no score can show. Report it every
 
 Distil the result into [baseline.md](baseline.md) and keep the raw evidence out of version control;
 it is regenerable and large.
+
+To **start** a run, use [rerun-prompt.md](rerun-prompt.md) — the prompt to send, its three
+per-run blanks, and how to ask for a partial run over named targets.

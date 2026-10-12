@@ -28,6 +28,25 @@ baseline arm, and which model will execute the runs. Then proceed.
 
 ---
 
+## How you were invoked
+
+Read [`agentic/docs/testing/rerun-prompt.md`](../../agentic/docs/testing/rerun-prompt.md) first in
+every mode. It carries the three facts you cannot derive — which eval counts legitimately changed,
+which fixes are expected to *lower* a score, and which previous figures are unconfirmed.
+
+- **No argument.** Run the full suite. Follow the prompt on that page. If its per-run blanks are
+  unfilled, say so and ask the owner for them before spending the run: without the first blank you
+  will halt on a count mismatch that was intentional, and without the second you will report a
+  corrected behaviour as a regression.
+- **Target names only** (`@eval-runner living-doc-update gherkin-step`). Run those targets, both
+  arms, same protocol, same models. Trigger sets still run alone and serially.
+  **Do not rewrite `baseline.md`.** A baseline is a claim about the whole layer; a partial run
+  cannot make one. Write a standalone report instead, name the targets you did not measure, and say
+  plainly that the baseline is unchanged.
+- **A filled-in prompt.** Treat its ground facts as authoritative over this page.
+
+---
+
 ## What you must not do
 
 These are hard stops, not preferences. Each one exists because breaking it destroys the run's
