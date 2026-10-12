@@ -24,7 +24,7 @@ license: Apache-2.0
 Sync runs in three directions: (1) feature file to living doc, (2) living doc AC to feature file,
 (3) step text to PageObject method signature.
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`.
 
 Use `scripts/scan_ac_links.py` to detect missing or malformed `@AC:` tags and missing `# AC:`
 comments before a full sync run. The script only checks the living-doc feature directories

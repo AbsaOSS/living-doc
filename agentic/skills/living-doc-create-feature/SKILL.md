@@ -107,7 +107,7 @@ For starter drafts, prefer **provisional inferred values** over empty strings wh
 
 ## Step 6 — Output canonical Feature entity
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
 
 > **ID assignment:** Feature IDs must be numeric and assigned from the catalog using
 > `scripts/next_id.py`. Always run:

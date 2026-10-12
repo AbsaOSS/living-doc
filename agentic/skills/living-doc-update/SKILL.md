@@ -5,15 +5,15 @@ description: >
   add, modify, or descope an AC; change status or promote planned to active; change a
   Feature's owners, deprecation metadata, or dependencies; rename a Feature; update the
   Feature Registry; deprecate a Functionality whose code was deleted.
-  Triggers on: "update user story", "add AC to user story", "update AC", "descope AC",
-  "mark US ready", "change status of user story", "update functionality",
-  "deprecate functionality", "deprecate feature", "mark feature deprecated",
+  Triggers on: "update user story", "add/update/descope AC", "mark US ready",
+  "change status", "update or deprecate functionality", "deprecate feature",
   "change feature owner", "update feature registry", "change feature dependencies",
-  "remove external dependency", "dependency became a feature", "promote external dependency",
-  "living doc update".
+  "promote external dependency", "living doc update". An entity id is the normal case:
+  "update US-123 to add an AC", "mark FEAT-004 deprecated, superseded by FEAT-009",
+  "rename FEAT-012", "promote FUNC-033 to active" all trigger it.
   NOT for: creating entities (living-doc-create-*), finding gaps (living-doc-gap-finder),
   generating scenarios (living-doc-scenario-creator).
-  Pairs with gherkin-living-doc-sync (AC changes) and bdd-maintain (post-deprecation cleanup).
+  Pairs with gherkin-living-doc-sync and bdd-maintain.
 license: Apache-2.0
 ---
 
@@ -24,6 +24,11 @@ license: Apache-2.0
 ## Identify the entity and change type
 
 Ask: *Which entity is being updated, and what kind of change is this?*
+
+**If the request names no entity to change, stop and route it.** A request that asks *which*
+entities are in some state is gap detection, not an update — see
+[Out-of-scope routing](#out-of-scope-routing). Identifying the entity is the first step precisely
+because it is also the check that this skill is the right one at all.
 
 If the user says "update the story" but the substance is a newly discovered edge case, missing behavior, or new business rule, classify it explicitly as an **add a new AC** request before proceeding.
 
@@ -232,7 +237,7 @@ point the call is an edge to a Feature, and it moves off every Feature that name
    Functionality is documented. Report that; do not invent placeholder Functionalities to silence it.
 7. **Validate** the new Feature and every edited entity:
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`.
 
    `python scripts/validate_entity.py <entity>.json --catalog catalog.json`. With the catalog, the
    validator checks each `feature_dependencies` target exists, is an `API` Feature, is not deprecated,
@@ -283,12 +288,25 @@ NEW: AC:US-042-03 (planned)
 
 ## Out-of-scope routing
 
+> **A read-only question about coverage is still gap detection — route it, do not answer it.**
+> This skill changes an entity that the request already identifies. A request that instead asks
+> *which* entities are in some state has no entity to change, and answering it means running a
+> search this skill does not own. It does not matter that the phrasing is a question rather than
+> the words "find gaps": "which User Stories have no linked scenarios", "what is not covered",
+> "which Features have no Functionality", "do we have any orphan tests", "show me what is missing"
+> are all `living-doc-gap-finder`.
+>
+> So: do not search the feature files or the catalog for the answer, even when it looks like one
+> grep away. Name `living-doc-gap-finder` as the skill that owns it, and say briefly why — this
+> skill updates a known entity, gap detection scans for unknown ones. Answering it here produces a
+> figure nobody can reproduce, because it skipped the tool that defines how coverage is counted.
+
 | Request | Correct skill |
 |---|---|
 | Create a new User Story | `living-doc-create-user-story` |
 | Create a new Feature | `living-doc-create-feature` |
 | Create a new Functionality | `living-doc-create-functionality` |
-| Find gaps in living documentation | `living-doc-gap-finder` |
+| Find gaps, or ask *which* entities lack scenarios, tests, Functionalities or coverage | `living-doc-gap-finder` |
 | AC modified, deprecated, or descoped — sync linked scenarios | `gherkin-living-doc-sync` |
 | Deprecated entity — remove associated automation files | `bdd-maintain` |
 | Assess impact of an AC change on Features and User Stories | `living-doc-impact-analysis` |

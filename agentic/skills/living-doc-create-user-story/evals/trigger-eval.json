@@ -160,5 +160,17 @@
     "query": "When creating this User Story, should I link the existing Functionality FUNC-001?",
     "should_trigger": true,
     "reason": "Linking existing Functionalities during US creation — living-doc-create-user-story owns this"
+  },
+  {
+    "id": 28,
+    "query": "Create a User Story under FEAT-015 for the CSV export flow",
+    "should_trigger": true,
+    "reason": "Names a concrete entity id — measures id-bearing recall (debt D49)"
+  },
+  {
+    "id": 29,
+    "query": "New story for bulk refunds; the catalog has US-001 through US-048",
+    "should_trigger": true,
+    "reason": "Names a concrete entity id — measures id-bearing recall (debt D49)"
   }
 ]

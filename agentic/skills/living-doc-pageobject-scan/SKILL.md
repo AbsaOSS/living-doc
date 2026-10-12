@@ -240,7 +240,7 @@ A PageObject header written before the canon dropped a surface's state carries k
 pipeline now rejects or ignores: `status:` (any value), `deprecated_at:`, and the old
 spellings `type:` / `owner:`. A project cannot find them all by hand.
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`.
 
 ```bash
 python scripts/migrate_pageobject_headers.py tests/pages            # report

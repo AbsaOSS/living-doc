@@ -190,5 +190,17 @@
     "query": "I just created FUNC-001 — how do I add it to the parent Feature's functionalities array?",
     "should_trigger": true,
     "reason": "Parent Feature sync after creating a Functionality — living-doc-create-functionality owns this step"
+  },
+  {
+    "id": 33,
+    "query": "Add a Functionality under FEAT-021 for the late-fee calculation",
+    "should_trigger": true,
+    "reason": "Names a concrete entity id — measures id-bearing recall (debt D49)"
+  },
+  {
+    "id": 34,
+    "query": "Document the VAT rounding rule as a Functionality; catalog has FUNC-001 through FUNC-040",
+    "should_trigger": true,
+    "reason": "Names a concrete entity id — measures id-bearing recall (debt D49)"
   }
 ]

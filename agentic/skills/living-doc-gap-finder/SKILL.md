@@ -20,7 +20,7 @@ license: Apache-2.0
 
 > **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md)).
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`.
 
 ## Script — `scripts/compute_gaps.py`
 
@@ -194,7 +194,9 @@ For each Feature reachable via entity relationships
     GAP: FEATURE_WITHOUT_FUNCTIONALITY
 ```
 
-`FEATURE_WITHOUT_FUNCTIONALITY` is independent of whether the Feature has linked User Stories. A Feature with linked User Stories but no Functionalities (for example `FEAT-005`) is still a `FEATURE_WITHOUT_FUNCTIONALITY`.
+`FEATURE_WITHOUT_FUNCTIONALITY` is independent of whether the Feature has linked User Stories. A Feature with linked User Stories but no Functionalities is still a `FEATURE_WITHOUT_FUNCTIONALITY` — in the worked snapshot that is `FEAT-002`, which links `US-002` and still has no Functionality.
+
+A Functionality's `parent_feature` counts as a back-link: a Feature whose own `functionalities` key is missing is **not** flagged when some Functionality names it as parent. That is why the snapshot flags only `FEAT-002` and `FEAT-004`, while `FEAT-001` and `FEAT-003` are covered by `FUNC-001` and `FUNC-002` respectively.
 
 ### Step 4 — Prioritise by risk
 
@@ -277,11 +279,11 @@ A project with 100% documentation coverage has every AC backed by at least one t
 
 **Classification reminders for final reports:**
 - If `US-007.features == []`, emit `ORPHAN_USER_STORY — US-007 has no linked Feature entity`.
-- If `FEAT-005.functionalities == []`, emit `FEATURE_WITHOUT_FUNCTIONALITY — FEAT-005 has no Functionalities defined`.
-- If `FEAT-008.functionalities == []`, emit `FEATURE_WITHOUT_FUNCTIONALITY — FEAT-008 has no Functionalities defined`.
+- If `FEAT-002.functionalities` is missing or `[]` and no Functionality names it as `parent_feature`, emit `FEATURE_WITHOUT_FUNCTIONALITY — FEAT-002 has no Functionalities defined`.
+- Likewise for `FEAT-004`.
 - If `FUNC-002` has ACs but no linked tests, list it only once under `UNTESTED_AC` Blockers — not again under `UNDOCUMENTED_FUNCTIONALITY`.
 - If a `.feature` file itself has no `@AC:` tag **and** one of its scenarios is also independently unlinked, report both orphan-test artifacts separately (for example `test_login_flow.feature` and `View paginated order history`).
-- Do not infer `FEATURE_WITHOUT_FUNCTIONALITY` from lack of User Stories; only emit it when `functionalities == []`. In the worked snapshot, `FEAT-004` is a Feature without a User Story, while `FEAT-005` and `FEAT-008` are the Features without a Functionality.
+- Do not infer `FEATURE_WITHOUT_FUNCTIONALITY` from lack of User Stories, and do not infer `FEATURE_WITHOUT_USER_STORY` from lack of Functionalities — the two are independent. In the worked snapshot, `FEAT-003` and `FEAT-004` are the Features without a User Story, while `FEAT-002` and `FEAT-004` are the Features without a Functionality; `FEAT-004` is both, and `FEAT-003` is only the former because `FUNC-002` names it as parent.
 
 ## Large-scale analysis: batching guidance
 

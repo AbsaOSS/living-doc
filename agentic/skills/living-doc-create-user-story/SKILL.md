@@ -144,7 +144,7 @@ writing one:
 
 ## Step 4 — Validate and output
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
 
 > **ID assignment:** before assigning a `US-nnn` ID, run
 > `python scripts/next_id.py --type US --catalog catalog.json`

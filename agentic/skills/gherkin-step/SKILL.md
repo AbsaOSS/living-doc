@@ -22,13 +22,13 @@ license: Apache-2.0
 
 > **Framework scope:** Covers **Python behave**, **Cucumber TypeScript**, **Cucumber Java**, and **Cucumber-Scala**. The toolkit's PageObject ecosystem is **Playwright + TypeScript**; Python or Java projects adapt the examples. The core rules — thin steps, no selectors in steps, shared state via context/World — apply everywhere.
 
-> **The code examples below are illustrative, not verified.** They are not compiled or executed by
-> this repository's CI, they span four frameworks whose APIs differ, and at least one known case is
-> wrong for its framework: behave has **no** `@before_scenario` / `@after_scenario` decorator — it
-> calls a module-level `before_scenario(context, scenario)` in `features/environment.py`. Treat every
-> snippet as a shape to adapt against your framework's own documentation, check it against the
-> installed version before relying on it, and do not present a snippet from here to a user as
-> known-working code.
+> **The code examples below are reviewed against each framework's API, but not executed.** Nothing
+> here is compiled or run by this repository's CI, and the page spans four frameworks whose APIs
+> differ — so check a snippet against your installed version before relying on it, and keep the
+> ecosystems apart: Python examples are **behave** (hooks by name in `features/environment.py`, no
+> decorator), TypeScript examples are **`@cucumber/cucumber` + Playwright** (`function (this:
+> AppWorld)`, a `World` registered with `setWorldConstructor`). A `({ page })` fixture signature is
+> playwright-bdd, a different runner, and mixing it into a Cucumber step will not bind.
 
 ## Respect the boundary with Gherkin text
 
@@ -42,11 +42,20 @@ If the user asks to write or review a **Gherkin scenario / feature file**, do no
 
 **Python behave:** each scenario gets a fresh `context`, so state must not leak between scenarios. Attach PageObjects in `before_scenario`.
 
+behave discovers hooks **by name** in `features/environment.py`. There is no `@before_scenario`
+decorator to import — a decorated function in a step file is never called, and the failure is
+silent, which is why it is worth stating. The signature takes the scenario as its second argument.
+
 ```python
-# ✅ init per scenario
-@before_scenario
-def setup_pages(context):
-    context.checkout_page = CheckoutPage(context.browser.new_page())
+# features/environment.py
+# ✅ module-level hook, discovered by name, both arguments present
+def before_scenario(context, scenario):
+    context.browser_context = context.browser.new_context()
+    context.checkout_page = CheckoutPage(context.browser_context.new_page())
+
+
+def after_scenario(context, scenario):
+    context.browser_context.close()   # closes the context and every page in it
 ```
 
 **Cucumber TypeScript (Playwright):** use a typed `World` class and show `setWorldConstructor(...)` explicitly before the hooks.
@@ -54,22 +63,21 @@ def setup_pages(context):
 ```typescript
 // world.ts
 import { setWorldConstructor, World, IWorldOptions } from '@cucumber/cucumber';
-import { Browser, Page } from '@playwright/test';
+import { BrowserContext, Page } from '@playwright/test';
 import { CheckoutPage } from './pages/checkout.page';
 
 export interface AppWorld extends World {
-  browser: Browser;
+  context: BrowserContext;
   page: Page;
   checkoutPage: CheckoutPage;
 }
 
 class AppWorldImpl extends World implements AppWorld {
-  browser!: Browser;
   page!: Page;
+  context!: BrowserContext;
   checkoutPage!: CheckoutPage;
-  constructor(options: IWorldOptions & { browser: Browser }) {
+  constructor(options: IWorldOptions) {
     super(options);
-    this.browser = options.browser;
   }
 }
 setWorldConstructor(AppWorldImpl);
@@ -77,17 +85,31 @@ setWorldConstructor(AppWorldImpl);
 
 Always show the registration call explicitly in setup answers: `setWorldConstructor(AppWorldImpl);`.
 
-Do not launch the browser inside the World constructor. Inject it into the World/test context; let `Before` create only the scenario's fresh page or browser context.
+**The World constructor cannot receive the browser.** Cucumber instantiates the World itself and
+passes only `IWorldOptions` (`attach`, `log`, `link`, `parameters`), so a constructor typed
+`IWorldOptions & { browser: Browser }` compiles and then reads `undefined` at run time. Launch the
+browser once in `BeforeAll`, keep it in module scope, and give each scenario its own context:
 
 ```typescript
 // hooks.ts
+import { BeforeAll, Before, After, AfterAll } from '@cucumber/cucumber';
+import { chromium, Browser } from '@playwright/test';
+
+let browser: Browser;                       // module scope, one per worker
+
+BeforeAll(async () => { browser = await chromium.launch(); });
+AfterAll(async () => { await browser.close(); });
+
 Before(async function (this: AppWorld) {
-  this.page   = await this.browser.newPage();
+  // newContext(), not newPage(): newPage() creates an implicit context that
+  // page.close() never disposes, so each scenario would leak one.
+  this.context = await browser.newContext();
+  this.page = await this.context.newPage();
   this.checkoutPage = new CheckoutPage(this.page);
 });
 
 After(async function (this: AppWorld) {
-  await this.page?.close();
+  await this.context?.close();              // closes the context and its pages
 });
 ```
 
@@ -100,14 +122,14 @@ After(async function (this: AppWorld) {
 
 ```typescript
 // ✅ fixture ID guarantees ownership state
-Given('I am on the Domain Detail page for a domain I own', async ({ page, env }) => {
-  await page.goto(`/auth/domain/${env.ownedDomainId}`);
+Given('I am on the Domain Detail page for a domain I own', async function (this: AppWorld) {
+  await this.page.goto(`/auth/domain/${this.parameters.ownedDomainId}`);
 });
 
 // ❌ both variants pick the same arbitrary domain
-Given('I am on the Domain Detail page for a domain I own', async ({ page }) => {
-  await page.goto('/auth/all-domains');
-  await page.getByTestId('domain-name-link').first().click();
+Given('I am on the Domain Detail page for a domain I own', async function (this: AppWorld) {
+  await this.page.goto('/auth/all-domains');
+  await this.page.getByTestId('domain-name-link').first().click();
 });
 ```
 
@@ -141,14 +163,25 @@ Step definitions are bindings: they translate Gherkin text into PageObject, doma
 - Assertions belong exclusively in `Then` steps
 - A step body consisting only of comments is a no-op and is not permitted as a final implementation — NOP-01. If the system pre-establishes state externally, the step must assert that state is present rather than silently pass.
 
+**NOP-01 is the one exception to the two rules above, and it belongs on a `Given`.** Where the state
+is already established outside the test there is no action to perform, and a silent pass is worse
+than a precondition check — so that check is allowed. A `When` with nothing to do is a different
+problem: the step is mis-keyworded, and the fix is to make it a `Given`, not to put an assertion in
+it. That is why the example below asserts in `Given` and acts in `When`.
+
 ```typescript
-// ✅ pre-populated state is asserted
-When('I select a domain', async ({ page }) => {
-  await expect(page.getByTestId('domain-selector')).not.toBeEmpty();
+// ✅ Given: externally pre-established state is asserted rather than silently passed (NOP-01)
+Given('a domain is available to select', async function (this: AppWorld) {
+  await expect(this.page.getByTestId('domain-selector')).not.toBeEmpty();
 });
 
-// ❌ comment-only body
-When('I select a domain', async ({ page }) => {
+// ✅ When: performs the action, asserts nothing
+When('I select a domain', async function (this: AppWorld) {
+  await this.domainPage.selectFirstDomain();
+});
+
+// ❌ comment-only body — NOP-01
+When('I select a domain', async function (this: AppWorld) {
   // no additional action
 });
 ```
@@ -231,8 +264,8 @@ Then('the imported domain is visible in the domain list', async function (this: 
 });
 
 // ❌ hardcoded constant couples the assertion to the When step
-Then('the imported domain is visible in the domain list', async ({ page }) => {
-  await expect(page.getByTestId('domain-name-link').getByText('E2E Import Test')).toBeVisible();
+Then('the imported domain is visible in the domain list', async function (this: AppWorld) {
+  await expect(this.page.getByTestId('domain-name-link').getByText('E2E Import Test')).toBeVisible();
 });
 ```
 

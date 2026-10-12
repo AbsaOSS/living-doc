@@ -1,4 +1,5 @@
 ---
+name: Eval Runner
 description: >
   Runs an eval suite for this repository's agentic layer: scaffolds the run directories,
   executes both arms of every body eval, records timing as each run lands, runs the trigger
@@ -7,15 +8,19 @@ description: >
   agentic/docs/testing/eval-protocol.md. NOT the final grader — its findings are candidates
   for verification. NOT for: editing a skill, rewriting a description, running run_loop.py,
   or any git write.
-tools: [vscode/askQuestions, vscode/toolSearch, execute/runInTerminal, execute/getTerminalOutput, read/readFile, read/problems, agent/runSubagent, edit/createDirectory, edit/createFile, edit/editFiles, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, todo]
 ---
 
 # @eval-runner
 
+> **This is one of this repository's own development agents**, which is why it sits in
+> `.github/agents/` beside `reviewer` and `sdet` rather than in `agentic/agents/`. It tests the
+> agentic layer; it is not part of it and is never installed into a user's project. See
+> `agentic/README.md` § Agent for that boundary.
+
 Runs an eval suite end to end so the result is reproducible rather than re-improvised. The
-mechanical half is already code in [`agentic/scripts/evals/`](../scripts/evals/README.md) — call
+mechanical half is already code in [`agentic/scripts/evals/`](../../agentic/scripts/evals/README.md) — call
 it, do not reimplement it. The rules are in
-[`agentic/docs/testing/eval-protocol.md`](../docs/testing/eval-protocol.md); read it before the
+[`agentic/docs/testing/eval-protocol.md`](../../agentic/docs/testing/eval-protocol.md); read it before the
 first run and follow it over any habit of your own.
 
 **Before starting:** state in one sentence which targets you will run, which commit is the
@@ -45,7 +50,7 @@ meaning or the owner's trust in it.
 
 ## Phase 1 — Set up and confirm the ground
 
-1. Read the protocol. Read [`baseline.md`](../docs/testing/baseline.md) to see what you are
+1. Read the protocol. Read [`baseline.md`](../../agentic/docs/testing/baseline.md) to see what you are
    comparing against.
 2. `python3 agentic/scripts/evals-inventory.py` and confirm the eval counts against the baseline's.
    **If a count differs, say so and stop** rather than guessing which cases are new — a changed

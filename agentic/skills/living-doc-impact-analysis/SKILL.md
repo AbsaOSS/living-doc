@@ -6,13 +6,13 @@ description: >
   Output an impact map identifying what must be reviewed, updated, or re-tested. Activate when
   a PR touches business logic, a service module is refactored, or breaking API changes need
   living doc coverage traced.
-  Triggers on: "living doc impact", "what does this change affect", "impact of PR on living doc",
-  "trace affected user stories", "affected features", "impact analysis", "living doc sign-off",
-  "what user stories are affected", "which scenarios need re-running", "what needs re-testing",
-  "PR impact on docs", "bootstrap feature_registry".
+  Triggers on: "living doc impact", "what does this change affect", "impact analysis",
+  "trace affected user stories", "affected features", "which scenarios need re-running",
+  "what needs re-testing", "living doc sign-off", "bootstrap feature_registry". A named PR or
+  module is the normal input: "does PR #123 affect the living doc", "which User Stories does
+  the OrderService refactor touch", "PR #456 only touches tests — anything to update".
   Does NOT trigger for: updating living doc (use living-doc-update); finding coverage gaps
   (use living-doc-gap-finder); creating new entities (use living-doc-create-*).
-  Pairs with living-doc-update, gherkin-living-doc-sync, and bdd-maintain.
 license: Apache-2.0
 ---
 
@@ -20,7 +20,7 @@ license: Apache-2.0
 
 > **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md)).
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`.
 
 ## Script — `scripts/trace_impact.py`
 

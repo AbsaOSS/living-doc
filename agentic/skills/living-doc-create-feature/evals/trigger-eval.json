@@ -172,5 +172,23 @@
     "query": "The payment-events topic got an AsyncAPI annotation, so it became a feature. Update every Feature that lists it as an external dependency.",
     "should_trigger": false,
     "reason": "Promoting an external dependency is a cascade across existing Features — living-doc-update runs it and calls living-doc-create-feature for the new Feature itself"
+  },
+  {
+    "id": 30,
+    "query": "Document the reporting API as a Feature; the catalog already has FEAT-001 through FEAT-030",
+    "should_trigger": true,
+    "reason": "Names a concrete entity id — measures id-bearing recall (debt D49)"
+  },
+  {
+    "id": 31,
+    "query": "Create a Feature entity for the admin console and link it to US-204",
+    "should_trigger": true,
+    "reason": "Names a concrete entity id — measures id-bearing recall (debt D49)"
+  },
+  {
+    "id": 32,
+    "query": "Which Feature should own the /billing/invoices screen?",
+    "should_trigger": true,
+    "reason": "Names a concrete entity id — measures id-bearing recall (debt D49)"
   }
 ]

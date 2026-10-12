@@ -149,7 +149,7 @@ When the user asks to **create**, **document**, or **draft** a Functionality ent
 
 Never answer a create/document request with only instructions such as "Create a Functionality entity..." or "Then output the canonical JSON". The response itself must contain the canonical JSON.
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
 
 > **ID assignment:** before assigning a `FUNC-nnn` ID, run
 > `python scripts/next_id.py --type FUNC --catalog catalog.json`

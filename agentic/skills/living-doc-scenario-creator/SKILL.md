@@ -5,11 +5,12 @@ description: >
   Covers full feature file output (@AC:-tagged scenarios, GWT bodies), Scenario Outline,
   Background, AC coverage report, anti-pattern detection, and step definition resolution.
   Two modes: entity (from US/FUNC) and standalone.
-  Triggers on: "write a Gherkin scenario", "BDD scenario", "standalone feature file",
-  "Given When Then", "Scenario Outline", "BDD anti-patterns", "review my feature file",
-  "BDD scenarios for", "convert acceptance criteria to Gherkin", "exploratory scenario",
-  "feature file header for user story", "living-doc feature file", "bootstrap feature file for US",
-  "cover AC with scenarios", "scenario coverage for US", "map AC to scenarios", "scenario creator".
+  Triggers on: "write a Gherkin/BDD scenario", "Given When Then", "Scenario Outline",
+  "BDD anti-patterns", "review my feature file", "standalone or living-doc feature file",
+  "convert acceptance criteria to Gherkin", "exploratory scenario", "map AC to scenarios",
+  "scenario creator". An entity id is this skill's input, not a reason to defer: it triggers
+  equally on "generate scenarios for US-123", "cover every AC of US-456", "scenario coverage
+  for US-789", "how do I tag AC:US-123-02".
   Does NOT trigger for: implementing step definitions (use gherkin-step); writing unit tests.
   Pairs with living-doc-create-user-story, living-doc-pageobject-scan, and gherkin-step.
 license: Apache-2.0
@@ -211,7 +212,7 @@ Feature: Login Page - Validate Password Strength
 
 ### Step 4 — AC coverage report
 
-> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
 
 Run `scripts/coverage_report.py <living_doc_dir> <features_dir>` for a full report. Append after the `.feature` code block:
 
