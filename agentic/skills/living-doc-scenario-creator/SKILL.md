@@ -211,6 +211,8 @@ Feature: Login Page - Validate Password Strength
 
 ### Step 4 — AC coverage report
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+
 Run `scripts/coverage_report.py <living_doc_dir> <features_dir>` for a full report. Append after the `.feature` code block:
 
 ```
@@ -261,10 +263,10 @@ Before reporting done, prove traceability with the scripts — do not finish whi
 
 ```bash
 # AC link health (missing/malformed @AC: tags, missing # AC: comments, duplicate links):
-python skills/gherkin-living-doc-sync/scripts/scan_ac_links.py <features_dir> \
+python ../gherkin-living-doc-sync/scripts/scan_ac_links.py <features_dir> \
   --us-dir <feature_dirs.user_story> --func-dir <feature_dirs.functionality>
 # AC coverage (every active AC mapped to a scenario):
-python skills/living-doc-scenario-creator/scripts/coverage_report.py <living_doc_dir> <features_dir>
+python scripts/coverage_report.py <living_doc_dir> <features_dir>
 ```
 
 **Regression-coverage rule:** for the goal of covering every User Story's happy-day path, each

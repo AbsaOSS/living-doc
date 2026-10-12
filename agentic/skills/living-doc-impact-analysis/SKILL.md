@@ -20,6 +20,8 @@ license: Apache-2.0
 
 > **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md)).
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+
 ## Script — `scripts/trace_impact.py`
 
 Run this script to trace changed files to living doc entities before producing the impact map.
@@ -41,6 +43,13 @@ Feature registry format (add to your catalog JSON):
   ]
 }
 ```
+
+> **These patterns are looser than they look.** `trace_impact.py` matches with `fnmatch`, whose `*`
+> crosses `/` — it is not directory-aware globbing. So `*Service.java` matches
+> `anything/anywhere/FooService.java` at any depth, and `src/auth/*` already matches
+> `src/auth/a/b/c.java`. Anchor a pattern with its leading directories (`src/auth/**` rather than
+> `*auth*`) and prefer the most specific prefix you can, or one Feature will silently claim another's
+> files and the whole impact report follows that wrong mapping.
 
 **Bootstrapping `feature_registry`:** If no registry exists, follow these steps:
 1. Run `living-doc-gap-finder` to list all Feature entities and their IDs.
@@ -114,17 +123,27 @@ Start from the code change (PR diff, renamed module, deleted endpoint):
 - `CartValidation.java` → cart / checkout Feature, cart validation Functionalities, cart validation User Stories and ACs
 - `DiscountService.java` + `DiscountController.java` → one consolidated promotions / discounts Feature report covering both files
 
-Even when using these inferences, phrase the trace as `Mapped via feature_registry in catalog.json` or `Ran trace_impact.py --catalog catalog.json` so the reply shows the prescribed tracing mechanism rather than only freehand reasoning.
-Do not label the mapping as merely "inferred from files" in the final answer. Present it as a registry-backed trace step.
-Preferred wording:
+**Name the mapping's real source — never dress an inference as a registry lookup.** The report keeps
+the same structure either way; only the provenance line differs, and it must say what actually
+happened. An impact report whose provenance lines are decorative is worse than one with none,
+because the reader cannot tell a traced mapping from a guessed one.
+
+When the catalog was read, or `trace_impact.py` actually ran:
 `feature_registry match: src/payments/checkout/DiscountService.java -> FEAT-004`
-or
 `Ran trace_impact.py --files src/payments/checkout/DiscountService.java --catalog catalog.json`
-If the prompt names only a capability (for example "cart validation logic") rather than a filename, state the implied module and the registry trace, e.g. `feature_registry match: <cart validation module> -> FEAT-cart`, before listing Functionalities and User Stories.
-Do not write `Affected entities (inferred from changed module)` for these cases. Write the registry trace line first, then show the hierarchy explicitly, for example:
-`feature_registry match: <cart validation module> -> FEAT-cart`
+
+When no catalog was supplied and the mapping comes from the domain names above, label it plainly
+and carry the uncertainty into each id:
+`domain-derived mapping (no catalog supplied): <cart validation module> -> FEAT-cart (id to confirm)`
+
+Either way, write the provenance line first and then show the hierarchy explicitly, for example:
 `Feature FEAT-001 -> Functionality FUNC-001 -> User Story US-001 -> AC:US-001-01`
-Spell out the mechanism in plain language at least once: `Queried the feature_registry section in catalog.json to map the changed module/capability to FEAT-cart.`
+
+Say the mechanism in plain language once, matching what was done — `Queried the feature_registry
+section in catalog.json to map the changed module to FEAT-cart`, or `No catalog was supplied, so the
+module was mapped to FEAT-cart by domain name; confirm against feature_registry before acting`. If
+the prompt names only a capability (for example "cart validation logic") rather than a filename,
+state the implied module in that same line.
 
 ## Step 2 — Trace to living doc entities
 

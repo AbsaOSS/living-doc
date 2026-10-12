@@ -231,6 +231,9 @@ point the call is an edge to a Feature, and it moves off every Feature that name
    `living-doc-gap-finder` reports `FEATURE_WITHOUT_USER_STORY`, and its derived state is `planned` until its first
    Functionality is documented. Report that; do not invent placeholder Functionalities to silence it.
 7. **Validate** the new Feature and every edited entity:
+
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+
    `python scripts/validate_entity.py <entity>.json --catalog catalog.json`. With the catalog, the
    validator checks each `feature_dependencies` target exists, is an `API` Feature, is not deprecated,
    and is not the Functionality's own Feature.

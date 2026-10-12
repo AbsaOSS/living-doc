@@ -24,6 +24,8 @@ license: Apache-2.0
 Sync runs in three directions: (1) feature file to living doc, (2) living doc AC to feature file,
 (3) step text to PageObject method signature.
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+
 Use `scripts/scan_ac_links.py` to detect missing or malformed `@AC:` tags and missing `# AC:`
 comments before a full sync run. The script only checks the living-doc feature directories
 (`feature_dirs.user_story` and `feature_dirs.functionality` from the Project Profile, defaults
@@ -32,15 +34,25 @@ feature files are skipped.
 For a full audit, run:
 
 ```bash
-python skills/gherkin-living-doc-sync/scripts/scan_ac_links.py <features_dir> \
+python scripts/scan_ac_links.py <features_dir> \
   --us-dir <feature_dirs.user_story> \
-  --func-dir <feature_dirs.functionality> \
-  --catalog <catalog_path>
+  --func-dir <feature_dirs.functionality>
 ```
 
-The report should distinguish: (1) missing `# AC:` comments, (2) stale AC IDs not found in the
-catalog, and (3) mismatched `# AC:` / `@AC:` pairs where only one side or the aspect details differ.
-Use the report in this repair order: broken links first, then missing links, then mismatches.
+The script takes only those arguments plus `--allow-empty`; it has no `--catalog` option, so it
+never reads the catalog and cannot tell a stale AC ID from a valid one. It reports exactly four
+findings:
+
+| Finding | Meaning |
+|---|---|
+| `missing_ac_tag` | a scenario has no `@AC:` tag |
+| `malformed_ac_id` | an `@AC:` tag whose ID does not match the grammar |
+| `duplicate_ac_link` | the same AC linked from more than one scenario |
+| `missing_ac_comment` | an `@AC:` tag with no matching `# AC:` comment |
+
+Use the report in this repair order: malformed IDs first, then missing tags and comments, then
+duplicates. **Stale AC IDs and mismatched `# AC:` / `@AC:` detail are not covered by this script**
+— they need the catalog, so check them against it separately.
 
 ---
 

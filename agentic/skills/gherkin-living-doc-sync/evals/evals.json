@@ -213,6 +213,20 @@
       ],
       "id": 16,
       "files": []
+    },
+    {
+      "id": 17,
+      "category": "edge-case",
+      "prompt": "I want to find stale AC IDs that no longer exist in the catalog. Can scan_ac_links.py do that for me?",
+      "expected_output": "No. scan_ac_links.py takes only <features_dir>, --us-dir, --func-dir and --allow-empty — it has no --catalog option, so it never reads the catalog and cannot tell a stale AC ID from a valid one. It reports exactly four findings: missing_ac_tag, malformed_ac_id, duplicate_ac_link and missing_ac_comment. Stale AC IDs, and mismatched '# AC:' / '@AC:' detail, need the catalog and must be checked against it separately.",
+      "files": [],
+      "expectations": [
+        "Answers no — stale AC IDs are out of this script's scope",
+        "States the script has no --catalog option and does not read the catalog",
+        "Names the four findings it does report (missing_ac_tag, malformed_ac_id, duplicate_ac_link, missing_ac_comment)",
+        "Does not invent a flag or claim the script reports stale IDs",
+        "Points the stale-ID check at the catalog separately"
+      ]
     }
   ]
 }

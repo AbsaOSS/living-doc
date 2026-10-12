@@ -27,6 +27,17 @@ Resolves missing test-id attributes end-to-end: gap discovery in `manifest.json`
 
 **Project Profile:** Read `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`) for `test_id_attribute` (default `data-cy`), `paths.pageobjects`, `feature_dirs.functionality`, and `paths.bdd_artifacts`. Substitute the profile and local layout. If asked whether to use `data-cy` or `data-testid`, answer explicitly: read `test_id_attribute` first, use that value, and never hardcode `data-cy` when a profile is present.
 
+> **The test runner must resolve the same attribute you instrument.** Playwright's `getByTestId()`
+> looks up whatever `testIdAttribute` its config sets — `data-testid` by default — so instrumenting
+> `data-cy` while Playwright still resolves `data-testid` (or the reverse) makes **every**
+> `getByTestId` locator fail, at run time, with nothing in the error pointing at the mismatch.
+> Before finishing, check that the runner config agrees with the profile and say so in the answer:
+> ```ts
+> // playwright.config.ts — must equal the profile's test_id_attribute
+> use: { testIdAttribute: 'data-cy' }
+> ```
+> If they disagree, report it as a blocker rather than instrumenting one side of a mismatch.
+
 ---
 
 ## When this skill activates

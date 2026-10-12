@@ -11,8 +11,8 @@
         "Feature file named us-007-place-an-online-order.feature",
         "Feature header with As-a/I-can/so-that narrative",
         "Three scenarios — one per active AC",
-        "Each Scenario: immediately preceded by a # AC: comment",
-        "AC type conventions: happy_path → Scenario:, error → 'X — error', alternative → 'X — alternative path'",
+        "Each Scenario: preceded by its # AC: comment, with the @AC: tag line between them",
+        "AC type drives the scenario title: happy_path a plain outcome, error a title naming the error condition, alternative a title naming the alternative path",
         "Business language steps — no HTTP, selectors, or DB"
       ]
     },
@@ -117,8 +117,8 @@
       "expectations": [
         "Uses @AC:US-010-01/aspect:username-input for the first scenario",
         "Uses @AC:US-010-01/aspect:password-input for the second scenario",
-        "# AC: comment includes '| aspect: <value>' annotation",
-        "Comment annotation mirrors the /aspect: tag value",
+        "States the AC must declare its values (for example '- Aspect: username-input, password-input') before those tags are valid",
+        "Warns that a value the AC does not declare is reported as STALE_AC_REF",
         "Both scenarios map back to AC:US-010-01 via the base AC ID"
       ]
     },
@@ -181,7 +181,7 @@
       "expectations": [
         "Decision: Propose replacement (not silent delete)",
         "Generates a new candidate scenario",
-        "Marks old scenario as superseded",
+        "Shows the draft beside the existing scenario and asks for confirmation before overwriting",
         "Does not auto-delete without human review"
       ]
     },
@@ -193,8 +193,8 @@
       "files": [],
       "expectations": [
         "Decision: Flag (do not add another scenario)",
-        "Identifies multiple-scenario-per-AC as a design smell",
-        "Asks user to designate the canonical scenario"
+        "Lists all three scenarios instead of adding a fourth",
+        "Asks one question: is this a valid aspect split, or should the scenarios be consolidated?"
       ]
     },
     {
@@ -229,13 +229,13 @@
       "id": 18,
       "category": "regression",
       "prompt": "The coverage report is run for US-010. AC:US-010-02 has a scenario tagged '@AC:US-10-02' (missing leading zero in the US number). Is it counted as covered?",
-      "expected_output": "No - AC:US-010-02 is NOT covered. The @AC: tag '@AC:US-10-02' does not match the canonical ID 'US-010-02' because the ID format must match exactly (zero-padded). The report shows AC:US-010-02 ❌ NOT COVERED. A warning or note is shown: '@AC:US-10-02 found in <filename> - does not match any known AC ID; check zero-padding'. The report does not guess or fuzzy-match AC IDs.",
+      "expected_output": "Yes — AC:US-010-02 IS counted as covered. coverage_report.py passes every @AC: tag through canonicalize_ac_id() in shared/lib/ac_tag.py, which zero-pads the numeric parent, so 'US-10-02' canonicalises to 'US-010-02' and matches the AC. No warning is emitted, and scan_ac_links.py does not flag the tag either, because the shared tag grammar accepts an unpadded parent. The answer should still recommend renaming the tag and its '# AC:' comment to the zero-padded form, for consistency with the canon's spelling.",
       "files": [],
       "expectations": [
-        "AC:US-010-02 is marked ❌ NOT COVERED",
-        "Malformed tag @AC:US-10-02 does not count as coverage",
-        "Report emits a warning about the unrecognised tag",
-        "No fuzzy matching or inference — IDs must match exactly"
+        "States the tag IS counted as covered",
+        "Names canonicalize_ac_id() or zero-padding as the reason",
+        "Does not claim a warning is emitted or that the tag is malformed",
+        "Still recommends renaming to the zero-padded form for consistency"
       ]
     },
     {

@@ -88,7 +88,8 @@
         "Uses context.tags check to scope the hook",
         "Shows before_scenario hook with 'database' tag check",
         "Advises pairing with a cleanup after_scenario hook",
-        "Notes the hook runs before every scenario by default without the tag check"
+        "Notes the hook runs before every scenario by default without the tag check",
+        "Does not present a non-existent behave decorator — behave has no @before_scenario/@after_scenario; the hook is a module-level function in features/environment.py"
       ]
     },
     {

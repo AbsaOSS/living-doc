@@ -178,7 +178,8 @@
         "Does not invent, guess, or reuse an ID",
         "Does not leave a placeholder (FUNC-XXX, FUNC-<nnn>, FUNC-unknown)",
         "Final JSON has a fully populated id field",
-        "Emitted JSON includes func_type, set to field_validation"
+        "Emitted JSON includes func_type, set to field_validation",
+        "Does not write 'Ran: ... next_id.py' unless the command was actually executed — an ID taken from a stated catalog range is labelled as derived, not as allocated by the script"
       ]
     },
     {

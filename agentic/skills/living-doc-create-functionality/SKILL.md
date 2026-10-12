@@ -149,6 +149,8 @@ When the user asks to **create**, **document**, or **draft** a Functionality ent
 
 Never answer a create/document request with only instructions such as "Create a Functionality entity..." or "Then output the canonical JSON". The response itself must contain the canonical JSON.
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+
 > **ID assignment:** before assigning a `FUNC-nnn` ID, run
 > `python scripts/next_id.py --type FUNC --catalog catalog.json`
 > to get the next available ID and avoid collisions.
@@ -181,7 +183,7 @@ Use this canonical shape:
 
 Rules:
 - If `catalog.json` is available, run `python scripts/next_id.py --type FUNC --catalog catalog.json` and use the returned ID.
-- If the prompt states an existing catalog range (for example `FUNC-001` through `FUNC-007`), reflect the allocator call in the answer as `Ran: python scripts/next_id.py --type FUNC --catalog catalog.json -> FUNC-008` and use that returned numeric ID in the JSON.
+- **Only claim the allocator ran if it ran.** Write `Ran: python scripts/next_id.py --type FUNC --catalog catalog.json -> FUNC-008` when that command was actually executed and `FUNC-008` was its output — never otherwise. If the prompt merely *states* a catalog range (for example `FUNC-001` through `FUNC-007`), take the next ID in that range and say where it came from: `Next ID in the stated range: FUNC-008 (derived from the prompt, not allocated by next_id.py)`. A reviewer must be able to tell a computed ID from a derived one.
 - If the prompt explicitly says the catalog is missing / `next_id.py` cannot run for a real save operation, use the stable placeholder `FUNC-PENDING` until an allocator can assign the final ID.
 - Otherwise, for starter drafts and normal create/document requests where no catalog state is given, use the readable draft form `FUNC-<kebab-name>`.
 - `name` is `<Feature name> - <verb phrase>`: the parent Feature's name, a plain hyphen, then the atomic verb phrase.
@@ -299,13 +301,13 @@ After outputting the entity, validate it against the canonical schema before sav
 
 ```bash
 # Validate the output (run from the toolkit root)
-python skills/living-doc-update/scripts/validate_entity.py entity.json
+python ../living-doc-update/scripts/validate_entity.py entity.json
 
 # With referential integrity checks against the full catalog
-python skills/living-doc-update/scripts/validate_entity.py entity.json --catalog catalog.json
+python ../living-doc-update/scripts/validate_entity.py entity.json --catalog catalog.json
 
 # Enforce the project's AC state vocabulary (reads `ac_states` from the Project Profile)
-python skills/living-doc-update/scripts/validate_entity.py entity.json --profile .copilot/bdd/.project-profile.yaml
+python ../living-doc-update/scripts/validate_entity.py entity.json --profile .copilot/bdd/.project-profile.yaml
 ```
 
 Exits 0 if valid (warnings are non-blocking). Exits 1 if any required field is missing, the ID format is wrong, `parent_feature` does not match `FEAT-*`, `func_type` is outside the seven canonical values, or the status value is invalid. With `--catalog` it also rejects a `feature_dependencies` target that is not an `API` Feature or is the Functionality's own Feature, and warns on one that is missing from the catalog or deprecated.

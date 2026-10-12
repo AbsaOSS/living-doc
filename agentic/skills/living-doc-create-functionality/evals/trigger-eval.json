@@ -187,12 +187,6 @@
   },
   {
     "id": 32,
-    "query": "Run a gap analysis on the living documentation",
-    "should_trigger": false,
-    "reason": "Gap analysis — routes to living-doc-gap-finder"
-  },
-  {
-    "id": 33,
     "query": "I just created FUNC-001 — how do I add it to the parent Feature's functionalities array?",
     "should_trigger": true,
     "reason": "Parent Feature sync after creating a Functionality — living-doc-create-functionality owns this step"

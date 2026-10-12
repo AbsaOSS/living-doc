@@ -56,8 +56,10 @@ Three standalone Python scripts live in `scripts`:
 
 Parses all `*.steps.ts` files for `Given(…)`, `When(…)`, `Then(…)` pattern strings, then scans every `.feature` file for matching step usages (Cucumber expression placeholders resolved to regex wildcards). Reports any step definition that is never exercised.
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+
 ```bash
-python skills/bdd-maintain/scripts/find_unused_steps.py \
+python scripts/find_unused_steps.py \
   --steps-dir playwright/steps \
   --features-dir playwright/features
 ```
@@ -79,7 +81,7 @@ Example output format:
 Parses every `playwright/pages/*.ts` for public method declarations (`async name(` / `name(`), then scans all step files for `.name(` call sites. Reports methods that are defined but never invoked from any step.
 
 ```bash
-python skills/bdd-maintain/scripts/find_unused_po_methods.py \
+python scripts/find_unused_po_methods.py \
   --pages-dir playwright/pages \
   --steps-dir playwright/steps
 ```
@@ -89,7 +91,7 @@ python skills/bdd-maintain/scripts/find_unused_po_methods.py \
 Scans all exported `class` names from `playwright/pages/*.ts`, then checks every `*.steps.ts` and `fixtures.ts` for import statements. Reports classes that are defined but never imported.
 
 ```bash
-python skills/bdd-maintain/scripts/find_unused_po_components.py \
+python scripts/find_unused_po_components.py \
   --pages-dir playwright/pages \
   --steps-dir playwright/steps
 ```
@@ -123,8 +125,10 @@ All three scripts exit `0` on clean, `1` on findings, `2` on bad arguments — s
 
 **Script false positives — `find_unused_po_methods.py`:**
 The script uses static string matching. It can report a false positive when:
-- A method is called on a variable typed as a **base class or interface** rather than the concrete PageObject (e.g. `page.confirm_order()` where `page: BasePage`)
-- A method is invoked via a dynamic alias or through a test helper that re-exports it
+- A method is invoked via a dynamic alias, or through a test helper that re-exports it under another name, so the call site never spells the method's own name
+
+A **base-class-typed receiver is not** a false-positive source: the script's `CALL_RE` matches
+`.<method>(` whatever the receiver is, so `page.confirm_order()` is found even where `page: BasePage`.
 If the reported method visibly exists in a step file call site, trust the call site over the script output and do not delete the method. File the false positive with the team so the script can be improved.
 
 **Shared steps between deprecated and active scenarios:**

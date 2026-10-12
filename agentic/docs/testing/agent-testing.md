@@ -1,5 +1,10 @@
 # Agent Testing Guide
 
+> For running a whole suite — arms and models, the harness behaviours that silently
+> produce wrong numbers, grading discipline and what a run must deliver — see
+> [eval-protocol.md](eval-protocol.md). The recorded comparison point is
+> [baseline.md](baseline.md).
+
 This document describes how to test, evaluate, and tune the agentic layer's `.agent.md` file by validating body output quality through manual testing. This is the practical equivalent of [skill-testing.md](./skill-testing.md) applied to agents, but simpler because agents are manually invoked (no auto-triggering to test).
 
 > **Nothing here runs in CI.** `.github/workflows/agentic-tests.yml` covers the layer's Python

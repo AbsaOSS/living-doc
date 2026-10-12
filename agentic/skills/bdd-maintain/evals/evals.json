@@ -125,6 +125,19 @@
         "Shows summary count line with warning symbol",
         "Does not show false positives for steps used by active scenarios"
       ]
+    },
+    {
+      "id": 11,
+      "category": "edge-case",
+      "prompt": "find_unused_po_methods.py reported confirm_order() as unused, but my step file calls it as page.confirm_order() where page is typed BasePage. Is that one of the script's false positives?",
+      "expected_output": "No. The script's CALL_RE matches '.<method>(' regardless of the receiver's declared type, so page.confirm_order() is found even where page: BasePage — a base-class-typed receiver does not cause a false positive. If the call site spells confirm_order and the script still reports it unused, look elsewhere: the real false-positive source is a dynamic alias or a test helper that re-exports the method under another name, so the call site never spells its own name. Check whether the call site is in a scanned directory before concluding anything, and do not delete a method whose call site you can see.",
+      "files": [],
+      "expectations": [
+        "Answers no — a base-class-typed receiver is not a false-positive source",
+        "Explains that the matcher keys on '.<method>(' and ignores the receiver's type",
+        "Names the real false-positive source: a dynamic alias or re-export under another name",
+        "Still advises against deleting a method whose call site is visible"
+      ]
     }
   ]
 }

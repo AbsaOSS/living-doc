@@ -1,5 +1,10 @@
 # Skill Testing Guide
 
+> For running a whole suite — arms and models, the harness behaviours that silently
+> produce wrong numbers, grading discipline and what a run must deliver — see
+> [eval-protocol.md](eval-protocol.md). The recorded comparison point is
+> [baseline.md](baseline.md).
+
 This document provides a comprehensive methodology for testing, evaluating, and optimizing the skills of the agentic layer in `agentic/`. It covers eval creation, fixture management, iterative improvement, trigger testing, and description optimization.
 
 > **What CI runs and what it does not.** `.github/workflows/agentic-tests.yml` runs the layer's

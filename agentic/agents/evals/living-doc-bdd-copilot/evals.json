@@ -40,7 +40,7 @@
         "Feature file named us-007-place-an-online-order.feature",
         "Each Scenario: immediately preceded by a # AC: traceability comment",
         "Each Scenario: also carries the matching @AC: tag — comment alone is not sufficient",
-        "Skips planned and deprecated ACs — only active ACs drive generation",
+        "Generates one scenario per active AC and skips the planned one, without inventing any AC the prompt did not supply",
         "Step text in domain language — no implementation details",
         "Case A stubs delegate to PageObject methods",
         "Case B stubs raise NotImplementedError and flag the missing PageObject method"

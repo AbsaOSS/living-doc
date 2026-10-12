@@ -137,7 +137,8 @@
         "Reads test_id_attribute from the Project Profile before instrumenting",
         "Uses the profile value (data-testid) in template attributes, not the default data-cy",
         "getByTestId() resolves to the profile test_id_attribute",
-        "Does not hardcode data-cy when a profile is present"
+        "Does not hardcode data-cy when a profile is present",
+        "States that Playwright's testIdAttribute config must equal the profile's test_id_attribute, or every getByTestId locator fails silently at run time"
       ]
     },
     {

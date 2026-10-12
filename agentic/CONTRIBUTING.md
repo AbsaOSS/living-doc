@@ -64,6 +64,9 @@ It is an aid, not a test, and deliberately not in CI — nothing here runs an ev
   with/without comparison, the regression-first loop, trigger testing, description optimisation
 - [docs/testing/agent-testing.md](docs/testing/agent-testing.md) — body evals for `.agent.md`,
   which is `@`-mentioned rather than auto-triggered
+- [docs/testing/eval-protocol.md](docs/testing/eval-protocol.md) — running a whole suite so its
+  numbers mean something, with [docs/testing/baseline.md](docs/testing/baseline.md) as the recorded
+  comparison point and [scripts/evals/](scripts/evals/README.md) as its deterministic half
 
 Nothing in this repository executes an eval. The files under `evals/` are the source material for
 those loops.

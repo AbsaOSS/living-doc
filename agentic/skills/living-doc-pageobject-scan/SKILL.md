@@ -240,6 +240,8 @@ A PageObject header written before the canon dropped a surface's state carries k
 pipeline now rejects or ignores: `status:` (any value), `deprecated_at:`, and the old
 spellings `type:` / `owner:`. A project cannot find them all by hand.
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+
 ```bash
 python scripts/migrate_pageobject_headers.py tests/pages            # report
 python scripts/migrate_pageobject_headers.py tests/pages --fix      # apply the safe changes
@@ -268,9 +270,14 @@ headers, and a stale `status:` would otherwise survive the re-scan untouched.
 Read `manifest.json`. Sort by `last_scanned` ascending.
 
 ```bash
-python scripts/manifest_diff.py --manifest .copilot/bdd/manifest.json --pages-dir tests/pages
-python scripts/manifest_diff.py --manifest .copilot/bdd/manifest.json --pages-dir tests/pages --diff
+python scripts/manifest_diff.py --manifest .copilot/bdd/manifest.json --root .
 ```
+
+The script takes only `--manifest` and `--root` (the project root the manifest's paths are
+relative to, default `.`). It always reports both directions — manifest entries whose
+`pageobject_path` is missing on disk, and PageObject files no manifest entry references — and
+exits 1 when it finds drift, 0 when manifest and disk agree. There is no `--diff` or
+`--pages-dir` option.
 
 #### Steps 1–3 — Diff, detect, update
 

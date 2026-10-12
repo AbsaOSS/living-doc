@@ -8,7 +8,7 @@
       "expected_output": "Agent assigns the next sequential AC ID. Runs the AC completeness checklist. Flags any linked Gherkin scenarios for review via gherkin-living-doc-sync if they need updating. Outputs a change summary.",
       "files": [],
       "expectations": [
-        "Assigns next sequential AC ID",
+        "Uses the next sequential AC ID, or says the catalog is needed to assign it rather than guessing a number",
         "Runs AC completeness checklist",
         "Flags for gherkin-living-doc-sync if linked scenarios need updating",
         "Outputs change summary"
@@ -61,7 +61,7 @@
       "files": [],
       "expectations": [
         "Keeps AC ID stable — never changes the ID",
-        "Updates only description, given, when, then fields",
+        "Changes only the AC text (description/given/when/then) and its version annotation — never the AC ID or any other field",
         "Flags for gherkin-living-doc-sync if linked scenario text needs updating"
       ]
     },
@@ -98,7 +98,7 @@
       "expectations": [
         "Identifies this as an add-AC request despite 'update the story' phrasing",
         "Assigns next sequential AC ID",
-        "AC format: Given out-of-zone address / When order placed / Then blocked with SHIPPING_ZONE_EXCLUDED error",
+        "AC format: Given an out-of-zone delivery address / When the order is placed / Then it is blocked with a clear reason — an error code is asked for, not invented",
         "Flags for gherkin-living-doc-sync if linked scenarios need updating",
         "Outputs change summary with the new AC"
       ]
@@ -125,7 +125,7 @@
       "expectations": [
         "Old text clearly labelled (OLD or strikethrough)",
         "New text clearly labelled (NEW)",
-        "Linked Gherkin scenarios listed with filename and line number",
+        "Linked Gherkin scenarios listed with filename and line number, or stated as not determinable without the feature files",
         "No content beyond changed AC and linked scenarios is modified"
       ],
       "category": "happy-path"

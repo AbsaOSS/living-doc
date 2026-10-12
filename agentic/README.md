@@ -82,6 +82,13 @@ skill reads the copy next to it, and the copy cannot drift from the canon it was
   regression loops, trigger and description optimisation
 - [`docs/testing/agent-testing.md`](docs/testing/agent-testing.md) — body evals for the
   `.agent.md` file
+- [`docs/testing/eval-protocol.md`](docs/testing/eval-protocol.md) — how to run a whole suite so
+  its numbers can be trusted, compared and reproduced: arms and models, the harness behaviours that
+  silently produce wrong figures, grading discipline, and what a run must deliver
+- [`docs/testing/baseline.md`](docs/testing/baseline.md) — the recorded result every later run is
+  compared against
+- [`scripts/evals/`](scripts/evals/README.md) — the deterministic half of a run (scaffolding,
+  timing, grading normalisation, benchmark correction, baseline comparison)
 
 CI runs the Python script tests, the canon-copy check and `SKILL.md` format validation. It runs no
 eval: the eval loops in both guides are manual.

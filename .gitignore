@@ -8,3 +8,7 @@ specs/
 
 # macOS AppleDouble sidecar files
 ._*
+
+# Agentic-layer eval runs — regenerable evidence (hundreds of answer/timing/grading files
+# per iteration). Only the distilled result is tracked, in agentic/docs/testing/baseline.md.
+agentic-evals-workspace/

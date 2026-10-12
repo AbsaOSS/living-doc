@@ -22,6 +22,14 @@ license: Apache-2.0
 
 > **Framework scope:** Covers **Python behave**, **Cucumber TypeScript**, **Cucumber Java**, and **Cucumber-Scala**. The toolkit's PageObject ecosystem is **Playwright + TypeScript**; Python or Java projects adapt the examples. The core rules — thin steps, no selectors in steps, shared state via context/World — apply everywhere.
 
+> **The code examples below are illustrative, not verified.** They are not compiled or executed by
+> this repository's CI, they span four frameworks whose APIs differ, and at least one known case is
+> wrong for its framework: behave has **no** `@before_scenario` / `@after_scenario` decorator — it
+> calls a module-level `before_scenario(context, scenario)` in `features/environment.py`. Treat every
+> snippet as a shape to adapt against your framework's own documentation, check it against the
+> installed version before relying on it, and do not present a snippet from here to a user as
+> known-working code.
+
 ## Respect the boundary with Gherkin text
 
 If the user asks to write or review a **Gherkin scenario / feature file**, do not draft it here. This skill covers **step definition code** only; route Gherkin text requests to `living-doc-scenario-creator`.

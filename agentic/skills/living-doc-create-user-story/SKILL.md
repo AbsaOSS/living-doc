@@ -144,19 +144,21 @@ writing one:
 
 ## Step 4 — Validate and output
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+
 > **ID assignment:** before assigning a `US-nnn` ID, run
 > `python scripts/next_id.py --type US --catalog catalog.json`
 > to get the next available ID and avoid collisions.
 > Do not guess or infer the numeric ID without showing that allocator step.
 >
-> If the prompt states an existing catalog range (for example `US-001` through `US-013`), reflect the allocator call in the answer as `Ran: python scripts/next_id.py --type US --catalog catalog.json -> US-014` and use that returned numeric ID in the JSON.
+> **Only claim the allocator ran if it ran.** Write `Ran: python scripts/next_id.py --type US --catalog catalog.json -> US-014` when that command was actually executed and `US-014` was its output — never otherwise. If the prompt merely *states* a catalog range (for example `US-001` through `US-013`), take the next ID in that range and say where it came from: `Next ID in the stated range: US-014 (derived from the prompt, not allocated by next_id.py)`. A reviewer must be able to tell a computed ID from a derived one.
 >
 > If the prompt explicitly says the catalog is missing / `next_id.py` cannot run for a real save, use `US-PENDING` and warn: `Catalog not available — ID could not be assigned. Run next_id.py --type US once the catalog is present and update this field before saving.`
 >
 > If the prompt is a normal create/output-format request and catalog state is not discussed, use a numeric-looking draft ID such as `US-001` and matching AC ids such as `AC:US-001-01` in the starter JSON.
 >
 > If the prompt gives a known catalog range (for example through `US-013`), ask the missing narrative questions briefly and still emit starter JSON immediately with the allocated ID (`US-014` in that example).
-> Show that allocator step explicitly, for example: `Running: python scripts/next_id.py --type US --catalog catalog.json -> US-014`
+> Say explicitly where that ID came from — `Ran: …next_id.py --type US --catalog catalog.json -> US-014` if the command was executed, otherwise `Next ID in the stated range: US-014 (derived from the prompt, not allocated by next_id.py)`.
 
 Invariants that must hold before outputting:
 - At least one AC exists
@@ -241,13 +243,13 @@ After outputting the entity, validate it against the canonical schema before sav
 
 ```bash
 # Validate the output (run from the toolkit root)
-python skills/living-doc-update/scripts/validate_entity.py entity.json
+python ../living-doc-update/scripts/validate_entity.py entity.json
 
 # With referential integrity checks against the full catalog
-python skills/living-doc-update/scripts/validate_entity.py entity.json --catalog catalog.json
+python ../living-doc-update/scripts/validate_entity.py entity.json --catalog catalog.json
 
 # Enforce the project's AC state vocabulary (reads `ac_states` from the Project Profile)
-python skills/living-doc-update/scripts/validate_entity.py entity.json --profile .copilot/bdd/.project-profile.yaml
+python ../living-doc-update/scripts/validate_entity.py entity.json --profile .copilot/bdd/.project-profile.yaml
 ```
 
 Exits 0 if valid (warnings are non-blocking). Exits 1 if any required field is missing, the ID format is wrong, no AC is present, or the status value is invalid.

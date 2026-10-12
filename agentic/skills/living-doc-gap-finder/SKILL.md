@@ -20,6 +20,8 @@ license: Apache-2.0
 
 > **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md)).
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it.
+
 ## Script — `scripts/compute_gaps.py`
 
 Run this script to compute all 9 gap types deterministically before producing the gap report.

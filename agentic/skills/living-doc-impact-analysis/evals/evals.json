@@ -200,6 +200,20 @@
         "Instructs saving as feature_registry.json",
         "Routes to living-doc-create-feature for new entities"
       ]
+    },
+    {
+      "id": 16,
+      "category": "edge-case",
+      "prompt": "Is `*Service.java` a safe feature_registry pattern for the promotions Feature?",
+      "expected_output": "No. trace_impact.py matches with fnmatch, whose '*' crosses '/', so it is not directory-aware globbing: `*Service.java` matches that filename at ANY depth in ANY directory, for example billing/LegacyService.java, so the promotions Feature would silently claim files belonging to other Features and every downstream entity in the impact report would be wrong. Anchor the pattern with its leading directories instead, e.g. src/payments/promotions/**, and prefer the most specific prefix available.",
+      "files": [],
+      "expectations": [
+        "Answers no — the pattern is unsafe",
+        "Explains that fnmatch's '*' crosses '/' so the match is not directory-scoped",
+        "Gives a concrete wrong match at an unrelated path or depth",
+        "Recommends anchoring with leading directories (e.g. src/payments/promotions/**)",
+        "Names the consequence: one Feature silently claims another's files and the whole report follows the wrong mapping"
+      ]
     }
   ]
 }

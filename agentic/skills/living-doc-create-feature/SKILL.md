@@ -107,6 +107,8 @@ For starter drafts, prefer **provisional inferred values** over empty strings wh
 
 ## Step 6 — Output canonical Feature entity
 
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+
 > **ID assignment:** Feature IDs must be numeric and assigned from the catalog using
 > `scripts/next_id.py`. Always run:
 > ```bash
@@ -118,10 +120,15 @@ For starter drafts, prefer **provisional inferred values** over empty strings wh
 > defer Feature creation until the catalog is accessible. Slug-based Feature IDs
 > (e.g. `FEAT-010`, `FEAT-011`) are **not** supported by the ID auto-assigner.
 >
-> If the prompt states an existing numeric catalog range (for example "the catalog already contains
-> FEAT-001 through FEAT-011"), reflect the script execution in the answer as:
+> **Only claim the command ran if it ran.** Write
 > `Ran: python scripts/next_id.py --type FEAT --catalog catalog.json -> FEAT-012`
-> and use that returned ID in the JSON.
+> when that command was actually executed and `FEAT-012` was its output — never otherwise.
+>
+> If the prompt merely *states* a numeric catalog range (for example "the catalog already contains
+> FEAT-001 through FEAT-011"), take the next ID in that range and say where it came from:
+> `Next ID in the stated range: FEAT-012 (derived from the prompt, not allocated by next_id.py)`.
+> A reviewer must be able to tell a computed ID from a derived one; a decorative `Ran:` line destroys
+> exactly that distinction, which is the whole value of the trace.
 
 Output the entity as a **single fenced `json` code block** whenever you have enough information to draft it. The block must contain **only** the JSON object — no prose, no bullets, no warnings inside the fence. The literal first line of the block must be ````json` and the closing line must be ``` . Code fences are required plain text, not optional formatting. Keep any warnings or follow-up questions **outside** the code block. If the user gives a named surface but not all metadata, ask the missing questions and still include a starter draft in the same reply, using inferred purpose/surface type/external_dependencies, and `[]` for `user_stories`/`functionalities` unless the catalog already backs the link. A Feature never carries a `status` field — its state is derived from its Functionalities, never authored. If the request explicitly asks to create the entity from the given details, emit the draft immediately.
 
@@ -238,13 +245,13 @@ After outputting the entity, validate it against the canonical schema before sav
 
 ```bash
 # Validate the output (run from the toolkit root)
-python skills/living-doc-update/scripts/validate_entity.py entity.json
+python ../living-doc-update/scripts/validate_entity.py entity.json
 
 # With referential integrity checks against the full catalog
-python skills/living-doc-update/scripts/validate_entity.py entity.json --catalog catalog.json
+python ../living-doc-update/scripts/validate_entity.py entity.json --catalog catalog.json
 
 # Enforce the project's AC state vocabulary (reads `ac_states` from the Project Profile)
-python skills/living-doc-update/scripts/validate_entity.py entity.json --profile .copilot/bdd/.project-profile.yaml
+python ../living-doc-update/scripts/validate_entity.py entity.json --profile .copilot/bdd/.project-profile.yaml
 ```
 
 Exits 0 if valid (warnings are non-blocking). Exits 1 if any required field is missing, the ID format is wrong, or the `surface_type` value is invalid.

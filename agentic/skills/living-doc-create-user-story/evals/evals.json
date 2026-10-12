@@ -176,7 +176,8 @@
         "Assigns the ID returned by the script (e.g. US-014)",
         "Does not invent, guess, or reuse an ID",
         "Does not leave a placeholder (US-XXX, US-<nnn>, US-unknown)",
-        "Final JSON has a fully populated id field"
+        "Final JSON has a fully populated id field",
+        "Does not write 'Ran: ... next_id.py' unless the command was actually executed — an ID taken from a stated catalog range is labelled as derived, not as allocated by the script"
       ]
     },
     {
