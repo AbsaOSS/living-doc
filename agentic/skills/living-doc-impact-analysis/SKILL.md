@@ -47,8 +47,9 @@ Feature registry format (add to your catalog JSON):
 > **These patterns are looser than they look.** `trace_impact.py` matches with `fnmatch`, whose `*`
 > crosses `/` — it is not directory-aware globbing. So `*Service.java` matches
 > `anything/anywhere/FooService.java` at any depth, and `src/auth/*` already matches
-> `src/auth/a/b/c.java`. Anchor a pattern with its leading directories (`src/auth/**` rather than
-> `*auth*`) and prefer the most specific prefix you can, or one Feature will silently claim another's
+> `src/auth/a/b/c.java`. It also matches each pattern against the bare file name, so a pattern with no
+> directory part (`CartService.java`) claims every file of that name anywhere. Anchor a pattern
+> with its leading directories (`src/auth/**` rather than `*auth*`) and prefer the most specific prefix you can, or one Feature will silently claim another's
 > files and the whole impact report follows that wrong mapping.
 
 **Bootstrapping `feature_registry`:** If no registry exists, follow these steps:
@@ -134,14 +135,17 @@ When the catalog was read, or `trace_impact.py` actually ran:
 
 When no catalog was supplied and the mapping comes from the domain names above, label it plainly
 and carry the uncertainty into each id:
-`domain-derived mapping (no catalog supplied): <cart validation module> -> FEAT-cart (id to confirm)`
+`domain-derived mapping (no catalog supplied): <cart validation module> -> <cart Feature> (id to confirm)`
+
+Keep an unknown id a visible placeholder (`<cart Feature>`, `<cart validation Functionality>`) all the way
+down — never a slug such as `FEAT-cart`, which reads like a real id, and never an AC id built on one.
 
 Either way, write the provenance line first and then show the hierarchy explicitly, for example:
 `Feature FEAT-001 -> Functionality FUNC-001 -> User Story US-001 -> AC:US-001-01`
 
 Say the mechanism in plain language once, matching what was done — `Queried the feature_registry
-section in catalog.json to map the changed module to FEAT-cart`, or `No catalog was supplied, so the
-module was mapped to FEAT-cart by domain name; confirm against feature_registry before acting`. If
+section in catalog.json to map the changed module to FEAT-004`, or `No catalog was supplied, so the
+module was mapped to the cart Feature by domain name; confirm its id against feature_registry before acting`. If
 the prompt names only a capability (for example "cart validation logic") rather than a filename,
 state the implied module in that same line.
 
@@ -203,7 +207,7 @@ IMPACT MAP — PR #217: "Refactor promo validation to support stacked discounts"
 
 If the request is framed as **"what needs re-testing"**, present Step 4 as a compact **re-test checklist**: group by Feature / Functionality / User Story and list the affected ACs.
 
-For re-test requests, include a **Linked Gherkin scenarios to re-run** section. Do not answer only with ACs or a generic "consult the catalog" instruction. If exact scenario names are not supplied, infer them from the affected ACs and business flow (for example `Scenario: Customer successfully places an order`, `Scenario: Order rejected when payment card is declined`, `Scenario: Promo code expired returns 422`) and note they are the scenarios linked to those ACs.
+For re-test requests, include a **Linked Gherkin scenarios to re-run** section. Do not answer only with ACs or a generic "consult the catalog" instruction. If exact scenario names are not supplied, identify the scenarios by their tag — `scenarios tagged @AC:US-007-02` — which is how a test run selects them anyway; never invent scenario titles, since a made-up title cannot be found in the suite.
 
 ## Step 5 — Release sign-off checklist
 
@@ -258,7 +262,7 @@ Do not include speculative changes beyond the described scope.
 - Treat wording such as "what do we need to re-test" as an explicit impact-analysis trigger; say that the request is a living-doc impact / re-test analysis, then provide the checklist.
 - **Multi-file request** → consolidate repeated entities into one map and explicitly call out that repeated appearances mean **higher risk**.
 - In every structured report, include an explicit **User Stories** section between **Functionalities** and **ACs**. Do not skip directly from Functionalities to ACs.
-- Do not append `(inferred)` to Feature IDs in the final report; show the registry match line instead.
+- Do not append `(inferred)` to Feature IDs in the final report; the provenance line already says where each mapping came from — the registry match line when the catalog was read, the domain-derived line when it was not.
 
 ## Anti-patterns to flag
 

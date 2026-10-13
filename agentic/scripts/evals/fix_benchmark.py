@@ -10,7 +10,7 @@ Three fixes, none of which require patching skill-creator:
 2. **The benchmark does not say what it measured.** Stamp the executor and grader models and the
    baseline commit into `metadata`, so the file stays comparable once memory of the run has gone.
 3. **The viewer needs `eval_name`** on each run as its section header, and
-   `runs_per_configuration` set to the real value rather than the harness default.
+   `runs_per_configuration` set to the real per-arm run counts rather than the harness default.
 
 Usage:
     fix_benchmark.py <target_dir> <executor_model> <grader_model> [baseline_commit]
@@ -24,11 +24,11 @@ from pathlib import Path
 def main(bench_dir: str, executor_model: str, grader_model: str,
          baseline_commit: str = "c6dbcc7") -> None:
     d = Path(bench_dir)
-    bench = json.loads((d / "benchmark.json").read_text())
+    bench = json.loads((d / "benchmark.json").read_text(encoding="utf-8"))
 
     names = {}
     for meta in d.glob("eval-*/eval_metadata.json"):
-        m = json.loads(meta.read_text())
+        m = json.loads(meta.read_text(encoding="utf-8"))
         names[m["eval_id"]] = m["eval_name"]
 
     rs = bench["run_summary"]
@@ -51,9 +51,12 @@ def main(bench_dir: str, executor_model: str, grader_model: str,
 
     bench["metadata"]["executor_model"] = executor_model
     bench["metadata"]["analyzer_model"] = grader_model
-    bench["metadata"]["runs_per_configuration"] = 1
+    # Count the runs that exist; an arm reused from an earlier iteration can have fewer than the
+    # arm being measured, so record one figure per configuration.
+    runs = {c: max((len(list(e.glob(f"{c}/run-*"))) for e in d.glob("eval-*")), default=0) for c in order}
+    bench["metadata"]["runs_per_configuration"] = runs
     bench["metadata"]["baseline_commit"] = baseline_commit
-    (d / "benchmark.json").write_text(json.dumps(bench, indent=2) + "\n")
+    (d / "benchmark.json").write_text(json.dumps(bench, indent=2) + "\n", encoding="utf-8")
 
     s = bench["run_summary"]
     print(f"{bench['metadata']['skill_name']}: "

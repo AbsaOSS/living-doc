@@ -116,13 +116,19 @@ For starter drafts, prefer **provisional inferred values** over empty strings wh
 > ```
 > and use the returned ID (for example `FEAT-012`) in the Feature entity.
 >
-> If no catalog is available or the script cannot run, ask the user for the catalog path or
-> defer Feature creation until the catalog is accessible. Slug-based Feature IDs
-> (e.g. `FEAT-010`, `FEAT-011`) are **not** supported by the ID auto-assigner.
+> If no catalog is available or the script cannot run, ask the user for the catalog path **and
+> still emit the starter draft**, with `"id": "FEAT-PENDING"` — never a guessed number. Say that
+> the ID must be allocated with `next_id.py` before saving; `validate_entity.py` rejects
+> `FEAT-PENDING`, so the draft cannot reach the catalog by mistake. Slug-based Feature IDs
+> (e.g. `FEAT-checkout-page`) are **not** supported by the ID auto-assigner — Feature IDs are
+> always numeric.
 >
-> **Only claim the command ran if it ran.** Write
+> **Only claim a command ran if it ran.** This holds for every script this skill names —
+> `next_id.py`, `validate_entity.py` and any other: never write `Ran:`, an exit code or script
+> output for a command you did not execute. Write
 > `Ran: python scripts/next_id.py --type FEAT --catalog catalog.json -> FEAT-012`
-> when that command was actually executed and `FEAT-012` was its output — never otherwise.
+> when that command was actually executed and `FEAT-012` was its output — never otherwise. If you
+> could not run a validation, say it still has to be run, not that it passed.
 >
 > If the prompt merely *states* a numeric catalog range (for example "the catalog already contains
 > FEAT-001 through FEAT-011"), take the next ID in that range and say where it came from:

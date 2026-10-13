@@ -21,7 +21,7 @@ license: Apache-2.0
 > **Glossary:** Feature, Functionality, status vocabulary — see [living-doc-glossary](../shared/references/living-doc-glossary.md).
 > **BDD schemas:** manifest.json coverage_gaps schema, seed.yaml form_fixtures — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md).
 
-**Framework scope:** **Angular-first. Phases 1, 3, and 5 are framework-agnostic; Phases 2 and 4 are Angular-only.** For React or Vue, use the project's configured test-id attribute (often `data-testid`; `data-cy` is only the default), keep the same audit and PageObject-sync flow, and skip Angular-only route-to-component and host-wiring instructions. If the question is specifically “What do I do for React or Vue?”, start the answer with that bold sentence, then add: **Phases 2 and 4 are Angular-only and should be skipped for React or Vue.** In user-facing answers, prefer the plain labels **Instrument** and **Sync** (see "User-facing labels" below) — not phase numbers, to avoid colliding with the internal Phase 1–7 sequence.
+**Framework scope:** **Angular-first. Phases 1, 3, and 5 are framework-agnostic; Phases 2 and 4 are Angular-only.** For React or Vue, use the project's configured test-id attribute (often `data-testid`; `data-cy` is only the default), keep the same audit and PageObject-sync flow, and skip Angular-only route-to-component and host-wiring instructions. In user-facing answers, prefer the plain labels **Instrument** and **Sync** (see "User-facing labels" below) — not phase numbers, to avoid colliding with the internal Phase 1–7 sequence.
 
 Resolves missing test-id attributes end-to-end: gap discovery in `manifest.json`, template edits, PageObject sync, Functionality promotion, and WORK_LOG update. Follow the phases in order.
 
@@ -86,10 +86,14 @@ For this question shape, use the user-facing labels `Instrument` (template) and 
 Example `WORK_LOG.md` §4 row for a lib-limited element:
 
 ```md
-| ⚠️ | Checkout confirm button | MatButton (Angular Material v17.3.0) | Cannot forward data-cy; tracked at https://github.com/angular/components/issues/XXXX |
+| ⚠️ | Checkout confirm button | MatButton (Angular Material <version>) | Cannot forward data-cy; tracked at <library issue URL> |
 ```
-When asked for the expected row format, emit this concrete row shape with a specific element description (for example `Checkout confirm button`), not a generic placeholder.
-Keep the issue link as a plain-text URL — no rich-link or terminal-link formatting.
+When asked for the expected row format, emit this row shape with a specific element description (for example `Checkout confirm button`), not a generic placeholder.
+**Fill the version and the issue link only from evidence** — the version from the project's
+`package.json` or lockfile, the link from the user or the library's tracker. Never write a made-up
+version or issue number: a plausible-looking `issues/1234` sends a reader to the wrong issue. Leave
+`<version>` / `<library issue URL>` visible and say they still have to be filled in.
+Keep a real issue link as a plain-text URL — no rich-link or terminal-link formatting.
 
 **User-facing labels:** call template instrumentation **Instrument** and PageObject sync **Sync** — plain names, not phase numbers, so they never collide with the internal Phase 1–7 sequence above. For `⚠️ PROPOSED` or remaining `coverage_gaps`, say: “run Instrument first to add the attribute, then Sync to update the PageObject.”
 
@@ -99,11 +103,11 @@ Keep the issue link as a plain-text URL — no rich-link or terminal-link format
 
 For each gap, resolve which Angular component owns the element.
 
-1. Open `aul-ui/src/app/pages/authenticated/authenticated-routing.module.ts` (or the relevant routing module).
+1. Open the routing module that declares the gap's route (for example `src/app/app-routing.module.ts`, or a lazy-loaded feature's `*-routing.module.ts`).
 2. Find the route path matching the gap's route.
 3. Check feature-flag conditionals:
-   - `environment.useBoundedCtxApi` (runtime flag `BD_CTX_API`) — if present, there are two component variants: `-new` (flag on) and the legacy component (flag off). **Instrument both.**
-   - `SHOW_EXPERIMENTAL_FEATURES` — instrument only if the element is inside that guard.
+   - A flag that switches the route between component variants (for example a `-new` component when the flag is on and the legacy one when it is off) — **instrument every variant**, or the test fails as soon as the flag flips.
+   - A flag that only guards part of a template — instrument the element only if it sits inside that guard.
 4. If the component is a wrapper that delegates to a child (`<app-*>` sub-component), follow the child selector to its `.html` file. Repeat until the element is found.
 5. Record the resolved template path(s) before making any edits.
 
@@ -130,7 +134,7 @@ Before writing any test-id value, validate the candidate name.
 
 **Format rules:**
 - Kebab-case only — no underscores, no camelCase.
-- Must be unique in the workspace: run `grep_search` for the candidate value across `aul-ui/src/**/*.html` before writing. If already present, append a disambiguating suffix (e.g. `-header`, `-row`, `-footer`).
+- Must be unique in the workspace: run `grep_search` for the candidate value across the app's templates (`src/**/*.html`) before writing. If already present, append a disambiguating suffix (e.g. `-header`, `-row`, `-footer`).
 - Must be descriptive enough to understand the element's purpose without context.
 
 ---
@@ -223,8 +227,10 @@ If all four checks pass and the gap remains, add or update a `WORK_LOG.md` §4 r
 
 For each Functionality whose `status: planned` was solely due to missing `data-cy`, act only after **Instrument** (template instrumentation) and **Sync** (PageObject update) are complete. Resolving the `data-cy` gap removes one blocker but is not by itself sufficient to promote — `living-doc-update` still requires every AC on the Functionality to have a passing `test_coverage` entry (see `living-doc-update/SKILL.md` § Promote a Functionality from planned to active) before the status actually flips.
 
-1. Open `<feature_dirs.functionality>/func-{NNN}-*.feature` (e.g. `aul-ui/playwright/features/liv_doc_func/`).
-2. Change `# status: planned` → `# status: active` in the comment header.
+1. Invoke `living-doc-update` to promote the Functionality. It flips the status only when its gate
+   holds — every AC has a passing `test_coverage` entry — so do not flip it yourself first.
+2. Only after `living-doc-update` has promoted it, sync the feature-file header to match: open
+   `<feature_dirs.functionality>/func-{NNN}-*.feature` and set `# status: active`.
 3. Remove the `# planned-reason: no data-cy attributes` comment line if present.
 4. Do **not** change any other header fields (AC text, func_type, feature, etc.).
 

@@ -16,9 +16,15 @@ workaround is applied by default rather than remembered:
 | `normalize_grading.py` | Derives `summary` from `expectations[]` | `aggregate_benchmark.py` reads `grading["summary"]`, so a top-level `pass_rate` alone yields 0.0 % everywhere |
 | `fix_benchmark.py` | Reorders configurations, recomputes the delta, stamps the models and the baseline commit | `sorted(iterdir())` puts `old_skill` first, inverting `run_summary.delta` |
 | `compare_baseline.py` | Diffs a finished iteration against `docs/testing/baseline.md` | Makes "did this change help?" a command instead of an impression |
+| `prepare_iteration.py` | Builds `iteration-<N>` from the eval files, reuses the previous iteration's `with_skill` answers as `old_skill` where the prompt is unchanged, and creates `run-1 … run-<k>` for the measured arm | Re-running a baseline you already measured on the same model is pure cost; one run per arm gives no variance |
+| `gen_runner_prompts.py` | Writes one `prompt.txt` per run that has no answer yet, fixtures redirected outside the eval tree | A runner that reads `evals/` pulls another eval's fixture into its answer |
+| `gen_grader_prompts.py` | Writes one `grader-prompt.txt` per target with the grading rules and the `grading.json` shape | Wrong field names render blank; a grader that writes only at the end loses everything when killed |
+| `run_triggers.sh` + `run_eval_compat.py` | Serial trigger runs (`--num-workers 1`, one skill at a time, resumable) from an empty project outside any repository | Parallel workers score real triggers as misses; the user's home project leaks memory into every query; on Windows `run_eval.py`'s `select()` on a pipe fails every query |
+| `trigger_report.py` | Aggregates trigger results into id-bearing / paraphrase / precision figures | — |
 
-All of them take paths as arguments and write only inside the workspace. None of them touches a
-skill, an eval file or git.
+All of them take paths as arguments and write only inside the workspace (the trigger driver also
+uses an empty project under the system temp directory). None of them touches a skill, an eval file
+or git. On Windows run the Python scripts with `PYTHONUTF8=1` and the shell script from Git Bash.
 
 ## Usage
 

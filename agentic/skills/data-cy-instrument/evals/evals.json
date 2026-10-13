@@ -79,25 +79,25 @@
       "id": 7,
       "category": "edge-case",
       "prompt": "Phases 1 and 3 are Angular-specific. What do I do for a React or Vue app?",
-      "expected_output": "Phases 1, 3, and 5 are framework-agnostic in principle. For React: add data-testid attributes (data-cy is by convention but getByTestId() accepts any value). For Vue: same approach. Phase 2 (ng-add schematics) and Phase 4 (Angular-specific wiring) are Angular-only and should be skipped for other frameworks. Apply Phase 1 (audit), Phase 3 (name validation), and Phase 5 (PageObject sync / coverage gap check) to any framework.",
+      "expected_output": "Phases 1, 3, and 5 are framework-agnostic in principle. For React: add data-testid attributes (data-cy is by convention but getByTestId() accepts any value). For Vue: same approach. Phase 2 (route-to-component resolution through Angular routing modules) and Phase 4 (applying the attribute to Angular templates and host components) are Angular-only and should be adapted or skipped for other frameworks. Apply Phase 1 (audit), Phase 3 (name validation), and Phase 5 (PageObject sync / coverage gap check) to any framework.",
       "files": [],
       "expectations": [
-        "States phases 1, 3, 5 are framework-agnostic",
-        "States phases 2 and 4 are Angular-only",
-        "Mentions data-testid equivalence for React/Vue"
+        "States phases 1, 3, 5 are framework-agnostic and phases 2 and 4 Angular-only",
+        "Uses the project's configured test-id attribute (Project Profile test_id_attribute, often data-testid in React/Vue) rather than assuming data-cy",
+        "Keeps the runner resolving the same attribute — Playwright's testIdAttribute must match what is instrumented, or getByTestId() finds nothing"
       ]
     },
     {
       "id": 8,
       "category": "output-format",
       "prompt": "Show me the expected WORK_LOG.md §4 row for a Material Design button that does not support data-cy forwarding.",
-      "expected_output": "| ⚠️ | Checkout confirm button | MatButton (Angular Material v17.3.0) | Cannot forward data-cy; tracked at https://github.com/angular/components/issues/XXXX |",
+      "expected_output": "| ⚠️ | Checkout confirm button | MatButton (Angular Material <version>) | Cannot forward data-cy; tracked at <library issue URL> | — with a note that the version comes from package.json and the link from the library's tracker, and both stay visible placeholders until known. The prompt supplies neither, so a concrete version or issue number would be invented.",
       "files": [],
       "expectations": [
         "Status column is ⚠️",
         "Element description present",
-        "Library name and version present",
-        "Issue tracker link present"
+        "Library name present; the version is either taken from evidence or left as a visible placeholder — not a made-up version number",
+        "Issue-tracker link column present, as a real URL or a visible placeholder — never a made-up issue number such as issues/XXXX or issues/1234"
       ]
     },
     {

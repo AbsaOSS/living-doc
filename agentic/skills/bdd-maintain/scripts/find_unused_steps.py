@@ -85,6 +85,10 @@ def collect_feature_steps(features_dir: Path) -> list[str]:
 
 
 def main() -> int:
+    # An agent captures this output through a pipe, which on Windows uses the legacy code page;
+    # without this the report's non-ASCII markers raise UnicodeEncodeError and exit 1.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="Find unused Playwright-BDD step definitions.")
     parser.add_argument(
         "--steps-dir",

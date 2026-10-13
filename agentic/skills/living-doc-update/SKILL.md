@@ -61,7 +61,7 @@ When adding a new AC to an existing User Story:
 5. Flag linked scenarios for `gherkin-living-doc-sync` so feature files can pick up the new or changed AC text and tags.
 6. Emit a change summary showing the new AC ID and its Given / When / Then content.
 
-Do not stop at workflow narration or ask for a fixture file before demonstrating the update shape. For add-AC requests, output the concrete change summary block immediately using the supplied entity ID and the new AC content.
+Do not stop at workflow narration or ask for a fixture file before demonstrating the update shape. For add-AC requests, output the concrete change summary block immediately using the supplied entity ID and the new AC content. Fill it only with what the user supplied: the next AC number when no catalog or entity is available, an error or status code they did not name, a linked test file — each stays a visible placeholder (`AC:US-042-<next>`) or a code labelled as a proposal, never a concrete-looking value. An AC that must hold for several values declares them once (`- Aspect: <v1>, <v2>` or one named keyword) — see [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
 
 When modifying an existing AC **keep the AC ID stable** — changing the ID breaks traceability
 to linked tests. Only update the `description`, `given`, `when`, `then`, or
@@ -217,8 +217,9 @@ point the call is an edge to a Feature, and it moves off every Feature that name
    or a producer/consumer handler carrying an AsyncAPI (or equivalent schema-registry) annotation. If
    it has neither, stop: it stays an `external_dependencies` entry. The anchor rules belong to
    `living-doc-create-feature` — route there to decide, do not restate them here.
-2. **Create the Feature** via `living-doc-create-feature`. It assigns the id, the `surface_type`, and
-   the `feature_registry` entry in `catalog.json`. Come back with the new `FEAT-<nnn>`.
+2. **Create the Feature** by handing off to `living-doc-create-feature` — load that skill and follow it;
+   do not allocate the id with its script from inside this workflow. It assigns the id, the
+   `surface_type`, and the `feature_registry` entry in `catalog.json`. Come back with the new `FEAT-<nnn>`.
 3. **Find every Feature that names the dependency.** Scan the `external_dependencies` of every Feature
    in `catalog.json`, not only the one the user mentioned. Entries are free-form names: match
    case-insensitively, treat a near miss (`payment-gateway` vs `payments-gateway`) as a question for
@@ -232,8 +233,9 @@ point the call is an edge to a Feature, and it moves off every Feature that name
    that owns it, not of the system it calls, so the promotion never re-parents one. Flag the
    Functionalities whose tests stubbed the dependency for test review — they can now test against a
    documented contract.
-6. **Expect the new Feature to be an orphan.** It owns no Functionalities yet, so
-   `living-doc-gap-finder` reports `FEATURE_WITHOUT_USER_STORY`, and its derived state is `planned` until its first
+6. **Expect the new Feature to be an orphan.** It has no linked User Story and no
+   Functionality yet, so `living-doc-gap-finder` reports `FEATURE_WITHOUT_USER_STORY` (no User Story) and
+   `FEATURE_WITHOUT_FUNCTIONALITY` (no Functionality), and its derived state is `planned` until its first
    Functionality is documented. Report that; do not invent placeholder Functionalities to silence it.
 7. **Validate** the new Feature and every edited entity:
 
@@ -256,7 +258,7 @@ LIVING DOC UPDATE — 2026-09-29
   Flagged for test review (stubbed payment-events):
     FUNC-003, FUNC-005
   Downstream flags:
-    FEAT-007 is FEATURE_WITHOUT_USER_STORY and derives as planned until its first Functionality is documented
+    FEAT-007 is FEATURE_WITHOUT_USER_STORY and FEATURE_WITHOUT_FUNCTIONALITY; derives as planned until its first Functionality is documented
 ```
 
 ## Descope an AC mid-sprint
@@ -347,7 +349,7 @@ new values clearly labelled, and list any linked tests that need updating:
 LIVING DOC UPDATE — 2026-05-15
   Entity:  US-042 — Customer applies a promotional discount
   Changes:
-    + Added AC AC:US-042-04 (planned) - Promo code expired returns 422 with error message
+    + Added AC AC:US-042-<next> (planned) - <the AC text as the user gave it>
     ~ Modified AC AC:US-042-01:
         OLD: "Payment must complete within 3 seconds under normal load (p99 SLA)"
         NEW: "Payment must complete within 2 seconds under normal load (p99 SLA)"
@@ -363,10 +365,10 @@ For **added ACs**, use the same summary pattern rather than ending with validati
 LIVING DOC UPDATE — 2026-05-15
   Entity:  US-089 — Delivery restrictions
   Changes:
-    + Added AC AC:US-089-04 (planned)
+    + Added AC AC:US-089-<next> (planned)
       GIVEN a customer enters an address outside the shipping zone
       WHEN they place the order
-      THEN the order is blocked with SHIPPING_ZONE_EXCLUDED and a clear message
+      THEN the order is blocked with <ERROR_CODE> (proposed — confirm with the team) and a clear message
   Downstream flags:
     Run gherkin-living-doc-sync
 ```

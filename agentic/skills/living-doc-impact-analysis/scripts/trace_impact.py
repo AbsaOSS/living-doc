@@ -358,6 +358,10 @@ def print_summary(impact_map: dict) -> None:
 # ── Entry point ────────────────────────────────────────────────────────────────
 
 def main() -> None:
+    # An agent captures this output through a pipe, which on Windows uses the legacy code page;
+    # without this the report's non-ASCII markers raise UnicodeEncodeError and exit 1.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(
         description="Trace living doc impact from a set of changed files."
     )

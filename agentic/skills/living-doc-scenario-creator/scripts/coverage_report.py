@@ -204,6 +204,10 @@ def normalise_ac_id(us_id: str, raw_id: str) -> str:
 
 
 def main(living_doc_dir: str, features_dir: str) -> None:
+    # An agent captures this output through a pipe, which on Windows uses the legacy code page;
+    # without this the report's non-ASCII markers raise UnicodeEncodeError and exit 1.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     ld = Path(living_doc_dir)
     fd = Path(features_dir)
 

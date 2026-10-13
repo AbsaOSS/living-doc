@@ -8,7 +8,7 @@
       "expected_output": "Agent maps PromoService.java to its Feature via the feature_registry in catalog.json (or runs trace_impact.py). Traces Feature → Functionality → User Stories → ACs. Classifies impact as High (changed business logic). Outputs a structured impact map listing affected Features, Functionalities, User Stories, and ACs that require review.",
       "files": [],
       "expectations": [
-        "Maps changed file to Feature via the feature_registry section in catalog.json (or runs trace_impact.py --catalog catalog.json)",
+        "Maps the changed file to its Feature and states where the mapping came from — a feature_registry match when a catalog is available (or trace_impact.py --catalog catalog.json actually ran), otherwise a plainly labelled domain-derived mapping with the id left to confirm; never a registry lookup that did not happen",
         "Traces Feature → Functionality → User Stories → ACs",
         "Classifies impact level as High for changed business logic",
         "Outputs a structured impact map"
@@ -96,7 +96,7 @@
       "files": [],
       "expectations": [
         "Identifies this as an impact analysis request despite 're-test' phrasing",
-        "Maps changed code to Feature via the feature_registry section in catalog.json",
+        "Maps the changed code to its Feature and states where the mapping came from — a feature_registry match when a catalog is available (or trace_impact.py --catalog catalog.json actually ran), otherwise a plainly labelled domain-derived mapping with the id left to confirm; never a registry lookup that did not happen",
         "Traces Feature → Functionality → User Stories → ACs",
         "Lists all linked Gherkin scenarios that need re-running",
         "Outputs a structured re-test checklist"
@@ -168,7 +168,7 @@
       "expectations": [
         "Classifies DiscountService.java as domain logic — High impact",
         "Classifies DiscountController.java as API contract — High impact",
-        "Traces both files to the owning Feature (e.g. FEAT-007 promotions) via feature_registry",
+        "Traces both files to one owning promotions Feature and states where the mapping came from — a feature_registry match when a catalog is available (or trace_impact.py --catalog catalog.json actually ran), otherwise a plainly labelled domain-derived mapping with the id left to confirm; never a registry lookup that did not happen",
         "Traces Feature → Functionalities → User Stories → ACs for both changed files",
         "Consolidates entities appearing more than once — higher risk",
         "Outputs a single consolidated impact map covering both changed files"
@@ -191,13 +191,13 @@
       "id": 15,
       "category": "happy-path",
       "prompt": "We have never run an impact analysis before and the feature_registry doesn't exist. How do I bootstrap it?",
-      "expected_output": "Bootstrap the feature_registry in 4 steps: (1) Find all Feature entity files in the living doc catalog directory. (2) For each Feature, identify the corresponding source paths — for Angular, look for the component folder (e.g. src/app/checkout/); for Java/Spring, look for the controller/service package (e.g. com.example.checkout). (3) Build the registry as a map of feature_id → [source_paths]. (4) Save it as feature_registry.json. After saving, re-run the impact analysis. Use living-doc-create-feature for creating new Feature entities and living-doc-update for the 'Rename a Feature' workflow.",
+      "expected_output": "Bootstrap the feature_registry in 4 steps: (1) Find all Feature entity files in the living doc catalog directory. (2) For each Feature, identify the corresponding source paths — for Angular, look for the component folder (e.g. src/app/checkout/); for Java/Spring, look for the controller/service package (e.g. com.example.checkout). (3) Build each mapping as { \"feature_id\": \"FEAT-<id>\", \"paths\": [\"<glob>\"] }. (4) Add the mappings under the feature_registry section of catalog.json, which is where trace_impact.py reads them. After saving, re-run the impact analysis. Use living-doc-create-feature for creating new Feature entities and living-doc-update for the 'Rename a Feature' workflow.",
       "files": [],
       "expectations": [
         "Lists all 4 bootstrap steps in order",
         "Mentions Angular path pattern (src/app/<feature>/)",
         "Mentions Java/Spring path pattern (package name)",
-        "Instructs saving as feature_registry.json",
+        "Instructs adding the mappings under the feature_registry section of catalog.json",
         "Routes to living-doc-create-feature for new entities"
       ]
     },

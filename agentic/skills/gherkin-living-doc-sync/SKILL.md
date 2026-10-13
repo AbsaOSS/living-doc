@@ -103,7 +103,7 @@ Scenario: Reset link is sent by email
 ```
 
 - `# AC:` comment: human-readable context - ID, version, state, description, optional aspect.
-- `@AC:` Cucumber tag: `@AC:<id>[/<param>:<value>]` - machine-readable link, with **at most one** `/<param>:<value>` segment. A scenario covers one value, so one scenario is tagged per value; a tag carrying two parameters is `MALFORMED_AC`. `<param>` is the AC's own variant name - `aspect`, or its keyword - in lowercase kebab-case. See [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
+- `@AC:` Cucumber tag: `@AC:<id>[/<param>:<value>]` - machine-readable link, with **at most one** `/<param>:<value>` segment. A scenario covers one value, so one scenario is tagged per value; a tag carrying two parameters is `MALFORMED_AC`. `<param>` is the AC's own variant name - `aspect`, or its keyword - in lowercase kebab-case. A `<value>` the AC does not declare is `STALE_AC_REF`: report it with the declared values, and either correct the tag to one of them or add the value to the AC's declaration first (through `living-doc-update`) - never leave the tag pointing at an undeclared value. See [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
 - The `@AC:` tag(s) must appear on the lines immediately above `Scenario:` or `Scenario Outline:`. Additional tags (e.g. `@Regression`, `@skip`) may appear in the same block.
 - Full AC details (version, state, description) live in the file's `# Acceptance Criteria:` header block.
 
@@ -152,6 +152,10 @@ If the prompt states a concrete count (for example “3 scenarios”), say that 
 missing AC link headers, then emit 3 separate `SYNC ACTION` blocks and propose a matching AC for
 each scenario from the living doc catalog. Do not hedge with “for example” or generic placeholders
 in that answer — show the concrete proposed mappings directly in the blocks.
+**A mapping needs the catalog.** Propose a concrete AC ID, version and description only when the
+catalog (or the AC list) is actually available in the session. Without it, still emit one block per
+scenario, write the proposed link as `# AC:<id needed> - <matching AC from the catalog>`, and ask for
+the catalog — never invent an AC ID, version or description to fill the block.
 
 If only one of `@AC:` or `# AC:` is present, that is still a sync issue - raise a SYNC ACTION and
 repair the missing side rather than treating the scenario as already synced.

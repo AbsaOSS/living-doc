@@ -33,7 +33,7 @@ license: Apache-2.0
 
 ## Pre-flight: MCP Playwright availability check
 
-Run this check **before any other step, in every mode**:
+Run this check **before any crawl, scan, re-scan or heal, in every mode** — that is, before any step that touches the live app. Answering a question does not need it (see the exception below):
 1. Call any MCP Playwright browser tool with a no-op argument (for example the `*browser_snapshot*` tool from `@playwright/mcp`). Tool names vary by server build (for example `mcp_playwright2_browser_snapshot`) — use the browser tools your environment exposes; do not hardcode a prefix.
 2. On the first successful call, record the working prefix (for example `mcp_playwright2_browser_`) in `<paths.bdd_artifacts>/.session-state.md` under `mcp_browser_prefix:` and reuse it for the session.
 3. If the call succeeds, continue. If it fails or no tool is available, **stop immediately** — no static fallbacks, route-config inference, seed assembly, guided traversal, or DOM interaction. Output exactly:
@@ -44,7 +44,7 @@ Run this check **before any other step, in every mode**:
 
    Do not attempt any crawl, seed assembly, or DOM interaction until the user confirms the server is available.
 
-**Dry-run / example-answer exception:** for expected output shapes or starter artifacts — e.g. **"bootstrap a PageObject for /checkout"** or **"Maintain mode output?"** — provide the PageObject / manifest / report shape from the route and elements unless the prompt says MCP is unavailable. Reserve the hard stop above for unavailable MCP or scan/rescan requests.
+**Questions and example answers do not need MCP.** The hard stop gates *running* a crawl, scan, re-scan or heal against the live app. When the user instead asks how something works, what an output looks like, or what this skill would produce from details they supply — a route, the elements on it, a changed selector, a failing scenario — answer from those details, with the PageObject / manifest / stub / report shape filled in, and add one line saying that a real run needs the MCP server. Hard-stop only when the request is to actually run against the app and the server is unavailable; after the stop message you may add one line naming the mode and scope you identified and what it will need (for HEALING, the failing scenario titles).
 
 ## Indentation is significant
 
@@ -164,18 +164,20 @@ export class CheckoutPage {
 
 ```python
 # same living-doc fields, as a module docstring or comment block
+# get_by_test_id() reads the attribute set once with
+# playwright.selectors.set_test_id_attribute(<profile test_id_attribute>)
 class CheckoutPage:
-    ROUTE          = '/checkout'
-    CONFIRM_BUTTON = '[data-cy="confirm-order-btn"]'   # profile test_id_attribute
-    PROMO_INPUT    = '[data-cy="promo-code-input"]'
-    ERROR_BANNER   = '[data-cy="error-banner"]'
+    ROUTE = '/checkout'
 
     def __init__(self, page, base_url=''):
         self.page = page
+        self.confirm_button = page.get_by_test_id('confirm-order-btn')
+        self.promo_input    = page.get_by_test_id('promo-code-input')
+        self.error_banner   = page.get_by_test_id('error-banner')
 
-    def confirm_order(self): self.page.click(self.CONFIRM_BUTTON)
-    def enter_promo_code(self, code): self.page.fill(self.PROMO_INPUT, code)
-    def assert_error_visible(self, msg): expect(self.page.locator(self.ERROR_BANNER)).to_contain_text(msg)
+    def confirm_order(self): self.confirm_button.click()
+    def enter_promo_code(self, code): self.promo_input.fill(code)
+    def assert_error_visible(self, msg): expect(self.error_banner).to_contain_text(msg)
 ```
 
 Flag fragile selectors with `# FRAGILE`, recommend adding the profile `test_id_attribute` (for example `data-cy='<descriptive-name>'`), and keep the current selector so authoring is not blocked.
@@ -227,7 +229,7 @@ guided_steps:
 
 ## Maintain mode
 
-**Pre-flight:** run the MCP availability check above; stop if unavailable. Maintain mode has two scopes — activate the one that matches the trigger.
+**Pre-flight:** before re-visiting routes or healing, run the MCP availability check above; stop if unavailable. Migrating an existing header (below) is a static script and needs no MCP. Maintain mode has two scopes — activate the one that matches the trigger.
 
 | Scope | Trigger | Breadth |
 |---|---|---|
@@ -255,7 +257,8 @@ retirement, and they drive no state.
 Three cases are reported rather than rewritten, because the fix needs a decision:
 
 - **`status: STUB` with no `stub-reason:`** — the status is the only record that the surface is
-  not instrumented. Write `stub-reason: <why>` first, then re-run.
+  not instrumented. Write `stub-reason: <why>` first, then re-run: in the canon the presence of
+  `stub-reason:` *is* the not-instrumented marker, and there is no status value for it.
 - **`feature_dependencies: none`** — the field has no `none` value; omit the key entirely.
 - **a missing required key** — `user_stories:`, `functionalities:` and
   `external_dependencies:` take `none`, they are not optional.
@@ -287,9 +290,9 @@ Navigate each route using the recorded `navigation_context` if present. For each
 
 | State | Action |
 |---|---|
-| Present, unchanged | No action |
-| Present, changed | Update constant; log `UPDATED` with new value |
-| Missing | Flag `BREAKING CHANGE`; annotate constant `# BREAKING`; never auto-delete |
+| Present, unchanged — the selector resolves to the same element | No action |
+| Present, changed — the selector still resolves, but the element's recorded details (label, type, position) changed | Update constant; log `UPDATED` with new value |
+| Missing — the selector no longer resolves, including a test id that was renamed | Flag `BREAKING CHANGE`; annotate constant `# BREAKING`; if the same element is found under a new id, propose it as the replacement; never auto-delete |
 
 Propose additions for new elements. Update selector constants only; never auto-delete methods. If any remaining selector is positional, flag it `FRAGILE` and recommend adding a stable test-id/data-testid attribute.
 

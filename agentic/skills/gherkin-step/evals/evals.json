@@ -114,7 +114,7 @@
       "expectations": [
         "Explains context.checkout_page must be assigned before the step runs",
         "Points to a Before hook (environment.py or Cucumber Before) as the fix location",
-        "Shows the correct assignment: context.checkout_page = CheckoutPage(context.browser)",
+        "Shows the assignment in before_scenario: context.checkout_page = CheckoutPage(<a page>), the page coming from a fresh browser context",
         "Does not suggest modifying the step function itself to work around the missing attribute"
       ]
     },
@@ -135,20 +135,20 @@
       "id": 11,
       "category": "happy-path",
       "prompt": "How do I set up AppWorld in Cucumber TypeScript so that each scenario gets a fresh Playwright browser context?",
-      "expected_output": "Define an AppWorld class implementing the World interface with a `page` property and a `browser` property. In the constructor, record `this.browser = browser`. In a Before hook, call `this.page = await this.browser.newPage()`. Register with `setWorldConstructor(AppWorld)`. Each scenario gets a fresh context automatically.",
+      "expected_output": "Define an AppWorld class extending World with `context` and `page` properties; its constructor takes only IWorldOptions. Register it with `setWorldConstructor(...)`. Launch the browser once in BeforeAll and keep it in module scope; in Before, create `this.context = await browser.newContext()` and `this.page = await this.context.newPage()`; in After, close `this.context`, which closes its pages. Close the browser in AfterAll.",
       "files": [],
       "expectations": [
         "Shows AppWorld class with World interface implementation",
         "Includes setWorldConstructor(AppWorld) registration",
         "Before hook creates new page and assigns to this.page",
-        "After hook closes page"
+        "After hook closes the scenario's browser context (which closes its pages), so nothing leaks into the next scenario"
       ]
     },
     {
       "id": 12,
       "category": "happy-path",
       "prompt": "Show me a complete Cucumber TypeScript World setup for a Playwright test suite — I need the AppWorld interface, the class, and the Before/After hooks.",
-      "expected_output": "Provide: (1) AppWorld interface with page and browser properties, (2) AppWorld class implementing it with browser injection in constructor, (3) setWorldConstructor(AppWorld), (4) Before hook: this.page = await this.browser.newPage(), (5) After hook: await this.page?.close().",
+      "expected_output": "Provide: (1) AppWorld interface with page and browser properties, (2) AppWorld class extending World, constructor taking only IWorldOptions, (3) setWorldConstructor(...), (4) BeforeAll launching the browser once in module scope, (5) Before hook: this.context = await browser.newContext(); this.page = await this.context.newPage(), (6) After hook: await this.context?.close().",
       "files": [],
       "expectations": [
         "AppWorld interface shown with correct property types",
@@ -161,12 +161,12 @@
       "id": 13,
       "category": "regression",
       "prompt": "My Cucumber TypeScript World setup creates a new browser in the constructor with `playwright.chromium.launch()`. What is wrong with this?",
-      "expected_output": "The browser should be injected via the World constructor parameter `{ browser }`, not created inside the class. Creating a browser in the constructor means each scenario launches a separate browser process, bypassing Cucumber's browser management. Use `this.browser = browser` and create only a new page (`this.browser.newPage()`) in the Before hook.",
+      "expected_output": "Launching a browser in the World constructor starts a separate browser process for every scenario. Cucumber cannot inject the browser either: it constructs the World itself and passes only IWorldOptions. Launch the browser once in BeforeAll, keep it in module scope, and in the Before hook create only a new browser context and page (`browser.newContext()`, then `context.newPage()`), closing the context in After.",
       "files": [],
       "expectations": [
         "Identifies the anti-pattern: launching browser inside constructor",
-        "Explains the correct pattern: inject browser via constructor parameter",
-        "Shows Before hook creating a new page instead"
+        "Explains the correct pattern: launch the browser once in BeforeAll and share it from module scope — Cucumber passes the World only IWorldOptions, so the browser cannot be injected through the constructor",
+        "Shows a Before hook creating a new browser context and page instead"
       ]
     },
     {

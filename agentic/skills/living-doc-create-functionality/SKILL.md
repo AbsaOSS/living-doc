@@ -47,7 +47,7 @@ Until the parent Feature is known (Step 2), work with the verb phrase alone; add
 
 Ask: *Which Feature (system surface) owns this behavior?* only if it is not already obvious from the prompt.
 
-A Functionality belongs to exactly one parent Feature, recorded in `parent_feature` — the toolkit JSON name for the canon's `# parent:` header key (see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md#3-functionality-in-a-gherkin-feature-file)). If the user clearly names the surface or domain (for example checkout, basket, login, pricing), infer a provisional `parent_feature` by asking for the catalog to look up the numeric ID. If the catalog is not available, note that the Feature must be created formally via `living-doc-create-feature` first (which will assign a numeric ID). Do **not** invent a slug-based Feature ID; all Feature IDs are numeric and catalog-assigned.
+A Functionality belongs to exactly one parent Feature, recorded in `parent_feature` — the toolkit JSON name for the canon's `# parent:` header key (see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md#3-functionality-in-a-gherkin-feature-file)). If the user clearly names the surface or domain (for example checkout, basket, login, pricing), infer a provisional `parent_feature` by asking for the catalog to look up the numeric ID. If the catalog is not available, note that the Feature must be created formally via `living-doc-create-feature` first (which will assign a numeric ID). Do **not** invent a slug-based Feature ID; all Feature IDs are numeric and catalog-assigned. An unknown parent ID does **not** stop the draft: use the `FEAT-PENDING` placeholder (Step 5) and still emit the entity.
 
 ### Features this behaviour calls
 
@@ -65,6 +65,8 @@ Functionality ACs describe atomic inputs to outputs. They are:
 - **Unambiguous**: exact error codes, exact output values, exact rule outcomes where relevant
 
 Write **3-7 ACs** for one coherent behavior. If a Functionality needs around **12 ACs**, treat that as a strong sign it is not atomic and split it into 2-3 focused Functionalities.
+
+An AC that must hold for several values (fields, rules, roles) declares them once instead of repeating itself: one bullet, either `- Aspect: <v1>, <v2>` or one named keyword `- <name>: <v1>, <v2>` matching a `{name}` in the AC text — never both. Scenarios then cover it value by value. Full rule: [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
 
 **Completeness checklist — adapt each prompt to the domain before finalizing:**
 
@@ -87,7 +89,8 @@ scoping rules — so getting it wrong changes how the behaviour must be split, n
 
 The seven allowed values, what each documents, and its PageObject anchor are tabulated once, in
 [living-doc-bdd-schemas — `func_type` values](../shared/references/living-doc-bdd-schemas.md#3-functionality-in-a-gherkin-feature-file);
-the scoping rules follow it in the same section. Read the table there — it is not repeated here.
+the scoping rules follow it in the same section. Read the table there — it is not repeated here;
+the table below only maps a cause to a value.
 
 To pick a value, ask **what causes the behaviour**:
 
@@ -186,6 +189,8 @@ Rules:
 - **Only claim the allocator ran if it ran.** Write `Ran: python scripts/next_id.py --type FUNC --catalog catalog.json -> FUNC-008` when that command was actually executed and `FUNC-008` was its output — never otherwise. If the prompt merely *states* a catalog range (for example `FUNC-001` through `FUNC-007`), take the next ID in that range and say where it came from: `Next ID in the stated range: FUNC-008 (derived from the prompt, not allocated by next_id.py)`. A reviewer must be able to tell a computed ID from a derived one.
 - If the prompt explicitly says the catalog is missing / `next_id.py` cannot run for a real save operation, use the stable placeholder `FUNC-PENDING` until an allocator can assign the final ID.
 - Otherwise, for starter drafts and normal create/document requests where no catalog state is given, use the readable draft form `FUNC-<kebab-name>`.
+- **An unresolved parent is a placeholder, never a reason to withhold the entity.** When the parent Feature has no catalog ID yet — not created, or the catalog is unavailable — set `"parent_feature": "FEAT-PENDING"`, emit the full JSON anyway, and say in one line that the Feature must be created with `living-doc-create-feature` and `FEAT-PENDING` replaced before saving. `validate_entity.py` rejects `FEAT-PENDING`, so the draft cannot reach the catalog by mistake.
+- **No error code in the prompt → propose one, labelled.** An error-case AC still names its code, in `UPPER_SNAKE_CASE`, and the answer marks every code it made up as a proposal (`code CART_EMPTY (proposed — confirm with the team)`). Never present an invented code as confirmed, and never drop the code to avoid inventing one.
 - `name` is `<Feature name> - <verb phrase>`: the parent Feature's name, a plain hyphen, then the atomic verb phrase.
 - Each acceptance criterion is an object with `id` and `description`. The `id` is
   `AC:<Functionality id>-<nn>`, numbered from `01` in order — the same ID the AC carries in the
@@ -337,7 +342,7 @@ redirect to `living-doc-create-user-story`.
 | AC wording is vague (e.g. "works correctly", "handles it appropriately") | Rewrite with exact `When` / `Then` behavior and explicit outputs or error codes. |
 | Functionality has more than 7 ACs | Review for non-atomic scope. Around 12 ACs is almost certainly too broad and should be split into 2-3 Functionalities. |
 | Two Functionalities have identical or near-identical ACs | Duplicate ACs create a maintenance burden. Consolidate into one shared Functionality and link all related `user_stories`. |
-| Functionality has no parent Feature | A Functionality without a parent Feature is untraceable — create or identify the parent Feature first. It will be flagged as `ORPHAN_FUNCTIONALITY`, missed in impact analyses, and unreachable via the living-doc hierarchy until linked. |
+| Functionality has no parent Feature | A Functionality without a parent Feature is untraceable — create or identify the parent Feature first (a draft may carry `FEAT-PENDING` meanwhile, but is not saved with it). It will be flagged as `ORPHAN_FUNCTIONALITY`, missed in impact analyses, and unreachable via the living-doc hierarchy until linked. |
 
 ## Indentation is significant
 

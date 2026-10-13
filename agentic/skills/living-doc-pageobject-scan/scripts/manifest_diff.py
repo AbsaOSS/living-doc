@@ -69,6 +69,10 @@ def find_pageobject_files(root: Path) -> set[str]:
 
 
 def main() -> None:
+    # An agent captures this output through a pipe, which on Windows uses the legacy code page;
+    # without this the report's non-ASCII markers raise UnicodeEncodeError and exit 1.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(
         description="Diff .copilot/bdd/manifest.json against PageObject files on disk."
     )

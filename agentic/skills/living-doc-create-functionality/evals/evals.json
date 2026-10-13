@@ -11,7 +11,7 @@
         "Name is '<Feature name> - <verb phrase>' with a plain hyphen; the behavior part is a verb phrase (not a noun)",
         "Asks about empty cart, out-of-stock, and boundary conditions",
         "Runs the completeness checklist",
-        "Produces at least 3 ACs covering error codes explicitly",
+        "Produces at least 3 ACs covering error codes explicitly (a code the prompt did not supply counts when it is marked as proposed)",
         "All ACs have test_type=unit",
         "Outputs valid canonical Functionality JSON",
         "Emitted JSON includes func_type, set to field_validation"
@@ -30,7 +30,7 @@
         "Flags 'works correctly' as non-testable — no exact output",
         "Flags 'handles it appropriately' as vague — no error code",
         "Proposes splitting into at least 2 focused Functionalities",
-        "Provides rewritten AC examples with exact outputs and error codes"
+        "Provides rewritten AC examples with exact outputs and error codes (codes the input did not supply count when marked as proposed)"
       ]
     },
     {
@@ -129,14 +129,15 @@
       "id": 10,
       "category": "happy-path",
       "prompt": "I need to document this atomic behavior for the checkout domain: 'Reject order when all items in the cart are out of stock'. The Feature hasn't been created yet.",
-      "expected_output": "Agent forms the name '<Feature name> - <verb phrase>': 'Checkout Page - Reject order when all items are out of stock' (or the confirmed Feature's name as prefix). Asks which Feature (Checkout Page / FEAT-001 or equivalent) owns this behavior. Runs completeness checklist: boundary conditions (all items out of stock vs. some items out of stock), partial cart availability, zero-quantity items. Notes that the parent Feature must already exist in the catalog with a numeric ID. Outputs canonical Functionality JSON with parent_feature set to the correct numeric ID. The emitted JSON carries a func_type fitting the behaviour: button_action if the rejection is observable only once the order is submitted, field_validation if the cart blocks first. The agent states which it chose and why.",
+      "expected_output": "Agent forms the name '<Feature name> - <verb phrase>': 'Checkout Page - Reject order when all items are out of stock' (or the confirmed Feature's name as prefix). Asks which Feature (Checkout Page / FEAT-001 or equivalent) owns this behavior. Runs completeness checklist: boundary conditions (all items out of stock vs. some items out of stock), partial cart availability, zero-quantity items. Notes that the parent Feature must already exist in the catalog with a numeric ID. Because it does not exist yet, the agent still outputs the full canonical Functionality JSON, with parent_feature set to the FEAT-PENDING placeholder, and says the Feature must be created with living-doc-create-feature and the placeholder replaced before saving — an unresolved parent never justifies withholding the entity. The emitted JSON carries a func_type fitting the behaviour: button_action if the rejection is observable only once the order is submitted, field_validation if the cart blocks first. The agent states which it chose and why.",
       "files": [],
       "expectations": [
         "Asks for the parent Feature ID (numeric, from catalog) instead of inventing a slug",
         "Forms a '<Feature name> - <verb phrase>' name",
         "Runs completeness checklist: all out of stock vs. partial",
         "Notes that the parent Feature must already exist in the catalog with a numeric ID",
-        "Outputs valid Functionality JSON with parent_feature populated",
+        "Outputs the full Functionality JSON even though the parent Feature does not exist yet — does not withhold it",
+        "parent_feature is the FEAT-PENDING placeholder, not an invented numeric or slug ID",
         "Emitted JSON includes func_type with a stated justification for the value chosen"
       ]
     },
@@ -170,11 +171,11 @@
       "id": 14,
       "category": "regression",
       "prompt": "Create a new Functionality entity 'Validate discount code expiry'. The catalog already contains FUNC-001 through FUNC-007.",
-      "expected_output": "Before assigning an ID, the agent runs: python scripts/next_id.py --type FUNC --catalog catalog.json. The script returns FUNC-008. The agent assigns id='FUNC-008'. It does NOT invent an ID, reuse an existing one, or leave a placeholder such as FUNC-XXX or FUNC-<nnn>. The final JSON has a fully populated id field before being presented to the user. The JSON also carries func_type='field_validation' — an expiry rule enforced on the discount-code field.",
+      "expected_output": "No catalog file is supplied, so next_id.py cannot run. The agent takes the next ID after the stated range, FUNC-008, and labels it as derived from the prompt, not allocated by the script; it runs python scripts/next_id.py --type FUNC --catalog catalog.json only if a catalog file is actually present. It does NOT invent an ID, reuse an existing one, or leave a placeholder such as FUNC-XXX or FUNC-<nnn>. The final JSON has a fully populated id field before being presented to the user. The JSON also carries func_type='field_validation' — an expiry rule enforced on the discount-code field.",
       "files": [],
       "expectations": [
-        "Runs next_id.py --type FUNC before assigning the ID",
-        "Assigns the ID returned by the script (e.g. FUNC-008)",
+        "Takes the next ID from the stated range — or runs next_id.py --type FUNC if a catalog file is actually available — instead of guessing",
+        "Assigns FUNC-008, the next ID after the stated FUNC-001 to FUNC-007 range",
         "Does not invent, guess, or reuse an ID",
         "Does not leave a placeholder (FUNC-XXX, FUNC-<nnn>, FUNC-unknown)",
         "Final JSON has a fully populated id field",
@@ -218,7 +219,7 @@
         "Flags 'should' as non-binary — AC cannot be decisively passed or failed",
         "Suggests 'must', 'returns', 'rejects', or 'accepts' as replacements",
         "Flags lack of explicit outcome as non-testable",
-        "Provides a rewritten AC with an explicit error code"
+        "Provides a rewritten AC with an explicit error code (a code the prompt did not supply counts when marked as proposed)"
       ]
     },
     {

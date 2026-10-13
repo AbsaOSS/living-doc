@@ -5,7 +5,7 @@
       "id": 1,
       "category": "happy-path",
       "prompt": "I want to document the Checkout Page as a Feature entity.",
-      "expected_output": "Agent identifies surface type as UI. Asks for: purpose and scope (what user interactions it owns), linked User Stories, known Functionalities, owners, external dependencies. Runs next_id.py to get the next Feature ID from the catalog. Since the prompt supplies no catalog relationship data, outputs a canonical Feature JSON with id=FEAT-001 (or next numeric ID), surface_type=UI, user_stories=[] and functionalities=[] with the orphan/candidate warnings, owners, and external_dependencies including payment-gateway and order-service.",
+      "expected_output": "Agent identifies surface type as UI. Asks for: purpose and scope (what user interactions it owns), linked User Stories, known Functionalities, owners, external dependencies. Asks for the catalog to allocate the ID through next_id.py; since the prompt supplies no catalog, it outputs a canonical Feature JSON with id=FEAT-PENDING (never an invented number), surface_type=UI, user_stories=[] and functionalities=[] with the orphan/candidate warnings, owners, and external_dependencies including payment-gateway and order-service.",
       "files": [],
       "expectations": [
         "Identifies surface_type as UI for a web page",
@@ -13,7 +13,7 @@
         "Asks for User Story links",
         "Asks for Functionalities owned by this Feature",
         "Asks for owners and external dependencies",
-        "Runs next_id.py to get numeric Feature ID from catalog",
+        "Takes the ID from next_id.py when a catalog is available; with none (as here) asks for it and uses the FEAT-PENDING placeholder — no invented number",
         "Does not fabricate user_stories or functionalities links absent catalog evidence",
         "Notes: 1 Feature ≈ 1 PageObject"
       ]
@@ -97,13 +97,13 @@
       "id": 8,
       "category": "output-format",
       "prompt": "Create a Feature entity for the 'User Profile' screen in our banking app. It is owned by team-identity and depends on the customer-service API.",
-      "expected_output": "The output contains a single fenced ```json code block with a valid Feature entity. The JSON object includes all required fields: type, id, name, surface_type, purpose, user_stories, functionalities, owners, external_dependencies. There is no `status` field — a Feature's state is derived from its Functionalities, never authored. The id field is a numeric ID from the catalog (e.g. FEAT-001). The surface_type value is UI or API — this is a screen, so surface_type=UI. No prose appears inside the JSON code block.",
+      "expected_output": "The output contains a single fenced ```json code block with a valid Feature entity. The JSON object includes all required fields: type, id, name, surface_type, purpose, user_stories, functionalities, owners, external_dependencies. There is no `status` field — a Feature's state is derived from its Functionalities, never authored. The id field: no catalog is supplied, so the id is the FEAT-PENDING placeholder with a note to allocate it through next_id.py before saving — never an invented number. The surface_type value is UI or API — this is a screen, so surface_type=UI. No prose appears inside the JSON code block.",
       "files": [],
       "expectations": [
         "Single fenced ```json code block",
         "All required fields present: type, id, name, surface_type, purpose, user_stories, functionalities, owners, external_dependencies",
         "No `status` field in the JSON",
-        "id is a numeric ID from the catalog (FEAT-001, FEAT-002, etc.)",
+        "id: no catalog is supplied, so the id is the FEAT-PENDING placeholder with a note to allocate it through next_id.py before saving — never an invented number",
         "surface_type is UI or API (surface_type=UI for this screen)",
         "No prose inside the code block"
       ]
@@ -113,13 +113,13 @@
       "category": "file-based",
       "description": "Create a Feature entity from rough notes provided as a markdown file.",
       "prompt": "Read evals/files/raw-feature-notes.md and produce a canonical Feature entity JSON from the notes.",
-      "expected_output": "Agent extracts the surface type, purpose, owners, and dependencies from the notes and produces a Feature entity JSON in a fenced ```json block. Runs next_id.py to get the numeric ID from the catalog. The id is a numeric ID (e.g. FEAT-001). The surface_type, owners, and external_dependencies fields are populated from the file content. user_stories and functionalities are empty arrays with a warning that they must be linked.",
+      "expected_output": "Agent extracts the surface type, purpose, owners, and dependencies from the notes and produces a Feature entity JSON in a fenced ```json block. The notes carry no catalog, so the id is the FEAT-PENDING placeholder, to be allocated through next_id.py before saving. The surface_type, owners, and external_dependencies fields are populated from the file content. user_stories and functionalities are empty arrays with a warning that they must be linked.",
       "files": [
         "evals/files/raw-feature-notes.md"
       ],
       "expectations": [
         "Feature entity JSON in fenced ```json block",
-        "id is a numeric ID from catalog (FEAT-001, etc.), not derived from name",
+        "id is not derived from the name: with no catalog it is the FEAT-PENDING placeholder, never an invented number or a slug",
         "surface_type, owners, external_dependencies populated from file",
         "user_stories and functionalities are empty arrays with a linking warning"
       ]
@@ -194,11 +194,11 @@
       "id": 16,
       "category": "regression",
       "prompt": "Create a new Feature entity for the 'Notifications Centre' screen. The catalog already contains FEAT-001 through FEAT-011.",
-      "expected_output": "Before assigning an ID, the agent runs: python scripts/next_id.py --type FEAT --catalog catalog.json. The script returns FEAT-012. The agent assigns id='FEAT-012'. The agent does NOT invent an ID, reuse an existing ID, or leave the id field as a placeholder such as FEAT-XXX or FEAT-<nnn>. The final JSON contains a fully populated numeric id field before being presented to the user.",
+      "expected_output": "No catalog file is supplied, so next_id.py cannot run. The agent takes the next ID after the stated range, FEAT-012, and labels it as derived from the prompt, not allocated by the script; it runs python scripts/next_id.py --type FEAT --catalog catalog.json only if a catalog file is actually present. The agent assigns id='FEAT-012'. The agent does NOT invent an ID, reuse an existing ID, or leave the id field as a placeholder such as FEAT-XXX or FEAT-<nnn>. The final JSON contains a fully populated numeric id field before being presented to the user.",
       "files": [],
       "expectations": [
-        "Runs next_id.py --type FEAT before assigning the ID",
-        "Assigns the ID returned by the script (e.g. FEAT-012)",
+        "Takes the next ID from the stated range — or runs next_id.py --type FEAT if a catalog file is actually available — instead of guessing",
+        "Assigns FEAT-012, the next ID after the stated FEAT-001 to FEAT-011 range",
         "Does not invent, guess, or reuse an ID",
         "Does not leave a placeholder (FEAT-XXX, FEAT-<nnn>, FEAT-unknown)",
         "Final JSON has a fully populated id field",
@@ -209,11 +209,11 @@
       "id": 17,
       "category": "regression",
       "prompt": "Create a Feature entity for the 'Payment Page'. The catalog file is not present — next_id.py cannot be run. What should the agent do?",
-      "expected_output": "Agent cannot auto-assign a numeric ID without a catalog. It asks the user: 'The catalog file is missing. Please provide the path to catalog.json or explicitly specify which numeric ID should be assigned (e.g., FEAT-001).' The agent does NOT fall back to slug IDs or invent numeric IDs.",
+      "expected_output": "Agent cannot auto-assign a numeric ID without a catalog. It asks the user: 'The catalog file is missing. Please provide the path to catalog.json or explicitly specify which numeric ID should be assigned (e.g., FEAT-001).' It still emits the starter draft with id='FEAT-PENDING' and says the ID must be allocated before saving. The agent does NOT fall back to slug IDs or invent numeric IDs.",
       "files": [],
       "expectations": [
         "Falls back to asking for catalog path or explicit ID, does not invent a slug",
-        "Uses only numeric IDs like FEAT-001, FEAT-002, etc.",
+        "Any real ID it names is numeric (FEAT-nnn); the draft itself carries the FEAT-PENDING placeholder, never a slug",
         "Warns the user to verify no collision before saving",
         "Does not invent a numeric ID without catalog evidence"
       ]

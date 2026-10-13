@@ -156,4 +156,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # An agent captures this output through a pipe, which on Windows uses the legacy code page;
+    # without this any non-ASCII character in the report or the user's data raises UnicodeEncodeError.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     main()

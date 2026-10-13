@@ -12,7 +12,7 @@
         "Forms As-a/I-can/so-that narrative correctly from answers",
         "Asks which Feature(s) this story touches",
         "Elicits at least one error-path AC (e.g. unregistered email, expired token)",
-        "Warns if only happy-path AC is provided",
+        "Asks for at least two error or alternative-path ACs, not only the happy path",
         "Outputs valid canonical User Story JSON"
       ]
     },
@@ -169,11 +169,11 @@
       "id": 14,
       "category": "regression",
       "prompt": "Create a new User Story for the password reset capability. The catalog already contains US-001 through US-013.",
-      "expected_output": "Before assigning an ID, the agent runs: python scripts/next_id.py --type US --catalog catalog.json. The script returns US-014. The agent assigns id='US-014'. It does NOT invent an ID, reuse an existing one, or leave a placeholder such as US-XXX or US-<nnn>. The final JSON has a fully populated id field before being presented to the user.",
+      "expected_output": "No catalog file is supplied, so next_id.py cannot run. The agent takes the next ID after the stated range, US-014, and labels it as derived from the prompt, not allocated by the script; it runs python scripts/next_id.py --type US --catalog catalog.json only if a catalog file is actually present. The agent assigns id='US-014'. It does NOT invent an ID, reuse an existing one, or leave a placeholder such as US-XXX or US-<nnn>. The final JSON has a fully populated id field before being presented to the user.",
       "files": [],
       "expectations": [
-        "Runs next_id.py --type US before assigning the ID",
-        "Assigns the ID returned by the script (e.g. US-014)",
+        "Takes the next ID from the stated range — or runs next_id.py --type US if a catalog file is actually available — instead of guessing",
+        "Assigns US-014, the next ID after the stated US-001 to US-013 range",
         "Does not invent, guess, or reuse an ID",
         "Does not leave a placeholder (US-XXX, US-<nnn>, US-unknown)",
         "Final JSON has a fully populated id field",

@@ -55,10 +55,10 @@
       "id": 5,
       "category": "regression",
       "prompt": "find_unused_po_methods.py reports that CheckoutPage.clickConfirmButton() is unused, but I can see it's called in checkout.steps.ts. Why?",
-      "expected_output": "The script likely scans with a string match — if the method is called via a variable reference (e.g. `page.clickConfirmButton()` where `page` is typed as `BasePage`) or through an alias, the static scan may miss it. Review the call site in checkout.steps.ts and verify the import. If the call exists, the script has a false positive — do not delete the method. Report the false positive to the team.",
+      "expected_output": "The script matches the literal `.clickConfirmButton(` in every .ts file under --steps-dir, the sibling fixtures.ts and the PageObject files, whatever the receiver's type — so a base-class-typed `page.clickConfirmButton()` is found. A visible call it misses means either checkout.steps.ts lies outside the --steps-dir that was passed, or the call does not spell `.clickConfirmButton(` (a dynamic alias, bracket access, or a helper that re-exports it under another name). Review the call site in checkout.steps.ts and the --steps-dir argument. If the call exists, the script has a false positive — do not delete the method. Report the false positive to the team.",
       "files": [],
       "expectations": [
-        "Identifies dynamic dispatch / base-class alias as likely cause",
+        "Names a cause the script really has — the step file outside the scanned --steps-dir, or a call that does not spell .clickConfirmButton( (dynamic alias, re-exporting helper) — and not a base-class-typed receiver, which the script still matches",
         "Does not delete the method on a false positive",
         "Recommends verifying the actual call site"
       ]
@@ -123,7 +123,7 @@
         "Shows line numbers for each unused step",
         "Shows step pattern text",
         "Shows summary count line with warning symbol",
-        "Does not show false positives for steps used by active scenarios"
+        "Shows exactly the 3 unused step definitions the request asks for, with no other entries"
       ]
     },
     {

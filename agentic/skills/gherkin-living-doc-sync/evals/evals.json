@@ -9,7 +9,7 @@
       "files": [],
       "expectations": [
         "Identifies all scenarios missing # AC: comments",
-        "Proposes a matching AC from the catalog for each scenario",
+        "Proposes a matching AC for each scenario — from the catalog when one is available, otherwise a visible <id needed> placeholder plus a request for the catalog; never an invented AC ID",
         "Outputs a SYNC ACTION block for each affected scenario",
         "Does not apply changes without developer confirmation",
         "Does not delete any scenario"
@@ -37,9 +37,9 @@
       "expected_output": "Sync direction: step text → PageObject. Agent outputs a DRIFT DETECTED block: identifies the broken step text, the previous matching step definition, the PageObject method it delegates to (CheckoutPage.confirm_order()), and proposes two fix options: (1) update the .feature file step text to match the existing step definition, or (2) update the step definition regex to match the new wording. Recommends option 1 (update feature file) as the lower-risk change since the PageObject method and step definition are already working.",
       "files": [],
       "expectations": [
-        "Outputs DRIFT DETECTED block with affected file and line number",
+        "Outputs DRIFT DETECTED block naming the affected file and line (a visible placeholder where the prompt gives none)",
         "Identifies the broken step text and the expected step definition",
-        "Links the step to its PageObject method",
+        "Links the step to the PageObject method it should call (named as a placeholder when the prompt does not supply the PageObject)",
         "Provides two fix options",
         "Recommends updating the feature file as the lower-risk fix"
       ]
@@ -54,7 +54,7 @@
         "Adds @deprecated tag to each scenario linked to the deprecated US",
         "Adds a comment explaining the reason for deprecation",
         "Never deletes scenarios — marks with @review-needed",
-        "Lists all affected scenarios with file and line number"
+        "Lists all affected scenarios with file and line (visible placeholders where the prompt gives none — no invented line numbers)"
       ]
     },
     {
@@ -126,13 +126,13 @@
       "id": 10,
       "category": "happy-path",
       "prompt": "I want to run a full audit of all AC link headers across all feature files before starting a sync. How do I use scan_ac_links.py?",
-      "expected_output": "Run: 'python skills/gherkin-living-doc-sync/scripts/scan_ac_links.py <features_dir> --us-dir <feature_dirs.user_story> --func-dir <feature_dirs.functionality> --catalog <catalog_path>'. The script scans the living-doc feature directories for '# AC:' comments and '@AC:' tags, validates each AC ID against the living doc catalog, and outputs a report listing: (1) missing # AC: comments (scenarios with no link header), (2) stale AC IDs (IDs not found in catalog), (3) mismatched comment/tag pairs (one present but not the other). The --us-dir and --func-dir flags accept the profile feature_dirs.user_story and feature_dirs.functionality values (defaults: features/liv_doc_us/ and features/liv_doc_func/). Use this report as input to the sync workflow - address broken links first, then missing links, then mismatches.",
+      "expected_output": "Run: 'python scripts/scan_ac_links.py <features_dir> --us-dir <feature_dirs.user_story> --func-dir <feature_dirs.functionality>' (the script has no --catalog option). It scans the living-doc feature directories for '@AC:' tags and '# AC:' comments and reports four findings: missing_ac_tag, malformed_ac_id, duplicate_ac_link and missing_ac_comment. It never reads the catalog, so stale AC IDs are not covered and need a separate check against the catalog. The --us-dir and --func-dir flags accept the profile feature_dirs.user_story and feature_dirs.functionality values (defaults: features/liv_doc_us/ and features/liv_doc_func/). Use this report as input to the sync workflow - malformed IDs first, then missing tags and comments, then duplicates.",
       "files": [],
       "expectations": [
         "Names the correct command with --us-dir and --func-dir flags (profile feature_dirs paths)",
-        "Explains what the script reports: missing headers, stale IDs, mismatched pairs",
+        "Explains what the script reports — missing tags, malformed IDs, duplicate links, missing comments — and that stale AC IDs need a separate catalog check",
         "Notes the living-doc directories are driven by the Project Profile (feature_dirs.*)",
-        "Recommends repair order: broken links → missing links → mismatches",
+        "Recommends the repair order: malformed IDs → missing tags and comments → duplicates",
         "Notes the script output drives the subsequent sync workflow"
       ]
     },

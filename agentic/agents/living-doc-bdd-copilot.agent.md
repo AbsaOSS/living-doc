@@ -111,7 +111,7 @@ _Auto-managed. Delete when session complete._
 
 ## Mode Dispatch
 
-Load **one** skill per session. Do not pre-load skills for modes not yet triggered.
+Load **one** skill per step. Do not pre-load skills for modes not yet triggered; a chain (for example the deprecation chain below) loads its skills one after another, each when its step starts.
 
 ### Catalog Operations
 
@@ -287,7 +287,7 @@ State: `planned | in_review | active | deprecated`
 @AC:US-1-01
 Scenario: ...
 ```
-Aspect variant: `@AC:US-1-01/aspect:username-input`. The `@AC:` tag is the single source of machine traceability.
+Variant tag: `@AC:US-1-01/aspect:username-input`, or with the AC's named keyword, `@AC:US-1-01/channel:email` — one variant value per tag. The `@AC:` tag is the single source of machine traceability.
 
 **Surface types:** `UI` → PageObject (locators via `getByTestId()`, resolving to the profile `test_id_attribute`, default `data-cy`). `API` → contract test layer only.
 
@@ -329,7 +329,7 @@ Aspect variant: `@AC:US-1-01/aspect:username-input`. The `@AC:` tag is the singl
 
 **Routing:** Route by request type using Mode Dispatch above. If a request spans catalog and automation (e.g. "create a US and generate its feature file"), complete the catalog step first, then proceed to the automation step within the same session.
 
-**Entity creation:** Atomic ACs only — one condition + one observable outcome. Every AC needs `id`, `state`, `version`. Feature-level (US/FUNC) `preconditions:` and `not_in_scope:` are inherited by all ACs; extend at AC level if this AC adds additional preconditions or exclusions. Assign IDs via `scripts/next_id.py`.
+**Entity creation:** Atomic ACs only — one condition + one observable outcome. An AC that must hold for several values (channels, roles, fields) is still **one** AC with a variant declaration (`- Aspect: <v1>, <v2>` or one named keyword), not one AC per value — see [AC variants](../skills/shared/references/living-doc-bdd-schemas.md#ac-variants). Every AC needs `id`, `state`, `version`. Feature-level (US/FUNC) `preconditions:` and `not_in_scope:` are inherited by all ACs; extend at AC level if this AC adds additional preconditions or exclusions. Assign IDs via `scripts/next_id.py`.
 
 **Updates:** Show OLD vs NEW before writing any `active` AC change. Keep AC IDs stable — changing breaks traceability.
 

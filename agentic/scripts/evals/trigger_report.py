@@ -1,10 +1,11 @@
+"""Usage: trigger_report.py [<trigger-results-dir>]  (default: the workspace's trigger-evals-2)"""
 import json,re,sys,pathlib
-D=pathlib.Path("/Users/admin/repos/AbsaOSS/living-doc/agentic-evals-workspace/trigger-evals-2")
+D=pathlib.Path(sys.argv[1]).resolve() if len(sys.argv)>1 else pathlib.Path(__file__).resolve().parents[3]/"agentic-evals-workspace"/"trigger-evals-2"
 ENT=re.compile(r'\b(US|FEAT|FUNC)-\d+|AC:US-\d+'); PR=re.compile(r'PR #?\d+')
 rows=[];tp=tn=fp=fn=0; idh=idt=ph=pt=0; fails=[]; fires=[]
 for f in sorted(D.glob("*.json")):
     if f.stat().st_size==0: continue
-    d=json.loads(f.read_text()); res=d["results"] if isinstance(d,dict) else d
+    d=json.loads(f.read_text(encoding="utf-8")); res=d["results"] if isinstance(d,dict) else d
     s=f.stem; P=[r for r in res if r["should_trigger"]]; N=[r for r in res if not r["should_trigger"]]
     ff=[r for r in N if r["triggers"]>0]; fires+= [(s,r) for r in ff]
     i=[r for r in P if ENT.search(r["query"]) or PR.search(r["query"])]; pa=[r for r in P if r not in i]

@@ -23,7 +23,7 @@ license: Apache-2.0
 
 **Project Profile:** Read `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`) for feature directories (`feature_dirs.*`), the AC state vocabulary (`ac_states`), and scenario tag conventions. All paths and tags below show the reference-project defaults; profile values win.
 
-**AC states:** lowercase with underscores per the profile `ac_states` (`active`, `planned`, `in_review`, `deprecated`). Only `active` ACs drive scenario generation.
+**AC states:** lowercase with underscores per the profile `ac_states` (`active`, `planned`, `in_review`, `deprecated`). Only `active` ACs drive scenario generation; the coverage report (`coverage_report.py`) also counts `in_review` ACs as needing coverage.
 
 ---
 
@@ -46,6 +46,11 @@ Load the User Story or Functionality. Confirm:
 - ACs are atomic — one input condition, one observable outcome.
 
 Use only the ACs and states explicitly supplied by the entity or prompt. Do not invent extra active ACs. If the prompt lists one `active`, one `deprecated`, and one `planned` AC, generate a scenario only for the single `active` AC and show the other two only as skipped in the coverage report.
+
+**What the prompt states is supplied input — use it.** When the prompt describes the features directory (which
+scenarios carry which `@AC:` tags) or states that every active AC has a matching tag, derive the coverage
+report from that description and label it `derived from your description, not from a coverage_report.py run`.
+Refusing for want of a file name or id the conclusion does not depend on is as wrong as inventing one.
 
 If no ACs are `active`, do not generate empty scenarios. Output a coverage report with state-specific skip reasons (`planned`: `skipped — not yet active`, `deprecated`: `skipped — deprecated AC`) and advise the user to re-run when an AC becomes `active`.
 
@@ -221,8 +226,13 @@ AC COVERAGE REPORT — US-001
   AC:US-001-01 (active): ✅ covered
   AC:US-001-02 (active): ✅ covered
   AC:US-001-03 (active): ❌ NOT COVERED
-  AC:US-001-04 (planned): ⏭  skipped - not yet active
+  AC:US-001-04 (planned): ⏭  skipped — not yet active
 ```
+
+This is the summary you write. `coverage_report.py` prints its own layout — one line per AC with its
+`[state]`, a `↳ covered by:` line, and a `COVERAGE SUMMARY` block — and signals the result only through
+its exit code, so report its figures, never present this template as its verbatim output. It matches
+tags after zero-padding the parent id: `@AC:US-10-02` counts for `AC:US-010-02`.
 
 Coverage-report closeout rules:
 - If any `active` AC is not covered, say **`Exits with code 1.`** and label each `❌ NOT COVERED` row as **scenario generation queue input** (for example `❌ NOT COVERED — add to scenario generation queue`). Also include a summary line such as `Summary: Active ACs: 2. Covered by scenarios: 0. Gaps: 2.`
@@ -240,7 +250,7 @@ For each generated scenario step:
 
    ```python
    # Case A — PageObject method exists
-   # PageObject candidate: CheckoutPage (FEAT-003)
+   # PageObject candidate: CheckoutPage (FEAT-<id>)
    # Suggested step file: tests/steps/checkout_steps.py
    @when('the customer confirms the order')
    def step_confirm_order(context):
@@ -251,12 +261,12 @@ For each generated scenario step:
 
    ```python
    # Case B — missing PageObject method
-   # PageObject candidate: CheckoutPage (FEAT-003)
+   # PageObject candidate: CheckoutPage (FEAT-<id>)
    # Suggested step file: tests/steps/checkout_steps.py
    ```
 
 In both cases, reference the owning **Feature ID** (for example `FEAT-003`) with the PageObject — never substitute the parent User Story ID in that slot.
-When the PageObject is `CheckoutPage`, use `FEAT-003` in the step-stub context unless the prompt provides a different Feature ID.
+Take the Feature ID from the entity, the PageObject header or the prompt. When none of them gives it, write a visible placeholder (`<Checkout Feature id>`) — never a guessed number.
 
 ### Step 6 — Validation gate (closeout — mandatory)
 
@@ -271,8 +281,8 @@ python scripts/coverage_report.py <living_doc_dir> <features_dir>
 ```
 
 **Regression-coverage rule:** for the goal of covering every User Story's happy-day path, each
-`active` `happy_path` AC must have exactly one scenario carrying both its `@AC:<id>` tag and a
-`@Regression` suite tag, placed under the `# *** Happy day scenarios ***` banner. The coverage
+`active` `happy_path` AC must have exactly one scenario — or, for an AC that declares variant values,
+one per declared value — carrying both its `@AC:<id>` tag and a `@Regression` suite tag, placed under the `# *** Happy day scenarios ***` banner. The coverage
 report must show **0 NOT COVERED** happy-path ACs before the session closes. Fix gaps and re-run
 until `scan_ac_links` exits 0 and the coverage report is clean.
 
@@ -401,7 +411,7 @@ When no User Story or Functionality entity exists, generate scenarios directly f
 
 ## Output format
 
-Output all generated Gherkin in a single fenced `gherkin` code block starting with `Feature:`. Use only `Scenario:`, `Scenario Outline:`, `Background:`, `Given`, `When`, `Then`, `And`, `But`, `Examples:` inside the block.
+Output all generated Gherkin in a single fenced `gherkin` code block — starting with the file's header block in Entity mode, or directly with `Feature:` in Standalone mode. Besides the header comments and tags, use only `Feature:`, `Scenario:`, `Scenario Outline:`, `Background:`, `Given`, `When`, `Then`, `And`, `But`, `Examples:` inside the block.
 
 ---
 

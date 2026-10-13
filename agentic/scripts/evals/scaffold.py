@@ -42,7 +42,7 @@ def main(target: str, workspace: str, iteration: int, eval_file: str | None = No
         print(f"error: no eval file at {src}", file=sys.stderr)
         return 1
 
-    data = json.loads(src.read_text())
+    data = json.loads(src.read_text(encoding="utf-8"))
     base = Path(workspace) / f"iteration-{iteration}" / target
     seen: dict[str, int] = {}
 
@@ -66,11 +66,15 @@ def main(target: str, workspace: str, iteration: int, eval_file: str | None = No
                     "expected_output": ev.get("expected_output", ""),
                     "files": ev.get("files", []),
                     "assertions": ev.get("expectations", []),
+                    # What the eval needs beyond the prompt (e.g. "mcp-playwright", "project-fixture").
+                    # Without it both arms hard-stop alike, so its score measures the environment.
+                    "requires": ev.get("requires", []),
                 },
                 indent=2,
                 ensure_ascii=False,
             )
-            + "\n"
+            + "\n",
+            encoding="utf-8",
         )
         print(f"  eval-{ev['id']}-{name}\t{len(ev.get('expectations', []))} assertions")
 

@@ -275,13 +275,13 @@ Then('the imported domain is visible in the domain list', async function (this: 
 
 ```typescript
 // ✅ {string} matches multi-word labels
-When('I click the {string} tab', async ({ domainDetailPage }, tab: string) => {
-  await domainDetailPage.gotoTab(tab);
+When('I click the {string} tab', async function (this: AppWorld, tab: string) {
+  await this.domainDetailPage.gotoTab(tab);
 });
 
 // ❌ {word} fails for multi-word labels
-When('I click the {word} tab', async ({ domainDetailPage }, tab: string) => {
-  await domainDetailPage.gotoTab(tab);
+When('I click the {word} tab', async function (this: AppWorld, tab: string) {
+  await this.domainDetailPage.gotoTab(tab);
 });
 ```
 
@@ -319,13 +319,12 @@ def step_receive_payload(context):
 `before_scenario` runs before **every** scenario by default, so add a tag check when setup applies only to a subset. State this explicitly: `if "database" in context.tags` gates the expensive work; it does not stop the hook from firing. Tag hooks to scope setup and pair them with matching cleanup:
 
 ```python
-@before_scenario
-def setup_database(context):
+# features/environment.py — hooks are found by name; there is no decorator
+def before_scenario(context, scenario):
     if "database" in context.tags:
         context.db = create_test_db()
 
-@after_scenario
-def teardown_database(context):
+def after_scenario(context, scenario):
     if "database" in context.tags:
         context.db.teardown()
 ```
@@ -340,17 +339,17 @@ Every wizard navigation step must verify arrival at the next step with a step-sp
 
 ```typescript
 // ✅ arrival at the Owner step is verified
-When('I complete the About step', async ({ createDomainAboutPage, createDomainOwnerPage }) => {
-  await createDomainAboutPage.fillDomainName('E2E Test Domain');
-  await createDomainAboutPage.fillCostCenter('1234');
-  await createDomainAboutPage.continueButton.click();
-  await expect(createDomainOwnerPage.ownersTable).toBeVisible();
+When('I complete the About step', async function (this: AppWorld) {
+  await this.createDomainAboutPage.fillDomainName('E2E Test Domain');
+  await this.createDomainAboutPage.fillCostCenter('1234');
+  await this.createDomainAboutPage.continueButton.click();
+  await expect(this.createDomainOwnerPage.ownersTable).toBeVisible();
 });
 
 // ❌ two blind clicks; no arrival assertion
-Given('I am on the Target dataset step', async ({ createDomainPage }) => {
-  await createDomainPage.continueButton.click();
-  await createDomainPage.continueButton.click();
+Given('I am on the Target dataset step', async function (this: AppWorld) {
+  await this.createDomainPage.continueButton.click();
+  await this.createDomainPage.continueButton.click();
 });
 ```
 

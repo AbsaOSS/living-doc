@@ -38,7 +38,7 @@
       "expectations": [
         "Operates in Maintain mode",
         "Detects the broken selector as a BREAKING CHANGE",
-        "Links the broken selector to affected step definitions and feature file lines",
+        "Links the broken selector to affected step definitions and feature file lines (as visible placeholders when the prompt names none — no invented step text or line numbers)",
         "Proposes the updated selector",
         "Updates selector constants only — preserves method logic",
         "Never auto-deletes a method"
@@ -54,7 +54,7 @@
         "Detects missing element as BREAKING CHANGE",
         "Does not auto-delete the method",
         "Adds a BREAKING comment to the selector constant",
-        "Lists linked step definitions that will be affected",
+        "Lists the linked step definitions that will be affected (as visible placeholders when the prompt names none)",
         "Flags for developer review rather than auto-removing"
       ]
     },
@@ -74,6 +74,7 @@
       "id": 6,
       "category": "paraphrase",
       "prompt": "Our login page was redesigned and the Playwright tests are all failing because the selectors are wrong. Can you help?",
+      "requires": ["mcp-playwright"],
       "expected_output": "This is a Maintain mode request. Agent rescans the login page, diffs LoginPage selectors against the current DOM, and identifies which selector constants are broken. Outputs BREAKING CHANGE entries for each missing selector and proposes the updated data-testid values. Updates the selector constants in LoginPage while preserving existing method logic. Flags any remaining positional selectors for the dev team to add proper data-testid attributes.",
       "files": [],
       "expectations": [
@@ -100,15 +101,15 @@
       "id": 8,
       "category": "output-format",
       "prompt": "Show me the expected structure of a generated CheckoutPage PageObject in Python for a screen at /checkout linked to FEAT-003.",
-      "expected_output": "Output is a Python code block. It opens with the full living-doc header as a `#`-commented block naming FEAT-003 · Checkout, followed by every required field: surface_type: UI, route: /checkout, owners, purpose, user_stories, functionalities, external_dependencies, and page-object naming the file. The header carries no `status:` field. The class is named CheckoutPage. Selector constants are ALL_CAPS class attributes with data-testid values. The __init__ takes a page parameter and assigns self.page. Methods are named in snake_case, each wrapping a single page action or assertion. No inline selectors in method bodies — selectors are referenced only via the class constants. Methods include at least one action method and one assertion method (assert_*).",
+      "expected_output": "Output is a Python code block. It opens with the full living-doc header as a `#`-commented block naming FEAT-003 · Checkout, followed by every required field: surface_type: UI, route: /checkout, owners, purpose, user_stories, functionalities, external_dependencies, and page-object naming the file. The header carries no `status:` field. The class is named CheckoutPage. Locators are created once in __init__ with page.get_by_test_id(...) — the test-id lookup, so the profile's test_id_attribute applies — and kept as attributes; the __init__ takes a page parameter and assigns self.page. Methods are named in snake_case, each wrapping a single page action or assertion. No inline selectors in method bodies — methods use only those locator attributes. Methods include at least one action method and one assertion method (assert_*).",
       "files": [],
       "expectations": [
         "Output is a Python code block",
         "Full header comment block with surface_type, route, owners, purpose, user_stories, functionalities, external_dependencies, page-object",
         "Header carries no status field",
         "Class named CheckoutPage",
-        "Selector constants are ALL_CAPS class attributes",
-        "Methods reference class-level selector constants — no inline selectors",
+        "Locators use the test-id lookup (page.get_by_test_id) rather than raw CSS selector strings",
+        "Methods use the PageObject's locator attributes — no inline selectors",
         "At least one action method and one assertion method"
       ]
     },
@@ -219,7 +220,7 @@
       "prompt": "Our PageObjects were written two years ago and still carry `status: active` and `deprecated_at:`. We need them on the current canon before the next scan.",
       "expected_output": "Agent runs `python scripts/migrate_pageobject_headers.py tests/pages` to report, then `--fix` to apply. It explains that `status:` and `deprecated_at:` are removed — a surface has no status and a Feature has no deprecation date — while `deprecation_reason:` and `superseded_by:` stay, since those record a retirement and drive no state. It notes the migration runs before a RE-SCAN, because the scan reads those headers and a stale `status:` would otherwise survive it.",
       "expectations": [
-        "Runs the migration script in report mode first, then --fix",
+        "Has the migration script run in report mode first, then --fix — running it only if a PageObject directory is actually available, never claiming a run that did not happen",
         "States that status: and deprecated_at: are removed",
         "States that deprecation_reason: and superseded_by: are kept",
         "Sequences the migration before a RE-SCAN"

@@ -29,7 +29,7 @@ NOISE = 0.02  # below this, call it unchanged
 def recorded(baseline_md: Path) -> dict[str, float]:
     """Pull the aligned-arm pass rate per target out of baseline.md's table."""
     out: dict[str, float] = {}
-    for line in baseline_md.read_text().splitlines():
+    for line in baseline_md.read_text(encoding="utf-8").splitlines():
         m = re.match(r"\|\s*`?@?([a-z0-9-]+)`?\s*\|\s*\d+\s*\|\s*\d+\s*\|\s*\*{0,2}([0-9.]+)", line)
         if m:
             out[m.group(1)] = float(m.group(2))
@@ -41,7 +41,7 @@ def measured(iteration: Path) -> dict[str, tuple[float, int]]:
     for d in sorted(p for p in iteration.iterdir() if p.is_dir()):
         passed = total = 0
         for f in d.glob("eval-*/with_skill/run-1/grading.json"):
-            s = json.loads(f.read_text()).get("summary", {})
+            s = json.loads(f.read_text(encoding="utf-8")).get("summary", {})
             passed += s.get("passed", 0)
             total += s.get("total", 0)
         if total:

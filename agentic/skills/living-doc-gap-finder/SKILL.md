@@ -46,7 +46,7 @@ Before presenting the final report, normalise the script output against the taxo
 - The first gap type (`UNTESTED_AC`) applies to **both User Story ACs and Functionality ACs**. If a Functionality has ACs and no linked tests, report those ACs as `UNTESTED_AC` **Blockers** (you may summarise as `FUNC-xyz has N ACs with no linked tests`) and do **not** leave the same root cause only as `UNDOCUMENTED_FUNCTIONALITY`.
 - Do **not** duplicate the same Functionality root cause as both `UNTESTED_AC` and `UNDOCUMENTED_FUNCTIONALITY` in one report. For example: `FUNC-002 has 5 ACs with no linked tests` belongs under `UNTESTED_AC` only.
 - Report documentation coverage **separately** for User Story ACs and Functionality ACs, even if the raw script output gives a combined number.
-- For `UNDOCUMENTED_SURFACE`, treat a discovered screen/API as already documented when an existing Feature clearly owns the same surface by path, name, or domain meaning (for example `/account/orders` ↔ `Account Dashboard`, `/reports/legacy` ↔ `Legacy Report Screen`). Only raise `UNDOCUMENTED_SURFACE` when no plausible owning Feature exists.
+- For `UNDOCUMENTED_SURFACE`, treat a discovered screen/API as already documented when an existing Feature clearly owns the same surface by path, name, or domain meaning (for example `/account/orders` ↔ `Account Dashboard`, `/reports/legacy` ↔ `Legacy Report Screen`). Only raise `UNDOCUMENTED_SURFACE` when no plausible owning Feature exists. Match on what the screen does, not on a shared path prefix: sibling routes can belong to different Features, so `/account/preferences` is not owned by `Account Dashboard` merely because `/account/orders` is — it is owned only if some Feature's name or purpose covers preferences.
 - **Always refer to gap types by their name** (e.g. `ORPHAN_TEST`, `UNTESTED_AC`) — never by an ordinal number (e.g. "Gap type 6"). The priority order below is for triage, not for labelling gaps in the report.
 - When a User Story has an empty `features` list, report a separate `ORPHAN_USER_STORY` finding even if other gaps already mention the same story.
 
@@ -56,7 +56,7 @@ Before presenting the final report, normalise the script output against the taxo
 
 | Mode | When to use |
 |---|---|
-| **AUDIT mode** | Full catalog audit — runs the 9-type taxonomy top-down across all entities. Use after a sprint with entity changes or when the living doc hasn’t been reviewed recently. |
+| **AUDIT mode** | Full catalog audit — runs the full gap taxonomy top-down across all entities. Use after a sprint with entity changes or when the living doc hasn’t been reviewed recently. |
 | **PLAN mode** | Bootstrap new coverage — draft ACs from PageObject descriptions or discovered UI surfaces (bottom-up). Produces `planned`-state AC drafts for user confirmation before creating entities. |
 
 Both modes use `compute_gaps.py` and the same gap taxonomy. AUDIT mode spans the full catalog; PLAN mode is scoped to the surfaces being bootstrapped.
@@ -65,20 +65,20 @@ Both modes use `compute_gaps.py` and the same gap taxonomy. AUDIT mode spans the
 
 ## Gap taxonomy
 
-Nine types of gaps are detected, in order of risk:
+Ten gap types are detected, at nine priority levels, in order of risk. Reports name each by its code:
 
 | Priority | Gap type | Description |
 |---|---|---|
-| 1 — Blocker | **Untested AC** | An `active` AC in a User Story or Functionality has no linked test. An AC that declares variant values is untested while **none** of them has a scenario. |
-| 1 — Important | **Partially tested AC** | An `active` AC that declares variant values has a scenario for some of them, not all — reported as covered/declared (e.g. 1/3) with the missing values. |
-| 2 — Important | **Undocumented UI surface** | A screen or API endpoint exists in the app with no Feature entity |
-| 3 — Important | **Feature without a User Story** | A Feature entity exists with no linked User Story |
-| 4 — Important | **Orphan User Story** | A User Story exists with no linked Feature |
-| 5 — Important | **Orphan Functionality** | A Functionality exists with no parent Feature |
-| 6 — Important | **Orphan test** | A test exists with no linked AC |
-| 7 — Important | **Stale reference** | An active test references a deprecated AC |
-| 8 — Nit | **Undocumented Functionality** | A Functionality entity exists with no associated tests |
-| 9 — Nit | **Feature without a Functionality** | A Feature entity exists with no Functionalities defined |
+| 1 — Blocker | **Untested AC** — `UNTESTED_AC` | An `active` AC in a User Story or Functionality has no linked test. An AC that declares variant values is untested while **none** of them has a scenario. |
+| 1 — Important | **Partially tested AC** — `PARTIALLY_TESTED_AC` | An `active` AC that declares variant values has a scenario for some of them, not all — reported as covered/declared (e.g. 1/3) with the missing values. |
+| 2 — Important | **Undocumented UI surface** — `UNDOCUMENTED_SURFACE` | A screen or API endpoint exists in the app with no Feature entity |
+| 3 — Important | **Feature without a User Story** — `FEATURE_WITHOUT_USER_STORY` | A Feature entity exists with no linked User Story |
+| 4 — Important | **Orphan User Story** — `ORPHAN_USER_STORY` | A User Story exists with no linked Feature |
+| 5 — Important | **Orphan Functionality** — `ORPHAN_FUNCTIONALITY` | A Functionality exists with no parent Feature |
+| 6 — Important | **Orphan test** — `ORPHAN_TEST` | A test exists with no linked AC |
+| 7 — Important | **Stale reference** — `STALE_REFERENCE` | An active test references a deprecated AC |
+| 8 — Nit | **Undocumented Functionality** — `UNDOCUMENTED_FUNCTIONALITY` | A Functionality entity exists with no associated tests |
+| 9 — Nit | **Feature without a Functionality** — `FEATURE_WITHOUT_FUNCTIONALITY` | A Feature entity exists with no Functionalities defined |
 
 > **Resolution routing:** `UNTESTED_AC` and `PARTIALLY_TESTED_AC` → `living-doc-scenario-creator`; `UNDOCUMENTED_SURFACE` / `ORPHAN_FUNCTIONALITY` / `FEATURE_WITHOUT_FUNCTIONALITY` → `living-doc-create-*`; `FEATURE_WITHOUT_USER_STORY` / `ORPHAN_USER_STORY` → `living-doc-update` (add missing link); `ORPHAN_TEST` → `gherkin-living-doc-sync`; **`STALE_REFERENCE`** → `living-doc-update` (deprecate the AC or update the test `@AC:` tag); `UNDOCUMENTED_FUNCTIONALITY` → `living-doc-scenario-creator`.
 
@@ -257,7 +257,7 @@ Living-doc-gap-finder identifies and proposes — it does not create or edit ent
       "type": "UNDOCUMENTED_SURFACE",
       "severity": "Important",
       "entity": "/account/preferences",
-      "description": "Screen /account/preferences discovered in webapp scan — no Feature entity",
+      "description": "Screen /account/preferences discovered in webapp scan — no Feature's purpose covers it (Account Dashboard owns /account/orders, not preferences)",
       "proposed_action": "Create Feature entity using living-doc-create-feature"
     }
   ]

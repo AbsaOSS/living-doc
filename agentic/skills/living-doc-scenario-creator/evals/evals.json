@@ -38,7 +38,7 @@
       "expectations": [
         "Identifies as Case A (PageObject method exists)",
         "Generates a full stub — no NotImplementedError",
-        "Names the PageObject candidate and Feature ID",
+        "Names the PageObject candidate and its Feature ID — or a visible placeholder when no source gives it, never a guessed ID",
         "Suggests the correct step file based on the domain"
       ]
     },
@@ -51,7 +51,7 @@
       "expectations": [
         "Identifies as Case B (missing PageObject method)",
         "Generates stub with raise NotImplementedError",
-        "Error message includes step text, PageObject name, Feature ID, and missing method name",
+        "Error message includes step text, PageObject name, Feature ID (a visible placeholder when not supplied) and missing method name",
         "Instructs to run living-doc-pageobject-scan (Maintain mode) for the missing method",
         "Stub will fail at runtime as intended"
       ]
@@ -72,6 +72,7 @@
       "id": 6,
       "category": "paraphrase",
       "prompt": "Write feature tests for US-007 — I need full coverage of all the acceptance criteria.",
+      "requires": ["project-fixture"],
       "expected_output": "Agent recognises this as a scenario generation request for a User Story. Loads US-007, filters to active ACs, and generates one scenario per AC. Outputs the .feature file and a coverage table. If any ACs are planned or deprecated, notes them as skipped in the coverage report.",
       "files": [],
       "expectations": [
@@ -103,7 +104,7 @@
       "expectations": [
         "Output is a gherkin code block with Feature: header",
         "Feature header uses As-a/I-can/so-that narrative",
-        "# AC: comment immediately precedes each Scenario:",
+        "Each Scenario: has its # AC: comment and @AC: tag directly above it — comment, then tag",
         "Error scenario title follows convention: '<US title> — <error condition>'",
         "Coverage table appended after the feature file"
       ]
@@ -130,7 +131,7 @@
       "files": [],
       "expectations": [
         "File-level comment block includes '# status:' plus source URL, business value, and acceptance_criteria list",
-        "@US_ID:US-007 tag immediately before Feature: keyword",
+        "@US_ID:US-007 tag is in the tag block directly above the Feature: keyword",
         "Feature: block with As-a/I-can/so-that narrative",
         "@US_ID: tag is distinct from per-scenario @AC: tags",
         "Per-scenario @AC: and # AC: appear only directly above individual Scenario: blocks"
@@ -140,12 +141,12 @@
       "id": 11,
       "category": "regression",
       "prompt": "I ran coverage_report.py and it shows AC:US-007-03 is not covered. But I have a scenario for that AC. What might be wrong?",
-      "expected_output": "The most likely causes: (1) the @AC:US-007-03 Cucumber tag is missing or misspelled on the scenario - the script matches on the machine-readable @AC: tag, not the # AC: comment; (2) the tag uses the wrong ID format (e.g. @AC:US-7-03 instead of @AC:US-007-03); (3) the feature file is not in the directory the script was pointed at. Check the @AC: tag on the scenario exactly matches the AC ID in the living doc catalog. Run: scripts/coverage_report.py <living_doc_dir> <features_dir>.",
+      "expected_output": "The most likely causes: (1) the @AC:US-007-03 Cucumber tag is missing or misspelled on the scenario - the script matches on the machine-readable @AC: tag, not the # AC: comment; (2) the tag uses a wrong ID format the matcher cannot normalise — the parent number is zero-padded before matching, so @AC:US-7-03 does count, but the two-digit suffix must match exactly (@AC:US-007-3 does not); (3) the feature file is not in the directory the script was pointed at. Check the @AC: tag on the scenario exactly matches the AC ID in the living doc catalog. Run: scripts/coverage_report.py <living_doc_dir> <features_dir>.",
       "files": [],
       "expectations": [
         "Identifies @AC: tag mismatch/missing as the most likely cause",
         "Distinguishes machine-readable @AC: tag from human-readable # AC: comment",
-        "Notes ID format must match exactly (zero-padded)",
+        "Notes the two-digit AC suffix must match exactly, while the parent number is zero-padded before matching (@AC:US-7-03 counts for AC:US-007-03)",
         "Provides the coverage_report.py command for diagnosis"
       ]
     },
@@ -180,8 +181,8 @@
       "files": [],
       "expectations": [
         "Decision: Propose replacement (not silent delete)",
-        "Generates a new candidate scenario",
-        "Shows the draft beside the existing scenario and asks for confirmation before overwriting",
+        "Proposes a new candidate scenario — from the AC text when supplied, otherwise asks for it instead of inventing it",
+        "Asks for confirmation before overwriting the existing scenario",
         "Does not auto-delete without human review"
       ]
     },
@@ -193,7 +194,7 @@
       "files": [],
       "expectations": [
         "Decision: Flag (do not add another scenario)",
-        "Lists all three scenarios instead of adding a fourth",
+        "Reviews the three existing scenarios instead of adding a fourth (naming them only if the prompt does)",
         "Asks one question: is this a valid aspect split, or should the scenarios be consolidated?"
       ]
     },
@@ -246,7 +247,7 @@
       "files": [],
       "expectations": [
         "All three ACs marked ✅ covered",
-        "Each covered entry lists the actual feature file name",
+        "Each covered entry names its feature file when the prompt supplies it, otherwise says the file name comes from the real run",
         "Summary shows 3/3 covered, 100%, 0 gaps",
         "Exits with code 0",
         "No invented file names — only real files from the scanned directory"
@@ -300,10 +301,10 @@
       "prompt": "Generate the scenarios for AC:US-042-03, which reads \"the reset link is sent to the customer's {channel}\" and declares '- channel: email, sms, push'.",
       "expected_output": "Agent generates three scenarios, one per declared value, each tagged with exactly one variant parameter using the AC's own name: '@AC:US-042-03/channel:email', '@AC:US-042-03/channel:sms', '@AC:US-042-03/channel:push'. It does not put two parameters on one tag, does not use 'aspect' as the parameter name (the AC declared a keyword, not '- Aspect:'), and does not emit a single bare '@AC:US-042-03' tag unless one scenario really covers all three values.",
       "expectations": [
-        "One scenario per declared value — three scenarios",
+        "Covers each of the three declared values — one scenario per value with its value tag, or one data-driven Scenario Outline under a bare @AC tag with one Examples row per value",
         "Each tag carries exactly one '/<param>:<value>' segment",
         "The parameter name is the AC's own keyword ('channel'), not 'aspect'",
-        "Does not collapse the three values into one tag"
+        "Never puts more than one variant value in a single tag"
       ],
       "id": 23,
       "files": []

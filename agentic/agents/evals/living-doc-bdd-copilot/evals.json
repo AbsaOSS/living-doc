@@ -5,10 +5,11 @@
       "id": 1,
       "category": "happy-path",
       "prompt": "Start a BDD session for a new project. The living doc catalog is in docs/living-doc/. The app runs at https://app.example.com. Login is required.",
-      "expected_output": "Agent assembles the Business Seed file at the discovered or default location. Sources: (A) loads Feature names and AC texts from docs/living-doc/; (B) looks for route config (Angular router, React Router, sitemap.xml); (D) checks for an existing manifest.json. Creates seed.yaml with: base_url, credentials using env: references (never literal values), known_routes from catalog Features, and an empty guided_steps list. Proposes adding BDD artifact paths to .github/copilot-instructions.md for future sessions.",
+      "requires": ["project-fixture"],
+      "expected_output": "Agent assembles the Business Seed file at the discovered or default location. Sources: (A) loads Feature names and AC texts from docs/living-doc/; (B) looks for route config (Angular router, React Router, sitemap.xml); (D) checks for an existing manifest.json. Creates seed.yaml with: base_url, credentials using env: references (never literal values), business_domains entries (route_prefix + feature_id) from catalog Features, and an empty guided_steps list. Proposes adding BDD artifact paths to .github/copilot-instructions.md for future sessions.",
       "files": [],
       "expectations": [
-        "Creates seed.yaml with base_url, credentials as env: references, and known_routes",
+        "Creates seed.yaml with app.base_url, credentials as env: references, and business_domains entries (route_prefix + feature_id) — the keys seed.schema.json defines",
         "Never stores literal credentials — always env:VAR_NAME",
         "Loads Feature names and routes from the living doc catalog (Source A)",
         "Checks for existing manifest.json before starting (Source D)",
@@ -19,6 +20,7 @@
       "id": 2,
       "category": "happy-path",
       "prompt": "Crawl the webapp and generate a PageObject for the checkout screen at /checkout.",
+      "requires": ["mcp-playwright"],
       "expected_output": "Agent navigates to /checkout via MCP Playwright. Takes a snapshot and identifies interactive elements: promo code input, confirm order button, error banner. Generates CheckoutPage with: file-level living-doc: FEAT-<nnn> | /checkout comment, ALL_CAPS selector constants using data-testid preference, __init__ or constructor taking a page parameter, and method stubs for each interactive element. Adds the surface to manifest.json. If no matching Feature entity exists, loads `living-doc-create-feature` skill to create FEAT-<nnn> before continuing. Flags any element using positional CSS selectors as fragile.",
       "files": [],
       "expectations": [
@@ -50,6 +52,7 @@
       "id": 4,
       "category": "happy-path",
       "prompt": "RE-SCAN mode — the checkout screen had a UI update. Re-validate all manifest entries and discover any new routes.",
+      "requires": ["mcp-playwright", "project-fixture"],
       "expected_output": "Agent reloads seed.yaml and manifest.json. For every existing manifest entry: navigates to the URL, snapshots the DOM, and checks each recorded component_id selector. Selectors that no longer resolve are flagged as BREAKING CHANGE. On each visited page, agent also actively discovers new routes — follows <a href> links, clicks navigation-suggesting buttons, and checks tab panels and side-nav items not yet in the manifest. New surfaces are added to manifest.json. Removed surfaces are marked as deprecated. Stale PageObject selectors are updated.",
       "files": [],
       "expectations": [
@@ -65,6 +68,7 @@
       "id": 5,
       "category": "regression",
       "prompt": "HEALING mode — the checkout test 'Scenario: Customer successfully places an order' is failing. The confirm button selector is broken.",
+      "requires": ["mcp-playwright", "project-fixture"],
       "expected_output": "Agent enters HEALING mode — scope is limited to the failing test only. Traces the failure to CheckoutPage.CONFIRM_BUTTON and the step 'When the customer confirms the order'. Navigates to /checkout via MCP Playwright, snapshots the DOM, and finds the updated selector. Updates CONFIRM_BUTTON in CheckoutPage only. Verifies the linked step definition binding still resolves. Re-runs only the previously failing test to confirm healing. Does not touch passing tests or unrelated PageObjects.",
       "files": [],
       "expectations": [
@@ -91,6 +95,7 @@
       "id": 7,
       "category": "paraphrase",
       "prompt": "Our BDD tests are all failing after the UI redesign — buttons and inputs have new IDs.",
+      "requires": ["mcp-playwright", "project-fixture"],
       "expected_output": "Agent recognises this as a HEALING mode request. Asks for the list of failing test names or scenario titles. Scopes repair to only those failing scenarios. For each failing scenario: traces to the affected PageObject, navigates to the screen via MCP Playwright, snapshots DOM to find updated selectors, and updates affected PageObject constants. Verifies step definition bindings. Re-runs only the previously failing tests. Does not touch unrelated PageObjects.",
       "files": [],
       "expectations": [
@@ -105,6 +110,7 @@
       "id": 8,
       "category": "edge-case",
       "prompt": "REMOVE mode — the legacy promo code feature has been removed from the product. Clean up the BDD artifacts.",
+      "requires": ["project-fixture"],
       "expected_output": "Agent enters REMOVE mode. Identifies all .feature files whose scenarios carry # AC: tags matching the removed promo code Feature/US IDs. Finds PageObjects referenced only by those scenarios. Finds step definitions used only by those scenarios. Presents the complete deletion list to the user for confirmation before touching any file. After confirmation: removes confirmed files, updates manifest.json to remove the deprecated entries. Loads `living-doc-update` skill to deprecate the linked US/AC entities in the catalog.",
       "files": [],
       "expectations": [
@@ -176,11 +182,11 @@
       "id": 13,
       "category": "regression",
       "prompt": "During seed assembly, the living doc catalog at docs/living-doc/ has FEAT-001 (Checkout Page) mapped to route /checkout and FEAT-002 (Account Dashboard) mapped to route /account/orders. No sitemap.xml exists. How should known_routes in seed.yaml be populated?",
-      "expected_output": "Agent loads Source A (living documentation). Extracts Feature-to-route mappings: FEAT-001 → /checkout and FEAT-002 → /account/orders. Adds both to known_routes in seed.yaml. Notes that Source B (sitemap.xml) is absent — no error is raised. Routes not listed in the living doc will be discovered dynamically during the crawl.",
+      "expected_output": "Agent loads Source A (living documentation). Extracts Feature-to-route mappings: FEAT-001 → /checkout and FEAT-002 → /account/orders. Adds both to seed.yaml as business_domains entries (route_prefix + feature_id), noting that seed.schema.json has no known_routes key. Notes that Source B (sitemap.xml) is absent — no error is raised. Routes not listed in the living doc will be discovered dynamically during the crawl.",
       "files": [],
       "expectations": [
         "Source A: Feature-to-route mappings extracted from the living doc catalog",
-        "Both routes added to known_routes in seed.yaml",
+        "Both routes added to seed.yaml as business_domains entries (route_prefix + feature_id) — seed.schema.json has no known_routes key",
         "Source B (sitemap) noted as absent — no error raised",
         "Notes that unlisted routes will be discovered dynamically during crawl"
       ]
@@ -189,6 +195,7 @@
       "id": 14,
       "category": "skill-dispatch",
       "prompt": "Run a gap analysis on our living documentation before the v3.0 release. The catalog is at docs/living-doc/.",
+      "requires": ["project-fixture"],
       "expected_output": "Agent switches to catalog-operations mode and loads the `living-doc-gap-finder` skill. Runs AUDIT mode: processes all entities and test files in docs/living-doc/, produces a gap report listing ORPHAN_TEST, STALE_REFERENCE, ORPHAN_FUNCTIONALITY, FEATURE_WITHOUT_USER_STORY, FEATURE_WITHOUT_FUNCTIONALITY, and UNDOCUMENTED_SURFACE gaps. Outputs a documentation_coverage percentage and a prioritised gap list (Blocker → Critical → Important → Nit).",
       "files": [],
       "expectations": [
@@ -217,6 +224,7 @@
       "id": 16,
       "category": "skill-dispatch",
       "prompt": "The @AC: traceability tags in checkout.feature are out of sync with the living doc. Sync them.",
+      "requires": ["project-fixture"],
       "expected_output": "Agent loads the `gherkin-living-doc-sync` skill. Runs scan_ac_links.py to audit the @AC: tags and # AC: comments across checkout.feature. For each scenario: (1) verifies the @AC: tag matches a live AC in the catalog; (2) checks the # AC: comment format is canonical; (3) flags stale or missing links. Produces a sync diff showing what changed. Does not generate new scenarios - routes new-scenario requests to living-doc-scenario-creator.",
       "files": [],
       "expectations": [
@@ -245,6 +253,7 @@
       "id": 18,
       "category": "skill-dispatch",
       "prompt": "Add missing data-cy attributes to the checkout Angular template — the PageObjects have PROPOSED locator comments.",
+      "requires": ["project-fixture"],
       "expected_output": "Agent loads the `data-cy-instrument` skill. Phase 1: scans the checkout Angular template for elements without data-cy attributes; adds data-cy='<element-name>' to each native HTML element. For third-party components that cannot forward attributes, adds a WORK_LOG.md §4 row with library name, version, and issue tracker link. Phase 3: updates CheckoutPage PageObject locators from CSS selectors to getByTestId() calls. Removes PROPOSED comments after update.",
       "files": [],
       "expectations": [
@@ -259,6 +268,7 @@
       "id": 19,
       "category": "skill-dispatch",
       "prompt": "Delete all BDD artifacts linked to the deprecated FEAT-012 feature — clean up feature files, step definitions, and PageObjects.",
+      "requires": ["project-fixture"],
       "expected_output": "Agent loads the `bdd-maintain` skill in REMOVE mode. Identifies all .feature file scenarios whose @AC: tags reference FEAT-012 User Stories. Runs find_unused_steps.py to find step definitions only used by those scenarios. Runs find_unused_po_methods.py and find_unused_po_components.py to identify exclusively-used PageObject artifacts. Presents the full deletion list to the user for confirmation before touching any file. Also checks fixtures.ts for PageObject imports to remove. After confirmation, removes the identified files.",
       "files": [],
       "expectations": [
@@ -317,6 +327,7 @@
       "id": 23,
       "category": "skill-dispatch",
       "prompt": "Generate BDD scenarios for US-007 — Place an Online Order. It has 3 active ACs and 1 planned AC.",
+      "requires": ["project-fixture"],
       "expected_output": "Agent loads the `living-doc-scenario-creator` skill. Generates a .feature file for US-007 with 3 scenarios - one per active AC. The planned AC is skipped (not generated until active). Each scenario is preceded by a '# AC:US-007-0n (v1.0.0 - active)' comment AND carries the matching '@AC:US-007-0n' tag directly above the Scenario: line — both are required. Merge policy: if a scenario already exists for an AC, applies the 4-row decision table (skip if intent matches, update if GWT is stale, propose replacement if deprecated, flag if multiple scenarios exist per AC).",
       "files": [],
       "expectations": [

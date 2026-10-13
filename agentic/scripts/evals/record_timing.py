@@ -10,8 +10,10 @@ A run killed after writing its answer but before reporting usage has no figures 
 because a zero that looks like a measurement is worse than an admitted gap.
 
 Usage:
-    record_timing.py <target_dir> <model> <eval-N>:<arm>:<tokens>:<ms> ...
-    record_timing.py <target_dir> <model> <eval-N>:<arm>:missing
+    record_timing.py <target_dir> <model> <eval-N>:<arm>[/run-K]:<tokens>:<ms> ...
+    record_timing.py <target_dir> <model> <eval-N>:<arm>[/run-K]:missing
+
+`<arm>` alone means `<arm>/run-1`; name the run when an arm has more than one.
 
 Example:
     record_timing.py $W/iteration-1/living-doc-update haiku \\
@@ -49,9 +51,11 @@ def main(argv: list[str]) -> int:
             rc = 1
             continue
 
-        matches = sorted(target.glob(f"{eval_id}-*/{arm}/run-1"))
+        arm, _, run = arm.partition("/")
+        run = run or "run-1"
+        matches = sorted(target.glob(f"{eval_id}-*/{arm}/{run}"))
         if len(matches) != 1:
-            print(f"error: {eval_id}/{arm} matched {len(matches)} run dirs", file=sys.stderr)
+            print(f"error: {eval_id}/{arm}/{run} matched {len(matches)} run dirs", file=sys.stderr)
             rc = 1
             continue
 
@@ -63,9 +67,9 @@ def main(argv: list[str]) -> int:
             data = {"model": model, "total_tokens": tokens, "duration_ms": ms,
                     "total_duration_seconds": round(ms / 1000, 1)}
 
-        (matches[0] / "timing.json").write_text(json.dumps(data, indent=2) + "\n")
-        # matches[0] is <eval-dir>/<arm>/run-1, so the eval directory is two levels up.
-        print(f"  {'MISSING ' if payload is None else 'ok      '}{matches[0].parents[1].name}/{arm}")
+        (matches[0] / "timing.json").write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+        # matches[0] is <eval-dir>/<arm>/<run>, so the eval directory is two levels up.
+        print(f"  {'MISSING ' if payload is None else 'ok      '}{matches[0].parents[1].name}/{arm}/{run}")
     return rc
 
 

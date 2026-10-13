@@ -34,12 +34,12 @@ Two modes — activate the one that matches the trigger.
 **Scope:** Only files linked to the removed entity — do not touch other Features, PageObjects, or step definitions.
 
 1. Identify the specific Feature/US/AC being removed.
-2. Find all `.feature` files whose scenarios carry an `@AC:` tag matching the removed entity's IDs, then remove those scenarios (or the whole feature file if every scenario belongs to the deprecated entity).
-3. Run `find_unused_steps.py` to find step definitions now used only by the removed scenarios; delete only those step definitions.
-4. Run `find_unused_po_methods.py` (and `find_unused_po_components.py` if needed) to confirm which PageObjects are now unused; delete only those PageObjects.
-5. Check `playwright/fixtures.ts` (or the project's fixture file) for fixture registrations that import the removed PageObjects; remove those imports plus the related fixture constructor parameters.
-6. Re-run the test suite to confirm there are no lingering references after the fixture cleanup.
-7. Confirm the full deletion list with the user before touching any file, and remove the deprecated entry from `manifest.json`. Do not restructure or regenerate the manifest — `living-doc-pageobject-scan` owns the manifest for all active entries.
+2. Find all `.feature` files whose scenarios carry an `@AC:` tag matching the removed entity's IDs. **Show that list and get the user's confirmation before touching any file**; then remove those scenarios (or the whole feature file if every scenario belongs to the deprecated entity).
+3. Run `find_unused_steps.py` to find step definitions now used only by the removed scenarios.
+4. Run `find_unused_po_methods.py` (and `find_unused_po_components.py` if needed) to find PageObjects now unused.
+5. Check `playwright/fixtures.ts` (or the project's fixture file) for fixture registrations that import those PageObjects.
+6. **Confirm the second deletion list — step definitions, PageObjects, fixture imports and constructor parameters — with the user**, then delete only those.
+7. Re-run the test suite to confirm there are no lingering references after the fixture cleanup, and remove the deprecated entry from `manifest.json`. Do not restructure or regenerate the manifest — `living-doc-pageobject-scan` owns the manifest for all active entries.
 8. If any child entities (linked User Stories, Functionalities) were not yet deprecated in the catalog, flag them and load `living-doc-update` to deprecate them now.
 
 ---
@@ -78,7 +78,7 @@ Example output format:
 
 ### 2 · `find_unused_po_methods.py` — PageObject methods never called from step files
 
-Parses every `playwright/pages/*.ts` for public method declarations (`async name(` / `name(`), then scans all step files for `.name(` call sites. Reports methods that are defined but never invoked from any step.
+Parses every `playwright/pages/*.ts` for public method declarations (`async name(` / `name(`), then scans for `.name(` call sites in every `.ts` file under the steps directory, the sibling `fixtures.ts`, and the PageObject files themselves — a method called from another PageObject or a base-class helper counts as used. Reports methods called from none of them.
 
 ```bash
 python scripts/find_unused_po_methods.py \
@@ -88,7 +88,7 @@ python scripts/find_unused_po_methods.py \
 
 ### 3 · `find_unused_po_components.py` — PageObject classes not imported anywhere
 
-Scans all exported `class` names from `playwright/pages/*.ts`, then checks every `*.steps.ts` and `fixtures.ts` for import statements. Reports classes that are defined but never imported.
+Scans all exported `class` names from `playwright/pages/*.ts`, then checks for imports of them in every `.ts` file under the steps directory, the sibling `fixtures.ts`, and the other PageObject files — a class imported by another PageObject (a wizard page importing its step sub-pages) counts as used. Reports classes imported by none of them.
 
 ```bash
 python scripts/find_unused_po_components.py \

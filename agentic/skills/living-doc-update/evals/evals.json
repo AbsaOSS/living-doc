@@ -21,8 +21,8 @@
       "expected_output": "Agent checks all promotion invariants: narrative complete, Feature linked, at least one AC exists, at least one error-path AC exists, and no TODO markers remain. Warns for each failing invariant. Blocks promotion until all invariants pass.",
       "files": [],
       "expectations": [
-        "Checks all promotion invariants: narrative complete, Feature linked, AC exists, error-path AC exists, no TODO markers",
-        "Warns for each failing invariant",
+        "Names all five promotion invariants as the gate — narrative complete, Feature linked, AC exists, error-path AC exists, no TODO markers — checking them against the entity when it is supplied",
+        "Says that any invariant that fails, or cannot be checked without the entity, blocks the promotion",
         "Blocks promotion until all invariants pass"
       ]
     },
@@ -49,7 +49,7 @@
       "expectations": [
         "Updates owners array in Feature entity JSON",
         "Adds no owner_changed_at or owner_change_reason field",
-        "Lists the Feature's non-deprecated User Stories as a handoff list",
+        "Includes a handoff list of the Feature's non-deprecated User Stories (from the catalog, or a visible placeholder when none is supplied)",
         "Does not claim the new owner was notified"
       ]
     },
@@ -93,12 +93,12 @@
       "id": 8,
       "category": "paraphrase",
       "prompt": "US-089 needs updating — we discovered a new edge case during testing: when the delivery address is outside our shipping zone, the order should be blocked with a clear message. Can you update the story?",
-      "expected_output": "Agent identifies this as an add-AC request despite 'update the story' phrasing. Assigns the next sequential AC ID. Forms the AC: Given customer with out-of-zone address / When order is placed / Then order is blocked with SHIPPING_ZONE_EXCLUDED error. Flags for gherkin-living-doc-sync if linked scenarios need updating. Outputs a change summary with the new AC.",
+      "expected_output": "Agent identifies this as an add-AC request despite 'update the story' phrasing. Assigns the next sequential AC ID. Forms the AC: Given customer with out-of-zone address / When order is placed / Then order is blocked with a clear reason (any error code labelled as a proposal). Flags for gherkin-living-doc-sync if linked scenarios need updating. Outputs a change summary with the new AC.",
       "files": [],
       "expectations": [
         "Identifies this as an add-AC request despite 'update the story' phrasing",
-        "Assigns next sequential AC ID",
-        "AC format: Given an out-of-zone delivery address / When the order is placed / Then it is blocked with a clear reason — an error code is asked for, not invented",
+        "Assigns the next sequential AC ID — or a visible <next> placeholder when no AC list or catalog is supplied, rather than guessing a number",
+        "AC format: Given an out-of-zone delivery address / When the order is placed / Then it is blocked with a clear reason — no invented error code; any code it adds is labelled as a proposal",
         "Flags for gherkin-living-doc-sync if linked scenarios need updating",
         "Outputs change summary with the new AC"
       ]
@@ -216,7 +216,7 @@
       "expectations": [
         "Lists all 7 cascade steps",
         "Step 2: update parent_feature in Functionality entities",
-        "Step 3: update feature_registry.json",
+        "Step 3: update the feature_registry entry in catalog.json",
         "Step 5: update PageObject file headers",
         "Step 6: update Gherkin # Feature: headers",
         "Step 7: run gap-finder to confirm clean state"
@@ -237,7 +237,7 @@
         "Adds the new FEAT id to feature_dependencies on the calling Functionalities (FUNC-001, FUNC-003), never on a Feature",
         "Does not re-parent FUNC-001 or FUNC-003 to the new Feature",
         "Flags the Functionalities that stubbed payment-events for test review",
-        "Names FEATURE_WITHOUT_USER_STORY and/or the derived planned state for the new Feature without inventing placeholder Functionalities",
+        "Names FEATURE_WITHOUT_USER_STORY (no gap code that does not exist) and the derived planned state for the new Feature, without inventing placeholder Functionalities",
         "Emits a change summary with the new Feature id, every entity the entry moved on, and the Functionalities flagged for test review"
       ]
     },

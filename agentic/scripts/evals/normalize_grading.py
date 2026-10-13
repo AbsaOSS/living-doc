@@ -26,7 +26,7 @@ def main(root: str) -> int:
 
     changed = skipped = 0
     for f in sorted(base.rglob("grading.json")):
-        d = json.loads(f.read_text())
+        d = json.loads(f.read_text(encoding="utf-8"))
         exps = d.get("expectations", [])
         if not exps:
             print(f"  SKIP (no expectations) {f.relative_to(base)}")
@@ -38,7 +38,7 @@ def main(root: str) -> int:
                    "pass_rate": round(passed / total, 4)}
         if d.get("summary") != summary:
             d["summary"] = summary
-            f.write_text(json.dumps(d, indent=2, ensure_ascii=False) + "\n")
+            f.write_text(json.dumps(d, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
             changed += 1
 
     print(f"normalized {changed} file(s)" + (f", {skipped} skipped" if skipped else ""))
