@@ -60,7 +60,7 @@ Feature registry format (add to your catalog JSON):
 3. Add each mapping as `{ "feature_id": "FEAT-<id>", "paths": ["<glob>"] }` under `"feature_registry"` in `catalog.json`.
 4. Re-run `trace_impact.py` to verify mappings resolve correctly against a known changed file.
 
-Maintain the registry whenever a Feature is created, renamed, or its source directory moves. The `living-doc-create-feature` and `living-doc-update` "Rename a Feature" workflows include a reminder for this step.
+Maintain the registry whenever a Feature is created, split or merged, or its source directory moves. The registry is keyed by the Feature ID, which never changes, so a plain rename leaves it alone; `living-doc-update`'s "Split or merge a Feature" workflow moves the paths to the new Features.
 
 The script handles Steps 1–2 (file classification and entity traversal). Use its output JSON
 to drive Steps 3–5 (impact classification, impact map narrative, and sign-off checklist).

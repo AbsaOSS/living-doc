@@ -220,7 +220,7 @@ If `user_stories` is `[]`, repeat the orphan warning from Step 3 outside the JSO
 | Update feature_registry for impact traceability | **living-doc-impact-analysis** (see Feature registry format in that skill) |
 | The new Feature was an `external_dependencies` entry on other Features | **living-doc-update** — "Change a Feature's dependencies" moves the entry off every Feature that named it |
 
-> **Renaming a Feature:** Changing a Feature's `id` or `name` requires cascading updates. Load `living-doc-update` and follow the "Rename a Feature" workflow there. The minimum cascade is: (1) update the Feature entity itself, (2) update every linked Functionality `parent_feature`, (3) update the `feature_registry` entry, (4) update `manifest.json`, (5) update `seed.yaml`, (6) update PageObject file headers, (7) update Gherkin feature file `# Feature:` headers, then run **living-doc-gap-finder** to confirm no orphan references remain.
+> **Renaming a Feature:** a Feature's ID never changes — not on a rename, not after it is retired, not in history; every link to the Feature goes through it. A rename changes the `name` only: load `living-doc-update` and follow its "Rename a Feature" workflow (the Feature's `name`, the Functionality names that embed it, PageObject and `# Feature:` headers, `manifest.json` / `seed.yaml`, then **living-doc-gap-finder**). A domain split or merge is not a rename: new Features get new IDs and the old one is retired with `superseded_by` — follow "Split or merge a Feature" in `living-doc-update`.
 
 ## Indentation is significant
 

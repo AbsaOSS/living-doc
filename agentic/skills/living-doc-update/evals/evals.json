@@ -211,15 +211,15 @@
       "id": 16,
       "category": "regression",
       "prompt": "I need to rename FEAT-001 (Checkout Page). What are the cascade steps?",
-      "expected_output": "Feature rename cascade — 7 steps: (1) Update the Feature entity file: change 'name' field. (Note: numeric 'id' should not be changed after creation.) (2) Update all references in Functionality entities that link to this Feature. (3) Update feature_registry.json: replace the old name with the new name under the numeric key. (4) Update manifest.json / seed.yaml: update the Feature name entry. (5) Update PageObject file headers: change '# Feature: FEAT-001' marker if it includes the human-readable name. (6) Update Gherkin feature file headers with the new name. (7) Run living-doc-gap-finder to confirm no orphan references remain.",
+      "expected_output": "Feature rename cascade — the ID FEAT-001 does not change (an entity's ID never changes, not even in history): (1) Update the Feature entity's name; the id stays FEAT-001. (2) Rename every Functionality of FEAT-001 — canon names a Functionality '<Feature name> - <verb phrase>' — while their parent_feature stays FEAT-001. (3) Update the name in PageObject file headers and Gherkin # Feature: headers. (4) Update the name in manifest.json / seed.yaml; the feature_registry is keyed by the ID and needs no change. (5) Run living-doc-gap-finder to confirm nothing still references the old name. If the user actually wants a different ID (a domain split or merge), that is the Split or merge a Feature workflow: new Features with new IDs, the old one retired with superseded_by.",
       "files": [],
       "expectations": [
-        "Lists all 7 cascade steps",
-        "Step 2: update parent_feature in Functionality entities",
-        "Step 3: update the feature_registry entry in catalog.json",
-        "Step 5: update PageObject file headers",
-        "Step 6: update Gherkin # Feature: headers",
-        "Step 7: run gap-finder to confirm clean state"
+        "Keeps the ID FEAT-001 unchanged — a rename changes the name only",
+        "Renames the Functionalities whose names embed the Feature name; their parent_feature stays FEAT-001",
+        "Leaves the feature_registry entry alone (it is keyed by the ID) apart from comments quoting the old name",
+        "Updates the name in PageObject file headers",
+        "Updates the name in Gherkin # Feature: headers",
+        "Runs gap-finder to confirm nothing still references the old name"
       ]
     },
     {

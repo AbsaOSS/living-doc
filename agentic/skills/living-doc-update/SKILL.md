@@ -41,6 +41,7 @@ If the user says "update the story" but the substance is a newly discovered edge
 | Add a linked User Story | Feature | Append to `user_stories` |
 | Add, drop, or promote a dependency | Feature / Functionality | See [Change a Feature's dependencies](#change-a-features-dependencies) — a promotion cascades across every Feature that names the dependency |
 | Deprecate a User Story or Functionality | User Story / Functionality | Set `status: deprecated`; add `deprecated_at`, `deprecation_reason`, and optionally `superseded_by` |
+| Rename a Feature | Feature | Change the `name` only — an ID never changes; see [Rename a Feature](#rename-a-feature). A split or merge creates new Features instead — see [Split or merge a Feature](#split-or-merge-a-feature) |
 | Deprecate a Feature | Feature | Add `deprecation_reason` and optionally `superseded_by` — never set a `status` field, and never author `deprecated_at`; the surface's retirement is recorded through its Functionalities being deprecated, and its state is derived from them |
 | Delete a Functionality | Functionality | Do not delete — deprecate it, and record the commit that removed the backing code as a `## Notes` bullet |
 
@@ -159,15 +160,38 @@ Rules:
 
 ## Rename a Feature
 
-Changing a Feature's `id` or `name` requires these cascading updates:
+**An entity's ID never changes — not on a rename, not after the entity is retired, not in history.**
+Every link to a Feature goes through its ID: `parent_feature`, `feature_dependencies`,
+`superseded_by`, a User Story's `features`, the `feature_registry`, PageObject headers, and references
+outside the catalog — the tracker, PRs, the test catalog. A changed ID silently breaks each of them, so
+a rename changes the `name` only:
 
-1. Update the Feature entity (`id`, `name`, and any self-referencing fields).
-2. Update `parent_feature` in every Functionality linked to this Feature.
-3. Update the `feature_registry` entry in `catalog.json` (change the `feature_id` key and any path comments).
-4. Search `manifest.json` and `seed.yaml` for the old name or ID and update.
-5. Search PageObject file headers for the old Feature reference and update.
-6. If Gherkin feature files have a `# Feature:` header with the old name, update those headers.
-7. Run `living-doc-gap-finder` to confirm no `ORPHAN_FUNCTIONALITY` gaps remain after the rename.
+1. Update the Feature entity's `name`. The `id` stays.
+2. Rename every Functionality of this Feature: canon names a Functionality `<Feature name> - <verb
+   phrase>`, so each one carries the old Feature name. Its `parent_feature` stays the same ID.
+3. Update the name in PageObject file headers and in Gherkin `# Feature:` headers that carry it.
+4. Search `manifest.json` and `seed.yaml` for the old name and update it. The `feature_registry` is
+   keyed by the ID and needs no change, apart from any comment that quotes the old name.
+5. Run `living-doc-gap-finder` to confirm nothing still references the old name.
+
+If the request is to change the ID itself — a domain split or merge, a "wrong" number, a re-numbering
+— do not; see [Split or merge a Feature](#split-or-merge-a-feature).
+
+## Split or merge a Feature
+
+When one surface becomes several (a domain split) or several become one (a merge), nothing is
+re-numbered. Create, re-parent, supersede:
+
+1. Create each new Feature by handing off to `living-doc-create-feature`, which allocates its new
+   ID.
+2. Re-parent: set `parent_feature` on each moved Functionality to its new Feature and rename it to
+   the new Feature's name; move the User Story links (`features`) and the `feature_registry` paths to
+   the new Feature(s). Each Functionality keeps its own ID, and its AC IDs with it.
+3. Retire the old Feature as in [Deprecate](#deprecate-a-feature-functionality-or-user-story):
+   `deprecation_reason`, plus `superseded_by` naming the new Feature(s). Its entry stays in the
+   catalog for good — the ID allocator counts every entity in the catalog, retired ones included, so
+   a retired ID is never handed out again; that is why entities are deprecated and never deleted.
+4. Run `living-doc-gap-finder`; flag the moved Functionalities' scenarios for `gherkin-living-doc-sync`.
 
 ## Update Feature ownership
 

@@ -222,13 +222,14 @@
       "id": 15,
       "category": "regression",
       "prompt": "I need to rename a Feature ID because the domain split. What steps do I need to follow?",
-      "expected_output": "Renaming a Feature numeric ID is not recommended after creation — numeric IDs are stable catalog identifiers. If the Feature name must change (e.g. 'Checkout Page' → 'Checkout & Payments'), update only the 'name' field, not the 'id'. The 'id' field should remain FEAT-001 (for example). Updating the name requires: (1) Update the entity file (name field only). (2) Update feature_registry to reflect the new name under the existing numeric ID. (3) Update manifest.json / seed.yaml. (4) Update PageObject file headers. (5) Update Gherkin # Feature: headers. (6) Run living-doc-gap-finder to confirm no broken references. Load living-doc-update and follow the 'Update Feature name' workflow.",
+      "expected_output": "The Feature ID is not changed — an entity's ID never changes, not on a rename, not after it is retired, not in history, because every link to the Feature goes through it. A domain split is not a rename: create each new Feature with living-doc-create-feature (it allocates new IDs), re-parent the moved Functionalities (parent_feature) and move the User Story links and feature_registry paths to the new Feature(s), then retire the old Feature with deprecation_reason and superseded_by naming the new one(s); its ID stays in the catalog and is never reused. If only the name changes, update the name field only (plus the Functionality names that embed it) via living-doc-update's Rename a Feature workflow. Run living-doc-gap-finder at the end. Routes the workflow to living-doc-update (Split or merge a Feature).",
       "files": [],
       "expectations": [
-        "Notes that numeric IDs are stable and should not change",
-        "Directs to update 'name' field only, not the 'id' field",
-        "Notes feature_registry and Functionality.parent_feature must be updated",
-        "Recommends gap-finder run at the end to confirm clean state"
+        "Says the Feature ID never changes — not on a rename and not after the Feature is retired",
+        "For a domain split, creates the new Feature(s) with new IDs and retires the old one with superseded_by naming them — does not re-number the existing Feature",
+        "Re-parents the moved Functionalities (parent_feature) and moves the User Story links and feature_registry paths to the new Feature(s)",
+        "Recommends gap-finder run at the end to confirm clean state",
+        "If only the name changes, updates the name field only — the ID stays"
       ]
     }
   ]

@@ -18,6 +18,9 @@ the defect; no eval assertion catches it reliably, because both arms read the sa
     compute_gaps.py emits.
   * bdd-maintain's REMOVE procedure deleted scenarios, steps and PageObjects in steps 2-5 and only
     asked the user to confirm the deletion list in step 7.
+  * living-doc-update's "Rename a Feature" changed the Feature's `id` with a seven-step cascade,
+    while create-feature's evals held IDs stable. Owner decision (2026-10-13): an entity's ID never
+    changes, not even in history — a rename changes the name, a split or merge supersedes.
 """
 __test__ = False  # pytest: ignore this helper script
 
@@ -115,6 +118,31 @@ def test_bdd_maintain_confirms_before_it_deletes():
     print("✓ bdd-maintain asks for confirmation before it removes or deletes anything")
 
 
+# Instructions that would change an existing entity's ID (the pre-decision rename cascade).
+ID_CHANGE = re.compile(
+    r"Changing a Feature's `id`|change the `feature_id` key|Update the Feature entity \(`id`"
+    r"|update every linked Functionality `parent_feature`",
+    re.I,
+)
+
+
+def test_entity_ids_never_change():
+    """A rename changes the name; an ID never changes, not even in history."""
+    missing = [
+        skill for skill in ("living-doc-update", "living-doc-create-feature")
+        if not re.search(r"ID never changes[^.]*not after[^.]*retired", _text(skill))
+    ]
+    assert not missing, "skill does not state that an entity's ID never changes: " + ", ".join(missing)
+    offenders = []
+    for doc in sorted(SKILLS_DIR.glob("*/SKILL.md")) + sorted(SKILLS_DIR.parent.glob("agents/*.agent.md")):
+        for line_no, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1):
+            if ID_CHANGE.search(line):
+                offenders.append(f"{doc.parent.name}/{doc.name}:{line_no}")
+    assert not offenders, "instruction to change an existing entity's ID:\n  " + "\n  ".join(offenders)
+    assert "## Split or merge a Feature" in _text("living-doc-update"), "no split/merge-by-supersede workflow"
+    print("✓ Entity IDs never change: a rename changes the name, a split or merge supersedes")
+
+
 if __name__ == "__main__":
     try:
         test_gherkin_step_examples_match_framework_scope()
@@ -123,6 +151,7 @@ if __name__ == "__main__":
         test_create_functionality_never_withholds_for_unknown_parent()
         test_gap_finder_taxonomy_names_every_script_code()
         test_bdd_maintain_confirms_before_it_deletes()
+        test_entity_ids_never_change()
         print("\n✓ All tests passed!")
     except AssertionError as e:
         print(f"✗ Test failed: {e}")

@@ -77,12 +77,33 @@ def test_empty_collection():
     print("✓ Empty FEAT collection returns FEAT-001")
 
 
+def test_retired_id_is_never_reused():
+    """An ID stays taken after its entity is retired — static even in history.
+
+    Entities are deprecated, never deleted, so a deprecated or superseded entity still sits in
+    the catalog, and the allocator must count it. Handing out FEAT-003 again would make one ID name
+    two surfaces across history, and every old link to it would silently point at the new one.
+    """
+    catalog = {
+        "features": [
+            {"id": "FEAT-001", "name": "Checkout Page"},
+            {"id": "FEAT-002", "name": "Payments API"},
+            {"id": "FEAT-003", "name": "Legacy Cart", "deprecation_reason": "Split into FEAT-001 and FEAT-002",
+             "superseded_by": ["FEAT-001", "FEAT-002"]},
+        ]
+    }
+    next_id = next_entity_id(catalog, "FEAT")
+    assert next_id == "FEAT-004", f"Expected FEAT-004 (FEAT-003 is retired, not free), got {next_id}"
+    print("✓ A retired Feature's ID is never handed out again")
+
+
 if __name__ == "__main__":
     try:
         test_numeric_feat_ids()
         test_us_numeric_ids()
         test_func_numeric_ids()
         test_empty_collection()
+        test_retired_id_is_never_reused()
         if not test_slug_based_feat_ids_raise_error():
             sys.exit(1)
         print("\n✓ All tests passed!")
