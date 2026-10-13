@@ -1,0 +1,236 @@
+{
+  "skill_name": "living-doc-create-feature",
+  "evals": [
+    {
+      "id": 1,
+      "category": "happy-path",
+      "prompt": "I want to document the Checkout Page as a Feature entity.",
+      "expected_output": "Agent identifies surface type as UI. Asks for: purpose and scope (what user interactions it owns), linked User Stories, known Functionalities, owners, external dependencies. Asks for the catalog to allocate the ID through next_id.py; since the prompt supplies no catalog, it outputs a canonical Feature JSON with id=FEAT-PENDING (never an invented number), surface_type=UI, user_stories=[] and functionalities=[] with the orphan/candidate warnings, owners, and external_dependencies including payment-gateway and order-service.",
+      "files": [],
+      "expectations": [
+        "Identifies surface_type as UI for a web page",
+        "Asks what user interactions the screen owns",
+        "Asks for User Story links",
+        "Asks for Functionalities owned by this Feature",
+        "Asks for owners and external dependencies",
+        "Takes the ID from next_id.py when a catalog is available; with none (as here) asks for it and uses the FEAT-PENDING placeholder — no invented number",
+        "Does not fabricate user_stories or functionalities links absent catalog evidence",
+        "Notes: 1 Feature ≈ 1 PageObject"
+      ]
+    },
+    {
+      "id": 2,
+      "category": "happy-path",
+      "prompt": "I want to document the Orders API as a Feature.",
+      "expected_output": "Agent identifies surface_type as API. Asks for endpoint group description, linked User Stories, owned Functionalities, team owners, and external dependencies (e.g. order-db, notification-service). Runs next_id.py to get the next Feature ID from the catalog. Outputs Feature JSON with id=FEAT-002 (or next numeric ID), surface_type=API.",
+      "files": [],
+      "expectations": [
+        "surface_type is API",
+        "Purpose describes the API endpoint group in business terms",
+        "Outputs valid canonical Feature JSON"
+      ]
+    },
+    {
+      "id": 3,
+      "category": "regression",
+      "prompt": "My Feature entity has no User Stories linked and no Functionalities. Is that OK?",
+      "expected_output": "Agent warns: a Feature with no linked User Story with no User Stories and no Functionalities contributes no traceable business value. A Feature has no `status` field to flag it as exploratory with. Either link to at least one User Story once one exists, or delete it if it is no longer relevant. Notes that a Feature without a User Story is reported by living-doc-gap-finder as a FEATURE_WITHOUT_USER_STORY condition.",
+      "files": [],
+      "expectations": [
+        "Warns about Feature with no linked User Story",
+        "Does not suggest a Feature status field (Features have none)",
+        "Notes a Feature without a User Story is reported as a FEATURE_WITHOUT_USER_STORY condition in gap reports"
+      ]
+    },
+    {
+      "id": 4,
+      "category": "happy-path",
+      "prompt": "Should I name my Feature 'Process Payment' or 'Payment Page'?",
+      "expected_output": "Feature names should be nouns — they identify a system surface. 'Payment Page' is correct. 'Process Payment' is a verb phrase that describes a Functionality or an action, not a surface. The naming rule: if it can be a PageObject class name, it's a good Feature name.",
+      "files": [],
+      "expectations": [
+        "Recommends noun name 'Payment Page'",
+        "Explains that verb phrases (Process Payment) belong to Functionalities",
+        "Mentions PageObject class naming as an alignment check"
+      ]
+    },
+    {
+      "id": 5,
+      "category": "negative",
+      "prompt": "Create a User Story for the checkout capability.",
+      "expected_output": "User Story creation — routes to living-doc-create-user-story. This skill creates Feature entities (system surfaces), not User Stories.",
+      "files": [],
+      "expectations": [
+        "Does not create a User Story",
+        "Routes to living-doc-create-user-story"
+      ]
+    },
+    {
+      "id": 6,
+      "category": "paraphrase",
+      "prompt": "I want to add the Notification Service to the living doc as a system component. Where do I start?",
+      "expected_output": "Agent identifies this as a Feature entity creation (system surface). Asks: only UI and API exist — does it expose a REST/GraphQL endpoint with an annotated endpoint method, or a message-broker topic (e.g. Kafka) with an AsyncAPI (or equivalent) annotation on the producer/consumer handler (either is its API contract anchor), or is it purely topic/queue-driven with no such annotation at all? What User Stories does it enable? What Functionalities does it own? Who are the owners? What are the external dependencies (SMTP relay, template store)? If it exposes an annotated endpoint or an annotated event handler, runs next_id.py and outputs a canonical Feature JSON with id=FEAT-001 (or next numeric ID), surface_type=API documenting that contract, owners, and external_dependencies — with user_stories=[] and functionalities=[] plus the orphan/candidate warnings, since the prompt supplies no catalog relationship data. If it is purely topic/queue-driven with no annotation at all, explains it has no UI/API test-abstraction anchor yet and should instead be recorded as an external_dependencies entry on the Features that use it, rather than created as a Feature itself.",
+      "files": [],
+      "expectations": [
+        "Identifies this as a Feature creation request despite 'system component' phrasing",
+        "Asks for surface_type, noting only UI and API exist",
+        "Distinguishes an annotated REST/GraphQL endpoint or an AsyncAPI-annotated event handler (surface_type=API) from an unannotated topic/queue-driven contract (no Feature)",
+        "Asks for User Story links, owners, and external dependencies",
+        "Outputs valid canonical Feature JSON only when an annotated endpoint or event handler exists",
+        "Does not fabricate a User Story link absent catalog evidence"
+      ]
+    },
+    {
+      "id": 7,
+      "category": "edge-case",
+      "prompt": "We have a shared utility library used by three different services. Should it be documented as a Feature entity?",
+      "expected_output": "A shared utility library is never a Feature — only UI and API surface_type values exist, and a library has neither a screen nor a public API contract. Document it as an external_dependency in the Feature entities of the services that consume it, however substantial the library is. Note: Features map 1:1 to deployable/distinct UI or API surfaces — shared libraries are infrastructure, not surfaces.",
+      "files": [],
+      "expectations": [
+        "Advises against creating a Feature for a shared utility library, regardless of size",
+        "Recommends listing it as external_dependency in consumer Feature entities",
+        "Does not offer a surface_type=Library option",
+        "Explains the 1:1 Feature-to-surface mapping rule"
+      ]
+    },
+    {
+      "id": 8,
+      "category": "output-format",
+      "prompt": "Create a Feature entity for the 'User Profile' screen in our banking app. It is owned by team-identity and depends on the customer-service API.",
+      "expected_output": "The output contains a single fenced ```json code block with a valid Feature entity. The JSON object includes all required fields: type, id, name, surface_type, purpose, user_stories, functionalities, owners, external_dependencies. There is no `status` field — a Feature's state is derived from its Functionalities, never authored. The id field: no catalog is supplied, so the id is the FEAT-PENDING placeholder with a note to allocate it through next_id.py before saving — never an invented number. The surface_type value is UI or API — this is a screen, so surface_type=UI. No prose appears inside the JSON code block.",
+      "files": [],
+      "expectations": [
+        "Single fenced ```json code block",
+        "All required fields present: type, id, name, surface_type, purpose, user_stories, functionalities, owners, external_dependencies",
+        "No `status` field in the JSON",
+        "id: no catalog is supplied, so the id is the FEAT-PENDING placeholder with a note to allocate it through next_id.py before saving — never an invented number",
+        "surface_type is UI or API (surface_type=UI for this screen)",
+        "No prose inside the code block"
+      ]
+    },
+    {
+      "id": 9,
+      "category": "file-based",
+      "description": "Create a Feature entity from rough notes provided as a markdown file.",
+      "prompt": "Read evals/files/raw-feature-notes.md and produce a canonical Feature entity JSON from the notes.",
+      "expected_output": "Agent extracts the surface type, purpose, owners, and dependencies from the notes and produces a Feature entity JSON in a fenced ```json block. The notes carry no catalog, so the id is the FEAT-PENDING placeholder, to be allocated through next_id.py before saving. The surface_type, owners, and external_dependencies fields are populated from the file content. user_stories and functionalities are empty arrays with a warning that they must be linked.",
+      "files": [
+        "evals/files/raw-feature-notes.md"
+      ],
+      "expectations": [
+        "Feature entity JSON in fenced ```json block",
+        "id is not derived from the name: with no catalog it is the FEAT-PENDING placeholder, never an invented number or a slug",
+        "surface_type, owners, external_dependencies populated from file",
+        "user_stories and functionalities are empty arrays with a linking warning"
+      ]
+    },
+    {
+      "id": 10,
+      "category": "regression",
+      "prompt": "I want to document a Feature called 'Spring Payment Controller'. Is that a good Feature name?",
+      "expected_output": "No. Feature names should describe the business surface, not the technology stack. 'Spring Payment Controller' encodes an implementation detail (Spring framework) that changes without the business surface changing. Use 'Payment API' (surface_type=API) instead. The test: if the tech stack changed to Node.js, would the Feature name still be accurate? 'Payment API' would be — 'Spring Payment Controller' would not.",
+      "files": [],
+      "expectations": [
+        "Flags technology-encoded name as an anti-pattern",
+        "Recommends the technology-agnostic business surface name (e.g. Payment API)",
+        "Explains the rule: Feature names describe surfaces, not stack",
+        "Notes that technology detail changes without the surface changing"
+      ]
+    },
+    {
+      "id": 11,
+      "category": "edge-case",
+      "prompt": "I'm documenting our OrdersController — a Spring REST controller that handles GET /orders and POST /orders. Should surface_type be 'UI'?",
+      "expected_output": "No. A REST controller is an API surface, not a UI surface. surface_type should be 'API'. UI is reserved for screens that a human interacts with directly (e.g. a web page or modal). Misclassifying a REST endpoint as UI breaks impact analysis routing between frontend and backend changes. Use surface_type='API' with a name like 'Orders API'.",
+      "files": [],
+      "expectations": [
+        "Corrects surface_type from UI to API",
+        "Explains: UI is for screens humans interact with directly",
+        "Notes that misclassification breaks impact analysis routing",
+        "Recommends the correct name: Orders API"
+      ]
+    },
+    {
+      "id": 12,
+      "category": "happy-path",
+      "prompt": "Document a Feature for our PaymentEventProcessor — an asynchronous worker that listens on a Kafka topic and processes payment events in the background.",
+      "expected_output": "Agent explains that only UI and API surface types exist, and that a message-broker topic now qualifies as an API contract when its producer/consumer handler carries an AsyncAPI (or equivalent schema-registry) annotation — a bare topic name alone is not a canonical anchor. Agent asks whether PaymentEventProcessor's Kafka consumer handler is documented via AsyncAPI (or equivalent). If yes, agent treats that annotated handler as the API contract anchor and drafts a Feature with surface_type='API' (e.g. 'Payment Event Processor API'). If no such annotation exists yet, agent does NOT create a Feature entity for it, and instead recommends recording the Kafka topic as an external_dependencies entry on the Feature(s) that publish to or consume it, noting that annotating the handler is what would unlock Feature-level tracking.",
+      "files": [],
+      "expectations": [
+        "Recognizes a Kafka/message-broker topic documented via AsyncAPI (or equivalent) as a valid API contract anchor, not just REST/GraphQL",
+        "Asks whether the producer/consumer handler carries an AsyncAPI (or equivalent) annotation",
+        "If annotated: drafts a Feature with surface_type=API anchored on that handler",
+        "If not annotated: does not create a Feature and recommends recording the topic as an external_dependencies entry instead",
+        "Does not treat the bare topic name alone (unannotated) as a canonical anchor"
+      ]
+    },
+    {
+      "id": 13,
+      "category": "regression",
+      "prompt": "I have these candidate behaviors for a Feature: 'validate cart', 'apply promo', 'confirm order'. Should I add them to the functionalities field right now?",
+      "expected_output": "No. Candidate Functionalities that have not yet been formally defined as FUNC-<nnn> entities must not be listed in the functionalities array. The functionalities field only accepts formally registered FUNC-<nnn> IDs. While these are still informal notes, leave functionalities as [] and note the candidates externally. Use living-doc-create-functionality to formally define each one before linking it here.",
+      "files": [],
+      "expectations": [
+        "Instructs to leave functionalities as [] for unregistered candidates",
+        "Explains: functionalities field only accepts formal FUNC-<nnn> IDs",
+        "Does not list the candidates inside the JSON functionalities array",
+        "Points to living-doc-create-functionality as the next step"
+      ]
+    },
+    {
+      "id": 14,
+      "category": "regression",
+      "prompt": "Two teams both want to create a Feature called 'Payment Page'. How should I handle the naming conflict?",
+      "expected_output": "Identical Feature names indicate a merge candidate or a scope overlap — always check for duplicates before creating. If both teams are documenting the same screen/surface, consolidate into a single Feature with both teams as co-owners. If the surfaces are genuinely different (e.g. a customer-facing payment form vs an admin reconciliation screen), disambiguate the names (e.g. 'Customer Payment Page' vs 'Admin Payment Reconciliation Screen') and clarify the boundary. Creating two Features with identical names breaks impact analysis and makes traceability ambiguous.",
+      "files": [],
+      "expectations": [
+        "Identifies duplicate name as a naming conflict anti-pattern",
+        "Offers two paths: merge if same surface, disambiguate if different surfaces",
+        "Warns that identical names break impact analysis and traceability",
+        "Notes that FEAT ID must also be unique"
+      ]
+    },
+    {
+      "id": 16,
+      "category": "regression",
+      "prompt": "Create a new Feature entity for the 'Notifications Centre' screen. The catalog already contains FEAT-001 through FEAT-011.",
+      "expected_output": "No catalog file is supplied, so next_id.py cannot run. The agent takes the next ID after the stated range, FEAT-012, and labels it as derived from the prompt, not allocated by the script; it runs python scripts/next_id.py --type FEAT --catalog catalog.json only if a catalog file is actually present. The agent assigns id='FEAT-012'. The agent does NOT invent an ID, reuse an existing ID, or leave the id field as a placeholder such as FEAT-XXX or FEAT-<nnn>. The final JSON contains a fully populated numeric id field before being presented to the user.",
+      "files": [],
+      "expectations": [
+        "Takes the next ID from the stated range — or runs next_id.py --type FEAT if a catalog file is actually available — instead of guessing",
+        "Assigns FEAT-012, the next ID after the stated FEAT-001 to FEAT-011 range",
+        "Does not invent, guess, or reuse an ID",
+        "Does not leave a placeholder (FEAT-XXX, FEAT-<nnn>, FEAT-unknown)",
+        "Final JSON has a fully populated id field",
+        "Does not write 'Ran: ... next_id.py' unless the command was actually executed — an ID taken from a stated catalog range is labelled as derived, not as allocated by the script"
+      ]
+    },
+    {
+      "id": 17,
+      "category": "regression",
+      "prompt": "Create a Feature entity for the 'Payment Page'. The catalog file is not present — next_id.py cannot be run. What should the agent do?",
+      "expected_output": "Agent cannot auto-assign a numeric ID without a catalog. It asks the user: 'The catalog file is missing. Please provide the path to catalog.json or explicitly specify which numeric ID should be assigned (e.g., FEAT-001).' It still emits the starter draft with id='FEAT-PENDING' and says the ID must be allocated before saving. The agent does NOT fall back to slug IDs or invent numeric IDs.",
+      "files": [],
+      "expectations": [
+        "Falls back to asking for catalog path or explicit ID, does not invent a slug",
+        "Any real ID it names is numeric (FEAT-nnn); the draft itself carries the FEAT-PENDING placeholder, never a slug",
+        "Warns the user to verify no collision before saving",
+        "Does not invent a numeric ID without catalog evidence"
+      ]
+    },
+    {
+      "id": 15,
+      "category": "regression",
+      "prompt": "I need to rename a Feature ID because the domain split. What steps do I need to follow?",
+      "expected_output": "The Feature ID is not changed — an entity's ID never changes, not on a rename, not after it is retired, not in history, because every link to the Feature goes through it. A domain split is not a rename: create each new Feature with living-doc-create-feature (it allocates new IDs), re-parent the moved Functionalities (parent_feature) and move the User Story links and feature_registry paths to the new Feature(s), then retire the old Feature with deprecation_reason and superseded_by naming the new one(s); its ID stays in the catalog and is never reused. If only the name changes, update the name field only (plus the Functionality names that embed it) via living-doc-update's Rename a Feature workflow. Run living-doc-gap-finder at the end. Routes the workflow to living-doc-update (Split or merge a Feature).",
+      "files": [],
+      "expectations": [
+        "Says the Feature ID never changes — not on a rename and not after the Feature is retired",
+        "For a domain split, creates the new Feature(s) with new IDs and retires the old one with superseded_by naming them — does not re-number the existing Feature",
+        "Re-parents the moved Functionalities (parent_feature) and moves the User Story links and feature_registry paths to the new Feature(s)",
+        "Recommends gap-finder run at the end to confirm clean state",
+        "If only the name changes, updates the name field only — the ID stays"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "User Story",
+  "id": "US-042",
+  "name": "Reset account password",
+  "status": "planned",
+  "as_a": "registered customer",
+  "i_want": "reset my password using my email address",
+  "so_that": "I can regain access to my account if I forget my password",
+  "features": ["FEAT-001"],
+  "acceptance_criteria": [
+    {
+      "id": "AC:US-042-01",
+      "description": "Happy path: password reset email is sent",
+      "given": "the customer is on the forgot password page",
+      "when": "the customer enters their registered email address and submits",
+      "then": "a password reset email is sent and the customer sees a confirmation message",
+      "priority": "critical",
+      "type": "happy_path"
+    }
+  ]
+}

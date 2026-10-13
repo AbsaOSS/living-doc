@@ -1,0 +1,10 @@
+# Pinned dependency for the skill-format validator (see .github/workflows/agentic-tests.yml,
+# job `skill-lint`). Kept apart from requirements-agentic-tests.txt on purpose: skills-ref
+# declares `requires-python = ">=3.11"`, so installing it would break the 3.10 leg of the test
+# matrix. This is maintainer tooling — it validates SKILL.md folders and says nothing about the
+# Python a skill's own scripts need.
+#
+# The package is `skills-ref`; the command it installs is `agentskills` (its only console
+# script, `skills_ref.cli:main`). There is no `skills-ref` executable — the install instruction
+# inherited from agentic-toolkit's CONTRIBUTING.md named one and was wrong.
+skills-ref==0.1.1

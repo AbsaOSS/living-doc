@@ -1,0 +1,263 @@
+---
+name: living-doc-create-feature
+description: >
+  Define a system surface (UI screen, or API endpoint including a backend service's public
+  contract) as a Feature entity for impact analysis and traceability. Use when documenting a
+  new screen, API, or backend service, or mapping surfaces to User Stories.
+  Triggers on: "document a new feature", "create a feature entity", "new screen documentation",
+  "document an API endpoint", "system surface documentation", "what feature owns this",
+  "map user story to feature", "add feature registry entry", "feature owners",
+  "new feature's dependencies", "duplicate feature name", "resolve feature naming".
+  NOT for: User Stories (living-doc-create-user-story), behaviors
+  (living-doc-create-functionality), PageObject scans (living-doc-pageobject-scan), changing
+  an existing Feature: owners, dependencies, rename, registry, deprecation (living-doc-update).
+  Pairs with living-doc-create-functionality and living-doc-create-user-story; after creating,
+  add a feature_registry entry for living-doc-impact-analysis.
+license: Apache-2.0
+---
+
+# Living Doc — Create Feature
+
+> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md)).
+> **BDD schemas:** PageObject file header schema — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md)).
+
+## Step 1 — Identify the system surface
+
+Before asking, **scan the conversation context** for a surface name, surface type, and owning team already stated by the user. If the prompt already gives enough information to draft the entity, infer the obvious details and propose the Feature directly instead of blocking on follow-up questions. Ask only for what is still missing or ambiguous.
+
+If the user asks to **create/document/add** a named Feature, do **both** in the same reply:
+1. Ask only the missing follow-up questions.
+2. Still emit a **starter Feature draft immediately** — never stop at questions only.
+
+When information is missing, phrase the discovery as a short numbered checklist that explicitly covers every missing category:
+1. purpose/scope (*what does it own / not own?*)
+2. User Story links
+3. Functionalities
+4. owners
+5. external dependencies
+6. surface type, if still ambiguous
+
+When details are missing but the surface name makes the domain obvious, infer a sensible starter draft instead of blocking — purpose, `surface_type`, and `external_dependencies` can be inferred confidently from the surface name. `user_stories` and `functionalities` are the exception: leave them `[]` unless the catalog already contains the linked entity (see Step 3 and Step 4). Common examples:
+- `Checkout Page` → `surface_type: "UI"`; dependencies often include `payment-gateway` and `order-service`.
+- `Orders API` / REST controller → `surface_type: "API"`; dependencies often include `order-db` and `notification-service`.
+- `Notification Service` / async notification worker → if it exposes a REST/GraphQL endpoint with an annotated endpoint method, or a message-broker contract (e.g. a Kafka topic) with an AsyncAPI (or equivalent schema-registry) annotation on the producer/consumer handler, `surface_type: "API"` documenting that contract; do **not** simply mirror the word "Service" into `surface_type` — there is no separate `Service` or `Worker` type. If it has neither an annotated endpoint method nor an annotated event handler, it has no canonical test-abstraction anchor yet (see table below) — do **not** create a Feature for it; instead record it as an `external_dependencies` entry on the Feature(s) that publish to or consume it. Dependencies often include `smtp-relay` and `template-store`.
+- `PaymentEventProcessor` / event consumer on a Kafka topic → ask whether the producer/consumer handler carries an AsyncAPI (or equivalent schema-registry) annotation. If it does, that annotated handler is the `API` contract anchor — create the Feature with `surface_type: "API"`. If the topic contract is not yet annotated, it has no canonical test-abstraction anchor: do **not** create a Feature for it; record the topic as an `external_dependencies` entry on the Feature(s) that publish or consume it, and note that annotating the handler (AsyncAPI or equivalent) is what unlocks Feature-level tracking.
+
+Ask only for what is missing: *What system surface does this Feature represent?*
+
+Select the surface type — only two exist, and each is paired with a matching test abstraction that anchors it as a Feature:
+
+| Type | Examples | Eventual test-abstraction anchor |
+|---|---|---|
+| `UI` | A web page, modal, or named screen (e.g. Checkout Page, Login Screen) | A PageObject for the screen — create it together with the Feature (e.g. via `living-doc-pageobject-scan`) if it doesn't exist yet |
+| `API` | A REST/GraphQL endpoint or endpoint group, including a backend service's public contract (e.g. Orders API, Payment Gateway API), or a message-broker topic (e.g. Kafka) documented via an AsyncAPI (or equivalent) specification | An **annotated endpoint method** (OpenAPI annotation, JSDoc, etc.) for request/response, or an **annotated event handler** (AsyncAPI or equivalent schema-registry annotation on the producer/consumer) for event-driven — either serves as the living contract anchor, see [living-doc-glossary](../shared/references/living-doc-glossary.md) |
+
+A surface where the anchor is not even achievable — for example a pure event consumer or async worker whose topic/queue contract carries no AsyncAPI (or equivalent) annotation — is **not** a Feature yet. Document it as an `external_dependencies` entry on the Feature(s) that interact with it until the contract is formally annotated. A UI or API surface whose anchor simply hasn't been built yet is still a valid Feature — create the Feature and its anchor together rather than blocking on sequencing.
+
+Feature names should be **noun phrases** that name the surface. If it could plausibly be a PageObject or service/module class name (for example `PaymentPage`), it is usually a good Feature name.
+
+**One surface test abstraction ≈ one Feature** — a UI screen has a PageObject, an API endpoint group has an annotated endpoint method. See [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md)) for details.
+
+## Step 2 — Describe purpose and scope
+
+Ask:
+- *What user interactions or system calls does this Feature own?*
+- *What does it NOT own?* (helps define boundaries)
+
+Write a one-to-two sentence purpose statement using business language — not implementation detail.
+
+## Step 3 — Link to User Stories
+
+Ask: *Which User Stories rely on this Feature?*
+
+If unknown at creation time, leave empty `[]` but warn:
+
+> "A Feature with no linked User Story contributes no traceable business value.
+> Link at least one User Story once one exists — a Feature has no `status` field to mark it
+> exploratory with.
+> A Feature without a User Story is reported as a `FEATURE_WITHOUT_USER_STORY` condition in living-doc-gap-finder reports."
+
+## Step 4 — Enumerate Functionalities
+
+Ask: *What atomic behaviors (Functionalities) does this Feature implement?*
+
+Functionalities can be empty at creation time — they are built out as development proceeds.
+Add as `"functionalities": ["FUNC-<name>"]` references only when the Functionality has been
+formally defined. If they are described as informal notes or candidates (not yet registered as
+FUNC entries), leave the array as `[]` and add a warning:
+> "Candidate Functionalities must be formally defined using **living-doc-create-functionality**
+> before being linked here."
+
+## Step 5 — Identify owners and dependencies
+
+| Field | What to capture |
+|---|---|
+| `owners` | Team name(s) or individual(s) responsible for this surface |
+| `external_dependencies` | Services or systems this Feature calls that are **not** documented Features (e.g. payment-gateway, order-service) |
+
+`external_dependencies` is no longer the only place a dependency is recorded. Before writing a name into it, check whether the catalog already documents that system as a Feature:
+- **Not a documented Feature** — no canonical anchor, so nothing in the catalog can carry its contract. Record it here, by name.
+- **Already a documented `API` Feature** — leave it out of `external_dependencies`. The call is a `feature_dependencies` edge, authored on the Functionality that makes the call, not on this Feature (whose value is derived from its Functionalities). Note the target's `FEAT-<nnn>` for `living-doc-create-functionality`, or for `living-doc-update` if the calling Functionality already exists. See [living-doc-glossary — Functionality](../shared/references/living-doc-glossary.md#functionality-func).
+
+For starter drafts, prefer **provisional inferred values** over empty strings when the domain is obvious:
+- `owners`: always emit an array, even for one owner: `["team-identity"]`
+- `external_dependencies`: infer the systems this kind of surface typically calls (e.g. `payment-gateway`, `order-service`), minus any the catalog already documents as a Feature
+
+`user_stories` and `functionalities` are never fabricated: use `[]` unless the catalog already contains the linked entity (see Step 3 and Step 4), and pair `[]` with the orphan/candidate warnings from those steps.
+
+## Step 6 — Output canonical Feature entity
+
+> **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`. A `../<skill-name>/scripts/…` path is another installed skill's script, since skills install as sibling directories.
+
+> **ID assignment:** Feature IDs must be numeric and assigned from the catalog using
+> `scripts/next_id.py`. Always run:
+> ```bash
+> python scripts/next_id.py --type FEAT --catalog catalog.json
+> ```
+> and use the returned ID (for example `FEAT-012`) in the Feature entity.
+>
+> If no catalog is available or the script cannot run, ask the user for the catalog path **and
+> still emit the starter draft**, with `"id": "FEAT-PENDING"` — never a guessed number. Say that
+> the ID must be allocated with `next_id.py` before saving; `validate_entity.py` rejects
+> `FEAT-PENDING`, so the draft cannot reach the catalog by mistake. Slug-based Feature IDs
+> (e.g. `FEAT-checkout-page`) are **not** supported by the ID auto-assigner — Feature IDs are
+> always numeric.
+>
+> **Only claim a command ran if it ran.** This holds for every script this skill names —
+> `next_id.py`, `validate_entity.py` and any other: never write `Ran:`, an exit code or script
+> output for a command you did not execute. Write
+> `Ran: python scripts/next_id.py --type FEAT --catalog catalog.json -> FEAT-012`
+> when that command was actually executed and `FEAT-012` was its output — never otherwise. If you
+> could not run a validation, say it still has to be run, not that it passed.
+>
+> If the prompt merely *states* a numeric catalog range (for example "the catalog already contains
+> FEAT-001 through FEAT-011"), take the next ID in that range and say where it came from:
+> `Next ID in the stated range: FEAT-012 (derived from the prompt, not allocated by next_id.py)`.
+> A reviewer must be able to tell a computed ID from a derived one; a decorative `Ran:` line destroys
+> exactly that distinction, which is the whole value of the trace.
+
+Output the entity as a **single fenced `json` code block** whenever you have enough information to draft it. The block must contain **only** the JSON object — no prose, no bullets, no warnings inside the fence. The literal first line of the block must be ````json` and the closing line must be ``` . Code fences are required plain text, not optional formatting. Keep any warnings or follow-up questions **outside** the code block. If the user gives a named surface but not all metadata, ask the missing questions and still include a starter draft in the same reply, using inferred purpose/surface type/external_dependencies, and `[]` for `user_stories`/`functionalities` unless the catalog already backs the link. A Feature never carries a `status` field — its state is derived from its Functionalities, never authored. If the request explicitly asks to create the entity from the given details, emit the draft immediately.
+
+Use this exact output shape for create/document requests:
+- Optional brief line with only the missing questions.
+- Then one fenced `json` block containing only:
+  - `type`
+  - `id`
+  - `name`
+  - `surface_type`
+  - `purpose`
+  - `user_stories`
+  - `functionalities`
+  - `owners`
+  - `external_dependencies`
+- Then any warnings or follow-up lines **after** the code fence closes.
+
+  Literal example:
+  ```json
+  {
+    "type": "Feature",
+    "id": "FEAT-001",
+    "name": "Example Surface",
+    "surface_type": "UI",
+    "purpose": "Business-language summary of the surface responsibility.",
+    "user_stories": [],
+    "functionalities": [],
+    "owners": ["team-example"],
+    "external_dependencies": ["example-service"]
+  }
+  ```
+
+  Do not replace the fenced block with raw JSON. Do not emit `owners` as a string. Use a spaced noun phrase for the `name` field (for example `Payment Event Processor`, not `PaymentEventProcessor`).
+
+Worked starter patterns:
+- `Checkout Page` starter links: explicitly ask *What user interactions does it own? Which User Stories rely on it? What Functionalities does it own? Who owns it? What external dependencies does it call?* Run next_id.py to get the numeric ID, then use `id: "FEAT-001"` (or next number), `user_stories: []` and `functionalities: []` unless the catalog already contains the linked entities (repeat the Step 3/Step 4 warnings), `owners: ["team-checkout"]`, `external_dependencies: ["payment-gateway", "order-service"]`
+- `Orders API` starter links: `user_stories: []`, `functionalities: []` unless the catalog already contains the linked entities
+- `Notification Service` starter draft: explicitly ask: *Does it expose a REST/GraphQL endpoint (e.g. a trigger-notification call), or a message-broker topic with an annotated event handler (a producer/consumer documented via AsyncAPI or an equivalent schema-registry annotation)? Which User Stories rely on it? What Functionalities does it own? Who owns it? What are the external dependencies (SMTP relay, template store, message broker, etc.)?* If it exposes either an annotated endpoint method or an annotated event handler, run next_id.py to get the numeric ID, then emit a Feature JSON with `surface_type: "API"` documenting that contract (the REST/GraphQL endpoint, or the AsyncAPI-annotated producer/consumer handler), `user_stories: []` and `functionalities: []` unless the catalog already contains the linked entities, `owners: ["team-notifications"]`, and `external_dependencies: ["smtp-relay", "template-store"]`. Only if the prompt still describes purely asynchronous alert delivery with **neither** an annotated endpoint **nor** an annotated event handler (no documented AsyncAPI/schema-registry contract at all) after those questions, do **not** create a Feature — explain there is no `UI`/`API` test-abstraction anchor for it, and record it as an `external_dependencies` entry on the Feature(s) that publish to or consume it instead.
+
+Canonical JSON fields:
+
+| Field | Required | Value |
+|---|---|---|
+| `type` | Yes | `Feature` |
+| `id` | Yes | `FEAT-NNN` (zero-padded numeric ID from catalog, e.g. `FEAT-001`) |
+| `name` | Yes | Noun phrase (e.g. "Login Page") |
+| `surface_type` | Yes | `UI` \| `API` |
+| `purpose` | Yes | One-to-two sentence description in business language |
+| `user_stories` | Yes | List of `US-<...>` IDs (use `[]` if unknown) |
+| `functionalities` | Yes | List of `FUNC-<...>` IDs (use `[]` if unknown or still only candidates) |
+| `owners` | Yes | Team name(s) |
+| `external_dependencies` | Yes | Names of services or systems this Feature calls that are not documented Features — a documented `API` target is a `feature_dependencies` edge on the calling Functionality instead |
+
+If `user_stories` is `[]`, repeat the orphan warning from Step 3 outside the JSON. If `functionalities` is `[]` because they are still just candidate notes, repeat the formal-definition warning from Step 4 outside the JSON.
+
+## Anti-patterns to flag
+
+| Anti-pattern | Warning |
+|---|---|
+| Feature covers multiple unrelated screens | Split into one Feature per distinct screen |
+| Feature name is a verb (e.g. "Process Payment") | Feature names should be nouns — name the surface. Verb phrases describe *what the surface does*, which belongs in a Functionality entity (use **living-doc-create-functionality**). If it could be a PageObject or service/module class name, it is usually a better Feature name. |
+| Feature has no User Stories and no Functionalities | A Feature without a User Story — it contributes no traceable business value. Link at least one User Story once one exists, or delete it if it is no longer relevant. A Feature has no `status` field to flag it as exploratory with; living-doc-gap-finder reports it as a `FEATURE_WITHOUT_USER_STORY` condition instead. |
+| Shared utility library documented as a Feature | A shared utility library is never a Feature — there is no `surface_type` for it (only `UI` and `API` exist). Document it as an `external_dependency` on the consumer Features instead, however substantial it is. Features should map 1:1 to distinct/deployable UI or API surfaces. |
+| Feature name encodes implementation technology (e.g. "React Login Component", "Spring Payment Controller") | Feature names describe the business surface, not the stack. Use "Login Screen" (UI) or "Payment API" (API) — technology choice is an implementation detail that changes without the surface changing. |
+| `surface_type` is `UI` for a backend REST controller or service | A REST endpoint group is an `API` surface. `UI` is reserved for screens a human interacts with directly. Misclassification breaks impact analysis routing between frontend and backend changes. |
+| Feature shares a name with an existing Feature | Check for duplicates before creating. Identical names indicate a merge candidate or a scope overlap — clarify the boundary before proceeding. |
+| `functionalities` field contains User Story IDs (US-nnn) | `functionalities` takes `FUNC-<nnn>` IDs. User Stories are linked under `user_stories`, not here. |
+
+## Out-of-scope routing
+
+| Request type | Use instead |
+|---|---|
+| Creating a User Story | **living-doc-create-user-story** |
+| Defining an atomic behavior (Functionality) | **living-doc-create-functionality** |
+
+## Next steps after creation
+
+| Action | Skill |
+|---|---|
+| Define atomic behaviors for this Feature | **living-doc-create-functionality** |
+| Link to an existing User Story | **living-doc-update** (add Feature to the User Story's `features` list) |
+| Generate BDD PageObjects for a UI Feature | **living-doc-pageobject-scan** |
+| Update feature_registry for impact traceability | **living-doc-impact-analysis** (see Feature registry format in that skill) |
+| The new Feature was an `external_dependencies` entry on other Features | **living-doc-update** — "Change a Feature's dependencies" moves the entry off every Feature that named it |
+
+> **Renaming a Feature:** a Feature's ID never changes — not on a rename, not after it is retired, not in history; every link to the Feature goes through it. A rename changes the `name` only: load `living-doc-update` and follow its "Rename a Feature" workflow (the Feature's `name`, the Functionality names that embed it, PageObject and `# Feature:` headers, `manifest.json` / `seed.yaml`, then **living-doc-gap-finder**). A domain split or merge is not a rename: new Features get new IDs and the old one is retired with `superseded_by` — follow "Split or merge a Feature" in `living-doc-update`.
+
+## Indentation is significant
+
+A header is read part by part, and indentation decides where each part ends. Full rule:
+[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+writing one:
+
+- **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and
+  no marker is not read, and the file is reported.
+- **A key sits at the key level**, the indent of the header's first key. A line shaped `key:`
+  any deeper is content of the part above it, never a new key.
+- **A deeper line belongs to the item above it** — wrapped text or a nested item, never a
+  sibling and never a new key.
+- **One criterion level.** Every `AC:` line sits at the same indent, the first one setting it
+  (template: 2), with nothing but spaces after the `# `.
+- **A one-token value takes one line** — a state, a date, an id, a URL, a route, a file name, a
+  surface type. A further line under it is not read.
+- **Nest only in a bullet-list field** (`business_value`, `preconditions`, `not_in_scope`,
+  `rationale`, `notes`) — never in an id-list field (`user_stories`, `functionalities`,
+  `feature_dependencies`, `parent`, `superseded_by`), which holds one id per entry.
+- **A blank line is layout**: it ends nothing — not an item, not a key, not a criterion.
+- Indent with spaces. Levels are relative, so no column is fixed, and a flat layout where
+  items sit at their key's own indent stays valid.
+
+## Script — `validate_entity.py`
+
+After outputting the entity, validate it against the canonical schema before saving to the catalog. Do not save the entity if the script exits with code 1.
+
+```bash
+# Validate the output (run from the toolkit root)
+python ../living-doc-update/scripts/validate_entity.py entity.json
+
+# With referential integrity checks against the full catalog
+python ../living-doc-update/scripts/validate_entity.py entity.json --catalog catalog.json
+
+# Enforce the project's AC state vocabulary (reads `ac_states` from the Project Profile)
+python ../living-doc-update/scripts/validate_entity.py entity.json --profile .copilot/bdd/.project-profile.yaml
+```
+
+Exits 0 if valid (warnings are non-blocking). Exits 1 if any required field is missing, the ID format is wrong, or the `surface_type` value is invalid.

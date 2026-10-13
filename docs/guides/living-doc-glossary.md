@@ -4,7 +4,7 @@ Core entity contracts: IDs, status vocabulary, relationships, and AC format. Eve
 
 For the file-header schemas that carry these entities (feature file headers, PageObject headers, Project Profile, seed.yaml, manifest.json), see [Living Doc Header Types](living-doc-header-types.md).
 
-> **Source of truth.** This page is the canonical definition of the entity model. `agentic-toolkit`'s `skills/shared/references/living-doc-glossary.md` is synced from it.
+> **Source of truth.** This page is the canonical definition of the entity model. The agentic layer's copy, `agentic/skills/shared/references/living-doc-glossary.md`, is generated from it at the same commit by `agentic/scripts/sync-canon-copies.sh`; CI fails if the two differ.
 
 > **Worked examples & sync obligation.** A minimal, copyable example of each entity lives in
 > [`docs/examples/`](../examples/README.md). When a field or rule on this page changes, the matching

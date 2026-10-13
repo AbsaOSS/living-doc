@@ -1,0 +1,184 @@
+#
+# Copyright 2026 ABSA Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: "Agentic layer tests"
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - "agentic/**"
+      - "docs/guides/living-doc-glossary.md"
+      - "docs/guides/living-doc-header-types.md"
+      - ".github/workflows/agentic-tests.yml"
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    paths:
+      - "agentic/**"
+      - "docs/guides/living-doc-glossary.md"
+      - "docs/guides/living-doc-header-types.md"
+      - ".github/workflows/agentic-tests.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # The canon copies under agentic/skills/shared/references/ are generated from this same
+  # commit's docs/ by agentic/scripts/sync-canon-copies.sh and none is hand-maintained. Re-run
+  # the script and fail on any difference: a hand edit to a copy cannot survive this, and neither
+  # can a canon change that did not regenerate the copies — which is why the two canon pages are
+  # in the paths filter above.
+  canon-sync-check:
+    name: Canon copies match this commit's docs/
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Regenerate every canon copy
+        run: bash agentic/scripts/sync-canon-copies.sh all
+
+      - name: Fail if a committed copy differs from what the script generates
+        run: |
+          set -euo pipefail
+
+          if ! git diff --exit-code -- agentic/skills/shared/references/; then
+            echo
+            echo "A canon copy under agentic/skills/shared/references/ does not match what" >&2
+            echo "agentic/scripts/sync-canon-copies.sh generates from this commit's docs/." >&2
+            echo "Run: bash agentic/scripts/sync-canon-copies.sh all — then commit the result." >&2
+            exit 1
+          fi
+
+          echo "All canon copies match this commit's docs/."
+
+  script-tests:
+    name: Script tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.10 is the ecosystem's floor (living-doc-utilities declares requires-python >=3.10)
+        # and a skill's scripts run under whatever interpreter the user's project has; 3.14 is
+        # what every other workflow in this repository uses. Both ends are tested.
+        python-version: [ "3.10", "3.14" ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install pinned test requirements
+        run: pip install -r agentic/requirements-agentic-tests.txt
+
+      # These are standalone scripts, not pytest tests: each asserts in plain functions and exits
+      # non-zero from its own __main__ block, and each carries `__test__ = False`, so a bare
+      # `pytest` collects none of them and would report success. Discover and run each one.
+      - name: Discover and run every test_*.py under agentic/skills
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -euo pipefail
+
+          mapfile -t test_files < <(find agentic/skills -type f -name "test_*.py" | sort)
+
+          if [ "${#test_files[@]}" -eq 0 ]; then
+            echo "No test_*.py files found under agentic/skills/ — nothing to run." >&2
+            exit 1
+          fi
+
+          echo "Found ${#test_files[@]} test file(s):"
+          printf '  %s\n' "${test_files[@]}"
+          echo
+
+          failures=()
+          for f in "${test_files[@]}"; do
+            echo "::group::$f"
+            if ! python "$f"; then
+              failures+=("$f")
+            fi
+            echo "::endgroup::"
+          done
+
+          echo
+          if [ "${#failures[@]}" -ne 0 ]; then
+            echo "FAILED (${#failures[@]}/${#test_files[@]}):" >&2
+            printf '  %s\n' "${failures[@]}" >&2
+            exit 1
+          fi
+
+          echo "All ${#test_files[@]} test file(s) passed."
+
+  skill-lint:
+    name: Skill format validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      # skills-ref requires Python >= 3.11, so this job cannot share the 3.10 leg of the matrix
+      # above. It validates the SKILL.md folder format only — it imposes nothing on the Python a
+      # skill's scripts run under.
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install the pinned skill-format validator
+        run: pip install -r agentic/requirements-skill-lint.txt
+
+      - name: Validate every skill folder
+        run: |
+          set -euo pipefail
+
+          mapfile -t skills < <(find agentic/skills -mindepth 1 -maxdepth 1 -type d | sort)
+
+          if [ "${#skills[@]}" -eq 0 ]; then
+            echo "No skill folders found under agentic/skills/." >&2
+            exit 1
+          fi
+
+          failures=()
+          for s in "${skills[@]}"; do
+            echo "::group::$s"
+            if ! agentskills validate "$s"; then
+              failures+=("$s")
+            fi
+            echo "::endgroup::"
+          done
+
+          echo
+          if [ "${#failures[@]}" -ne 0 ]; then
+            echo "Skill format validation FAILED (${#failures[@]}/${#skills[@]}):" >&2
+            printf '  %s\n' "${failures[@]}" >&2
+            exit 1
+          fi
+
+          echo "All ${#skills[@]} skill folder(s) valid."
