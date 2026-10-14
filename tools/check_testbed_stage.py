@@ -31,11 +31,17 @@ the checkout at run time. ``core`` asserts, on the artifacts ``living-doc-collec
 - every scenario in the checkout is mined, and every ``@AC:`` tag is a link with the tag's value;
   every link resolves to a declared AC and every value to one of that AC's values, and a tag's
   parameter is ``aspect`` on an ``Aspect:`` AC or the AC's own keyword;
-- every keyword AC carries its keyword's values as ``aspect``;
-- a ``.feature`` file outside the living-doc folders contributes no entity and no AC link.
+- every AC carries the values its header declares, by ``Aspect:`` or by keyword, as ``aspect``, and
+  names its keyword, if any, in ``placeholder_values``;
+- a ``.feature`` file outside the living-doc folders contributes no entity and no AC link;
+- the checkout holds at least one of each construct these invariants are about, so none passes on
+  nothing.
+
+The checkout is read the way the collector reads it: ``tutorial*`` folders and ``@tutorial`` files
+and scenarios are skipped, a wrapped id list is joined before it is split, and ``none`` is no id.
 
 ``case`` asserts what a derived problem case (``integration/testbed_cases.py``) must report: one
-warning, of its code, in the file it changed.
+warning, of its code, at the line it changed.
 
 Runs in the ``collector-gh`` venv that ``tools/collector-gh.sh`` builds: it imports nothing but the
 standard library and ``living-doc-utilities``, which that venv holds through the collector's own
@@ -44,7 +50,7 @@ standard library and ``living-doc-utilities``, which that venv holds through the
 Usage:
     python tools/check_testbed_stage.py core <output-root> <testbed-checkout> \\
         --us <dir> --func <dir> --pages <dir> --scenarios <dir>   # each dir relative to the checkout
-    python tools/check_testbed_stage.py case <output-root> <code> <changed-file>
+    python tools/check_testbed_stage.py case <output-root> <code> <line> <changed-file>
 """
 
 from __future__ import annotations
@@ -63,10 +69,21 @@ from living_doc_utilities.contracts.io import read_artifact
 
 # An `AC:<id> (…)` declaration in a .feature file's header comment.
 _AC_DECLARATION_RE = re.compile(r"^#\s*AC:(?P<id>\S+)\s*\(")
+# A header comment line's `#` leader and the one space after it; the rest of the indent is the line's level.
+_COMMENT_LEADER_RE = re.compile(r"^#+ ?")
+# A `{<name>}` in an AC's text: what makes a `- <name>: <values>` bullet the AC's keyword.
+_PLACEHOLDER_RE = re.compile(r"\{(?P<name>[^{}]+)\}")
+# An AC bullet `<name>: <values>`: `Aspect:`, `Rationale:` or a keyword candidate.
+_NAMED_BULLET_RE = re.compile(r"^(?P<name>.+?):\s*(?P<values>.+)$")
 # A scenario: Gherkin's scenario keywords, `Example:` (singular) among them; `Examples:` is a table, not one.
 _SCENARIO_RE = re.compile(r"^\s*(?:Scenario|Scenario Outline|Scenario Template|Example)\s*:")
 # A scenario tag `@AC:<id>[/<param>:<value>]`.
 _AC_TAG_RE = re.compile(r"^@AC:(?P<id>[^/\s]+)(?:/(?P<param>[^:/\s]+):(?P<value>[^/\s]+))?$")
+# One tag on a tag line.
+_TAG_TOKEN_RE = re.compile(r"@\S+")
+# A tutorial walkthrough is not living doc: a file tagged with it above `Feature:`, or a scenario tagged with it.
+_TUTORIAL_TAG = "@tutorial"
+_FEATURE_LINE_RE = re.compile(r"^\s*Feature:")
 # A PageObject header line once its ` * ` gutter is gone: `key: value`, at the header's own level.
 _HEADER_KEY_RE = re.compile(r"^(?P<key>[a-z][a-z0-9_-]*):[ \t]*(?P<value>.*)$")
 # The marker every PageObject header names in its banner (`LIVING DOC — <id> · <title>`).
@@ -101,6 +118,8 @@ class Checkout:
     entity_files: dict[str, str] = field(default_factory=dict)
     # native_id -> the AC ids its header declares.
     declared_acs: dict[str, list[str]] = field(default_factory=dict)
+    # AC id -> its variant declaration: `aspect` for `Aspect:`, else the keyword's folded name, and its values.
+    variants: dict[str, tuple[str, list[str]]] = field(default_factory=dict)
     cross_references: list[CrossReference] = field(default_factory=list)
     # Every .feature file under the scenario folder, and each one's number of scenarios.
     scenario_files: list[str] = field(default_factory=list)
@@ -164,6 +183,94 @@ def _bullets(lines: list[str]) -> list[str]:
     return items
 
 
+def _id_list(value: str, nested: list[str]) -> list[str]:
+    """A comma-separated id list, its wrapped lines joined to it with one space; `none` is no id."""
+    joined = " ".join(part for part in (line.strip() for line in [value, *nested]) if part)
+    if joined.lower() == "none":
+        return []
+    return [item.strip() for item in joined.split(",") if item.strip()]
+
+
+def _fold(name: str) -> str:
+    """A variant keyword's name as the canon compares it: case-insensitive, `-`, `_` and space equal."""
+    return re.sub(r"[-_ ]", "_", name.lower())
+
+
+def _ac_items(block: list[str]) -> list[str]:
+    """An AC block's bullets at its first bullet's level, a wrapped line deeper than its `-` joined with one space;
+    a key at that level (`preconditions:`) and the lines under it are not bullets."""
+    items: list[str] = []
+    level, in_item = None, False
+    for line in block:
+        text = line.lstrip()
+        if not text:
+            continue
+        indent = len(line) - len(text)
+        level = indent if level is None else level
+        if indent <= level:
+            in_item = text.startswith("- ")
+            if in_item:
+                items.append(text[2:].strip())
+        elif in_item:
+            items[-1] = f"{items[-1]} {text}"
+    return items
+
+
+def _ac_variants(header: list[str]) -> dict[str, tuple[str, list[str]]]:
+    """Each declared AC's variant declaration, as the canon spells it: `- Aspect: <values>`, or
+    `- <name>: <values>` when the AC's text (its first bullet) names `{<name>}`. An AC with neither is left out."""
+    lines = [_COMMENT_LEADER_RE.sub("", line, count=1) for line in header]
+    variants: dict[str, tuple[str, list[str]]] = {}
+    for index, line in enumerate(header):
+        declaration = _AC_DECLARATION_RE.match(line)
+        if declaration is None:
+            continue
+        level = len(lines[index]) - len(lines[index].lstrip())
+        block = []
+        for deeper in lines[index + 1:]:
+            if deeper.strip() and len(deeper) - len(deeper.lstrip()) <= level:
+                break
+            block.append(deeper)
+        text, *bullets = _ac_items(block) or [""]
+        placeholders = {_fold(match.group("name")) for match in _PLACEHOLDER_RE.finditer(text)}
+        for bullet in bullets:
+            match = _NAMED_BULLET_RE.match(bullet)
+            if match is None:
+                continue
+            # `Aspect:` and `Rationale:` are reserved; any other name is a keyword only when the AC's text names it.
+            raw = match.group("name")
+            if raw == "Aspect":
+                name = "aspect"
+            elif raw != "Rationale" and _fold(raw) in placeholders - {"aspect"}:
+                name = _fold(raw)
+            else:
+                continue
+            variants[declaration.group("id")] = (name, [value.strip() for value in match.group("values").split(",")])
+            break
+    return variants
+
+
+def _is_under_tutorial(path: Path, root: Path) -> bool:
+    """True when the scan root, or a folder between it and the file, is a `tutorial*` folder: not living doc."""
+    return any(part.lower().startswith("tutorial") for part in (root.name, *path.relative_to(root).parts[:-1]))
+
+
+def _feature_files(root: Path) -> list[Path]:
+    """The `.feature` files the collector reads under a scan root: every one outside a `tutorial*` folder."""
+    return [path for path in sorted(root.rglob("*.feature")) if not _is_under_tutorial(path, root)]
+
+
+def _is_tutorial_file(lines: list[str]) -> bool:
+    """True when a tag line above `Feature:` carries `@tutorial`."""
+    for line in lines:
+        if _FEATURE_LINE_RE.match(line):
+            return False
+        stripped = line.strip()
+        if stripped.startswith("@") and _TUTORIAL_TAG in stripped.split():
+            return True
+    return False
+
+
 def read_checkout(root: Path, us: str, func: str, pages: str, scenarios: str) -> Checkout:
     """Reads what the checkout authors under the collector's folders, each relative to ``root``,
     the way the collector discovers it: every ``.feature`` file under a folder, every ``.ts`` file
@@ -174,12 +281,13 @@ def read_checkout(root: Path, us: str, func: str, pages: str, scenarios: str) ->
         return path.relative_to(root).as_posix()
 
     for folder, entity_type in ((us, "DocumentedUserStory"), (func, "DocumentedFunctionality")):
-        for path in sorted((root / folder).rglob("*.feature")):
+        for path in _feature_files(root / folder):
+            header = _comment_header(path.read_text(encoding="utf-8"))
             checkout.entity_files[native_id(path)] = entity_type
             checkout.declared_acs[native_id(path)] = [
-                match.group("id") for line in _comment_header(path.read_text(encoding="utf-8"))
-                if (match := _AC_DECLARATION_RE.match(line))
+                match.group("id") for line in header if (match := _AC_DECLARATION_RE.match(line))
             ]
+            checkout.variants.update(_ac_variants(header))
 
     for path in sorted((root / pages).rglob("*.ts")):
         block = _page_header(path.read_text(encoding="utf-8"))
@@ -194,36 +302,40 @@ def read_checkout(root: Path, us: str, func: str, pages: str, scenarios: str) ->
         checkout.cross_references.append(CrossReference(
             native_id=native_id(path),
             parent_feat=parent[0],
-            functionalities=[item.strip() for item in functionalities[0].split(",") if item.strip()]
-            if functionalities else [],
+            functionalities=_id_list(*functionalities) if functionalities else [],
             notes=_bullets(notes[1]) if notes else [],
         ))
 
     living_doc_folders = [(root / us).resolve(), (root / func).resolve()]
-    for path in sorted((root / scenarios).rglob("*.feature")):
+    for path in _feature_files(root / scenarios):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        if _is_tutorial_file(lines):
+            continue
         file_id = native_id(path)
         checkout.scenario_files.append(file_id)
         if not any(path.resolve().is_relative_to(folder) for folder in living_doc_folders):
             checkout.outside.append(file_id)
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if line.lstrip().startswith("#"):
+        # A tag line's tags belong to the scenario right below them; any other construct drops them.
+        pending: list[str] = []
+        for line in lines:
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
                 continue
-            if _SCENARIO_RE.match(line):
+            if stripped.startswith("@"):
+                pending.extend(_TAG_TOKEN_RE.findall(stripped))
+                continue
+            if _SCENARIO_RE.match(line) and _TUTORIAL_TAG not in pending:
                 checkout.scenarios[file_id] += 1
-            for token in line.split():
-                if token.startswith("@AC:"):
-                    match = _AC_TAG_RE.match(token)
-                    checkout.tags.append(AcTag(file_id, *(match.group("id", "param", "value") if match
-                                                          else (token, None, None))))
+                for token in pending:
+                    if token.startswith("@AC:"):
+                        match = _AC_TAG_RE.match(token)
+                        checkout.tags.append(AcTag(file_id, *(match.group("id", "param", "value") if match
+                                                              else (token, None, None))))
+            pending = []
     return checkout
 
 
 # --- The checks ------------------------------------------------------------------------------------------------------
-
-
-def _fold(name: str) -> str:
-    """A variant keyword's name as the canon compares it: case-insensitive, `-`, `_` and space equal."""
-    return re.sub(r"[-_ ]", "_", name.lower())
 
 
 def _describe(warning) -> str:
@@ -311,13 +423,18 @@ def check_doc_source(result, checkout: Checkout, failures: list[str]) -> dict:
         if mined != sorted(names):
             failures.append(f"doc-source: {feature_id} pages are {mined}, expected {sorted(names)}")
 
+    # Each AC's variants against its header: `aspect` holds the declared values, by `Aspect:` or by its keyword,
+    # and `placeholder_values` names the keyword, or nothing on an `Aspect:` AC or an AC with no variants.
     acs = {ac.id: ac for entity in entities for ac in entity.acceptance_criteria}
-    for ac in acs.values():
-        if ac.placeholder_values:
-            values = list(ac.placeholder_values.values())
-            if len(values) != 1 or ac.aspect != values[0]:
-                failures.append(f"doc-source: AC:{ac.id} aspect is {ac.aspect}, expected its keyword's values "
-                                f"{ac.placeholder_values}")
+    for ac_id in sorted(ac_id for declared in checkout.declared_acs.values() for ac_id in declared):
+        if ac_id not in acs:
+            continue
+        ac = acs[ac_id]
+        declaration, values = checkout.variants.get(ac_id, ("no variants", []))
+        keywords = [declaration] if ac_id in checkout.variants and declaration != "aspect" else []
+        if ac.aspect != values or [_fold(name) for name in ac.placeholder_values] != keywords:
+            failures.append(f"doc-source: AC:{ac_id} aspect is {ac.aspect} by keyword {list(ac.placeholder_values)}, "
+                            f"its header declares {values} by {declaration}")
     return acs
 
 
@@ -349,15 +466,14 @@ def check_ui_tests(result, checkout: Checkout, acs: dict, failures: list[str]) -
         if native_id in checkout.outside:
             failures.append(f"ui-tests: {native_id} is outside the living-doc folders and links AC:{link.id}")
 
+    # A tag's parameter is the name its AC's header declares the variants by: `aspect`, or the keyword.
     for tag in checkout.tags:
-        ac = acs.get(tag.ac_id)
-        if tag.param is None or ac is None:
+        if tag.param is None:
             continue
-        keywords = [_fold(name) for name in ac.placeholder_values]
-        expected = keywords or ["aspect"]
-        if _fold(tag.param) != expected[0] or len(expected) != 1:
+        expected = checkout.variants.get(tag.ac_id, ("no variant declaration", []))[0]
+        if _fold(tag.param) != expected:
             failures.append(f"ui-tests: {tag.native_id} tags AC:{tag.ac_id} with '{tag.param}', expected "
-                            f"'{'/'.join(expected)}'")
+                            f"'{expected}'")
 
 
 def check_core(output_root: Path, testbed: Path, us: str, func: str, pages: str, scenarios: str) -> int:
@@ -371,22 +487,44 @@ def check_core(output_root: Path, testbed: Path, us: str, func: str, pages: str,
     if ui_tests is not None and doc_source is not None:
         check_ui_tests(ui_tests, checkout, acs, failures)
 
+    types = Counter(checkout.entity_files.values())
+    declarations = Counter("Aspect" if name == "aspect" else "keyword" for name, _ in checkout.variants.values())
+    tags = Counter("bare" if tag.param is None else "aspect" if _fold(tag.param) == "aspect" else "keyword"
+                   for tag in checkout.tags if tag.param is not None or tag.ac_id in checkout.variants)
+    outside_scenarios = sum(checkout.scenarios[native_id] for native_id in checkout.outside)
+    # At least one of each construct an invariant is about: an emptied folder only logs a collector message, and
+    # both sides empty would pass every comparison above. A floor, not core's counts, which are read at run time.
+    for construct, count in (
+        ("User Story", types["DocumentedUserStory"]),
+        ("Functionality", types["DocumentedFunctionality"]),
+        ("Feature", types["DocumentedFeature"]),
+        ("cross-reference page", len(checkout.cross_references)),
+        ("cross-reference page with notes", sum(1 for reference in checkout.cross_references if reference.notes)),
+        ("cross-reference page with functionalities",
+         sum(1 for reference in checkout.cross_references if reference.functionalities)),
+        ("keyword AC", declarations["keyword"]),
+        ("Aspect: AC", declarations["Aspect"]),
+        ("aspect tag", tags["aspect"]),
+        ("keyword tag", tags["keyword"]),
+        ("bare tag on an AC with variants", tags["bare"]),
+        ("scenario outside the living-doc folders", outside_scenarios),
+    ):
+        if count == 0:
+            failures.append(f"nothing to assert: the checkout has no {construct}")
+
     if failures:
         print(f"testbed core: {len(failures)} invariant(s) failed")
         for failure in failures:
             print(f"  FAIL {failure}")
         return 1
 
-    types = Counter(checkout.entity_files.values())
-    keyword_acs = [ac for ac in acs.values() if ac.placeholder_values]
-    variant_acs = {ac.id for ac in acs.values() if ac.aspect}
-    outside_scenarios = sum(checkout.scenarios[native_id] for native_id in checkout.outside)
     print(f"  OK: {len(checkout.entity_files)} entities, one per file: {types['DocumentedUserStory']} User Stories "
           f"(.feature files under {us}), {types['DocumentedFunctionality']} Functionalities (under {func}), "
           f"{types['DocumentedFeature']} Features (full-header PageObjects under {pages}), every Feature state "
           f"derived")
-    print(f"      {len(acs)} acceptance criteria (the AC: declarations in those headers): {len(variant_acs)} with "
-          f"variants, {len(keyword_acs)} of them by keyword, each carrying its keyword's values as aspect")
+    print(f"      {len(acs)} acceptance criteria (the AC: declarations in those headers): {len(checkout.variants)} "
+          f"with variants, {declarations['Aspect']} by Aspect: and {declarations['keyword']} by keyword, each "
+          f"carrying its declared values as aspect")
     print(f"      {len(checkout.cross_references)} cross-reference pages (PageObjects with parent-feat:), each a "
           f"non-primary page on its Feature with its own functionalities and notes; every primary page is its "
           f"Feature's full-header file")
@@ -394,31 +532,30 @@ def check_core(output_root: Path, testbed: Path, us: str, func: str, pages: str,
           f"{len(checkout.scenario_files)} .feature files under {scenarios}), {outside_scenarios} of them in "
           f"{len(checkout.outside)} file(s) outside the living-doc folders, with no entity and no AC link")
     print(f"      {len(checkout.tags)} AC links (the @AC: tags in those files), all resolved: "
-          f"{sum(1 for tag in checkout.tags if tag.param and _fold(tag.param) == 'aspect')} aspect tags, "
-          f"{sum(1 for tag in checkout.tags if tag.param and _fold(tag.param) != 'aspect')} keyword tags, "
-          f"{sum(1 for tag in checkout.tags if tag.param is None and tag.ac_id in variant_acs)} bare tag(s) on an "
-          f"AC with variants (aspect: null)")
+          f"{tags['aspect']} aspect tags, {tags['keyword']} keyword tags, {tags['bare']} bare tag(s) on an AC with "
+          f"variants (aspect: null)")
     print("      warnings: none")
     return 0
 
 
-def check_case(output_root: Path, code: str, changed: Path) -> int:
+def check_case(output_root: Path, code: str, line: int, changed: Path) -> int:
     failures: list[str] = []
     result = _read(output_root, "doc-source", failures)
     if result is not None:
         for warning in result.warnings:
             print(f"    {_describe(warning)}")
         # `path` is relative to the scan root the file was found under, so it is a suffix of the changed file.
-        located = [warning for warning in result.warnings if warning.code == code and warning.path
-                   and changed.as_posix().endswith(f"/{warning.path}")]
+        located = [warning for warning in result.warnings if warning.code == code and warning.line_no == line
+                   and warning.path and changed.as_posix().endswith(f"/{warning.path}")]
         if len(result.warnings) != 1 or len(located) != 1:
-            failures.append(f"doc-source: expected exactly one warning, {code} in {changed.name}; got "
-                            f"{[f'{warning.code} in {warning.path}' for warning in result.warnings]}")
+            got = [f"{warning.code} at line {warning.line_no} of {warning.path}" for warning in result.warnings]
+            failures.append(f"doc-source: expected exactly one warning, {code} at line {line} of {changed.name}; "
+                            f"got {got}")
     if failures:
         for failure in failures:
             print(f"  FAIL {failure}")
         return 1
-    print(f"  OK: exactly one {code}, in {changed.name}")
+    print(f"  OK: exactly one {code}, at line {line} of {changed.name}")
     return 0
 
 
@@ -433,11 +570,12 @@ def main(argv: list[str]) -> int:
     case = commands.add_parser("case", help="the one warning a derived case must report")
     case.add_argument("output_root", type=Path)
     case.add_argument("code")
+    case.add_argument("line", type=int, help="the 1-based line the case changed")
     case.add_argument("changed", type=Path)
     args = parser.parse_args(argv)
     if args.command == "core":
         return check_core(args.output_root, args.testbed, args.us, args.func, args.pages, args.scenarios)
-    return check_case(args.output_root, args.code, args.changed)
+    return check_case(args.output_root, args.code, args.line, args.changed)
 
 
 if __name__ == "__main__":

@@ -49,8 +49,9 @@ CORE="projects/core"
 US_PATHS="$CORE/tests/e2e/features/liv_doc_us"
 FUNC_PATHS="$CORE/tests/e2e/features/liv_doc_func"
 PAGES_PATHS="$CORE/tests/e2e/pages"
-# The whole test tree, not only the living-doc folders: a folder outside living doc (`smoke/`) is read the way a team
-# pointing the collector at its tests would have it read, so "contributes no entity and no AC link" tests something.
+# `ui-tests` reads the whole test tree, not only the living-doc folders: a folder outside living doc (`smoke/`) is read
+# the way a team pointing the collector at its tests would have it read, so "no AC link" tests something. "No entity"
+# holds by configuration: no `doc-source` path above names `smoke/`.
 SCENARIO_PATHS="$CORE/tests/e2e/features"
 
 WORK_DIR="$(mktemp -d)"
@@ -104,20 +105,26 @@ check() {
 
 failed=0
 
+# A run or a case that cannot finish fails the stage and moves on, so the testbed write check below still runs.
 echo "==> mining $CORE (project-id $PROJECT_ID)"
-mine "$TESTBED" "$WORK_DIR/core"
-echo "==> asserting the invariants over $CORE"
-check "**Invariants over \`$CORE\`**" "$REPO_ROOT/tools/check_testbed_stage.py" core "$WORK_DIR/core" "$TESTBED" \
-  --us "$US_PATHS" --func "$FUNC_PATHS" --pages "$PAGES_PATHS" --scenarios "$SCENARIO_PATHS" || failed=1
+if mine "$TESTBED" "$WORK_DIR/core"; then
+  echo "==> asserting the invariants over $CORE"
+  check "**Invariants over \`$CORE\`**" "$REPO_ROOT/tools/check_testbed_stage.py" core "$WORK_DIR/core" "$TESTBED" \
+    --us "$US_PATHS" --func "$FUNC_PATHS" --pages "$PAGES_PATHS" --scenarios "$SCENARIO_PATHS" || failed=1
+else
+  echo "ERROR: the collector failed over $CORE" >&2
+  failed=1
+fi
 
 cases="$("$VPY" -E -X utf8 "$REPO_ROOT/integration/testbed_cases.py" --list | tr -d '\r')"
 for case in $cases; do
   copy="$WORK_DIR/cases/$case"
   mkdir -p "$copy/$(dirname "$CORE")"
   cp -R "$TESTBED/$CORE" "$copy/$CORE"
-  "$VPY" -E -X utf8 "$REPO_ROOT/integration/testbed_cases.py" "$case" "$copy/$CORE" | tr -d '\r' > "$copy.expected"
-  IFS=$'\t' read -r code changed change < "$copy.expected"
-  echo "==> case $case: ${changed#"$copy/"}, $change; expecting $code"
+  "$VPY" -E -X utf8 "$REPO_ROOT/integration/testbed_cases.py" "$case" "$copy/$CORE" | tr -d '\r' > "$copy.expected" \
+    || { echo "ERROR: case $case could not be applied" >&2; failed=1; continue; }
+  IFS=$'\t' read -r code line changed change < "$copy.expected"
+  echo "==> case $case: ${changed#"$copy/"}, $change; expecting $code at line $line"
   # A git checkout, as a team's repository is: a file outside one has no source URL and is reported NO_SOURCE_URL.
   git -C "$copy" -c init.defaultBranch=master init --quiet
   git -C "$copy" remote add origin "$TESTBED_URL"
@@ -125,9 +132,11 @@ for case in $cases; do
   # A throwaway commit in a temp dir: no identity of the runner's own, and never signed.
   git -C "$copy" -c user.name="testbed stage" -c user.email="testbed-stage@invalid" -c commit.gpgsign=false \
     commit --quiet --message "testbed case: $case"
-  mine "$copy" "$WORK_DIR/cases/$case-output" doc-source-only
-  check "**Case \`$case\`**: ${changed#"$copy/"}, $change; expecting $code" \
-    "$REPO_ROOT/tools/check_testbed_stage.py" case "$WORK_DIR/cases/$case-output" "$code" "$changed" || failed=1
+  mine "$copy" "$WORK_DIR/cases/$case-output" doc-source-only \
+    || { echo "ERROR: the collector failed over case $case" >&2; failed=1; continue; }
+  check "**Case \`$case\`**: ${changed#"$copy/"}, $change; expecting $code at line $line" \
+    "$REPO_ROOT/tools/check_testbed_stage.py" case "$WORK_DIR/cases/$case-output" "$code" "$line" "$changed" \
+    || failed=1
 done
 
 # The stage reads the testbed and writes nothing into it: the collector's output and every case's copy live in the

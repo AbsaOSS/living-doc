@@ -19,7 +19,7 @@
 ``core`` follows the canon 100 %, so a problem the pipeline must report is never authored in the
 testbed: it is derived here, from a copy. A case is a named function that takes the path to a
 copy of ``core``, changes it in place and returns what the run over the copy must report: one
-warning code, in the file it changed. A case finds what it changes by structure, never by literal
+warning code, at the line it changed. A case finds what it changes by structure, never by literal
 text, so an edit to ``core`` does not break it.
 
 ``tools/run-testbed-stage.sh`` runs every case in ``CASES``: it copies ``core``, applies the case,
@@ -29,7 +29,8 @@ invariants of ``core`` itself: what a case breaks can leave other data dangling.
 
 Usage:
     python integration/testbed_cases.py --list                # the case names, one per line
-    python integration/testbed_cases.py <case> <core-copy>    # applies one; prints "<code>\\t<file>\\t<what changed>"
+    python integration/testbed_cases.py <case> <core-copy>    # applies one; prints
+                                                              # "<code>\\t<line>\\t<file>\\t<what changed>"
 """
 
 from __future__ import annotations
@@ -43,9 +44,11 @@ from typing import Callable, Iterator
 
 @dataclass(frozen=True)
 class Expected:
-    """What the run over a changed copy must report: exactly one warning, ``code``, in ``path``."""
+    """What the run over a changed copy must report: exactly one warning, ``code``, at ``line``
+    (1-based) of ``path``."""
 
     code: str
+    line: int
     path: Path
     # What the case changed, for the run's log.
     change: str
@@ -115,7 +118,8 @@ def misindented_ac_line(core: Path) -> Expected:
             lines[last] = "#" + lines[last][2:]
             with open(path, "w", encoding="utf-8", newline="") as handle:
                 handle.writelines(lines)
-            return Expected("MISINDENTED_LINE", path, f"line {last + 1} dedented by one space: {lines[last].rstrip()}")
+            return Expected("MISINDENTED_LINE", last + 1, path,
+                            f"line {last + 1} dedented by one space: {lines[last].rstrip()}")
     raise LookupError(f"no Functionality file under {core} has a block whose last line is a non-first bullet")
 
 
@@ -131,7 +135,7 @@ def main(argv: list[str]) -> int:
         print(f"usage: testbed_cases.py --list | <case> <core-copy>; cases: {', '.join(CASES)}", file=sys.stderr)
         return 2
     expected = CASES[argv[0]](Path(argv[1]))
-    print(f"{expected.code}\t{expected.path.as_posix()}\t{expected.change}")
+    print(f"{expected.code}\t{expected.line}\t{expected.path.as_posix()}\t{expected.change}")
     return 0
 
 
