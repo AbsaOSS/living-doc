@@ -55,7 +55,7 @@ Responsibilities
   - Avoid unnecessary refactors unrelated to the task.
 - Quality
   - Must meet formatting, lint, type-check, and test requirements — where this repo defines any.
-  - Must add type hints for new public functions in `tools/*.py`.
+  - Must add type hints for new public functions in `tools/*.py`, `integration/*.py` and `integration/tools/*.py`.
 - Compatibility & contracts
   - Must not change externally-visible outputs unless approved.
   - If a contract change is required, must document it and update tests accordingly.
@@ -89,7 +89,7 @@ Repo specifics
 
 - Scope of "code" in this repo
   - There is no monorepo, no packages, and no `pyproject.toml` — most of this repo is documentation (`docs/`). The Python surface is `tools/examples_check.py` with its pinned deps in `tools/requirements-examples-check.txt`, and the integration tests' scripts in `integration/tools/`: `integration/tools/normalize_snapshot.py`, `integration/tools/check_utilities_pins.py`, the collector-stage checkers `integration/tools/check_collector_stage.py` and `integration/tools/check_testbed_stage.py`, which run in the collector's venv, and the derived testbed cases in `integration/testbed_cases.py`. `integration/regen-collector-snapshots.sh`, `integration/run-testbed-stage.sh` and the `integration/collector-gh.sh` both source are Bash wrappers around that Python, not Python itself — do not apply type-hint or pytest expectations to them.
-  - Most changes to this repo are prose edits to `docs/guides/**`, `docs/tutorials/**`, `docs/projects/**`, and `docs/examples/**`, not code. Apply this agent's rules only when a task actually touches `tools/*.py` or `tools/*.sh`.
+  - Most changes to this repo are prose edits to `docs/guides/**`, `docs/tutorials/**`, `docs/projects/**`, and `docs/examples/**`, not code. Apply this agent's rules only when a task actually touches `tools/*.py`, `integration/*.py`, `integration/tools/*.py` or `integration/*.sh`.
 - Runtime/toolchain targets
   - `.github/workflows/examples-check.yml` and `real-collector-snapshot.yml` both pin Python `3.14` via `actions/setup-python`. Match that when testing locally.
 - Quality gates (there is no `Makefile` and no lint/type config — do not invent one)

@@ -24,7 +24,7 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 **Checks**
 
 - Must flag logic bugs, missing edge cases, regressions, and unintended contract changes.
-- Must flag unsafe input handling and insecure defaults in `tools/*.py`.
+- Must flag unsafe input handling and insecure defaults in `tools/*.py`, `integration/*.py`, `integration/tools/*.py` and `integration/*.sh`.
 - Must check that `tools/test_examples_check.py` covers the success and failure path of any changed rule in `tools/examples_check.py`.
 - Must check that a `docs/examples/**` fixture change carries a matching `docs/examples/_expected/**` regeneration when it changes what the real collector/toolkit mines (see `CONTRIBUTING.md` § "Regenerating the collector snapshots").
 - Must flag a change that gives a part of the ecosystem a responsibility beyond its row in `docs/introduction/principles.md` without adding the matching exception there — name the frame row (F1–F7) it bends.
