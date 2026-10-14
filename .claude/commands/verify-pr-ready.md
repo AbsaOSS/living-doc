@@ -16,7 +16,7 @@ Task-list source (optional override): `$2`
 - Read task `$1`'s acceptance criteria from the provided task list (or `$2`).
 - For each criterion, confirm the **literal claim** against the file that currently exists
   on this branch — the guide's field description, the rule in `tools/examples_check.py`,
-  the example file's literal content, the `docs/examples/_expected/*.json` diff. **Do not**
+  the example file's literal content, the `docs/examples/_expected/**` diff. **Do not**
   accept "a test with that name passes" as evidence.
 - Always check one extra criterion: the change stays inside the frame in
   `docs/introduction/principles.md`, or names the frame row it bends and adds the exception

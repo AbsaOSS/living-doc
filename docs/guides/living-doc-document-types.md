@@ -156,8 +156,9 @@ ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined
 **Worked example** — the [`docs/examples/`](../examples/README.md) corpus is a complete coverage-matrix
 input: `AC:US-001-01`, `AC:US-001-04` and `AC:FUNC-001-01` are covered by scenarios, while
 `AC:US-001-02` and `AC:FUNC-001-02` are declared with no scenario (uncovered). `AC:FUNC-001-03` is
-partially covered: one of its three `rule` values has a scenario, **1/3**. The pinned collector does not
-read the keyword yet, so `_expected/` still shows it `covered` (see
+partially covered: one of its three `rule` values has a scenario, **1/3**. The matrix's input for it —
+the three values, and the one scenario linked to `minimum-length` — is in the corpus's collector
+snapshots; the matrix itself is not snapshotted yet (see
 [What the corpus mines to](../examples/README.md#what-the-corpus-mines-to-_expected)). The `planned` ACs
 (`AC:US-001-03`, `AC:FUNC-002-01`) are not counted either way.
 

@@ -11,8 +11,8 @@ dependency on it — so that, taken together, the `.feature` files plus the enti
 [coverage-matrix](../guides/living-doc-document-types.md#coverage-matrix) input: in each of the two
 `.feature` files that carry scenarios, at least one AC is covered by a scenario and one is left
 uncovered, and `AC:FUNC-001-03` has a scenario for one of its three values, so the matrix shows all
-three verdicts — `covered`, `not_covered` and `partially_covered` (the pinned snapshot does not show
-the third yet; see [What the corpus mines to](#what-the-corpus-mines-to-_expected)).
+three verdicts — `covered`, `not_covered` and `partially_covered` (the matrix itself is not
+snapshotted yet; see [What the corpus mines to](#what-the-corpus-mines-to-_expected)).
 
 ## Files
 
@@ -34,29 +34,35 @@ the third yet; see [What the corpus mines to](#what-the-corpus-mines-to-_expecte
 
 ## What the corpus mines to (`_expected/`)
 
-[`_expected/`](_expected/) holds the JSON this `gherkin/` corpus produces when the **real**
-`living-doc-collector-gh` (`doc-source` + `ui-tests`) and `living-doc-toolkit` `coverage-matrix`
-are run over it — `doc-source.json`, `ui-tests.json`, `coverage-matrix.json`, normalized so only
-the mined content is compared. `.github/workflows/real-collector-snapshot.yml` regenerates them on
-every PR touching `docs/examples/**` and fails on any diff, so a parser or schema change in the
-pinned collector that alters the mined output surfaces here. These files double as a worked
-reference for anyone integrating the collector. To regenerate after an intended change, see
+[`_expected/collector-gh/`](_expected/collector-gh/) holds the JSON the **real**
+`living-doc-collector-gh` writes when its `doc-source` and `ui-tests` modes mine this corpus's
+source-code chain — `gherkin/` and `pageobject/` — in the collector's own output layout:
+`doc-source/doc-source.json` and `ui-tests/ui-tests.json`, normalized so only the mined content is
+compared. `.github/workflows/real-collector-snapshot.yml` regenerates them on every PR touching
+`docs/examples/**` or `tools/**`. It runs the pinned collector in a venv built from the collector's
+own `requirements.txt`, validates each artifact against its contract, asserts that what the corpus
+authors comes through with none of the warnings a canonical corpus must not raise, and fails on any
+diff — so a parser or schema change in the pinned collector that alters the mined output surfaces
+here. These files double as a worked reference for anyone integrating the collector. To regenerate
+after an intended change, see
 [CONTRIBUTING.md § Regenerating the collector snapshots](../../CONTRIBUTING.md#regenerating-the-collector-snapshots).
 
-The snapshots record what the **pinned** collector mines, which is not always all of what the corpus
-says. The pinned `collector-gh` predates the version-less backlog AC form, so it skips
-`AC:FUNC-002-01 (planned)` as a malformed header — and that is `FUNC-002`'s only AC, so `_expected/`
-shows the Functionality with none. That gap is the point of the snapshot: it is visible here, and it
-closes when the pin moves to a collector whose AC grammar accepts the backlog form. The pinned
-collector likewise predates `feature_dependencies` and `notes`, which `living-doc-utilities` carries
-from `0.5.0`, and drops both authored keys, so the edge `FEAT-003` declares and the notes on `FEAT-001`
-are not in `_expected/` yet either. Both gaps close when the pin moves to a collector built on
-`living-doc-utilities` `0.5.0` or later. The pinned collector also predates the
-[named keyword](../guides/living-doc-header-types.md#ac-variants): it folds `- rule: …` into the
-description of `AC:FUNC-001-03`, declares no values for it, and reads
-`@AC:FUNC-001-03/rule:minimum-length` as a link to the whole criterion, so `_expected/` shows that AC
-`covered` where the canon says `partially_covered`, 1/3. That gap closes when the pin moves to a collector
-whose `living-doc-utilities` maps the keyword to `aspect`.
+The snapshots carry everything the source-code chain authors: the backlog AC
+`AC:FUNC-002-01 (planned)` and the `not_in_scope` on `FUNC-002`, `FEAT-001` with its state derived
+from its Functionalities, the `feature_dependencies` edge `FEAT-003` declares, and the
+[named keyword](../guides/living-doc-header-types.md#ac-variants) on `AC:FUNC-001-03` — its three
+`rule` values as the AC's `aspect`, and its one scenario linked as `aspect: minimum-length`. They also
+carry the two warnings this corpus expects: `UNRESOLVED_RELATION` for that edge (see
+[The dependency is authored in both `FEAT-003` forms](#conventions-used-by-this-corpus)) and
+`FEATURE_WITHOUT_FUNCTIONALITY` for `FEAT-003`, documented at surface level. Two things are not in
+`_expected/`, and neither is a gap in the collector:
+
+- What only `gh-issues/` authors — the `## Notes` on `FEAT-001`, the `## Not In Scope` on `US-001`,
+  and the `API` Feature `FEAT-002`. The `doc-issues` mode that mines issue bodies is planned, not yet
+  available, so `examples_check` alone checks that form.
+- The coverage verdicts, `AC:FUNC-001-03` partly covered (**1/3**) among them. They come from the
+  `living-doc-toolkit` `coverage-matrix` stage, which joins the two artifacts and returns to the
+  snapshot job once the toolkit itself is on `living-doc-utilities`.
 
 ## GitHub issue-body layout (canonical)
 
@@ -124,6 +130,7 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   no file carrying two:
   - AC-level `preconditions` extension — `gherkin/liv_doc_us/us-001-customer-login.feature`
   - feature-level `Not In Scope` — `gh-issues/us-001-customer-login.md`
+  - feature-level `not_in_scope:` — `gherkin/liv_doc_func/func-002-reject-breached-password.feature`
   - `External Dependencies` — `gh-issues/feat-001-login-page.md`
   - `Aspect:` on an AC — `gherkin/liv_doc_func/func-001-validate-password-strength.feature`, in both
     its spellings: `- Aspect:` on `AC:FUNC-001-01`, and the named keyword `- rule:` on `AC:FUNC-001-03`.
@@ -170,10 +177,10 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   documented at surface level (`User Stories` and `Functionalities` are `none`), like `FEAT-002`.
 - **The dependency is authored in both `FEAT-003` forms**, as the one optional extension of each.
   `living-doc-utilities` carries the field from `0.5.0`; an earlier release drops an authored value on
-  the way in — `IGNORED_AUTHORED_KEY`, as for `notes` above — and the pinned collector is one, so
-  `_expected/` does not show it yet. Carried, the edge does not resolve in the `doc-source` chain:
-  `FEAT-002` is authored in `gh-issues/`, and a pipeline that takes its technical project from
-  `gherkin/` + `pageobject/` reports `UNRESOLVED_RELATION` for a target it cannot see. That is expected
+  the way in — `IGNORED_AUTHORED_KEY`, as for `notes` above. Carried, the edge does not resolve in the
+  `doc-source` chain: `FEAT-002` is authored in `gh-issues/`, and a pipeline that takes its technical
+  project from `gherkin/` + `pageobject/` reports `UNRESOLVED_RELATION` for a target it cannot see —
+  `_expected/` shows the edge and the warning both. That is expected
   of this corpus — the same shape as the `STALE_AC_REF` note below, one chain referencing what the
   other declares — and it is what a source-code project sees in general, since no `API` Feature can be
   authored there yet.

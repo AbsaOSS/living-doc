@@ -19,23 +19,32 @@
 This is the *grammar + cross-reference* gate for the copyable input corpus:
 
 1. **Header-block grammar** — every feature-file / PageObject / issue-body / project-profile
-   example carries the fields its canonical guide marks required, and every
-   ``AC:<id> (v<version> - <state>)`` / ``AC:<id> (planned)`` line matches the glossary
-   grammar.
+   example carries the fields its canonical guide marks required, and every ``AC:`` criterion
+   parses with ``ac_grammar`` from ``living-doc-utilities`` - the grammar the collectors read it
+   with. Every warning it raises (``MALFORMED_AC``, ``UNPARSED_AC_LINE``, ...) is a finding, and so
+   is an issue body's ``### AC:`` sub-heading the frame opens no criterion at (no ``(...)``): the
+   pipeline drops that one without a warning. A keyword's spelling - one lowercase kebab-case
+   name, the same in the AC text and the bullet - is checked here, on the line as written:
+   ``ac_grammar`` folds case, ``-``, ``_`` and space.
 2. **Cross-corpus identifier consistency** — the corpus declares exactly ``US-001`` /
    ``FEAT-001`` / ``FUNC-001``; every parent link and every ``@AC:`` scenario tag
    resolves to something declared. A tag carries at most one ``/<param>:<value>`` segment, whose
    ``<param>`` is the AC's variant name (``aspect`` or its named keyword) and ``<value>`` one of
-   its declared values; a bare ``@AC:<id>`` covers the whole AC.
+   its declared values; a bare ``@AC:<id>`` covers the whole AC. The name is read from the tag as
+   written: the parsed link the pipeline builds keeps none.
 3. **Coverage-pair invariant** — across the two feature files at least one declared AC is
    covered by a scenario and at least one is left uncovered.
-4. **Canonical form** (``NON_CANONICAL_FORM``) — the corpus is canonical-only: structural
-   positions use ``-`` (hyphen-minus), never an en or em dash. Non-canonical variants are
-   test data for the normalisation layer in ``living-doc-utilities``, not corpus content.
+4. **Canonical form** (``NON_CANONICAL_FORM``) — the corpus is canonical-only: no line of an
+   entity file is one ``normalize`` from ``living-doc-utilities`` would rewrite (dashes, bullet
+   markers, state case, version form, title separators). The issue title and the Gherkin
+   ``Feature:`` line name the entity outside every frame ``normalize`` rewrites, so their name is
+   read with its title rules (``normalize_title``). Non-canonical variants are test data for that
+   normalisation layer, not corpus content.
 5. **Form parity** (``PAIR_MISMATCH``) — the two authored forms of an entity (issue body and
-   source-code header) agree on required content and on their AC set, and no single file
-   carries more than one optional field extension per level. An ``API`` Feature is the one
-   entity with a single authored form: its contract anchor carries no living-doc header yet.
+   source-code header) agree on required content and on their AC set as ``ac_grammar`` parses
+   it, and no single file carries more than one optional field extension per level. An ``API``
+   Feature is the one entity with a single authored form: its contract anchor carries no
+   living-doc header yet.
 6. **Feature dependencies** — ``feature_dependencies`` is authored on a Feature only, as
    comma-separated ``FEAT-`` ids with no ``none`` value; every target resolves to a corpus
    entity, is not the declaring Feature itself, is an ``API`` Feature, and is not being retired.
@@ -51,9 +60,11 @@ Canonical references:
   docs/guides/living-doc-glossary.md
   docs/examples/README.md  (GitHub issue-body layout)
 
-The script depends only on the standard library plus PyYAML. It has no import-time
-dependency on ``collector-gh`` or ``toolkit``. It exits non-zero on any violation and
-prints, per finding, the file, the line (where known), the failed rule and a fix hint.
+The script depends on the standard library, PyYAML and the authoring layer of
+``living-doc-utilities`` (``normalize``, ``ac_grammar``, ``framing``, ``identity``), pinned in
+``tools/requirements-examples-check.txt``. It has no import-time dependency on ``collector-gh``
+or ``toolkit``. It exits non-zero on any violation and prints, per finding, the file, the line
+(where known), the failed rule and a fix hint.
 """
 
 from __future__ import annotations
@@ -65,6 +76,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
+from living_doc_utilities.authoring import ac_grammar, normalize
+from living_doc_utilities.authoring.framing import criterion_blocks
+from living_doc_utilities.authoring.identity import derive_entity_id, extract_living_doc_title
+from living_doc_utilities.authoring.normalize import SourceFormat
+from living_doc_utilities.contracts.common import AcceptanceCriterion
 
 # --- vocabularies, mirrored from the canonical guides -------------------------------------
 # docs/guides/living-doc-header-types.md#project-profile-config-driven-conventions
@@ -82,28 +98,35 @@ FUNC_TYPES = [
 # docs/guides/living-doc-glossary.md#feature
 SURFACE_TYPES = ["UI", "API"]
 
-# docs/guides/living-doc-glossary.md#acceptance-criterion-ac
-#   AC:<parent-id>-<nn> (v<version> - <state>)          e.g. AC:US-001-01 (v1.0.0 - active)
-#   AC:<parent-id>-<nn> (planned)                       backlog: no target version
-#   AC:<parent-id>-<nn> (v<version> - deprecated - removal planned v<version>)
-# The version group is optional in the pattern so a version-less non-`planned` AC is reported
-# as the specific rule it breaks, not as a generic grammar failure.
-# Only a User Story or a Functionality owns acceptance criteria, so <parent-id> is `US-` or `FUNC-`.
-AC_HEADER_RE = re.compile(
-    r"^AC:(?P<id>(?:US|FUNC)-\d+-\d+)\s+\("
-    r"(?:v(?P<version>\d+\.\d+\.\d+)\s*-\s*)?(?P<state>[a-z_]+)"
-    r"(?P<removal>\s*-\s*removal planned v\d+\.\d+\.\d+)?\)$"
-)
-ENTITY_ID_RE = re.compile(r"\b((?:US|FEAT|FUNC)-\d+)\b")
+# The entity type `living-doc-utilities` parses each kind of entity as.
+ENTITY_TYPES = {"US": "DocumentedUserStory", "FEAT": "DocumentedFeature",
+                "FUNC": "DocumentedFunctionality"}
+
+# docs/guides/living-doc-glossary.md#acceptance-criterion-ac - the AC header grammar, its states,
+# version rule and id shape are `ac_grammar`'s; this script holds no copy of them.
 # AC variants — header types "AC variants": the AC text names a keyword as `{<name>}`, and an
 # AC-level `- <name>: <values>` bullet declares its values. `Aspect:` is the default keyword.
+# `ac_grammar` folds a name's case, `-`, `_` and space; the canon's one spelling is checked here.
 VARIANT_NAME_RE = re.compile(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*")
 AC_PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
 AC_KEYWORD_BULLET_RE = re.compile(r"-\s*(?P<name>[A-Za-z][A-Za-z0-9 _-]*?):\s*(?P<values>\S.*)$")
 # @AC:<id>[/<param>:<value>] scenario tag — glossary "Tag format". <param> is `aspect` or the AC's
-# keyword name, lowercase kebab-case. A tag is matched whole, so a second `/<param>:<value>` fails.
-AC_TAG_RE = re.compile(rf"@AC:(?P<id>(?:US|FUNC)-\d+-\d+)"
+# keyword name, lowercase kebab-case. A tag is matched whole, so a second `/<param>:<value>` fails;
+# <id> is then checked with `ac_grammar.is_valid_ac_id`.
+AC_TAG_RE = re.compile(rf"@AC:(?P<id>[^/\s]+)"
                        rf"(?:/(?P<param>{VARIANT_NAME_RE.pattern}):(?P<value>[A-Za-z0-9-]+))?")
+# The fix hint for each warning `ac_grammar` raises on a criterion.
+GRAMMAR_HINTS = {
+    "MALFORMED_AC": "write 'AC:<id> (v<major.minor.patch> - <state>)', or 'AC:<id> (planned)' for a "
+                    "backlog AC, with one variant declaration at most "
+                    "(living-doc-glossary.md#acceptance-criterion-ac)",
+    "UNPARSED_AC_LINE": "an AC-level bullet is the description, '- Aspect:', '- Rationale:' or the "
+                        "one keyword the AC text names as '{<name>}' "
+                        "(living-doc-header-types.md#ac-variants)",
+    "MISINDENTED_LINE": "use the template levels (living-doc-header-types.md#indentation)",
+}
+GRAMMAR_HINT = ("fix the criterion this line belongs to - the pipeline drops a criterion it cannot "
+                "read (living-doc-glossary.md#acceptance-criterion-ac)")
 
 # `FEAT-003` declares a `feature_dependencies` edge to `FEAT-002`, the `API` Feature the corpus
 # needs as a resolvable target (docs/examples/README.md, "The dependency pair").
@@ -174,20 +197,6 @@ FORBIDDEN_ISSUE_HEADINGS = {
             "makes the call (living-doc-glossary.md#feature)",
     },
 }
-
-# docs/guides/living-doc-glossary.md — "Canonical form and normalisation". Structural positions
-# use `-` (hyphen-minus); an en or em dash there is an autocorrect defect, not an input variant.
-_DASHES = "–—"  # en dash, em dash
-NON_CANONICAL_PATTERNS = [
-    (re.compile(rf"^\s*(?:###\s+|#\s*)AC:.*[{_DASHES}]"),
-     "en/em dash on an 'AC:' line (AC header, '### AC:' sub-heading or '# AC:' comment)"),
-    (re.compile(rf"^\s*(#\s*)?[{_DASHES}] "),
-     "en/em dash used as a bullet marker"),
-    (re.compile(rf"(US|FEAT|FUNC)-\d+ · .*[{_DASHES}]"),
-     "en/em dash inside an entity name following its id"),
-    (re.compile(rf"^\s*Feature:.*[{_DASHES}]"),
-     "en/em dash inside the entity name on a Gherkin 'Feature:' line"),
-]
 
 # The two authored forms of one entity must agree on required content. Each row maps an
 # issue-body heading to the key carrying the same fact in the source-code header form.
@@ -309,7 +318,7 @@ def _declare_feature_deps(value: str, declaring: str, corpus: Corpus, rel: str,
                     "(living-doc-glossary.md#feature)")
         return
     for item in items:
-        if re.fullmatch(r"FEAT-\d+", item) is None:
+        if derive_entity_id(item)[0] != item or not item.startswith("FEAT-"):
             corpus.fail(rel, lineno, f"feature_dependencies entry '{item}' is not a Feature id",
                         "list 'FEAT-<nnn>' ids, comma-separated on one line "
                         "(living-doc-glossary.md#feature)")
@@ -317,30 +326,60 @@ def _declare_feature_deps(value: str, declaring: str, corpus: Corpus, rel: str,
         corpus.feature_deps.append((declaring, item, rel, lineno))
 
 
-def _validate_ac_header(m: "re.Match[str]", corpus: Corpus, rel: str, lineno: int,
-                        parent_id: str, states: list[str]) -> None:
-    """Apply the glossary's state / version / removal-note rules to one matched AC header."""
-    ac_id, state = m.group("id"), m.group("state")
-    if state not in states:
-        corpus.fail(rel, lineno, f"AC state '{state}' is not a documented state",
-                    f"use one of {states} (project-profile ac_states)")
-    if not ac_id.startswith(parent_id + "-"):
-        corpus.fail(rel, lineno, f"AC id '{ac_id}' does not belong to entity '{parent_id}'",
-                    f"AC ids under {parent_id} must read '{parent_id}-<nn>'")
-    if m.group("version") is None and state != "planned":
-        corpus.fail(rel, lineno, f"AC in state '{state}' carries no version",
-                    "a version is required in every state except 'planned'; write "
-                    "'AC:<id> (v<major.minor.patch> - <state>)', or '(planned)' for a backlog AC")
-    has_removal = m.group("removal") is not None
-    if state == "deprecated" and not has_removal:
-        corpus.fail(rel, lineno,
-                    "deprecated AC is missing the 'removal planned v<version>' note",
-                    "write 'AC:<id> (v<version> - deprecated - removal planned v<version>)' "
-                    "(see living-doc-glossary.md#acceptance-criterion-ac)")
-    if state != "deprecated" and has_removal:
-        corpus.fail(rel, lineno,
-                    f"non-deprecated AC (state '{state}') carries a 'removal planned' note",
-                    "the removal note is only valid on a 'deprecated' AC")
+def _entity_ids(value: str) -> list[str]:
+    """The entity ids a list value names, e.g. 'FUNC-001, FUNC-002'; 'none' names none."""
+    return [eid for eid in (derive_entity_id(token)[0] for token in re.split(r"[,\s]+", value))
+            if eid is not None]
+
+
+# --- living-doc-utilities: canonical form and the criterion grammar ----------------------
+
+def _report_rewrites(changes: list[normalize.Change], corpus: Corpus, rel: str) -> None:
+    """NON_CANONICAL_FORM for every line ``normalize`` rewrites."""
+    for change in changes:
+        # A rule may record a line it leaves as written (an inline '# AC:' comment's description
+        # does); only a line whose text changes is non-canonical.
+        if change.before == change.after:
+            continue
+        corpus.fail(rel, change.line,
+                    f"NON_CANONICAL_FORM: normalize rewrites this line ({change.rule})",
+                    f"write it as {change.after.strip()!r} - '-' (hyphen-minus) in structural "
+                    "positions, lowercase states, full versions "
+                    "(living-doc-glossary.md#acceptance-criterion-ac)")
+
+
+def _normalized(text: str, fmt: SourceFormat, kind: str, corpus: Corpus, rel: str
+                ) -> "normalize.Frame":
+    """``normalize``'s frame of ``text``, its rewrites reported as NON_CANONICAL_FORM."""
+    source, frame = normalize.normalize_framed(text, fmt, ENTITY_TYPES[kind])
+    _report_rewrites(source.changes, corpus, rel)
+    return frame
+
+
+def _title_rules(title: str) -> tuple[str, list[str]]:
+    """``normalize_title``'s canonical form of an entity title, and the rules that rewrite it."""
+    canonical, changes = normalize.normalize_title(title)
+    return canonical, sorted({c.rule for c in changes if c.before != c.after})
+
+
+def _criteria(frame: "normalize.Frame", entity_id: str, corpus: Corpus, rel: str
+              ) -> list[AcceptanceCriterion]:
+    """The criteria ``ac_grammar`` reads from ``frame``; each warning it raises is a finding."""
+    acs, warnings = ac_grammar.parse_frame_criteria(frame, entity_id)
+    for warning in warnings:
+        subject = f"{warning.ac_id}: " if warning.ac_id else ""
+        corpus.fail(rel, warning.line_no, f"{warning.code}: {subject}{warning.message}",
+                    GRAMMAR_HINTS.get(warning.code, GRAMMAR_HINT))
+    header_lines: dict[str, int] = {}
+    for number, ac_id in sorted(ac_grammar.criterion_ids(frame).items()):
+        header_lines.setdefault(ac_id, number)
+    for ac in acs:
+        # `ac_grammar` never checks ownership: that rule lives on the entity.
+        if not ac.id.startswith(entity_id + "-"):
+            corpus.fail(rel, header_lines.get(ac.id),
+                        f"AC id '{ac.id}' does not belong to entity '{entity_id}'",
+                        f"AC ids under {entity_id} must read '{entity_id}-<nn>'")
+    return acs
 
 
 # --- indentation levels -----------------------------------------------------------------
@@ -483,97 +522,55 @@ def _variant_key(name: str) -> str:
     return re.sub(r"[-_ ]+", "-", name.strip().lower())
 
 
-def _declare_variant(corpus: Corpus, rel: str, lineno: int, ac_id: str, name: str, values: str,
-                     acs: dict[str, set[str]], variants: dict[str, str]) -> None:
-    """Record an AC's one variant declaration - ``aspect`` or a named keyword - and its values."""
-    if ac_id in variants:
-        corpus.fail(rel, lineno,
-                    f"{ac_id} declares more than one variant: '{variants[ac_id]}' and '{name}'",
-                    "keep one - '- Aspect:' or one named keyword, never both and never two "
-                    "(MALFORMED_AC; living-doc-header-types.md#ac-variants)")
-        return
-    variants[ac_id] = name
-    acs[ac_id].update(v.strip() for v in values.split(",") if v.strip())
-
-
 def _parse_ac_block(header: list[tuple[int, str]], corpus: Corpus, rel: str,
-                    parent_id: str, states: list[str],
-                    headers: dict[str, str] | None = None,
-                    extensions: set[str] | None = None,
-                    variants: dict[str, str] | None = None) -> dict[str, set[str]]:
-    """Walk a de-commented header, validating every ``AC:`` line, collecting variant values.
+                    acs: list[AcceptanceCriterion], line_ids: dict[int, str]) -> dict[str, str]:
+    """Each parsed AC's variant name: ``aspect``, or its keyword as written on its bullet.
 
-    ``headers`` collects the canonical ``AC:<id> (...)`` text per AC (the PAIR_MISMATCH pass
-    compares AC sets by it); ``extensions`` collects the AC-level optional extensions used;
-    ``variants`` collects each AC's variant name - ``aspect`` or its named keyword.
+    ``ac_grammar`` reads the header and every AC-level bullet, and reports two variant
+    declarations, ``aspect`` as a keyword name and a bullet the AC text does not name. It folds a
+    keyword's case, ``-``, ``_`` and space, so it takes ``- User_Role:`` under ``{User_Role}``
+    without a warning: the canon's one spelling - lowercase kebab-case, the same in the AC text,
+    the bullet and the tag - is checked here, on the bullet as written. Only a name spelled so is
+    declared, for ``cross_reference`` to compare a tag's name with. ``line_ids`` maps each line of
+    a criterion block to its AC (``ac_grammar.criterion_ids``).
     """
-    acs: dict[str, set[str]] = {}
-    variants = {} if variants is None else variants
-    current: str | None = None
-    description = ""                  # the AC text, where a keyword is named as `{<name>}`
-    bullet_indent: int | None = None  # the description bullet's indent; AC-level bullets share it
-    in_description = False
+    by_id = {ac.id: ac for ac in acs}
+    variants = {ac.id: "aspect" for ac in acs if ac.aspect and not ac.placeholder_values}
+    bullet_indent: dict[str, int] = {}  # the description bullet's indent; AC-level bullets share it
     for lineno, text in header:
+        ac = by_id.get(line_ids.get(lineno, ""))
         stripped = _strip_annotation(text.strip())
-        if stripped.startswith("AC:"):
-            current = None
-            description, bullet_indent, in_description = "", None, False
-            m = AC_HEADER_RE.match(stripped)
-            if m is None:
-                corpus.fail(rel, lineno, "AC line does not match the glossary grammar",
-                            "use exactly 'AC:<id> (v<major.minor.patch> - <state>)', or "
-                            "'AC:<id> (planned)' for a backlog AC "
-                            "(see living-doc-glossary.md#acceptance-criterion-ac)")
-                continue
-            current = m.group("id")
-            acs.setdefault(current, set())
-            if headers is not None:
-                headers[current] = stripped
-            _validate_ac_header(m, corpus, rel, lineno, parent_id, states)
-        elif current is not None:
-            indent = len(text) - len(text.lstrip())
-            am = re.match(r"-?\s*Aspect:\s*(.+)$", stripped)
-            if not am and bullet_indent is None and stripped.startswith("- "):
-                description, bullet_indent, in_description = stripped[2:], indent, True
-                continue
-            if in_description and stripped and not stripped.startswith("- ") and indent > bullet_indent:
-                description = f"{description} {stripped}"   # wrapped description text
-                continue
-            in_description = False
-            km = AC_KEYWORD_BULLET_RE.match(stripped) if indent == bullet_indent else None
-            if am:
-                _declare_variant(corpus, rel, lineno, current, "aspect", am.group(1), acs, variants)
-                if extensions is not None:
-                    extensions.add("AC-level Aspect:")
-            elif km and km.group("name") != "Rationale":
-                name = km.group("name")
-                key = _variant_key(name)
-                placeholders = {_variant_key(p): p for p in AC_PLACEHOLDER_RE.findall(description)}
-                if key == "aspect":
-                    corpus.fail(rel, lineno, f"'{name}' is reserved and cannot name a keyword of {current}",
-                                "declare the values with '- Aspect:', or pick another name "
-                                "(living-doc-header-types.md#ac-variants)")
-                elif key not in placeholders:
-                    corpus.fail(rel, lineno,
-                                f"'- {name}:' under {current} is not a keyword: the AC text has no "
-                                f"'{{{name}}}'",
-                                f"name the varying value in the AC text as '{{{key}}}', or drop the "
-                                "bullet (UNPARSED_AC_LINE; living-doc-header-types.md#ac-variants)")
-                elif not VARIANT_NAME_RE.fullmatch(name) or placeholders[key] != name:
-                    corpus.fail(rel, lineno,
-                                f"keyword '{name}' of {current} is not one lowercase kebab-case name",
-                                f"write it the same in the AC text, the bullet and the tag: "
-                                f"'{{{key}}}', '- {key}:', '@AC:{current}/{key}:<value>'")
-                else:
-                    _declare_variant(corpus, rel, lineno, current, name, km.group("values"),
-                                     acs, variants)
-                    if extensions is not None:
-                        extensions.add("AC-level Aspect:")   # the keyword is its second spelling
-            elif extensions is not None:
-                sub = re.match(r"(preconditions|not_in_scope):$", stripped)
-                if sub:
-                    extensions.add(f"AC-level {sub.group(1)}:")
-    return acs
+        if ac is None or not stripped.startswith("- "):
+            continue
+        indent = len(text) - len(text.lstrip())
+        if bullet_indent.setdefault(ac.id, indent) != indent or not ac.placeholder_values:
+            continue
+        km = AC_KEYWORD_BULLET_RE.match(stripped)
+        key = _variant_key(next(iter(ac.placeholder_values)))
+        if km is None or _variant_key(km.group("name")) != key:
+            continue
+        name = km.group("name")
+        placeholders = {_variant_key(p): p for p in AC_PLACEHOLDER_RE.findall(ac.description)}
+        if not VARIANT_NAME_RE.fullmatch(name) or placeholders.get(key) != name:
+            corpus.fail(rel, lineno,
+                        f"keyword '{name}' of {ac.id} is not one lowercase kebab-case name",
+                        f"write it the same in the AC text, the bullet and the tag: "
+                        f"'{{{key}}}', '- {key}:', '@AC:{ac.id}/{key}:<value>'")
+        else:
+            variants[ac.id] = name
+    return variants
+
+
+def _ac_extensions(acs: list[AcceptanceCriterion]) -> set[str]:
+    """The AC-level optional extensions the parsed criteria carry, named as the conventions do."""
+    extensions: set[str] = set()
+    for ac in acs:
+        if ac.aspect:
+            extensions.add("AC-level Aspect:")   # a named keyword is its second spelling
+        for key in ("preconditions", "not_in_scope"):
+            if getattr(ac, key):
+                extensions.add(f"AC-level {key}:")
+    return extensions
 
 
 # --- feature files --------------------------------------------------------------------
@@ -641,8 +638,14 @@ def _feature_pair_fields(header: list[tuple[int, str]], top_keys: dict[str, int]
 
 def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
     rel = _rel(path, root)
-    raw = path.read_text(encoding="utf-8").splitlines()
+    text = path.read_text(encoding="utf-8")
+    raw = text.splitlines()
     kind = "US" if "/liv_doc_us/" in rel or "us-" in path.name else "FUNC"
+
+    # Both formats a `.feature` file holds: the header, and the `# AC:` comments over its scenarios.
+    frame = _normalized(text, SourceFormat.FEATURE_HEADER, kind, corpus, rel)
+    _report_rewrites(normalize.normalize(text, SourceFormat.SCENARIO_FILE, ENTITY_TYPES[kind]).changes,
+                     corpus, rel)
 
     header = _decomment_block(raw, FEATURE_STRIP_RE, FEATURE_STOP_RE)
     if not header:
@@ -681,10 +684,10 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
     # feature-level id tag: @US_ID:US-001 / @FUNC_ID:FUNC-001
     id_tag = "US_ID" if kind == "US" else "FUNC_ID"
     entity_id: str | None = None
-    for i, line in enumerate(raw, 1):
-        m = re.match(rf"@{id_tag}:((?:US|FEAT|FUNC)-\d+)\b", line.strip())
-        if m:
-            entity_id = m.group(1)
+    for token in (token for line in raw for token in line.split()):
+        value = token[len(id_tag) + 2:]
+        if token.startswith(f"@{id_tag}:") and derive_entity_id(value)[0] == value:
+            entity_id = value
             break
     if entity_id is None:
         corpus.fail(rel, 1, f"missing feature-level '@{id_tag}:<id>' tag",
@@ -694,26 +697,39 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
         corpus.declared_entities.add(entity_id)
         parent_for_ac = entity_id
 
-    ac_headers: dict[str, str] = {}
-    extensions: set[str] = set()
-    variants: dict[str, str] = {}
-    acs = _parse_ac_block(header, corpus, rel, parent_for_ac, AC_STATES, ac_headers, extensions,
-                          variants)
+    # The Gherkin `Feature:` line names the entity as the banner does, but no frame `normalize`
+    # rewrites holds it: its name is read with the banner's title rules.
+    for i, line in enumerate(raw, 1):
+        if line.strip().startswith("Feature:"):
+            prefix = f"{parent_for_ac} · "
+            canonical, rules = _title_rules(prefix + line.strip()[len("Feature:"):].strip())
+            if rules:
+                corpus.fail(rel, i,
+                            "NON_CANONICAL_FORM: normalize rewrites the entity name on the "
+                            f"'Feature:' line ({', '.join(rules)})",
+                            f"write it as 'Feature: {canonical[len(prefix):]}' - '-' (hyphen-minus) "
+                            "in the name (living-doc-glossary.md#acceptance-criterion-ac)")
+            break
+
+    acs = _criteria(frame, parent_for_ac, corpus, rel)
+    variants = _parse_ac_block(header, corpus, rel, acs, ac_grammar.criterion_ids(frame))
     if "acceptance_criteria" in top_keys and not acs:
         corpus.fail(rel, top_keys["acceptance_criteria"],
                     "acceptance_criteria block declares no AC lines",
                     "add at least one 'AC:<id> (v<version> - <state>)' line")
-    for ac_id, values in acs.items():
-        corpus.declare_ac(ac_id, values, variants.get(ac_id))
-        header_m = AC_HEADER_RE.match(ac_headers.get(ac_id, ""))
-        if not (header_m and header_m.group("state") == "planned"):
-            corpus.feature_file_acs.add(ac_id)
+    for ac in acs:
+        # A tag can name only a variant whose spelling passed: an unchecked name declares no values.
+        corpus.declare_ac(ac.id, set(ac.aspect) if ac.id in variants else set(),
+                          variants.get(ac.id))
+        if ac.state != "planned":
+            corpus.feature_file_acs.add(ac.id)
 
     if entity_id is not None:
         fields = _feature_pair_fields(header, top_keys, raw, kind)
+        extensions = _ac_extensions(acs)
         extensions.update(f"{key}:" for key in OPTIONAL_FEATURE_KEYS if key in top_keys)
         corpus.declare_form(entity_id, "feature-file header", rel, fields,
-                            ac_headers, sorted(extensions))
+                            {ac.id: ac.canonical_header() for ac in acs}, sorted(extensions))
 
     if FEATURE_DEPS_KEY in top_keys:
         entity = "User Story" if kind == "US" else "Functionality"
@@ -734,7 +750,7 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
             if not token.startswith("@AC:"):
                 continue
             m = AC_TAG_RE.fullmatch(token)
-            if m is None:
+            if m is None or not ac_grammar.is_valid_ac_id(m.group("id")):
                 if token.count("/") > 1:
                     corpus.fail(rel, i, f"scenario tag '{token}' carries more than one variant parameter",
                                 "keep one '/<param>:<value>' - a scenario covers one value; tag one "
@@ -750,9 +766,9 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
 
     if entity_id == "FUNC-001" or kind == "FUNC":
         for i, line in enumerate(raw, 1):
-            pm = re.match(r"#\s?parent:\s*((?:US|FEAT|FUNC)-\d+)", line.strip())
+            pm = re.match(r"#\s?parent:(.*)$", line.strip())
             if pm:
-                corpus.entity_refs.append((pm.group(1), rel, i))
+                corpus.entity_refs.extend((rid, rel, i) for rid in _entity_ids(pm.group(1))[:1])
 
 
 # --- PageObject ----------------------------------------------------------------------
@@ -768,7 +784,10 @@ REQUIRED_PO_KEYS_XREF = ["parent-feat", "route", "owners", "purpose", "page-obje
 
 def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
     rel = _rel(path, root)
-    raw = path.read_text(encoding="utf-8").splitlines()
+    text = path.read_text(encoding="utf-8")
+    raw = text.splitlines()
+    _report_rewrites(normalize.normalize(text, SourceFormat.PAGE_OBJECT, ENTITY_TYPES["FEAT"]).changes,
+                     corpus, rel)
 
     header: list[tuple[int, str]] = []
     for i, line in enumerate(raw, 1):
@@ -822,13 +841,12 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
                     "the surface is being retired "
                     "(see living-doc-header-types.md#2-feature-in-a-pageobject-file)")
 
-    entity_id: str | None = None
-    for _, banner in header:
-        bm = re.search(r"LIVING DOC\s+[—-]\s+(FEAT-\d+)", banner)
-        if bm:
-            entity_id = bm.group(1)
-            corpus.declared_entities.add(entity_id)
-            break
+    # The banner's `LIVING DOC — FEAT-<nnn> · <name>` title, read as the PageObject parser reads it.
+    entity_id = derive_entity_id(extract_living_doc_title([t for _, t in header]) or "")[0]
+    if entity_id is not None and not entity_id.startswith("FEAT-"):
+        entity_id = None
+    if entity_id is not None:
+        corpus.declared_entities.add(entity_id)
     if entity_id is not None and not is_xref:
         fields = {key: _collapse(keys[key][1]) for key in PAIR_FIELD_MAP["FEAT"].values()
                   if key in keys}
@@ -846,7 +864,7 @@ def check_pageobject(path: Path, root: Path, corpus: Corpus) -> None:
     for key in ("user_stories", "functionalities", "parent-feat"):
         if key in keys:
             lineno, value = keys[key]
-            for rid in ENTITY_ID_RE.findall(value):
+            for rid in _entity_ids(value):
                 corpus.entity_refs.append((rid, rel, lineno))
 
 
@@ -858,17 +876,27 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
     lines = raw.splitlines()
 
     label_m = re.search(r"Label:\s*(\w+)", raw)
-    title_m = re.search(r"Title:\s*((?:US|FEAT|FUNC)-\d+)", raw)
+    title_m = re.search(r"Title:\s*(.+?)\s*$", raw, re.MULTILINE)
     if not label_m or label_m.group(1) not in LABEL_TO_TYPE:
         corpus.fail(rel, 1, "issue header comment has no recognised 'Label:' value",
                     "add 'Label: DocumentedUserStory|DocumentedFeature|DocumentedFunctionality'")
         return
     etype = LABEL_TO_TYPE[label_m.group(1)]
-    if not title_m:
+    title_id = derive_entity_id(title_m.group(1))[0] if title_m else None
+    if title_id is None:
         corpus.fail(rel, 1, "issue header comment has no 'Title: <ID> ...' entity id",
                     "add 'Title: <US|FEAT|FUNC>-<nnn> · <name>'")
     else:
-        corpus.declared_entities.add(title_m.group(1))
+        corpus.declared_entities.add(title_id)
+    if title_m:
+        # The issue title sits outside the body: `normalize_title` is the rule set for it.
+        canonical, rules = _title_rules(title_m.group(1))
+        if rules:
+            corpus.fail(rel, raw.count("\n", 0, title_m.start()) + 1,
+                        f"NON_CANONICAL_FORM: normalize rewrites the issue title ({', '.join(rules)})",
+                        f"write it as {canonical!r} - ' · ' after the id, '-' (hyphen-minus) in "
+                        "the name (living-doc-glossary.md#acceptance-criterion-ac)")
+    frame = _normalized(raw, SourceFormat.ISSUE_BODY, etype, corpus, rel)
     check_issue_body_levels(lines, corpus, rel)
 
     headings: list[tuple[int, str]] = []
@@ -906,37 +934,41 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
                     f"'## Surface Type' value '{sections['Surface Type']}' is not documented",
                     f"use one of {SURFACE_TYPES} (living-doc-glossary.md#feature)")
 
-    if etype == "FEAT" and title_m:
+    if etype == "FEAT" and title_id:
         if "Surface Type" in sections:
-            corpus.surface_types[title_m.group(1)] = sections["Surface Type"]
+            corpus.surface_types[title_id] = sections["Surface Type"]
         for heading in FEAT_DEPRECATION_HEADINGS:
             if heading in present:
-                corpus.retiring_features.setdefault(title_m.group(1), f"## {heading}")
+                corpus.retiring_features.setdefault(title_id, f"## {heading}")
         if FEATURE_DEPS_HEADING in sections:
             line = next((i for i, h in headings if h == FEATURE_DEPS_HEADING), 1)
-            _declare_feature_deps(sections[FEATURE_DEPS_HEADING], title_m.group(1), corpus, rel,
-                                  line)
+            _declare_feature_deps(sections[FEATURE_DEPS_HEADING], title_id, corpus, rel, line)
 
-    # AC sub-headings share the glossary grammar
+    # AC sub-headings share the glossary grammar, read by `ac_grammar`. The frame opens a criterion
+    # only at an `AC:` line with its `(...)`: any other `### AC:` heading is no criterion at all, so
+    # `ac_grammar` never sees it and the pipeline drops it without a warning.
     ac_headers: dict[str, str] = {}
-    parent_id = title_m.group(1) if title_m else etype + "-000"
     if "Acceptance Criteria" in present:
+        criterion_lines = {block.header.number for block in criterion_blocks(frame)}
         for i, sub in sub_headings:
-            m = AC_HEADER_RE.match(sub.strip())
-            if m is None:
-                corpus.fail(rel, i, f"AC sub-heading '### {sub}' does not match the glossary grammar",
+            if not sub.startswith("AC:"):
+                corpus.fail(rel, i, f"sub-heading '### {sub}' is not an 'AC:' criterion header",
                             "use '### AC:<id> (v<version> - <state>)', or '### AC:<id> (planned)' "
                             "for a backlog AC")
-                continue
-            ac_headers[m.group("id")] = sub.strip()
-            corpus.declare_ac(m.group("id"), set())
-            _validate_ac_header(m, corpus, rel, i, parent_id, AC_STATES)
+            elif i not in criterion_lines:
+                corpus.fail(rel, i,
+                            f"MALFORMED_AC: sub-heading '### {sub}' is no criterion header the "
+                            "pipeline reads",
+                            GRAMMAR_HINTS["MALFORMED_AC"])
+        for ac in _criteria(frame, title_id or etype + "-000", corpus, rel):
+            ac_headers[ac.id] = ac.canonical_header()
+            corpus.declare_ac(ac.id, set())
 
-    if title_m:
+    if title_id:
         fields = {key: sections[heading]
                   for heading, key in PAIR_FIELD_MAP[etype].items() if heading in sections}
         # `NOTES_HEADING` is excluded for the reason given at `OPTIONAL_FEATURE_KEYS`.
-        corpus.declare_form(title_m.group(1), "issue body", rel, fields, ac_headers,
+        corpus.declare_form(title_id, "issue body", rel, fields, ac_headers,
                             [f"## {h}" for h in spec["optional"]
                              if h in present and h != NOTES_HEADING])
 
@@ -948,7 +980,7 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
             section = h2.group(1)
             continue
         if section in ("Parent Feature", "User Stories", "Functionalities"):
-            for rid in ENTITY_ID_RE.findall(line):
+            for rid in _entity_ids(line):
                 corpus.entity_refs.append((rid, rel, i))
 
 
@@ -1098,28 +1130,6 @@ def feature_dependency_rules(corpus: Corpus) -> None:
                         "the replacement surface")
 
 
-def check_canonical_form(path: Path, root: Path, corpus: Corpus) -> None:
-    """NON_CANONICAL_FORM - the corpus is canonical-only.
-
-    An en or em dash in a structural position is what the normalisation layer rewrites on
-    input; the variants themselves are test data for ``living-doc-utilities``, never corpus
-    content (docs/guides/living-doc-glossary.md - "Canonical form and normalisation").
-    """
-    rel = _rel(path, root)
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except (UnicodeDecodeError, OSError):
-        return
-    for i, line in enumerate(lines, 1):
-        for pattern, what in NON_CANONICAL_PATTERNS:
-            if pattern.search(line):
-                corpus.fail(rel, i, f"NON_CANONICAL_FORM: {what}",
-                            "use '-' (hyphen-minus) in structural positions - AC headers, AC "
-                            "bullets, entity names and the '# AC:' separator "
-                            "(see living-doc-glossary.md#acceptance-criterion-ac)")
-                break
-
-
 def form_parity(corpus: Corpus) -> None:
     """PAIR_MISMATCH - the two authored forms of an entity must say the same thing."""
     for entity_id, forms in sorted(corpus.forms.items()):
@@ -1205,10 +1215,6 @@ def check_corpus(examples_dir: Path) -> list[Finding]:
     for extra_yaml in sorted(examples_dir.glob("project-profile/*.yaml")):
         if extra_yaml.name != ".project-profile.yaml":
             check_plain_yaml(extra_yaml, root, corpus)
-
-    for any_file in sorted(examples_dir.rglob("*")):
-        if any_file.is_file():
-            check_canonical_form(any_file, root, corpus)
 
     cross_reference(corpus)
     feature_dependency_rules(corpus)

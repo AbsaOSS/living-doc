@@ -4,6 +4,8 @@
 # status:    planned
 # parent:    FEAT-001
 # func_type: field_validation
+# not_in_scope:
+#   - Forcing a reset of a stored password that is found in the breached-password list later.
 #
 # acceptance_criteria:
 #

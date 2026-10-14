@@ -50,7 +50,7 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 - Must re-check that a guide/glossary format change and the matching `docs/examples/**` update land in the same PR — this repo's stated sync obligation (`docs/examples/README.md` § "Sync obligation").
 - Prefer looking for hidden side effects — cross-links broken by a doc move or rename, a new required header field not reflected in every existing example, and a `docs/examples/_expected/**` snapshot left stale after a pin bump.
 - Prefer validating safe defaults — a malformed or missing `.project-profile.yaml` is reported, not silently skipped.
-- Must confirm a `tools/collector-snapshot-pins.env` bump ships with regenerated `docs/examples/_expected/*.json` in the same PR, per `CONTRIBUTING.md`.
+- Must confirm a `tools/collector-snapshot-pins.env` bump ships with regenerated `docs/examples/_expected/**` in the same PR, per `CONTRIBUTING.md`.
 
 **Response format**
 
@@ -72,10 +72,10 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 
 ## Repo specifics
 
-- Must treat these as high-risk areas — `tools/examples_check.py` (the corpus validation rules), `tools/regen-collector-snapshots.sh` / `tools/normalize_snapshot.py` (the real-collector snapshot pipeline), and the format contracts in `docs/guides/living-doc-header-types.md` / `docs/guides/living-doc-document-types.md` / `docs/guides/living-doc-glossary.md`.
+- Must treat these as high-risk areas — `tools/examples_check.py` (the corpus validation rules), `tools/regen-collector-snapshots.sh` / `tools/normalize_snapshot.py` / `tools/check_collector_stage.py` (the real-collector snapshot pipeline), and the format contracts in `docs/guides/living-doc-header-types.md` / `docs/guides/living-doc-document-types.md` / `docs/guides/living-doc-glossary.md`.
 - Must treat these as contract-sensitive — the `docs/examples/**` fixture corpus, the `docs/examples/_expected/**` snapshots, the pinned refs in `tools/collector-snapshot-pins.env`, and the cross-links `.github/workflows/link-check.yml` validates across `docs/**`.
 - Must expect `tools/examples_check.py` and `tools/normalize_snapshot.py` to stay deterministic and offline — flag any LLM call or unpinned network request introduced into either.
-- Must expect the only test suite to be `tools/test_examples_check.py`, run via `python -m pytest tools/test_examples_check.py -q`, exactly as `.github/workflows/examples-check.yml` runs it.
+- Must expect the test suites to be `tools/test_examples_check.py` and `tools/test_check_utilities_pins.py`, each run via `python -m pytest <file> -q`, exactly as `.github/workflows/examples-check.yml` runs them.
 - Must expect PRs to carry a `#<issue>: Title` or `<issue> - Title` title, a branch name with a ticket number, and `## Overview` / `## Release Notes` / `## Related` sections — enforced by `.github/workflows/check-pr-requirements.yml` and `check_pr_release_notes.yml`, and documented in `CONTRIBUTING.md`.
 
 ## Audit — what this repo deliberately lacks relative to the fleet's code repos

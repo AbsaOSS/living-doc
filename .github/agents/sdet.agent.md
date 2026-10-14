@@ -85,11 +85,11 @@ Non-goals
 Repo specifics
 
 - Test locations
-  - The only test suite is `tools/test_examples_check.py`, mirroring `tools/examples_check.py`. There are no packages and no other test tree.
+  - The test suites are `tools/test_examples_check.py`, mirroring `tools/examples_check.py`, and `tools/test_check_utilities_pins.py`, mirroring `tools/check_utilities_pins.py`. There are no packages and no other test tree.
 - Mock surface
   - The mock surface is the real `docs/examples/**` corpus itself, not a fake — every mutation test copies it into `tmp_path` (the `corpus_dir` fixture), mutates exactly one thing, and asserts `check_corpus()` reports the specific finding by file + rule. Keep this copy-and-mutate shape; do not hand-write a synthetic mini-corpus that could drift from the real one.
   - `test_pristine_corpus_passes` reads `REAL_EXAMPLES` directly (no `corpus_dir` copy) and asserts the committed corpus validates clean with zero findings — keep this test first, since every mutation test depends on the baseline being clean.
-  - Snapshot/mining behavior (`doc-source`, `ui-tests`, `coverage-matrix` output) is exercised by `.github/workflows/real-collector-snapshot.yml` against `docs/examples/_expected/**`, not by a pytest suite in this repo — do not propose duplicating that as a unit test here.
+  - Snapshot/mining behavior (`doc-source`, `ui-tests` output) is exercised by `.github/workflows/real-collector-snapshot.yml` against `docs/examples/_expected/**`, not by a pytest suite in this repo — do not propose duplicating that as a unit test here.
 - Coverage target
   - Must keep `tools/test_examples_check.py` green under `python -m pytest tools/test_examples_check.py -q` — the exact command `.github/workflows/examples-check.yml` runs. This repo has no per-file or per-package coverage percentage gate; do not invent one.
 - Mocking rules

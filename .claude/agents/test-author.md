@@ -10,8 +10,9 @@ surface** — so you isolate the right boundary on the first try instead of gues
 
 ## Rules
 
-- Must use `pytest`. The only test file is `tools/test_examples_check.py`, testing
-  `tools/examples_check.py`. There are no packages, no `Makefile`, and no other test tree.
+- Must use `pytest`. The test files are `tools/test_examples_check.py`, testing
+  `tools/examples_check.py`, and `tools/test_check_utilities_pins.py`, testing
+  `tools/check_utilities_pins.py`. There are no packages, no `Makefile`, and no other test tree.
 - The checker only reads a directory tree — there is no network call and nothing else
   external to stub. Must isolate every mutation to `tmp_path`; must never write to the real
   `docs/examples/` tree.
@@ -31,7 +32,7 @@ surface** — so you isolate the right boundary on the first try instead of gues
 | An undeclared `@AC:` tag | replace a valid `@AC:<id>` with an ID no entity declares, assert the finding names the bogus ID | `test_undeclared_ac_tag_fails` |
 | An unknown `/aspect:` value | replace a declared aspect value with a made-up one, assert the finding names it | `test_unknown_aspect_value_fails` |
 | A dangling parent link | replace a valid `parent:` value with a nonexistent ID, assert the finding names it | `test_dangling_parent_link_fails` |
-| Broken `AC:<id> (v<version> - <state>)` grammar | replace the glossary-grammar string with a malformed one, assert the finding mentions "glossary grammar" | `test_broken_ac_grammar_fails` |
+| Broken `AC:<id> (v<version> - <state>)` grammar | replace the glossary-grammar string with a malformed one, assert the finding carries the `ac_grammar` code (`MALFORMED_AC: <ac id>: ...`) | `test_broken_ac_grammar_fails` |
 | An extra, undocumented `##` heading in a `gh-issues/*.md` body | append an out-of-spec heading, assert the finding names it | `test_issue_body_extra_heading_fails` |
 | The coverage-pair rule (every AC covered leaves no deliberate gap) | cover every AC in both `.feature` files with a scenario, assert a `coverage-pair` finding fires | `test_coverage_pair_broken_when_every_ac_covered` |
 | A PageObject missing a required field (e.g. `route:`) | strip the field's comment line, assert the finding names it | `test_pageobject_missing_required_field_fails` |

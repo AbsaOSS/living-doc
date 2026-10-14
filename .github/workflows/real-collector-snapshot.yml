@@ -13,15 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Runs the REAL living-doc-collector-gh (doc-source + ui-tests) and the REAL
-# living-doc-toolkit coverage-matrix over docs/examples/gherkin/, then snapshot-tests
-# the mined JSON against docs/examples/_expected/*.json.
+# Runs the REAL living-doc-collector-gh (`doc-source` + `ui-tests`) over docs/examples/, in a venv of its own built
+# from the collector's runtime requirements.txt at the ref pinned in tools/collector-snapshot-pins.env, and:
+#   1. reports the living-doc-utilities pin of each component (tools/check_utilities_pins.py) - a minor skew is a
+#      warning here; gates run the report with --strict,
+#   2. validates each artifact against its contract and asserts the collector stage's first-stage content
+#      (tools/check_collector_stage.py),
+#   3. snapshot-tests the normalized JSON against docs/examples/_expected/collector-gh/<mode>/<artifact>.json.
 #
-# A failing diff means one of two things:
-#   1. the example corpus changed and docs/examples/_expected/ was not regenerated, or
-#   2. the pinned collector/toolkit was bumped and its parser output moved.
+# A failing diff means one of three things:
+#   1. the example corpus changed and docs/examples/_expected/ was not regenerated,
+#   2. the pinned collector was bumped and its parser output moved, or
+#   3. docs/examples/_expected/ holds a file this job no longer produces.
 # Either way: run `tools/regen-collector-snapshots.sh` and commit the result
 # (see CONTRIBUTING.md -> "Regenerating the collector snapshots").
+#
+# The living-doc-toolkit `coverage-matrix` stage is not run yet: it returns once the toolkit itself is on
+# living-doc-utilities.
 #
 # This is deliberately separate from examples-check.yml, which stays self-contained and
 # installs no collector. This workflow exists to exercise the real mining code.
@@ -33,17 +41,13 @@ on:
     branches: [ "master" ]
     paths:
       - "docs/examples/**"
-      - "tools/regen-collector-snapshots.sh"
-      - "tools/normalize_snapshot.py"
-      - "tools/collector-snapshot-pins.env"
+      - "tools/**"
       - ".github/workflows/real-collector-snapshot.yml"
   pull_request:
     types: [ opened, synchronize, reopened ]
     paths:
       - "docs/examples/**"
-      - "tools/regen-collector-snapshots.sh"
-      - "tools/normalize_snapshot.py"
-      - "tools/collector-snapshot-pins.env"
+      - "tools/**"
       - ".github/workflows/real-collector-snapshot.yml"
   schedule:
     # Weekly, to catch collector drift between example PRs.
@@ -59,7 +63,7 @@ permissions:
 
 jobs:
   real-collector-snapshot:
-    name: Snapshot the real collector over docs/examples/gherkin
+    name: Snapshot the real collector over docs/examples
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -72,32 +76,26 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: Run the pinned collector + toolkit over the corpus
-        env:
-          # Only used for the collector's start-up connectivity check.
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Report the living-doc-utilities pins
+        run: python tools/check_utilities_pins.py
+
+      - name: Run the pinned collector-gh over the corpus, validate and assert
         run: tools/regen-collector-snapshots.sh "${{ runner.temp }}/actual"
 
       - name: Diff mined output against docs/examples/_expected/
         run: |
           set -euo pipefail
-          status=0
-          for name in doc-source ui-tests coverage-matrix; do
-            expected="docs/examples/_expected/${name}.json"
-            actual="${{ runner.temp }}/actual/${name}.json"
-            if ! diff -u "$expected" "$actual" > "/tmp/${name}.diff"; then
-              echo "::error file=${expected}::${name}.json snapshot diff - regenerate with tools/regen-collector-snapshots.sh"
-              echo "----- ${name}.json -----"
-              cat "/tmp/${name}.diff"
-              status=1
-            fi
-          done
-          if [[ $status -ne 0 ]]; then
+          # The whole tree: a snapshot the job no longer writes (e.g. a stale root-level file) fails too.
+          if ! diff -ru docs/examples/_expected "${{ runner.temp }}/actual" > "${{ runner.temp }}/snapshot.diff"; then
+            echo "::error file=docs/examples/_expected::snapshot diff - regenerate with tools/regen-collector-snapshots.sh"
+            cat "${{ runner.temp }}/snapshot.diff"
             echo ""
             echo "Snapshot mismatch. Likely cause, one of:"
             echo "  1. docs/examples/** changed and docs/examples/_expected/ was not regenerated."
-            echo "  2. the pinned collector/toolkit in tools/collector-snapshot-pins.env was bumped"
-            echo "     and its parser output moved."
+            echo "  2. the pinned collector in tools/collector-snapshot-pins.env was bumped and its parser"
+            echo "     output moved."
+            echo "  3. docs/examples/_expected/ holds a file this job no longer produces."
             echo "Fix: run tools/regen-collector-snapshots.sh and commit docs/examples/_expected/."
+            exit 1
           fi
-          exit $status
+          echo "docs/examples/_expected/ matches the mined output."

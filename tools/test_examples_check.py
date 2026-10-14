@@ -28,8 +28,9 @@ from pathlib import Path
 
 import pytest
 
-from examples_check import (AC_HEADER_RE, AC_TAG_RE, FEATURE_STOP_RE, FEATURE_STRIP_RE, Corpus,
-                            _decomment_block, check_corpus, check_feature_levels)
+from examples_check import (AC_TAG_RE, FEATURE_STOP_RE, FEATURE_STRIP_RE, Corpus, SourceFormat,
+                            _criteria, _decomment_block, _normalized, check_corpus,
+                            check_feature_levels)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REAL_EXAMPLES = REPO_ROOT / "docs" / "examples"
@@ -119,7 +120,9 @@ def test_ac_with_aspect_and_keyword_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any("FUNC-001-03 declares more than one variant" in f.rule for f in findings), findings
+    assert any(f.rule.startswith("MALFORMED_AC: FUNC-001-03: ")
+               and "declares its variants more than once (rule, Aspect)" in f.rule
+               for f in findings), findings
 
 
 def test_ac_with_two_aspects_fails(corpus_dir: Path) -> None:
@@ -132,8 +135,8 @@ def test_ac_with_two_aspects_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any(FUNC_FEATURE in f.file
-               and "FUNC-001-01 declares more than one variant: 'aspect' and 'aspect'" in f.rule
+    assert any(FUNC_FEATURE in f.file and f.rule.startswith("MALFORMED_AC: FUNC-001-01: ")
+               and "declares its variants more than once (Aspect, Aspect)" in f.rule
                for f in findings), findings
 
 
@@ -150,7 +153,8 @@ def test_ac_with_two_keywords_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any("FUNC-001-03 declares more than one variant: 'rule' and 'field'" in f.rule
+    assert any(f.rule.startswith("MALFORMED_AC: FUNC-001-03: ")
+               and "declares its variants more than once (rule, field)" in f.rule
                for f in findings), findings
 
 
@@ -161,7 +165,8 @@ def test_keyword_bullet_without_placeholder_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any("'- rule:' under FUNC-001-03 is not a keyword" in f.rule for f in findings), findings
+    assert any(f.rule.startswith("UNPARSED_AC_LINE: FUNC-001-03: ")
+               and "Bullet 'rule' is not a keyword" in f.rule for f in findings), findings
 
 
 def test_reserved_aspect_keyword_fails(corpus_dir: Path) -> None:
@@ -183,6 +188,28 @@ def test_keyword_name_not_kebab_case_fails(corpus_dir: Path) -> None:
     findings = findings_for(corpus_dir)
     assert any("keyword 'failed_rule' of FUNC-001-03 is not one lowercase kebab-case name" in f.rule
                for f in findings), findings
+
+
+def test_keyword_spelled_unlike_its_placeholder_fails(corpus_dir: Path) -> None:
+    # `ac_grammar` folds case, `-`, `_` and space, so it reads `- Rule:` under `{rule}` as the keyword
+    # without a warning: the one spelling is checked here, on the bullet as written.
+    _mutate(corpus_dir, FUNC_FEATURE, "#     - rule:", "#     - Rule:")
+
+    findings = findings_for(corpus_dir)
+    assert any(FUNC_FEATURE in f.file and f.line == 19
+               and f.rule == "keyword 'Rule' of FUNC-001-03 is not one lowercase kebab-case name"
+               for f in findings), findings
+    assert not any(f.rule.startswith(("MALFORMED_AC", "UNPARSED_AC_LINE")) for f in findings), findings
+
+
+def test_tag_name_spelled_unlike_the_keyword_fails(corpus_dir: Path) -> None:
+    # The link the pipeline parses keeps no name and folds its case: the tag is read as written.
+    _mutate(corpus_dir, FUNC_FEATURE, "@AC:FUNC-001-03/rule:minimum-length",
+            "@AC:FUNC-001-03/Rule:minimum-length")
+
+    findings = findings_for(corpus_dir)
+    assert any(FUNC_FEATURE in f.file and "'@AC:FUNC-001-03/Rule:minimum-length'" in f.rule
+               and "tag format" in f.rule for f in findings), findings
 
 
 @pytest.mark.parametrize("value", ["entropy-score", "Minimum-Length"])
@@ -251,7 +278,8 @@ def test_broken_ac_grammar_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any("glossary grammar" in f.rule for f in findings), findings
+    assert any(US_FEATURE in f.file and f.rule.startswith("MALFORMED_AC: US-001-02: ")
+               for f in findings), findings
 
 
 @pytest.mark.parametrize("bad_id", ["FEAT-001-02", "JIRA-12-01"])
@@ -263,7 +291,9 @@ def test_ac_header_with_non_owner_prefix_fails(corpus_dir: Path, bad_id: str) ->
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any(US_FEATURE in f.file and "glossary grammar" in f.rule for f in findings), findings
+    assert any(US_FEATURE in f.file
+               and f.rule == "MALFORMED_AC: Acceptance-criterion header is malformed."
+               for f in findings), findings
 
 
 @pytest.mark.parametrize("bad_id", ["FEAT-001-01", "JIRA-12-01"])
@@ -279,8 +309,14 @@ def test_ac_tag_with_non_owner_prefix_fails(corpus_dir: Path, bad_id: str) -> No
 
 @pytest.mark.parametrize("ac_id", ["US-001-01", "FUNC-001-01"])
 def test_ac_header_accepts_owner_prefix(ac_id: str) -> None:
-    m = AC_HEADER_RE.match(f"AC:{ac_id} (v1.0.0 - active)")
-    assert m is not None and m.group("id") == ac_id
+    entity_id = ac_id.rsplit("-", 1)[0]
+    header = (f"# ====\n# LIVING DOC — {entity_id} · Example\n# ====\n# status: active\n"
+              f"#\n# acceptance_criteria:\n#\n#   AC:{ac_id} (v1.0.0 - active)\n"
+              "#     - The outcome holds.\n# ====\n")
+    corpus = Corpus()
+    frame = _normalized(header, SourceFormat.FEATURE_HEADER, entity_id.split("-")[0], corpus, "x")
+    acs = _criteria(frame, entity_id, corpus, "x")
+    assert [ac.id for ac in acs] == [ac_id] and corpus.findings == []
 
 
 @pytest.mark.parametrize("ac_id", ["US-001-01", "FUNC-001-01"])
@@ -542,20 +578,68 @@ def test_unknown_ac_state_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any(US_FEATURE in f.file and "is not a documented state" in f.rule
+    assert any(US_FEATURE in f.file and f.rule.startswith("MALFORMED_AC: US-001-02: ")
+               and "state: Input should be 'planned', 'in_review', 'active' or 'deprecated'" in f.rule
                for f in findings), findings
 
 
 def test_non_canonical_dash_in_entity_name_fails(corpus_dir: Path) -> None:
-    target = corpus_dir / FUNC_FEATURE
-    text = target.read_text(encoding="utf-8").replace(
-        "Login Page - Validate Password Strength",
-        "Login Page \u2014 Validate Password Strength")
-    target.write_text(text, encoding="utf-8")
+    # The Gherkin `Feature:` line alone: no frame `normalize` rewrites holds it, and the banner's title
+    # (line 2) is left as written, so this finding comes from the `Feature:` line or from nothing.
+    _mutate(corpus_dir, FUNC_FEATURE, "Feature: Login Page - Validate Password Strength",
+            "Feature: Login Page \u2014 Validate Password Strength")
 
     findings = findings_for(corpus_dir)
-    assert any(FUNC_FEATURE in f.file and "NON_CANONICAL_FORM" in f.rule
+    match = [f for f in findings if FUNC_FEATURE in f.file]
+    assert [(f.line, f.rule) for f in match] == [
+        (24, "NON_CANONICAL_FORM: normalize rewrites the entity name on the 'Feature:' line "
+             "(entity_name_dash)")], findings
+    assert "'Feature: Login Page - Validate Password Strength'" in match[0].hint, match[0].hint
+
+
+# --- NON_CANONICAL_FORM: a line `normalize` would rewrite, in each authored format ----------------
+
+@pytest.mark.parametrize(("path", "old", "new", "rule", "line"), [
+    # `.feature` header: an AC header's separator, state case and version form, a bullet marker
+    (US_FEATURE, "#   AC:US-001-02 (v1.0.0 - active)", "#   AC:US-001-02 (v1.0.0 – active)",
+     "ac_header_separator", 16),
+    (US_FEATURE, "#   AC:US-001-02 (v1.0.0 - active)", "#   AC:US-001-02 (v1.0.0 - Active)",
+     "state_casing", 16),
+    (US_FEATURE, "#   AC:US-001-03 (v1.1.0 - planned)", "#   AC:US-001-03 (v1.1 - planned)",
+     "version_form", 20),
+    (US_FEATURE, "#   - Registered customers", "#   • Registered customers", "bullet_marker", 6),
+    # `.feature` scenario body: the `# AC:` comment over a scenario
+    (US_FEATURE, "  # AC:US-001-01 (v1.0.0 - active) - valid",
+     "  # AC:US-001-01 (v1.0.0 — active) - valid", "ac_header_separator", 34),
+    # issue body: an AC sub-heading
+    (US_ISSUE, "### AC:US-001-02 (v1.0.0 - active)", "### AC:US-001-02 (v1.0.0 – active)",
+     "ac_header_separator", 29),
+    # `.feature` header: the banner's title, a dash in the entity name
+    (FUNC_FEATURE, "FUNC-001 · Login Page - Validate Password Strength",
+     "FUNC-001 · Login Page — Validate Password Strength", "entity_name_dash", 2),
+    # PageObject header: the banner's title
+    (PAGEOBJECT, "FEAT-001 · Login Page", "FEAT-001 – Login Page", "title_id_separator", 2),
+])
+def test_line_normalize_rewrites_fails(corpus_dir: Path, path: str, old: str, new: str, rule: str,
+                                       line: int) -> None:
+    _mutate(corpus_dir, path, old, new)
+
+    findings = findings_for(corpus_dir)
+    assert any(path in f.file and f.line == line
+               and f.rule == f"NON_CANONICAL_FORM: normalize rewrites this line ({rule})"
                for f in findings), findings
+    # `ac_grammar` reads the normalised text, so a variant it can rewrite is no grammar failure too.
+    assert not any(f.rule.startswith("MALFORMED_AC") for f in findings), findings
+
+
+def test_non_canonical_issue_title_fails(corpus_dir: Path) -> None:
+    _mutate(corpus_dir, US_ISSUE, "Title: US-001 · Customer Login", "Title: US-001 — Customer Login")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings if US_ISSUE in f.file and f.line == 3 and f.rule ==
+             "NON_CANONICAL_FORM: normalize rewrites the issue title (title_id_separator)"]
+    assert match, findings
+    assert "'US-001 · Customer Login'" in match[0].hint, match[0].hint
 
 
 def test_version_less_non_planned_ac_fails(corpus_dir: Path) -> None:
@@ -565,7 +649,8 @@ def test_version_less_non_planned_ac_fails(corpus_dir: Path) -> None:
     target.write_text(text, encoding="utf-8")
 
     findings = findings_for(corpus_dir)
-    assert any(FUNC_FEATURE in f.file and "carries no version" in f.rule
+    assert any(FUNC_FEATURE in f.file and f.rule.startswith("MALFORMED_AC: FUNC-001-02: ")
+               and "version is required unless state is 'planned'" in f.rule
                for f in findings), findings
 
 
@@ -611,6 +696,77 @@ def test_two_optional_field_extensions_fail(corpus_dir: Path) -> None:
 
     findings = findings_for(corpus_dir)
     assert any(US_ISSUE in f.file and "more than one optional field extension" in f.rule
+               for f in findings), findings
+
+
+# --- PAIR_MISMATCH on the AC sets `ac_grammar` parses ---------------------------------------------
+
+def test_pair_with_a_different_ac_state_fails(corpus_dir: Path) -> None:
+    _mutate(corpus_dir, US_ISSUE, "### AC:US-001-02 (v1.0.0 - active)",
+            "### AC:US-001-02 (v1.0.0 - in_review)")
+
+    findings = findings_for(corpus_dir)
+    match = [f for f in findings if US_ISSUE in f.file
+             and f.rule == "PAIR_MISMATCH: US-001 declares a different AC set in its two forms"]
+    assert match, findings
+    assert "['AC:US-001-02 (v1.0.0 - active)']" in match[0].hint, match[0].hint
+    assert "['AC:US-001-02 (v1.0.0 - in_review)']" in match[0].hint, match[0].hint
+
+
+def test_pair_compares_parsed_criteria_not_their_text(corpus_dir: Path) -> None:
+    # `v1.1` normalises to `v1.1.0`: both forms parse to the same AC set, so the non-canonical
+    # spelling is the only finding.
+    _mutate(corpus_dir, US_ISSUE, "### AC:US-001-03 (v1.1.0 - planned)",
+            "### AC:US-001-03 (v1.1 - planned)")
+
+    assert [f.rule for f in findings_for(corpus_dir)] == [
+        "NON_CANONICAL_FORM: normalize rewrites this line (version_form)"]
+
+
+def test_pair_without_a_criterion_ac_grammar_drops_fails(corpus_dir: Path) -> None:
+    # A criterion `ac_grammar` cannot read leaves its form's AC set, as the pipeline drops it.
+    _mutate(corpus_dir, US_ISSUE, "### AC:US-001-04 (v1.0.0 - deprecated - removal planned v2.0.0)",
+            "### AC:US-001-04 (v1.0.0 - deprecated)")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_ISSUE in f.file and f.rule.startswith("MALFORMED_AC: US-001-04: ")
+               and "removal_planned is required when state is 'deprecated'" in f.rule
+               for f in findings), findings
+    assert any(US_ISSUE in f.file
+               and f.rule == "PAIR_MISMATCH: US-001 declares a different AC set in its two forms"
+               for f in findings), findings
+
+
+def test_issue_body_sub_heading_that_is_no_criterion_fails(corpus_dir: Path) -> None:
+    _mutate(corpus_dir, US_ISSUE, "### AC:US-001-02 (v1.0.0 - active)", "### US-001-02 (v1.0.0 - active)")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_ISSUE in f.file and f.line == 29 and f.rule ==
+               "sub-heading '### US-001-02 (v1.0.0 - active)' is not an 'AC:' criterion header"
+               for f in findings), findings
+
+
+@pytest.mark.parametrize("heading", ["### AC:US-001-05 (v1.0.0 - active",
+                                     "### AC:US-001-05 v1.0.0 - active"])
+def test_issue_only_criterion_the_frame_cannot_open_fails(corpus_dir: Path, heading: str) -> None:
+    # The frame opens a criterion only at an `AC:` line with its `(...)`: this heading is no criterion,
+    # so `ac_grammar` raises nothing, and with no `.feature` twin no PAIR_MISMATCH reports it either.
+    anchor = "### AC:US-001-04 (v1.0.0 - deprecated - removal planned v2.0.0)"
+    _mutate(corpus_dir, US_ISSUE, anchor, f"{heading}\n\n- The outcome holds.\n\n{anchor}")
+
+    findings = findings_for(corpus_dir)
+    assert [(f.line, f.rule) for f in findings if US_ISSUE in f.file] == [
+        (37, f"MALFORMED_AC: sub-heading '{heading}' is no criterion header the pipeline reads")], findings
+
+
+def test_ac_owned_by_another_entity_fails(corpus_dir: Path) -> None:
+    # `ac_grammar` reads a well-formed id of any owner; ownership is the checker's to compare.
+    for path in (US_FEATURE, US_ISSUE):
+        _mutate(corpus_dir, path, "AC:US-001-02 (v1.0.0 - active)", "AC:US-002-02 (v1.0.0 - active)")
+
+    findings = findings_for(corpus_dir)
+    assert any(US_FEATURE in f.file and f.line == 16
+               and f.rule == "AC id 'US-002-02' does not belong to entity 'US-001'"
                for f in findings), findings
 
 
