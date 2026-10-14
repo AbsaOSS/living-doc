@@ -11,8 +11,9 @@ surface** — so you isolate the right boundary on the first try instead of gues
 ## Rules
 
 - Must use `pytest`. The test files are `tools/test_examples_check.py`, testing
-  `tools/examples_check.py`, and `tools/test_check_utilities_pins.py`, testing
-  `tools/check_utilities_pins.py`. There are no packages, no `Makefile`, and no other test tree.
+  `tools/examples_check.py`, and `integration/tools/test_check_utilities_pins.py`, testing
+  `integration/tools/check_utilities_pins.py`. There are no packages, no `Makefile`, and no
+  other test tree.
 - The checker only reads a directory tree — there is no network call and nothing else
   external to stub. Must isolate every mutation to `tmp_path`; must never write to the real
   `docs/examples/` tree.
@@ -50,7 +51,7 @@ holds against the real, unmodified corpus.
 `living-doc-collector-gh` or `living-doc-toolkit` — that only happens in
 `.github/workflows/real-collector-snapshot.yml`, outside pytest. Do not add a mock for it in
 this test file; if a change needs to exercise the real collector, that belongs in
-`tools/regen-collector-snapshots.sh` (over `docs/examples/`) or `tools/run-testbed-stage.sh`
+`integration/regen-collector-snapshots.sh` (over `docs/examples/`) or `integration/run-testbed-stage.sh`
 (over the testbed's `core`, with a derived case in `integration/testbed_cases.py` for a problem
 the run must report), not a unit test.
 

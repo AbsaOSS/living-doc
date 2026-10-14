@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for tools/check_utilities_pins.py — the living-doc-utilities pin report.
+"""Tests for integration/tools/check_utilities_pins.py — the living-doc-utilities pin report.
 
-Run: ``python -m pytest tools/test_check_utilities_pins.py`` (needs pytest only).
+Run: ``python -m pytest integration/tools/test_check_utilities_pins.py`` (needs pytest only).
 Every case reads synthetic requirements files from ``tmp_path``; the one fetch test replaces
 the network call, so nothing here goes online.
 """

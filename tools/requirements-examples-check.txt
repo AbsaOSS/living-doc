@@ -1,9 +1,9 @@
 # Pinned dependencies for tools/examples_check.py and its test (see
 # .github/workflows/examples-check.yml). Scoped to the docs/examples corpus check only; the
-# collector-stage scripts run in the collector's own venv (tools/collector-gh.sh), and
-# tools/check_utilities_pins.py needs only the standard library. living-doc-utilities brings the
-# canonical-form and acceptance-criterion grammar the checker reads the corpus with; keep its minor
-# in step with the collector's (tools/check_utilities_pins.py reports both).
+# collector-stage scripts run in the collector's own venv (integration/collector-gh.sh), and
+# integration/tools/check_utilities_pins.py needs only the standard library. living-doc-utilities
+# brings the canonical-form and acceptance-criterion grammar the checker reads the corpus with; keep
+# its minor in step with the collector's (integration/tools/check_utilities_pins.py reports both).
 PyYAML==6.0.3
 pytest==9.1.1
 living-doc-utilities==0.6.0

@@ -45,7 +45,7 @@ Task-list source (optional override): `$2`
   `aspect` or the AC's keyword name, one per tag),
   `docs/examples/_expected/**` structure) unless the task explicitly calls for it.
 - If the change moves what `docs/examples/**` mines to, or bumps a pin in
-  `tools/collector-snapshot-pins.env`, regenerate `docs/examples/_expected/**` in this
+  `integration/tools/collector-snapshot-pins.env`, regenerate `docs/examples/_expected/**` in this
   same PR per `CONTRIBUTING.md` § "Regenerating the collector snapshots".
 
 ## 4. Run the checks until green
@@ -54,7 +54,7 @@ Task-list source (optional override): `$2`
   checker changed).
 - `python -m pytest tools/test_examples_check.py -q` (only if the checker or its tests
   changed) — the same command `.github/workflows/examples-check.yml` runs.
-- `tools/run-testbed-stage.sh` (only if `tools/**`, `integration/**` or
+- `integration/run-testbed-stage.sh` (only if `integration/**` or
   `.github/workflows/real-collector-snapshot.yml` changed) — the collector stage over the
   testbed's `core`, the same script that workflow's `testbed-collector-stage` job runs.
 - There is no `make qa`, no lint, no type-check, and no coverage-percentage gate in this
@@ -73,7 +73,7 @@ file that now exists — **not** by checking that a same-named test is green.
   present, and confirm it is the corpus's one instance of that extension (see
   `docs/examples/README.md` "Conventions used by this corpus").
 - "the snapshot reflects the change" → confirm `docs/examples/_expected/**` was
-  regenerated and diffs clean against a fresh `tools/regen-collector-snapshots.sh` run.
+  regenerated and diffs clean against a fresh `integration/regen-collector-snapshots.sh` run.
 
 Record each criterion as met (with the `file:line` that proves it) or not met. If any
 criterion is not met, return to step 3.

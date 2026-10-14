@@ -17,8 +17,8 @@
 """Report the ``living-doc-utilities`` version each component pins, and warn on a minor skew.
 
 Reads the pin from each component's runtime ``requirements.txt`` at the ref
-``tools/collector-snapshot-pins.env`` pins it to (fetched from GitHub at that ref), and from
-``tools/requirements-examples-check.txt``, the corpus checker's own requirements. Prints a
+``integration/tools/collector-snapshot-pins.env`` pins it to (fetched from GitHub at that ref), and
+from ``tools/requirements-examples-check.txt``, the corpus checker's own requirements. Prints a
 component -> pin table, then:
 
 - a warning when two pins differ in their ``major.minor``, when a component pins no
@@ -28,7 +28,7 @@ component -> pin table, then:
 It reports and nothing more: whether the artifacts validate is the snapshot job's own check.
 
 Usage:
-    python tools/check_utilities_pins.py [--strict] [--requirements COMPONENT=PATH ...]
+    python integration/tools/check_utilities_pins.py [--strict] [--requirements COMPONENT=PATH ...]
 
 ``--requirements`` reads a component's requirements from a local file instead, e.g. a
 working copy of the collector. Exit codes: 0 pins reported (warnings allowed unless
@@ -46,8 +46,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-PINS_FILE = REPO_ROOT / "tools" / "collector-snapshot-pins.env"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PINS_FILE = REPO_ROOT / "integration" / "tools" / "collector-snapshot-pins.env"
 PACKAGE = "living-doc-utilities"
 
 # Each component the snapshot job installs: its pin key in the pins file, its GitHub repository and

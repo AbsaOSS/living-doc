@@ -42,7 +42,7 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 
 ## Mode — Double-check review
 
-- Must treat the change as higher risk — any change to `docs/guides/living-doc-header-types.md`, `docs/guides/living-doc-document-types.md`, or `docs/guides/living-doc-glossary.md` (the format contracts), any change to `tools/examples_check.py`'s rule set, any pin bump in `tools/collector-snapshot-pins.env`, and anything touching `docs/examples/**` or `docs/examples/_expected/**`.
+- Must treat the change as higher risk — any change to `docs/guides/living-doc-header-types.md`, `docs/guides/living-doc-document-types.md`, or `docs/guides/living-doc-glossary.md` (the format contracts), any change to `tools/examples_check.py`'s rule set, any pin bump in `integration/tools/collector-snapshot-pins.env`, and anything touching `docs/examples/**` or `docs/examples/_expected/**`.
 
 **Additional focus**
 
@@ -50,7 +50,7 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 - Must re-check that a guide/glossary format change and the matching `docs/examples/**` update land in the same PR — this repo's stated sync obligation (`docs/examples/README.md` § "Sync obligation").
 - Prefer looking for hidden side effects — cross-links broken by a doc move or rename, a new required header field not reflected in every existing example, and a `docs/examples/_expected/**` snapshot left stale after a pin bump.
 - Prefer validating safe defaults — a malformed or missing `.project-profile.yaml` is reported, not silently skipped.
-- Must confirm a `tools/collector-snapshot-pins.env` bump ships with regenerated `docs/examples/_expected/**` in the same PR, per `CONTRIBUTING.md`.
+- Must confirm a `integration/tools/collector-snapshot-pins.env` bump ships with regenerated `docs/examples/_expected/**` in the same PR, per `CONTRIBUTING.md`.
 
 **Response format**
 
@@ -72,16 +72,16 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 
 ## Repo specifics
 
-- Must treat these as high-risk areas — `tools/examples_check.py` (the corpus validation rules), `tools/regen-collector-snapshots.sh` / `tools/normalize_snapshot.py` / `tools/check_collector_stage.py` (the real-collector snapshot pipeline), `tools/collector-gh.sh` / `tools/run-testbed-stage.sh` / `tools/check_testbed_stage.py` / `integration/testbed_cases.py` (the shared collector run and the testbed stage), and the format contracts in `docs/guides/living-doc-header-types.md` / `docs/guides/living-doc-document-types.md` / `docs/guides/living-doc-glossary.md`.
-- Must treat these as contract-sensitive — the `docs/examples/**` fixture corpus, the `docs/examples/_expected/**` snapshots, the pinned refs in `tools/collector-snapshot-pins.env`, and the cross-links `.github/workflows/link-check.yml` validates across `docs/**`.
-- Must expect `tools/examples_check.py` and `tools/normalize_snapshot.py` to stay deterministic and offline — flag any LLM call or unpinned network request introduced into either.
-- Must expect the testbed stage to read `AbsaOSS/living-doc-testbed` at `master` and derive every count from the checkout — flag a SHA pin on the testbed, a count or an id of `core`'s content written into `tools/check_testbed_stage.py`, a derived case that matches literal text, or anything that writes into the testbed.
-- Must expect the test suites to be `tools/test_examples_check.py` and `tools/test_check_utilities_pins.py`, each run via `python -m pytest <file> -q`, exactly as `.github/workflows/examples-check.yml` runs them.
+- Must treat these as high-risk areas — `tools/examples_check.py` (the corpus validation rules), `integration/regen-collector-snapshots.sh` / `integration/tools/normalize_snapshot.py` / `integration/tools/check_collector_stage.py` (the real-collector snapshot pipeline), `integration/collector-gh.sh` / `integration/run-testbed-stage.sh` / `integration/tools/check_testbed_stage.py` / `integration/testbed_cases.py` (the shared collector run and the testbed stage), and the format contracts in `docs/guides/living-doc-header-types.md` / `docs/guides/living-doc-document-types.md` / `docs/guides/living-doc-glossary.md`.
+- Must treat these as contract-sensitive — the `docs/examples/**` fixture corpus, the `docs/examples/_expected/**` snapshots, the pinned refs in `integration/tools/collector-snapshot-pins.env`, and the cross-links `.github/workflows/link-check.yml` validates across `docs/**`.
+- Must expect `tools/examples_check.py` and `integration/tools/normalize_snapshot.py` to stay deterministic and offline — flag any LLM call or unpinned network request introduced into either.
+- Must expect the testbed stage to read `AbsaOSS/living-doc-testbed` at `master` and derive every count from the checkout — flag a SHA pin on the testbed, a count or an id of `core`'s content written into `integration/tools/check_testbed_stage.py`, a derived case that matches literal text, or anything that writes into the testbed.
+- Must expect the test suites to be `tools/test_examples_check.py` and `integration/tools/test_check_utilities_pins.py`, each run via `python -m pytest <file> -q`, exactly as `.github/workflows/examples-check.yml` runs them.
 - Must expect PRs to carry a `#<issue>: Title` or `<issue> - Title` title, a branch name with a ticket number, and `## Overview` / `## Release Notes` / `## Related` sections — enforced by `.github/workflows/check-pr-requirements.yml` and `check_pr_release_notes.yml`, and documented in `CONTRIBUTING.md`.
 
 ## Audit — what this repo deliberately lacks relative to the fleet's code repos
 
 - **`.github/copilot-instructions.md`** — not added by this PR. The code repos (`living-doc-toolkit`, `living-doc-collector-gh`, `living-doc-collector-ad`, `living-doc-generator-pdf`, `living-doc-utilities`) each carry one as a self-description of their package/module map. `living-doc` is documentation-plus-a-corpus, not a package tree; its self-description already lives in `README.md`, `CONTRIBUTING.md`, and `docs/examples/README.md`. Revisit if the repo grows a second Python surface.
 - **`.claude/rules/docs-lifecycle.md`** — not carried over. That rule moves an implemented `SPEC.md` section into the live docs; this repo has no `SPEC.md` — its planning docs are local and gitignored (see `.gitignore`), never reaching a PR, so there is nothing for that rule to move.
-- **Full `senior-developer` / `devops-engineer` remit** — scoped down, not dropped. The fleet versions assume a Python monorepo with `make qa`, per-package Pylint/mypy/coverage gates, and CLI/adapter contracts. This repo has none of that (its Python is a few standalone scripts in `tools/` and `integration/`, with no package and no shared gate); their `.github/agents/*.agent.md` "Repo specifics" sections reflect the smaller real surface (`tools/*.py`, `integration/*.py`, the eight workflows) instead of inventing gates that don't exist here.
+- **Full `senior-developer` / `devops-engineer` remit** — scoped down, not dropped. The fleet versions assume a Python monorepo with `make qa`, per-package Pylint/mypy/coverage gates, and CLI/adapter contracts. This repo has none of that (its Python is a few standalone scripts in `tools/` and `integration/`, with no package and no shared gate); their `.github/agents/*.agent.md` "Repo specifics" sections reflect the smaller real surface (`tools/*.py`, `integration/*.py`, `integration/tools/*.py`, the eight workflows) instead of inventing gates that don't exist here.
 - **`.claude/settings.json`** — intentionally not touched by this PR; it carries local owner configuration.

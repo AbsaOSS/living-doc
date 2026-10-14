@@ -39,7 +39,7 @@ snapshotted yet; see [What the corpus mines to](#what-the-corpus-mines-to-_expec
 source-code chain — `gherkin/` and `pageobject/` — in the collector's own output layout:
 `doc-source/doc-source.json` and `ui-tests/ui-tests.json`, normalized so only the mined content is
 compared. `.github/workflows/real-collector-snapshot.yml` regenerates them on every PR touching
-`docs/examples/**` or `tools/**`. It runs the pinned collector in a venv built from the collector's
+`docs/examples/**` or `integration/**`. It runs the pinned collector in a venv built from the collector's
 own `requirements.txt`, validates each artifact against its contract, asserts that what the corpus
 authors comes through with none of the warnings a canonical corpus must not raise, and fails on any
 diff — so a parser or schema change in the pinned collector that alters the mined output surfaces

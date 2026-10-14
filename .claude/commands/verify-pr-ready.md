@@ -28,10 +28,10 @@ Task-list source (optional override): `$2`
 - `python tools/examples_check.py` and `python -m pytest tools/test_examples_check.py -q`
   if `docs/examples/**` or `tools/*` changed.
 - Confirm `docs/examples/_expected/**` is regenerated and diffs clean if the branch changed
-  `docs/examples/**`, `tools/regen-collector-snapshots.sh`, `tools/collector-gh.sh`,
-  `tools/normalize_snapshot.py`, `tools/collector-snapshot-pins.env`, or
+  `docs/examples/**`, `integration/regen-collector-snapshots.sh`, `integration/collector-gh.sh`,
+  `integration/tools/normalize_snapshot.py`, `integration/tools/collector-snapshot-pins.env`, or
   `.github/workflows/real-collector-snapshot.yml` itself.
-- Run `tools/run-testbed-stage.sh` if the branch changed `tools/**`, `integration/**` or
+- Run `integration/run-testbed-stage.sh` if the branch changed `integration/**` or
   `.github/workflows/real-collector-snapshot.yml`: the collector stage over the testbed's
   `core` at `master` must pass with no warning, and every derived case must report its code.
 - If the branch changes any Markdown file, confirm `link-check.yml` ran and is green.

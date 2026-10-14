@@ -43,14 +43,15 @@ PR body has to also include these sections: `## Overview`, `## Release Notes`, `
 
 `.github/workflows/real-collector-snapshot.yml` runs the real `living-doc-collector-gh`
 (`doc-source` + `ui-tests`) over `docs/examples/`, validates each artifact against its contract,
-asserts the corpus's first-stage content (`tools/check_collector_stage.py`), and diffs the normalized
-result against the committed files in `docs/examples/_expected/collector-gh/<mode>/<artifact>.json`.
+asserts the corpus's first-stage content (`integration/tools/check_collector_stage.py`), and diffs
+the normalized result against the committed files in
+`docs/examples/_expected/collector-gh/<mode>/<artifact>.json`.
 The job fails on any diff, and on any file under `docs/examples/_expected/` it no longer writes.
 
 Regenerate and commit the expected files **in the same PR** whenever either side moves:
 
 ```shell
-tools/regen-collector-snapshots.sh     # writes docs/examples/_expected/collector-gh/
+integration/regen-collector-snapshots.sh     # writes docs/examples/_expected/collector-gh/
 git add docs/examples/_expected
 ```
 
@@ -59,35 +60,26 @@ interpreter `PYTHON` names) and builds the collector's own venv in `.snapshot-ve
 (gitignored, reused while the interpreter and the pinned `requirements.txt` stay the same) from the
 collector's runtime `requirements.txt` at its pinned ref, and from nothing else.
 
-The pinned `collector-gh` ref lives in one place — `tools/collector-snapshot-pins.env`.
-Bumping a pin is a reviewed change, exactly like a dependency bump: change the ref there and
-commit the regenerated snapshots in the same PR. `python tools/check_utilities_pins.py` prints the
-`living-doc-utilities` version the pinned collector and the corpus checker
+The pinned `collector-gh` ref lives in one place — `integration/tools/collector-snapshot-pins.env`.
+Bumping a pin is a reviewed change, exactly like a dependency bump: change the ref there and commit
+the regenerated snapshots in the same PR. `python integration/tools/check_utilities_pins.py` prints
+the `living-doc-utilities` version the pinned collector and the corpus checker
 (`tools/requirements-examples-check.txt`) each pin, and warns when their minor versions differ;
 `--strict` turns the warning into a failure.
 
 ## The collector stage over the testbed
 
-The same workflow's second job runs the same pinned collector, in the same venv, over the `core`
-project of [`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed), read at its
-current `master` and never pinned. `core` follows the canon 100 %, so the job checks invariants, not
-snapshots: every artifact valid, no warning at all, every acceptance-criterion tag resolved, and the
-structural rules in `tools/check_testbed_stage.py`. Every count comes from the checkout at run time.
-It then runs each derived problem case in `integration/testbed_cases.py` over a copy of `core` and
-asserts the one warning the case must report. It runs daily too, because a testbed merge opens no PR
-here. Run it locally the same way:
+The same workflow's second job runs the same pinned collector over the `core` project of
+[`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed), read at its `master`.
+It asserts invariants instead of snapshots, then runs the derived problem cases. Run it locally
+before a PR that touches `integration/**` or the workflow:
 
 ```shell
-tools/run-testbed-stage.sh                         # shallow-clones the testbed's master
-tools/run-testbed-stage.sh ../living-doc-testbed   # or reads a checkout you already have
+integration/run-testbed-stage.sh
 ```
 
-The testbed holds content only: its collector paths and `project-id` live in
-`tools/run-testbed-stage.sh`, its problem cases in `integration/testbed_cases.py`. A case is a
-function that changes a copy of `core`, found by structure rather than literal text, and returns the
-code the run must report. A failure over `core` itself is a defect in the collector or
-`living-doc-utilities` (an issue in that repository), or a testbed change that left the canon (fixed
-in the testbed); never a reason to change the testbed from here.
+How it works, its cases, how to add one and how to read a failure:
+[`integration/README.md`](integration/README.md).
 
 ## The agentic layer
 

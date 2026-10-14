@@ -24,8 +24,8 @@ on:
       - "docs/guides/**"
       - "tools/examples_check.py"
       - "tools/test_examples_check.py"
-      - "tools/check_utilities_pins.py"
-      - "tools/test_check_utilities_pins.py"
+      - "integration/tools/check_utilities_pins.py"
+      - "integration/tools/test_check_utilities_pins.py"
       - "tools/requirements-examples-check.txt"
       - ".github/workflows/examples-check.yml"
   pull_request:
@@ -35,8 +35,8 @@ on:
       - "docs/guides/**"
       - "tools/examples_check.py"
       - "tools/test_examples_check.py"
-      - "tools/check_utilities_pins.py"
-      - "tools/test_check_utilities_pins.py"
+      - "integration/tools/check_utilities_pins.py"
+      - "integration/tools/test_check_utilities_pins.py"
       - "tools/requirements-examples-check.txt"
       - ".github/workflows/examples-check.yml"
   workflow_dispatch:
@@ -73,4 +73,4 @@ jobs:
         run: python -m pytest tools/test_examples_check.py -q
 
       - name: Self-test the living-doc-utilities pin report
-        run: python -m pytest tools/test_check_utilities_pins.py -q
+        run: python -m pytest integration/tools/test_check_utilities_pins.py -q

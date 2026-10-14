@@ -29,7 +29,7 @@ verbatim: a collector version bump that moves the parser output is exactly the d
 snapshot is meant to catch.
 
 Usage:
-    python tools/normalize_snapshot.py < raw.json > normalized.json
+    python integration/tools/normalize_snapshot.py < raw.json > normalized.json
 """
 
 import json

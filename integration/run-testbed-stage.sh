@@ -16,26 +16,26 @@
 #
 # Run the pinned living-doc-collector-gh (`doc-source` + `ui-tests`) over the `core` project of
 # AbsaOSS/living-doc-testbed, read at its current master, and assert invariants on what it produces
-# (tools/check_testbed_stage.py): `core` follows the canon 100 %, so any warning is a defect. Every count comes from
-# the checkout at run time; nothing about `core`'s content is written down here. Then run each derived problem case
-# (integration/testbed_cases.py) over a copy of `core` and assert the one warning it must raise.
+# (integration/tools/check_testbed_stage.py): `core` follows the canon 100 %, so any warning is a defect. Every count
+# comes from the checkout at run time; nothing about `core`'s content is written down here. Then run each derived
+# problem case (integration/testbed_cases.py) over a copy of `core` and assert the one warning it must raise.
 #
-#   tools/run-testbed-stage.sh                      # shallow-clones the testbed's master
-#   tools/run-testbed-stage.sh <testbed-checkout>   # reads a checkout already made (CI: actions/checkout)
+#   integration/run-testbed-stage.sh                      # shallow-clones the testbed's master
+#   integration/run-testbed-stage.sh <testbed-checkout>   # reads a checkout already made (CI: actions/checkout)
 #
 # The testbed is only read: never pinned, never written to - the stage fails if it leaves the checkout changed. Its
 # collector paths, project-id and cases live in living-doc, never in the testbed. The collector, its venv and the run
-# come from tools/collector-gh.sh, shared with tools/regen-collector-snapshots.sh. No token.
+# come from integration/collector-gh.sh, shared with integration/regen-collector-snapshots.sh. No token.
 #
 # Environment (both optional):
-#   PYTHON                the interpreter the collector's venv is built from (see tools/collector-gh.sh)
+#   PYTHON                the interpreter the collector's venv is built from (see integration/collector-gh.sh)
 #   GITHUB_STEP_SUMMARY   set in CI: the testbed SHA and the checks' output are appended to it
 #
 # Runs in bash 3.2 or later: Linux, macOS, or Git Bash on Windows.
 
 set -euo pipefail
 
-# shellcheck source=tools/collector-gh.sh
+# shellcheck source=integration/collector-gh.sh
 source "$(dirname "${BASH_SOURCE[0]}")/collector-gh.sh"
 
 REPO_ROOT="$(native_dir "$(dirname "${BASH_SOURCE[0]}")/..")"
@@ -111,7 +111,7 @@ failed=0
 echo "==> mining $CORE (project-id $PROJECT_ID)"
 if mine "$TESTBED" "$WORK_DIR/core"; then
   echo "==> asserting the invariants over $CORE"
-  check "**Invariants over \`$CORE\`**" "$REPO_ROOT/tools/check_testbed_stage.py" core "$WORK_DIR/core" "$TESTBED" \
+  check "**Invariants over \`$CORE\`**" "$REPO_ROOT/integration/tools/check_testbed_stage.py" core "$WORK_DIR/core" "$TESTBED" \
     --us "$US_PATHS" --func "$FUNC_PATHS" --pages "$PAGES_PATHS" --scenarios "$SCENARIO_PATHS" || failed=1
 else
   echo "ERROR: the collector failed over $CORE" >&2
@@ -137,7 +137,7 @@ for case in $cases; do
   mine "$copy" "$WORK_DIR/cases/$case-output" doc-source-only \
     || { echo "ERROR: the collector failed over case $case" >&2; failed=1; continue; }
   check "**Case \`$case\`**: ${changed#"$copy/"}, $change; expecting $code at line $line" \
-    "$REPO_ROOT/tools/check_testbed_stage.py" case "$WORK_DIR/cases/$case-output" "$code" "$line" "$changed" \
+    "$REPO_ROOT/integration/tools/check_testbed_stage.py" case "$WORK_DIR/cases/$case-output" "$code" "$line" "$changed" \
     || failed=1
 done
 

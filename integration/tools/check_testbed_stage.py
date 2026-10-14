@@ -43,14 +43,14 @@ and scenarios are skipped, a wrapped id list is joined before it is split, and `
 ``case`` asserts what a derived problem case (``integration/testbed_cases.py``) must report: one
 warning, of its code, at the line it changed.
 
-Runs in the ``collector-gh`` venv that ``tools/collector-gh.sh`` builds: it imports nothing but the
+Runs in the ``collector-gh`` venv that ``integration/collector-gh.sh`` builds: it imports nothing but the
 standard library and ``living-doc-utilities``, which that venv holds through the collector's own
-``requirements.txt``. ``tools/run-testbed-stage.sh`` runs both commands.
+``requirements.txt``. ``integration/run-testbed-stage.sh`` runs both commands.
 
 Usage:
-    python tools/check_testbed_stage.py core <output-root> <testbed-checkout> \\
+    python integration/tools/check_testbed_stage.py core <output-root> <testbed-checkout> \\
         --us <dir> --func <dir> --pages <dir> --scenarios <dir>   # each dir relative to the checkout
-    python tools/check_testbed_stage.py case <output-root> <code> <line> <changed-file>
+    python integration/tools/check_testbed_stage.py case <output-root> <code> <line> <changed-file>
 """
 
 from __future__ import annotations
@@ -169,17 +169,25 @@ def _header_value(block: list[str], key: str) -> tuple[str, list[str]] | None:
 
 
 def _bullets(lines: list[str]) -> list[str]:
-    """`- item` bullets, a wrapped line deeper than its `-` joined to its item with one space."""
+    """`- item` bullets, read as the canon reads a bullet list: a wrapped line is joined to its item with one space
+    until a deeper `- ` opens a nested item; that line and every deeper line after it stay in the item's string, each
+    on a line of its own at its indent relative to the item's `-` (`"Parent.\\n  - Child."`)."""
     items: list[str] = []
-    marker_indent = None
+    level, nested = None, False
     for line in lines:
-        stripped = line.lstrip()
-        indent = len(line) - len(stripped)
-        if stripped.startswith("- ") and (marker_indent is None or indent <= marker_indent):
-            items.append(stripped[2:].strip())
-            marker_indent = indent
-        elif items:
-            items[-1] = f"{items[-1]} {stripped}"
+        text = line.strip()
+        if not text:
+            continue
+        indent = len(line) - len(line.lstrip())
+        if level is None or indent <= level:
+            if text.startswith("- "):
+                items.append(text[2:].strip())
+                level, nested = indent, False
+            elif items:
+                items[-1] = f"{items[-1]} {text}"
+        else:
+            nested = nested or text.startswith("- ")
+            items[-1] += f"\n{' ' * (indent - level)}{text}" if nested else f" {text}"
     return items
 
 
