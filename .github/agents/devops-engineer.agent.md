@@ -93,6 +93,6 @@ Repo specifics
 - Must pin every `uses:` to a full commit SHA with a trailing version comment — not every workflow does yet (several still use `actions/setup-python@v7`); pin any step you add, and do not relax a pin to a floating tag.
 - Contract-sensitive outputs
   - The path filters on each workflow (a filter that misses a changed file silently skips the check); the `check-pr-requirements` input set (`title-formats: issue-number`, `branch-require-ticket: "true"`, `description-required-sections`); the diffed tree in `real-collector-snapshot.yml` (`docs/examples/_expected/`, holding `collector-gh/doc-source/doc-source.json` / `collector-gh/ui-tests/ui-tests.json`); the testbed stage's configuration in `tools/run-testbed-stage.sh` (the `core` collector paths and `project-id`), which lives here and never in the testbed.
-- Do not propose a lint, type-check, or coverage-percentage job — this repo has none configured, and `tools/requirements-examples-check.txt` states there is no other Python code to gate.
+- Do not propose a lint, type-check, or coverage-percentage job — this repo has none configured, and its Python is a few standalone scripts in `tools/` and `integration/`, each gated by the workflow that runs it.
 - Review rubric
   - Prefer treating `.github/copilot-review-rules.md`'s "Repo specifics" as the source of truth for which paths are contract-sensitive when scoping a workflow's path filters.

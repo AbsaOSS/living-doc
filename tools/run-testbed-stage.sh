@@ -105,7 +105,9 @@ check() {
 
 failed=0
 
-# A run or a case that cannot finish fails the stage and moves on, so the testbed write check below still runs.
+# A collector run or a check that fails marks the stage failed and moves on, so the testbed write check below still
+# runs. A setup step that fails (listing the cases, copying `core`, making the copy a git checkout) stops the stage at
+# once: it touches only the work dir, and the stage is red either way.
 echo "==> mining $CORE (project-id $PROJECT_ID)"
 if mine "$TESTBED" "$WORK_DIR/core"; then
   echo "==> asserting the invariants over $CORE"
@@ -129,9 +131,9 @@ for case in $cases; do
   git -C "$copy" -c init.defaultBranch=master init --quiet
   git -C "$copy" remote add origin "$TESTBED_URL"
   git -C "$copy" -c core.autocrlf=false add --all
-  # A throwaway commit in a temp dir: no identity of the runner's own, and never signed.
+  # A throwaway commit in a temp dir: no identity of the runner's own, never signed, and no hook of the user's.
   git -C "$copy" -c user.name="testbed stage" -c user.email="testbed-stage@invalid" -c commit.gpgsign=false \
-    commit --quiet --message "testbed case: $case"
+    commit --quiet --no-verify --message "testbed case: $case"
   mine "$copy" "$WORK_DIR/cases/$case-output" doc-source-only \
     || { echo "ERROR: the collector failed over case $case" >&2; failed=1; continue; }
   check "**Case \`$case\`**: ${changed#"$copy/"}, $change; expecting $code at line $line" \
