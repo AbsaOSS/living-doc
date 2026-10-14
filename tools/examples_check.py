@@ -21,9 +21,11 @@ This is the *grammar + cross-reference* gate for the copyable input corpus:
 1. **Header-block grammar** — every feature-file / PageObject / issue-body / project-profile
    example carries the fields its canonical guide marks required, and every ``AC:`` criterion
    parses with ``ac_grammar`` from ``living-doc-utilities`` - the grammar the collectors read it
-   with. Every warning it raises (``MALFORMED_AC``, ``UNPARSED_AC_LINE``, ...) is a finding. A
-   keyword's spelling - one lowercase kebab-case name, the same in the AC text and the bullet - is
-   checked here, on the line as written: ``ac_grammar`` folds case, ``-``, ``_`` and space.
+   with. Every warning it raises (``MALFORMED_AC``, ``UNPARSED_AC_LINE``, ...) is a finding, and so
+   is an issue body's ``### AC:`` sub-heading the frame opens no criterion at (no ``(...)``): the
+   pipeline drops that one without a warning. A keyword's spelling - one lowercase kebab-case
+   name, the same in the AC text and the bullet - is checked here, on the line as written:
+   ``ac_grammar`` folds case, ``-``, ``_`` and space.
 2. **Cross-corpus identifier consistency** — the corpus declares exactly ``US-001`` /
    ``FEAT-001`` / ``FUNC-001``; every parent link and every ``@AC:`` scenario tag
    resolves to something declared. A tag carries at most one ``/<param>:<value>`` segment, whose
@@ -34,8 +36,10 @@ This is the *grammar + cross-reference* gate for the copyable input corpus:
    covered by a scenario and at least one is left uncovered.
 4. **Canonical form** (``NON_CANONICAL_FORM``) — the corpus is canonical-only: no line of an
    entity file is one ``normalize`` from ``living-doc-utilities`` would rewrite (dashes, bullet
-   markers, state case, version form, title separators). Non-canonical variants are test data
-   for that normalisation layer, not corpus content.
+   markers, state case, version form, title separators). The issue title and the Gherkin
+   ``Feature:`` line name the entity outside every frame ``normalize`` rewrites, so their name is
+   read with its title rules (``normalize_title``). Non-canonical variants are test data for that
+   normalisation layer, not corpus content.
 5. **Form parity** (``PAIR_MISMATCH``) — the two authored forms of an entity (issue body and
    source-code header) agree on required content and on their AC set as ``ac_grammar`` parses
    it, and no single file carries more than one optional field extension per level. An ``API``
@@ -57,7 +61,7 @@ Canonical references:
   docs/examples/README.md  (GitHub issue-body layout)
 
 The script depends on the standard library, PyYAML and the authoring layer of
-``living-doc-utilities`` (``normalize``, ``ac_grammar``, ``identity``), pinned in
+``living-doc-utilities`` (``normalize``, ``ac_grammar``, ``framing``, ``identity``), pinned in
 ``tools/requirements-examples-check.txt``. It has no import-time dependency on ``collector-gh``
 or ``toolkit``. It exits non-zero on any violation and prints, per finding, the file, the line
 (where known), the failed rule and a fix hint.
@@ -73,6 +77,7 @@ from pathlib import Path
 
 import yaml
 from living_doc_utilities.authoring import ac_grammar, normalize
+from living_doc_utilities.authoring.framing import criterion_blocks
 from living_doc_utilities.authoring.identity import derive_entity_id, extract_living_doc_title
 from living_doc_utilities.authoring.normalize import SourceFormat
 from living_doc_utilities.contracts.common import AcceptanceCriterion
@@ -349,6 +354,12 @@ def _normalized(text: str, fmt: SourceFormat, kind: str, corpus: Corpus, rel: st
     source, frame = normalize.normalize_framed(text, fmt, ENTITY_TYPES[kind])
     _report_rewrites(source.changes, corpus, rel)
     return frame
+
+
+def _title_rules(title: str) -> tuple[str, list[str]]:
+    """``normalize_title``'s canonical form of an entity title, and the rules that rewrite it."""
+    canonical, changes = normalize.normalize_title(title)
+    return canonical, sorted({c.rule for c in changes if c.before != c.after})
 
 
 def _criteria(frame: "normalize.Frame", entity_id: str, corpus: Corpus, rel: str
@@ -686,6 +697,20 @@ def check_feature_file(path: Path, root: Path, corpus: Corpus) -> None:
         corpus.declared_entities.add(entity_id)
         parent_for_ac = entity_id
 
+    # The Gherkin `Feature:` line names the entity as the banner does, but no frame `normalize`
+    # rewrites holds it: its name is read with the banner's title rules.
+    for i, line in enumerate(raw, 1):
+        if line.strip().startswith("Feature:"):
+            prefix = f"{parent_for_ac} · "
+            canonical, rules = _title_rules(prefix + line.strip()[len("Feature:"):].strip())
+            if rules:
+                corpus.fail(rel, i,
+                            "NON_CANONICAL_FORM: normalize rewrites the entity name on the "
+                            f"'Feature:' line ({', '.join(rules)})",
+                            f"write it as 'Feature: {canonical[len(prefix):]}' - '-' (hyphen-minus) "
+                            "in the name (living-doc-glossary.md#acceptance-criterion-ac)")
+            break
+
     acs = _criteria(frame, parent_for_ac, corpus, rel)
     variants = _parse_ac_block(header, corpus, rel, acs, ac_grammar.criterion_ids(frame))
     if "acceptance_criteria" in top_keys and not acs:
@@ -865,8 +890,7 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
         corpus.declared_entities.add(title_id)
     if title_m:
         # The issue title sits outside the body: `normalize_title` is the rule set for it.
-        canonical, changes = normalize.normalize_title(title_m.group(1))
-        rules = sorted({c.rule for c in changes if c.before != c.after})
+        canonical, rules = _title_rules(title_m.group(1))
         if rules:
             corpus.fail(rel, raw.count("\n", 0, title_m.start()) + 1,
                         f"NON_CANONICAL_FORM: normalize rewrites the issue title ({', '.join(rules)})",
@@ -920,14 +944,22 @@ def check_issue_body(path: Path, root: Path, corpus: Corpus) -> None:
             line = next((i for i, h in headings if h == FEATURE_DEPS_HEADING), 1)
             _declare_feature_deps(sections[FEATURE_DEPS_HEADING], title_id, corpus, rel, line)
 
-    # AC sub-headings share the glossary grammar, read by `ac_grammar`
+    # AC sub-headings share the glossary grammar, read by `ac_grammar`. The frame opens a criterion
+    # only at an `AC:` line with its `(...)`: any other `### AC:` heading is no criterion at all, so
+    # `ac_grammar` never sees it and the pipeline drops it without a warning.
     ac_headers: dict[str, str] = {}
     if "Acceptance Criteria" in present:
+        criterion_lines = {block.header.number for block in criterion_blocks(frame)}
         for i, sub in sub_headings:
             if not sub.startswith("AC:"):
                 corpus.fail(rel, i, f"sub-heading '### {sub}' is not an 'AC:' criterion header",
                             "use '### AC:<id> (v<version> - <state>)', or '### AC:<id> (planned)' "
                             "for a backlog AC")
+            elif i not in criterion_lines:
+                corpus.fail(rel, i,
+                            f"MALFORMED_AC: sub-heading '### {sub}' is no criterion header the "
+                            "pipeline reads",
+                            GRAMMAR_HINTS["MALFORMED_AC"])
         for ac in _criteria(frame, title_id or etype + "-000", corpus, rel):
             ac_headers[ac.id] = ac.canonical_header()
             corpus.declare_ac(ac.id, set())

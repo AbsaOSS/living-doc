@@ -584,15 +584,17 @@ def test_unknown_ac_state_fails(corpus_dir: Path) -> None:
 
 
 def test_non_canonical_dash_in_entity_name_fails(corpus_dir: Path) -> None:
-    target = corpus_dir / FUNC_FEATURE
-    text = target.read_text(encoding="utf-8").replace(
-        "Login Page - Validate Password Strength",
-        "Login Page \u2014 Validate Password Strength")
-    target.write_text(text, encoding="utf-8")
+    # The Gherkin `Feature:` line alone: no frame `normalize` rewrites holds it, and the banner's title
+    # (line 2) is left as written, so this finding comes from the `Feature:` line or from nothing.
+    _mutate(corpus_dir, FUNC_FEATURE, "Feature: Login Page - Validate Password Strength",
+            "Feature: Login Page \u2014 Validate Password Strength")
 
     findings = findings_for(corpus_dir)
-    assert any(FUNC_FEATURE in f.file and "NON_CANONICAL_FORM" in f.rule
-               for f in findings), findings
+    match = [f for f in findings if FUNC_FEATURE in f.file]
+    assert [(f.line, f.rule) for f in match] == [
+        (24, "NON_CANONICAL_FORM: normalize rewrites the entity name on the 'Feature:' line "
+             "(entity_name_dash)")], findings
+    assert "'Feature: Login Page - Validate Password Strength'" in match[0].hint, match[0].hint
 
 
 # --- NON_CANONICAL_FORM: a line `normalize` would rewrite, in each authored format ----------------
@@ -612,6 +614,9 @@ def test_non_canonical_dash_in_entity_name_fails(corpus_dir: Path) -> None:
     # issue body: an AC sub-heading
     (US_ISSUE, "### AC:US-001-02 (v1.0.0 - active)", "### AC:US-001-02 (v1.0.0 – active)",
      "ac_header_separator", 29),
+    # `.feature` header: the banner's title, a dash in the entity name
+    (FUNC_FEATURE, "FUNC-001 · Login Page - Validate Password Strength",
+     "FUNC-001 · Login Page — Validate Password Strength", "entity_name_dash", 2),
     # PageObject header: the banner's title
     (PAGEOBJECT, "FEAT-001 · Login Page", "FEAT-001 – Login Page", "title_id_separator", 2),
 ])
@@ -739,6 +744,19 @@ def test_issue_body_sub_heading_that_is_no_criterion_fails(corpus_dir: Path) -> 
     assert any(US_ISSUE in f.file and f.line == 29 and f.rule ==
                "sub-heading '### US-001-02 (v1.0.0 - active)' is not an 'AC:' criterion header"
                for f in findings), findings
+
+
+@pytest.mark.parametrize("heading", ["### AC:US-001-05 (v1.0.0 - active",
+                                     "### AC:US-001-05 v1.0.0 - active"])
+def test_issue_only_criterion_the_frame_cannot_open_fails(corpus_dir: Path, heading: str) -> None:
+    # The frame opens a criterion only at an `AC:` line with its `(...)`: this heading is no criterion,
+    # so `ac_grammar` raises nothing, and with no `.feature` twin no PAIR_MISMATCH reports it either.
+    anchor = "### AC:US-001-04 (v1.0.0 - deprecated - removal planned v2.0.0)"
+    _mutate(corpus_dir, US_ISSUE, anchor, f"{heading}\n\n- The outcome holds.\n\n{anchor}")
+
+    findings = findings_for(corpus_dir)
+    assert [(f.line, f.rule) for f in findings if US_ISSUE in f.file] == [
+        (37, f"MALFORMED_AC: sub-heading '{heading}' is no criterion header the pipeline reads")], findings
 
 
 def test_ac_owned_by_another_entity_fails(corpus_dir: Path) -> None:
