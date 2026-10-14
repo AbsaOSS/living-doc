@@ -86,12 +86,12 @@ Repo specifics
 - This repo has no monorepo, no `Makefile`, and no `make qa` — CI is seven independent workflows in `.github/workflows/`:
   - `link-check.yml` — gated on `docs_changed == 'true'`; runs `lychee-action` over `./**/*.md` with `--include-fragments`.
   - `examples-check.yml` — path-filtered on `docs/examples/**`, `docs/guides/**`, `tools/examples_check.py`; runs `python tools/examples_check.py` then `python -m pytest tools/test_examples_check.py -q` on Python `3.14`.
-  - `real-collector-snapshot.yml` — path-filtered plus a weekly `cron: "17 4 * * 1"` schedule; runs the pinned real `living-doc-collector-gh` / `living-doc-toolkit` via `tools/regen-collector-snapshots.sh` and diffs against `docs/examples/_expected/*.json`.
+  - `real-collector-snapshot.yml` — path-filtered plus a weekly `cron: "17 4 * * 1"` schedule; runs `tools/check_utilities_pins.py`, then the pinned real `living-doc-collector-gh` in its own venv via `tools/regen-collector-snapshots.sh`, and diffs against `docs/examples/_expected/collector-gh/**`.
   - `check-pr-requirements.yml` — `AbsaOSS/check-pr-requirements`; enforces the `#<issue>: Title` or `<issue> - Title` PR-title format (`title-formats: issue-number`), a ticket number in the branch name, the `## Overview` / `## Release Notes` / `## Related` body sections, and an issue-closing keyword.
   - `check_pr_release_notes.yml`, `release_draft.yml`, `aquasec-night-scan.yml` — release-notes/draft-release bookkeeping and the nightly security scan; treat as out of scope unless a task names them.
 - Must pin every `uses:` to a full commit SHA with a trailing version comment (all seven workflows already do this) — do not relax a pin to a floating tag.
 - Contract-sensitive outputs
-  - The path filters on each workflow (a filter that misses a changed file silently skips the check); the `check-pr-requirements` input set (`title-formats: issue-number`, `branch-require-ticket: "true"`, `description-required-sections`); the diffed file set in `real-collector-snapshot.yml` (`doc-source.json` / `ui-tests.json` / `coverage-matrix.json`).
+  - The path filters on each workflow (a filter that misses a changed file silently skips the check); the `check-pr-requirements` input set (`title-formats: issue-number`, `branch-require-ticket: "true"`, `description-required-sections`); the diffed tree in `real-collector-snapshot.yml` (`docs/examples/_expected/`, holding `collector-gh/doc-source/doc-source.json` / `collector-gh/ui-tests/ui-tests.json`).
 - Do not propose a lint, type-check, or coverage-percentage job — this repo has none configured, and `tools/requirements-examples-check.txt` states there is no other Python code to gate.
 - Review rubric
   - Prefer treating `.github/copilot-review-rules.md`'s "Repo specifics" as the source of truth for which paths are contract-sensitive when scoping a workflow's path filters.

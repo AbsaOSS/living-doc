@@ -100,7 +100,7 @@ Repo specifics
 - Logging conventions
   - `tools/examples_check.py` reports findings as `Finding` records (file + rule), not via a logger — keep new checks consistent with that shape rather than introducing `logging`.
 - Contract-sensitive outputs
-  - The rule set enforced by `tools/examples_check.py` (header fields, AC-tag grammar, coverage-pair rule, project-profile requirement) and the pinned refs in `tools/collector-snapshot-pins.env` — a pin bump must ship with regenerated `docs/examples/_expected/*.json` in the same PR (`CONTRIBUTING.md` § "Regenerating the collector snapshots").
+  - The rule set enforced by `tools/examples_check.py` (header fields, AC-tag grammar, coverage-pair rule, project-profile requirement) and the pinned refs in `tools/collector-snapshot-pins.env` — a pin bump must ship with regenerated `docs/examples/_expected/**` in the same PR (`CONTRIBUTING.md` § "Regenerating the collector snapshots").
 - AI-free principle
   - `tools/examples_check.py` and `tools/normalize_snapshot.py` must stay deterministic and offline — no LLM call and no network request other than the collector's own start-up connectivity check in `real-collector-snapshot.yml`.
 - Review rubric

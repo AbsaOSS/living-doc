@@ -17,21 +17,23 @@
 """
 Normalize a collector / toolkit JSON artifact for snapshot comparison.
 
-The real collector and the coverage-matrix CLI stamp every run with volatile values
-(wall-clock timestamps, and — inside GitHub Actions — the run id / attempt / actor /
-sha, plus ``metadata.producer.build``). Those carry no signal about whether the *mined content* changed, so they are
-replaced with fixed placeholders before the file is diffed against the committed
-expected snapshot under ``docs/examples/_expected/``.
+The real collector stamps every run with volatile values: wall-clock timestamps, and — inside
+GitHub Actions — the run id / attempt / actor / sha, plus ``metadata.producer.build``. Every
+``source_ref.url`` also carries the commit the mined checkout is at, which moves with each commit
+to this repository. None of these says whether the *mined content* changed, so they are replaced
+with fixed placeholders before the file is diffed against the committed expected snapshot under
+``docs/examples/_expected/``.
 
-Everything else, including ``metadata.producer.version``, is kept verbatim: a
-collector version bump that moves the parser output is exactly the drift this snapshot
-is meant to catch.
+Everything else, including ``metadata.producer.version`` and ``utilities_version``, is kept
+verbatim: a collector version bump that moves the parser output is exactly the drift this
+snapshot is meant to catch.
 
 Usage:
     python tools/normalize_snapshot.py < raw.json > normalized.json
 """
 
 import json
+import re
 import sys
 
 _PLACEHOLDER = "<normalized-for-snapshot>"
@@ -43,6 +45,11 @@ _VOLATILE_SCALAR_KEYS = {"generated_at"}
 # CI run id when the collector runs inside GitHub Actions and absent (None) otherwise -
 # volatile run identity, exactly like the ``run`` block, and no signal about mined content.
 _VOLATILE_NULLED_KEYS = {"build"}
+
+# A ``url`` value is a permalink at the mined checkout's HEAD commit (``.../blob/<sha>/<path>``): only
+# the commit is replaced, so the path it points at is still compared.
+_URL_KEY = "url"
+_COMMIT_IN_URL_RE = re.compile(r"/blob/[0-9a-f]{40}/")
 
 
 def _normalize(node):
@@ -59,6 +66,8 @@ def _normalize(node):
                 node[key] = _PLACEHOLDER
             elif key in _VOLATILE_NULLED_KEYS and not isinstance(value, (dict, list)):
                 node[key] = None
+            elif key == _URL_KEY and isinstance(value, str):
+                node[key] = _COMMIT_IN_URL_RE.sub(f"/blob/{_PLACEHOLDER}/", value)
             else:
                 _normalize(value)
     elif isinstance(node, list):
@@ -69,6 +78,9 @@ def _normalize(node):
 
 def main() -> None:
     """Read JSON from stdin, normalize it, and print it back deterministically."""
+    # UTF-8 and LF on every platform, so a snapshot regenerated on Windows matches the CI one byte for byte.
+    sys.stdin.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
+    sys.stdout.reconfigure(encoding="utf-8", newline="\n")  # type: ignore[union-attr]
     data = json.load(sys.stdin)
     normalized = _normalize(data)
     json.dump(normalized, sys.stdout, indent=2, sort_keys=True, ensure_ascii=False)

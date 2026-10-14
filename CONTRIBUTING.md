@@ -42,21 +42,29 @@ PR body has to also include these sections: `## Overview`, `## Release Notes`, `
 ## Regenerating the collector snapshots
 
 `.github/workflows/real-collector-snapshot.yml` runs the real `living-doc-collector-gh`
-(`doc-source` + `ui-tests`) and the real `living-doc-toolkit` `coverage-matrix` over
-`docs/examples/gherkin/` and diffs the result against the committed expected files in
-`docs/examples/_expected/`. The job fails on any diff.
+(`doc-source` + `ui-tests`) over `docs/examples/`, validates each artifact against its contract,
+asserts the corpus's first-stage content (`tools/check_collector_stage.py`), and diffs the normalized
+result against the committed files in `docs/examples/_expected/collector-gh/<mode>/<artifact>.json`.
+The job fails on any diff, and on any file under `docs/examples/_expected/` it no longer writes.
 
 Regenerate and commit the expected files **in the same PR** whenever either side moves:
 
 ```shell
-export GITHUB_TOKEN=$(gh auth token)   # only used for the collector's start-up check
-tools/regen-collector-snapshots.sh     # writes docs/examples/_expected/*.json
+tools/regen-collector-snapshots.sh     # writes docs/examples/_expected/collector-gh/
 git add docs/examples/_expected
 ```
 
-The pinned `collector-gh` / `toolkit` refs live in one place — `tools/collector-snapshot-pins.env`.
+No token is needed. The script needs Python 3.10 or later (`python3`, else `python`, or the
+interpreter `PYTHON` names) and builds the collector's own venv in `.snapshot-venvs/collector-gh/`
+(gitignored, reused while the interpreter and the pinned `requirements.txt` stay the same) from the
+collector's runtime `requirements.txt` at its pinned ref, and from nothing else.
+
+The pinned `collector-gh` ref lives in one place — `tools/collector-snapshot-pins.env`.
 Bumping a pin is a reviewed change, exactly like a dependency bump: change the ref there and
-commit the regenerated snapshots in the same PR.
+commit the regenerated snapshots in the same PR. `python tools/check_utilities_pins.py` prints the
+`living-doc-utilities` version the pinned collector and the corpus checker
+(`tools/requirements-examples-check.txt`) each pin, and warns when their minor versions differ;
+`--strict` turns the warning into a failure.
 
 ## The agentic layer
 
