@@ -70,8 +70,9 @@ def _functionality_files(core: Path) -> Iterator[Path]:
 
 def _ac_blocks(lines: list[str]) -> Iterator[list[int]]:
     """The line numbers (0-based) of each acceptance-criterion block in a file's header comment:
-    the lines after an ``AC:<id> (…)`` line that sit deeper than it, up to the first blank or
-    shallower header line."""
+    the lines after an ``AC:<id> (…)`` line that sit deeper than it, up to the first shallower
+    header line (the next ``AC:`` header, a key at the key level, or a ``# =====`` rule). A blank
+    line is layout and ends nothing, as the canon reads it: the block runs past it, never holds it."""
     header = []
     for line in lines:
         if not line.startswith("#"):
@@ -87,9 +88,10 @@ def _ac_blocks(lines: list[str]) -> Iterator[list[int]]:
         block = []
         while index < len(header):
             line = header[index]
-            if not line.group("text") or len(line.group("indent")) <= ac_indent:
-                break
-            block.append(index)
+            if line.group("text"):
+                if len(line.group("indent")) <= ac_indent:
+                    break
+                block.append(index)
             index += 1
         yield block
 
