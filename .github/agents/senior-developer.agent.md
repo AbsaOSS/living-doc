@@ -88,7 +88,7 @@ Non-goals
 Repo specifics
 
 - Scope of "code" in this repo
-  - There is no monorepo, no packages, and no `pyproject.toml` — most of this repo is documentation (`docs/`). The entire Python surface is `tools/examples_check.py` and `tools/normalize_snapshot.py`, plus their pinned deps in `tools/requirements-examples-check.txt` (`tools/requirements-examples-check.txt` says this explicitly: "this repo has no other Python code"). `tools/regen-collector-snapshots.sh` is a Bash wrapper around that Python, not Python itself — do not apply type-hint or pytest expectations to it.
+  - There is no monorepo, no packages, and no `pyproject.toml` — most of this repo is documentation (`docs/`). The Python surface is the scripts in `tools/` — `tools/examples_check.py` with its pinned deps in `tools/requirements-examples-check.txt`, `tools/normalize_snapshot.py`, `tools/check_utilities_pins.py`, and the collector-stage checkers `tools/check_collector_stage.py` and `tools/check_testbed_stage.py`, which run in the collector's venv — plus the derived testbed cases in `integration/testbed_cases.py`. `tools/regen-collector-snapshots.sh`, `tools/run-testbed-stage.sh` and the `tools/collector-gh.sh` both source are Bash wrappers around that Python, not Python itself — do not apply type-hint or pytest expectations to them.
   - Most changes to this repo are prose edits to `docs/guides/**`, `docs/tutorials/**`, `docs/projects/**`, and `docs/examples/**`, not code. Apply this agent's rules only when a task actually touches `tools/*.py` or `tools/*.sh`.
 - Runtime/toolchain targets
   - `.github/workflows/examples-check.yml` and `real-collector-snapshot.yml` both pin Python `3.14` via `actions/setup-python`. Match that when testing locally.
@@ -102,6 +102,6 @@ Repo specifics
 - Contract-sensitive outputs
   - The rule set enforced by `tools/examples_check.py` (header fields, AC-tag grammar, coverage-pair rule, project-profile requirement) and the pinned refs in `tools/collector-snapshot-pins.env` — a pin bump must ship with regenerated `docs/examples/_expected/**` in the same PR (`CONTRIBUTING.md` § "Regenerating the collector snapshots").
 - AI-free principle
-  - `tools/examples_check.py` and `tools/normalize_snapshot.py` must stay deterministic and offline — no LLM call and no network request other than the collector's own start-up connectivity check in `real-collector-snapshot.yml`.
+  - `tools/examples_check.py`, `tools/normalize_snapshot.py` and the collector-stage checkers (`tools/check_collector_stage.py`, `tools/check_testbed_stage.py`) must stay deterministic and offline — no LLM call and no network request at all. The collector makes none either; the only network access in `real-collector-snapshot.yml` is fetching the pinned collector (its clone and its pinned `requirements.txt`) and checking out the testbed.
 - Review rubric
   - Prefer checking changes against `.github/copilot-review-rules.md` before handing off to Reviewer — it lists this repo's high-risk areas and contract-sensitive outputs.

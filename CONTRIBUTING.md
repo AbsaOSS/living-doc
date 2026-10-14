@@ -66,6 +66,29 @@ commit the regenerated snapshots in the same PR. `python tools/check_utilities_p
 (`tools/requirements-examples-check.txt`) each pin, and warns when their minor versions differ;
 `--strict` turns the warning into a failure.
 
+## The collector stage over the testbed
+
+The same workflow's second job runs the same pinned collector, in the same venv, over the `core`
+project of [`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed), read at its
+current `master` and never pinned. `core` follows the canon 100 %, so the job checks invariants, not
+snapshots: every artifact valid, no warning at all, every acceptance-criterion tag resolved, and the
+structural rules in `tools/check_testbed_stage.py`. Every count comes from the checkout at run time.
+It then runs each derived problem case in `integration/testbed_cases.py` over a copy of `core` and
+asserts the one warning the case must report. It runs daily too, because a testbed merge opens no PR
+here. Run it locally the same way:
+
+```shell
+tools/run-testbed-stage.sh                         # shallow-clones the testbed's master
+tools/run-testbed-stage.sh ../living-doc-testbed   # or reads a checkout you already have
+```
+
+The testbed holds content only: its collector paths and `project-id` live in
+`tools/run-testbed-stage.sh`, its problem cases in `integration/testbed_cases.py`. A case is a
+function that changes a copy of `core`, found by structure rather than literal text, and returns the
+code the run must report. A failure over `core` itself is a defect in the collector or
+`living-doc-utilities` (an issue in that repository), or a testbed change that left the canon (fixed
+in the testbed); never a reason to change the testbed from here.
+
 ## The agentic layer
 
 The skills and the `living-doc-bdd-copilot` agent that help an author write living-doc input live

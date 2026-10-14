@@ -50,7 +50,9 @@ holds against the real, unmodified corpus.
 `living-doc-collector-gh` or `living-doc-toolkit` — that only happens in
 `.github/workflows/real-collector-snapshot.yml`, outside pytest. Do not add a mock for it in
 this test file; if a change needs to exercise the real collector, that belongs in
-`tools/regen-collector-snapshots.sh`, not a unit test.
+`tools/regen-collector-snapshots.sh` (over `docs/examples/`) or `tools/run-testbed-stage.sh`
+(over the testbed's `core`, with a derived case in `integration/testbed_cases.py` for a problem
+the run must report), not a unit test.
 
 ## Output
 

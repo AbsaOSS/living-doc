@@ -28,6 +28,17 @@
 # Either way: run `tools/regen-collector-snapshots.sh` and commit the result
 # (see CONTRIBUTING.md -> "Regenerating the collector snapshots").
 #
+# A second job, `testbed-collector-stage`, runs the same pinned collector in the same venv over the `core` project
+# of AbsaOSS/living-doc-testbed, read at its current master (never pinned), and asserts invariants instead of
+# snapshots (tools/run-testbed-stage.sh -> tools/check_testbed_stage.py): every artifact valid, no warning at all,
+# every AC tag resolved, the cross-reference pages, the folders outside living doc, the keyword ACs. Every count is
+# derived from the checkout at run time. It then runs each derived problem case (integration/testbed_cases.py) over a
+# copy of `core` and asserts the one warning the case must raise. A failure there means one of:
+#   1. the pinned collector or its living-doc-utilities misreads `core` - a defect in that repository, or
+#   2. a testbed merge left `core` off the canon - fix it in the testbed, or
+#   3. a check or a case here no longer fits a valid `core`.
+# It runs daily, because a testbed merge opens no PR here.
+#
 # The living-doc-toolkit `coverage-matrix` stage is not run yet: it returns once the toolkit itself is on
 # living-doc-utilities.
 #
@@ -42,16 +53,18 @@ on:
     paths:
       - "docs/examples/**"
       - "tools/**"
+      - "integration/**"
       - ".github/workflows/real-collector-snapshot.yml"
   pull_request:
     types: [ opened, synchronize, reopened ]
     paths:
       - "docs/examples/**"
       - "tools/**"
+      - "integration/**"
       - ".github/workflows/real-collector-snapshot.yml"
   schedule:
-    # Weekly, to catch collector drift between example PRs.
-    - cron: "17 4 * * 1"
+    # Daily: a testbed merge opens no PR here, and collector drift shows between example PRs.
+    - cron: "17 4 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -99,3 +112,29 @@ jobs:
             exit 1
           fi
           echo "docs/examples/_expected/ matches the mined output."
+
+  testbed-collector-stage:
+    name: Collector stage over the testbed's core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Checkout the testbed at master
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: AbsaOSS/living-doc-testbed
+          # Read at master like any repository living doc reads, never pinned: the SHA read is in the job summary.
+          ref: master
+          path: living-doc-testbed
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Run the pinned collector-gh over core, assert the invariants and the derived cases
+        run: tools/run-testbed-stage.sh living-doc-testbed
