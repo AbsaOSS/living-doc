@@ -78,8 +78,8 @@ before a PR that touches `integration/**` or the workflow:
 integration/run-testbed-stage.sh
 ```
 
-How it works, its cases, how to add one and how to read a failure:
-[`integration/README.md`](integration/README.md).
+How it works and how to read a failure: [`integration/README.md`](integration/README.md).
+Its negative cases and how to add one: [`integration/negative-cases.md`](integration/negative-cases.md).
 
 ## The agentic layer
 

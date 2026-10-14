@@ -7,17 +7,17 @@ This page is for contributors who run, debug or extend the integration tests. Bo
 
 Read before: [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots)
 and [§ The collector stage over the testbed](../CONTRIBUTING.md#the-collector-stage-over-the-testbed).
+Next: [Negative testbed cases](negative-cases.md).
 
 ## Contents
 
 - [Stages](#stages)
+- [The workflow](#the-workflow)
 - [Layout](#layout)
 - [The testbed stage](#the-testbed-stage)
-- [Cases](#cases)
 - [What a testbed run does](#what-a-testbed-run-does)
 - [What the testbed checks assert](#what-the-testbed-checks-assert)
 - [Run the testbed stage](#run-the-testbed-stage)
-- [Add a problem case](#add-a-problem-case)
 - [Read a testbed failure](#read-a-testbed-failure)
 
 ## Stages
@@ -34,9 +34,70 @@ The snapshot stage's procedure (regenerate, commit, bump the pin) is in
 [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots).
 The rest of this page is the testbed stage.
 
+## The workflow
+
+The workflow is the integration test: two independent jobs, one pinned collector.
+Either job failing fails the run. A new push to the same ref cancels the run in progress.
+
+```mermaid
+flowchart TB
+    trigger(["push to master or pull request touching docs/examples/**, integration/**,<br/>the root tools/requirements-examples-check.txt or the workflow · manual dispatch · no schedule"])
+    pin[("tools/collector-snapshot-pins.env<br/>COLLECTOR_GH_REF")]
+    setup[["collector-gh.sh · collector_gh_setup<br/>clone the pinned collector, build its venv"]]
+
+    subgraph snapshot["job real-collector-snapshot · mines docs/examples/"]
+        direction TB
+        a1["check out living-doc · Python 3.14"]
+        a2["tools/check_utilities_pins.py<br/>report the living-doc-utilities pins"]
+        subgraph regen["regen-collector-snapshots.sh"]
+            direction TB
+            a3["mine docs/examples/<br/>doc-source + ui-tests"]
+            a4["tools/check_collector_stage.py<br/>validate, assert the first-stage content"]
+            a5["tools/normalize_snapshot.py<br/>placeholders for volatile values"]
+            a3 --> a4 --> a5
+        end
+        a6{"diff -ru against<br/>docs/examples/_expected/"}
+        a1 --> a2 --> a3
+        a5 --> a6
+    end
+
+    subgraph testbed["job testbed-collector-stage · mines the testbed's core"]
+        direction TB
+        b1["check out living-doc, and living-doc-testbed<br/>at master · Python 3.14"]
+        subgraph stage["run-testbed-stage.sh"]
+            direction TB
+            b2["record the testbed's git status"]
+            b3["mine projects/core<br/>doc-source + ui-tests"]
+            b4["tools/check_testbed_stage.py core<br/>the invariants, no warning"]
+            b5["each case in testbed_cases.py:<br/>copy core, apply the case, git init,<br/>mine doc-source"]
+            b6["tools/check_testbed_stage.py case<br/>exactly one warning, at its line"]
+            b7{"testbed's git status<br/>unchanged?"}
+            b2 --> b3 --> b4 --> b5 --> b6
+            b6 -.->|next case| b5
+            b6 --> b7
+        end
+        b1 --> b2
+    end
+
+    trigger --> snapshot
+    trigger --> testbed
+    pin -.-> setup
+    setup -.-> a3
+    setup -.-> b3
+    a6 -->|no diff| passA(["green"])
+    a6 -->|diff| failA(["red: regenerate docs/examples/_expected/"])
+    b7 -->|yes, and no check failed| passB(["green"])
+    b7 -->|no, or a run, case or check failed| failB(["red"])
+```
+
+Only each job's last decision is drawn. In the snapshot job, an earlier red step stops the job.
+The testbed job's failure handling is in [What a testbed run does](#what-a-testbed-run-does).
+Its case steps are on [Negative testbed cases](negative-cases.md).
+
 ## Layout
 
-The shell scripts sit in this folder; the Python and the pin file they use sit in [`tools/`](tools/).
+The shell scripts, the cases and the docs sit in this folder; the checkers, the other Python and the pin
+file sit in [`tools/`](tools/).
 
 | File | Stage | Holds |
 |---|---|---|
@@ -44,6 +105,7 @@ The shell scripts sit in this folder; the Python and the pin file they use sit i
 | [`run-testbed-stage.sh`](run-testbed-stage.sh) | testbed | the runner, and the testbed's collector paths and `project-id` |
 | [`collector-gh.sh`](collector-gh.sh) | both | the pinned collector, its venv and its run; both runners source it |
 | [`testbed_cases.py`](testbed_cases.py) | testbed | the derived problem cases, one function each |
+| [`negative-cases.md`](negative-cases.md) | testbed | those cases: each one, how its run is checked, how to add one |
 | [`tools/collector-snapshot-pins.env`](tools/collector-snapshot-pins.env) | both | the collector pin, `COLLECTOR_GH_REF` |
 | [`tools/check_utilities_pins.py`](tools/check_utilities_pins.py) | snapshot | the `living-doc-utilities` pin report; the CI job runs it first |
 | [`tools/check_collector_stage.py`](tools/check_collector_stage.py) | snapshot | the corpus's first-stage content |
@@ -60,19 +122,8 @@ The stage reads the `core` project of
 [`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed) at its `master`.
 `core` follows the canon 100 %, so any warning over it is a defect.
 Nothing about `core`'s content is written down here: every count comes from the checkout at run time.
-A problem the pipeline must report is never authored in the testbed. It is derived here, from a copy.
+The problems the pipeline must report are [negative cases](negative-cases.md).
 The stage only reads the testbed, and fails if it leaves the checkout changed.
-
-## Cases
-
-Each case changes one thing in a copy of `core` and must make the run report exactly one warning.
-The function's docstring is the full definition.
-
-| Case | Reports | What it changes | What it proves |
-|---|---|---|---|
-| [`misindented_ac_line`](testbed_cases.py) | `MISINDENTED_LINE` | dedents, by one space, the last bullet of a multi-line AC block in the first Functionality file that has one | an AC line that fits no indent level is reported at its line and dropped, with no other warning |
-
-`python integration/testbed_cases.py --list` prints the names the runner uses.
 
 ## What a testbed run does
 
@@ -83,11 +134,12 @@ The function's docstring is the full definition.
 5. Asserts the invariants over that output → `tools/check_testbed_stage.py::check_core`.
 6. For each case: copies `core`, applies the case, makes the copy a git checkout, mines it with
    `doc-source` only, and asserts the one expected warning → `tools/check_testbed_stage.py::check_case`.
+   The details: [Negative testbed cases § How a case run is checked](negative-cases.md#how-a-case-run-is-checked).
 7. Fails if the testbed's `git status` differs from step 3.
 
-A failed collector run or check marks the stage failed and moves on, so step 7 always runs.
+A failed collector run, case or check marks the stage failed and moves on to the next.
+A failed setup step (listing the cases, copying `core`, making the git checkout) stops the stage at once.
 All output lives in a temp work dir, deleted on exit.
-The case copy is a git checkout because a file outside one is reported `NO_SOURCE_URL`.
 
 ## What the testbed checks assert
 
@@ -96,12 +148,12 @@ Where each part is checked:
 
 - Every artifact validates against its contract; `sources_failed` is 0 → `check_testbed_stage.py::_read`.
 - No warning at all, in either artifact → `check_testbed_stage.py::check_core`.
-- Entities, their ACs, Feature states, pages and AC variants → `check_testbed_stage.py::check_doc_source`.
-- Scenarios, AC links, tag parameters, files outside the living-doc folders → `check_testbed_stage.py::check_ui_tests`.
+- Entities, their ACs, Feature states, pages, AC variants, no entity from a file outside the living-doc
+  folders → `check_testbed_stage.py::check_doc_source`.
+- Scenarios, AC links, tag parameters, no AC link from a file outside the living-doc folders
+  → `check_testbed_stage.py::check_ui_tests`.
 - `core` holds at least one of each construct, so no check passes on nothing → `check_testbed_stage.py::check_core`.
-- A case run reports exactly one warning: its code, at its line, in its file → `check_testbed_stage.py::check_case`.
-
-A case run is not held to the `core` invariants: what a case breaks can leave other data dangling.
+- A case run's one warning → `check_testbed_stage.py::check_case`.
 
 ## Run the testbed stage
 
@@ -123,37 +175,7 @@ Options, both environment variables:
 
 In CI, a testbed merge triggers nothing here. Dispatch the workflow by hand to read a new testbed `master`.
 
-To apply one case by hand, copy `core` first. A case changes the folder it is given, in place:
-
-```shell
-mkdir -p /tmp/case/projects
-cp -R ../living-doc-testbed/projects/core /tmp/case/projects/core
-python integration/testbed_cases.py misindented_ac_line /tmp/case/projects/core
-# MISINDENTED_LINE  17  /tmp/case/projects/core/tests/e2e/features/liv_doc_func/func-001-….feature  line 17 dedented …
-```
-
-Never pass the testbed checkout itself.
-
-## Add a problem case
-
-Add a case only when a warning needs a real-looking project to show it.
-
-1. Write a function in [`testbed_cases.py`](testbed_cases.py) that takes the path to a copy of `core`
-   and returns `Expected`.
-2. Find the target by structure, never by literal text or a line number. Reuse `_functionality_files`
-   and `_ac_blocks` where they fit.
-3. Change one thing, so the run reports exactly one warning. Pick a target where no later line is
-   reported with it.
-4. Keep line endings: open the file with `newline=""`, as `misindented_ac_line` does.
-5. Return `Expected(code, line, path, change)`: the warning code, the 1-based line, the changed file,
-   and a short note for the log.
-6. Raise `LookupError` when `core` has no target, so the stage fails loudly.
-7. Add the function to the tuple behind `CASES`. Its name is the case name.
-8. In the docstring, say what the case changes and why that yields exactly one warning.
-9. Add a row to [Cases](#cases).
-10. Run `integration/run-testbed-stage.sh` against a local testbed checkout.
-
-Never add a patch file, and never change the testbed to make a case fit.
+To apply one case by hand, or to add one: [Negative testbed cases](negative-cases.md).
 
 ## Read a testbed failure
 
@@ -167,4 +189,3 @@ Never add a patch file, and never change the testbed to make a case fit.
 | `ERROR: the stage changed the testbed checkout …` | something wrote into the testbed | the runner or the collector's output paths |
 
 A check or a case here can also stop fitting a valid `core`. Then fix the check or the case, never the testbed.
-In CI, the job summary names the testbed SHA the run read.
