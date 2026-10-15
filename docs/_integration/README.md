@@ -134,6 +134,7 @@ PYTHON=
 
 - `PROJECT_ID` is the label, so the artifacts name no repository. Lowercase letters, digits and hyphens.
 - Relative paths resolve against the collector's checkout. No token: neither mode calls an API.
+- On Git Bash for Windows, `python3` may be the Microsoft Store alias, which does not run: set `PYTHON=python`.
 
 ### 3. Check, then run
 
