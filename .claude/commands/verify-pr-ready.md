@@ -32,8 +32,8 @@ Task-list source (optional override): `$2`
   `tests/examples/normalize_snapshot.py`, `tests/collector/collector-pins.env`, or
   `.github/workflows/real-collector.yml` itself.
 - Run `tests/testbed/run-testbed-stage.sh` if the branch changed `tests/collector/**`, `tests/testbed/**` or
-  `.github/workflows/real-collector.yml`: the collector stage over the testbed's
-  `core` at `master` must pass with no warning, and every derived case must report its code.
+  `.github/workflows/real-collector.yml`: no warning over the testbed's `core` at `master`, and
+  every derived case reports its code.
 - If the branch changes any Markdown file, confirm `link-check.yml` ran and is green.
 - There is no `make qa`, lint, type-check, or coverage gate in this repo — do not report one
   as missing.

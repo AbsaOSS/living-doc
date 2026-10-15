@@ -52,8 +52,8 @@ holds against the real, unmodified corpus.
 `.github/workflows/real-collector.yml`, outside pytest. Do not add a mock for it in
 this test file; if a change needs to exercise the real collector, that belongs in
 `tests/examples/regen-collector-snapshots.sh` (over `docs/examples/`) or `tests/testbed/run-testbed-stage.sh`
-(over the testbed's `core`, with a derived case in `tests/testbed/testbed_cases.py` for a problem
-the run must report), not a unit test.
+(over the testbed's `core`; a problem the run must report is a derived case in
+`tests/testbed/testbed_cases.py`), not a unit test.
 
 ## Output
 

@@ -55,8 +55,8 @@ Task-list source (optional override): `$2`
 - `python -m pytest tests/examples/test_examples_check.py -q` (only if the checker or its tests
   changed) — the same command `.github/workflows/examples-check.yml` runs.
 - `tests/testbed/run-testbed-stage.sh` (only if `tests/collector/**`, `tests/testbed/**` or
-  `.github/workflows/real-collector.yml` changed) — the collector stage over the
-  testbed's `core`, the same script that workflow's `testbed-collector-stage` job runs.
+  `.github/workflows/real-collector.yml` changed) — the script the `testbed-collector-stage`
+  job runs over the testbed's `core`.
 - There is no `make qa`, no lint, no type-check, and no coverage-percentage gate in this
   repo — do not invent one.
 - Fix every failure and re-run. Do not weaken a check to get past a gate.

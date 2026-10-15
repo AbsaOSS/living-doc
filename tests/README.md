@@ -2,9 +2,8 @@
 
 ## Purpose
 
-This page is for contributors who run, debug or extend the checks in this folder: the static check of the
-`docs/examples/` corpus, and the two stages that run the pinned `living-doc-collector-gh` for real and
-check what it mines.
+This page is for contributors who run, debug or extend the checks here: the static check of
+`docs/examples/`, and the two stages that mine with the pinned `living-doc-collector-gh`.
 
 Read before: [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots)
 and [§ The collector stage over the testbed](../CONTRIBUTING.md#the-collector-stage-over-the-testbed).
@@ -29,16 +28,17 @@ Next: [Negative testbed cases](testbed/negative-cases.md).
 | snapshot | `real-collector.yml` · `real-collector-snapshot` | `docs/examples/`, mined | the corpus's first-stage content, then no diff against `docs/examples/_expected/` |
 | testbed | `real-collector.yml` · `testbed-collector-stage` | the testbed's `core`, mined | invariants, then exactly one warning per derived case |
 
-The snapshot and testbed stages run the same collector, in the same venv.
-The static stage's rules are the module docstring of [`examples/examples_check.py`](examples/examples_check.py).
-The snapshot stage's procedure (regenerate, commit, bump the pin) is in
-[CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots).
-The rest of this page is the testbed stage.
+- The snapshot and testbed stages share one collector and one venv.
+- Static rules: the module docstring of [`examples/examples_check.py`](examples/examples_check.py).
+- Snapshot procedure (regenerate, commit, bump the pin):
+  [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots).
+- From [The testbed stage](#the-testbed-stage) on, this page covers the testbed stage only.
 
 ## The workflow
 
-[`real-collector.yml`](../.github/workflows/real-collector.yml) runs the two collector stages: two independent jobs, one pinned collector.
-Either job failing fails the run. A new push to the same ref cancels the run in progress.
+[`real-collector.yml`](../.github/workflows/real-collector.yml) runs both collector stages as two
+independent jobs on one pinned collector. Either job failing fails the run; a new push to the same
+ref cancels the run in progress.
 
 ```mermaid
 flowchart TB
@@ -91,14 +91,14 @@ flowchart TB
     b7 -->|no, or a run, case or check failed| failB(["red"])
 ```
 
-Only each job's last decision is drawn. In the snapshot job, an earlier red step stops the job.
-The testbed job's failure handling is in [What a testbed run does](#what-a-testbed-run-does).
-Its case steps are on [Negative testbed cases](testbed/negative-cases.md).
+Only each job's last decision is drawn; in the snapshot job, any earlier red step stops the job.
+Testbed failure handling: [What a testbed run does](#what-a-testbed-run-does).
+Case steps: [Negative testbed cases](testbed/negative-cases.md).
 
 ## Layout
 
-One folder per subject: `collector/` is shared by the two collector stages, `examples/` tests
-`docs/examples/`, and `testbed/` tests the testbed.
+One folder per subject: `collector/` (shared by both collector stages), `examples/` (tests
+`docs/examples/`), `testbed/` (tests the testbed).
 
 | File | Stage | Holds |
 |---|---|---|
@@ -107,8 +107,8 @@ One folder per subject: `collector/` is shared by the two collector stages, `exa
 | [`examples/examples_check.py`](examples/examples_check.py) | static | the corpus checker |
 | [`examples/test_examples_check.py`](examples/test_examples_check.py) | static | the corpus checker's tests |
 | [`examples/requirements-examples-check.txt`](examples/requirements-examples-check.txt) | static | the corpus checker's pinned requirements, `living-doc-utilities` among them |
-| [`examples/check_utilities_pins.py`](examples/check_utilities_pins.py) | snapshot | the `living-doc-utilities` pin report: the collector's pin against the corpus checker's; the CI job runs it first |
-| [`examples/test_check_utilities_pins.py`](examples/test_check_utilities_pins.py) | — | the pin report's tests; `examples-check.yml` runs them, since that job has `pytest` |
+| [`examples/check_utilities_pins.py`](examples/check_utilities_pins.py) | snapshot | the `living-doc-utilities` pin report, collector vs. corpus checker; the CI job's first step |
+| [`examples/test_check_utilities_pins.py`](examples/test_check_utilities_pins.py) | — | the pin report's tests; run by `examples-check.yml`, which has `pytest` |
 | [`examples/regen-collector-snapshots.sh`](examples/regen-collector-snapshots.sh) | snapshot | the runner; writes `docs/examples/_expected/` or a directory to diff against it |
 | [`examples/check_collector_stage.py`](examples/check_collector_stage.py) | snapshot | the corpus's first-stage content |
 | [`examples/normalize_snapshot.py`](examples/normalize_snapshot.py) | snapshot | replaces volatile values with placeholders before the diff |
@@ -119,12 +119,13 @@ One folder per subject: `collector/` is shared by the two collector stages, `exa
 
 ## The testbed stage
 
-The stage reads the `core` project of
-[`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed) at its `master`.
-`core` follows the canon 100 %, so any warning over it is a defect.
-Nothing about `core`'s content is written down here: every count comes from the checkout at run time.
-The problems the pipeline must report are [negative cases](testbed/negative-cases.md).
-The stage only reads the testbed, and fails if it leaves the checkout changed.
+Reads the `core` project of [`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed)
+at `master`.
+
+- `core` follows the canon 100 %: any warning over it is a defect.
+- Nothing about `core`'s content is written here; every count comes from the checkout at run time.
+- Problems the pipeline must report are [negative cases](testbed/negative-cases.md).
+- The stage only reads the testbed, and fails if the checkout changes.
 
 ## What a testbed run does
 
@@ -138,13 +139,13 @@ The stage only reads the testbed, and fails if it leaves the checkout changed.
    The details: [Negative testbed cases § How a case run is checked](testbed/negative-cases.md#how-a-case-run-is-checked).
 7. Fails if the testbed's `git status` differs from step 3.
 
-A failed collector run, case or check marks the stage failed and moves on to the next.
-A failed setup step (listing the cases, copying `core`, making the git checkout) stops the stage at once.
-All output lives in a temp work dir, deleted on exit.
+- A failed collector run, case or check marks the stage failed; the stage moves on to the next.
+- A failed setup step (listing the cases, copying `core`, making the git checkout) stops it at once.
+- All output goes to a temp work dir, deleted on exit.
 
 ## What the testbed checks assert
 
-The full list is the module docstring of [`testbed/check_testbed_stage.py`](testbed/check_testbed_stage.py).
+Full list: the module docstring of [`testbed/check_testbed_stage.py`](testbed/check_testbed_stage.py).
 Where each part is checked:
 
 - Every artifact validates against its contract; `sources_failed` is 0 → `check_testbed_stage.py::_read`.
@@ -158,25 +159,21 @@ Where each part is checked:
 
 ## Run the testbed stage
 
-From the repository root (the script itself runs from any directory):
+From the repository root (the script runs from any directory):
 
 ```shell
 tests/testbed/run-testbed-stage.sh                         # shallow-clones the testbed's master
 tests/testbed/run-testbed-stage.sh ../living-doc-testbed   # reads a checkout you already have
 ```
 
-It needs bash 3.2 or later (Linux, macOS, or Git Bash on Windows), `git`, and access to github.com.
-Python, the venv and the token-free run are the same as for the snapshot stage: see
-[CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots).
-
-Options, both environment variables:
-
-- `PYTHON` — the interpreter the collector's venv is built from.
-- `GITHUB_STEP_SUMMARY` — set in CI; the testbed SHA and each check's output are appended to it.
-
-In CI, a testbed merge triggers nothing here. Dispatch the workflow by hand to read a new testbed `master`.
-
-To apply one case by hand, or to add one: [Negative testbed cases](testbed/negative-cases.md).
+- Needs bash 3.2+ (Linux, macOS, or Git Bash on Windows), `git` and access to github.com.
+- Python, the venv and the token-free run: as for the snapshot stage, see
+  [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots).
+- Environment variables:
+  - `PYTHON` — the interpreter the collector's venv is built from.
+  - `GITHUB_STEP_SUMMARY` — set in CI; the testbed SHA and each check's output are appended to it.
+- In CI, a testbed merge triggers nothing; dispatch the workflow by hand to read a new testbed `master`.
+- Apply or add a case: [Negative testbed cases](testbed/negative-cases.md).
 
 ## Read a testbed failure
 
@@ -189,4 +186,4 @@ To apply one case by hand, or to add one: [Negative testbed cases](testbed/negat
 | `ERROR: the collector failed over …` | the collector exited non-zero | the collector, or the pin in `collector/collector-pins.env` |
 | `ERROR: the stage changed the testbed checkout …` | something wrote into the testbed | the runner or the collector's output paths |
 
-A check or a case here can also stop fitting a valid `core`. Then fix the check or the case, never the testbed.
+A check or case here can also stop fitting a valid `core`: fix the check or case, never the testbed.

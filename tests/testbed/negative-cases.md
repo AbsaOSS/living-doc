@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This page is for contributors who read, run or add a negative case of the testbed stage.
-A negative case breaks one thing in a copy of the testbed's `core` and names the one warning the run must report.
-The code calls it a derived problem case.
+This page is for contributors who read, run or add a negative case of the testbed stage: one thing
+broken in a copy of the testbed's `core`, plus the one warning the run must report. The code calls it a
+derived problem case.
 
 Read before: [Tests § The testbed stage](../README.md#the-testbed-stage).
 Next: [Tests § Read a testbed failure](../README.md#read-a-testbed-failure).
@@ -20,15 +20,15 @@ Next: [Tests § Read a testbed failure](../README.md#read-a-testbed-failure).
 
 ## Principle
 
-The run over `core` reports nothing: that proves the collector accepts the canon.
-A negative case proves the other half: a known defect is reported once, at its line.
-The defect is never authored in the testbed. A function here derives it from a copy.
-The function finds its target by structure, so a testbed merge does not break it.
+- The run over `core` reports nothing: the collector accepts the canon.
+- A negative case proves the other half: a known defect is reported once, at its line.
+- The defect is never authored in the testbed. A function here derives it from a copy and finds its
+  target by structure, so a testbed merge does not break it.
 
 ## Cases
 
-One row per case in [`testbed_cases.py`](testbed_cases.py), in run order.
-The function's docstring is the full definition.
+One row per case in [`testbed_cases.py`](testbed_cases.py), in run order; the function's docstring is
+the full definition.
 
 | Case | Reports | What it proves |
 |---|---|---|
@@ -45,7 +45,7 @@ The function's docstring is the full definition.
 - **Why that target:** the docstring of [`misindented_ac_line`](testbed_cases.py).
 - **No target:** `LookupError`, and the stage fails with `ERROR: case misindented_ac_line could not be applied`.
 
-The shape of the change, in placeholders; the real target is found at run time:
+Shape of the change (placeholders; the target is found at run time):
 
 ```text
 #   AC:<id> (…)
@@ -77,7 +77,7 @@ The shape of the change, in placeholders; the real target is found at run time:
 
 ## Apply a case by hand
 
-A case changes the folder it is given, in place, so copy `core` first:
+A case changes the folder it is given in place, so copy `core` first:
 
 ```shell
 rm -rf /tmp/case && mkdir -p /tmp/case/projects
@@ -96,7 +96,7 @@ Add a case only when a warning needs a real-looking project to show it.
    and returns `Expected`.
 2. Find the target by structure, never by literal text or a line number. Reuse `_functionality_files`
    and `_ac_blocks` where they fit.
-3. Change one thing, so the run reports exactly one warning. Pick a target where no later line is
+3. Change one thing, so the run reports exactly one warning; pick a target where no later line is
    reported with it.
 4. Keep line endings: open the file with `newline=""`, as `misindented_ac_line` does.
 5. Return `Expected(code, line, path, change)`: the warning code, the 1-based line, the changed file,
