@@ -1,0 +1,1724 @@
+{
+  "schema_version": "doc-source-v1.0.0",
+  "metadata": {
+    "producer": {
+      "name": "AbsaOSS/living-doc-collector-gh",
+      "version": "0.1.1",
+      "build": null,
+      "utilities_version": "0.6.0"
+    },
+    "run": {
+      "run_id": null,
+      "run_attempt": null,
+      "actor": null,
+      "workflow": null,
+      "ref": null,
+      "sha": null
+    },
+    "source": {
+      "project_id": "testbed-core",
+      "systems": [
+        "GitHub"
+      ],
+      "organizations": [
+        "AbsaOSS"
+      ],
+      "repositories": [
+        "AbsaOSS/living-doc-testbed"
+      ],
+      "extraction_mode": null
+    },
+    "generated_at": "2026-10-15T08:43:20.269891Z",
+    "stats": {
+      "cardinality": {
+        "entities": 20,
+        "entities_by_type": {
+          "DocumentedUserStory": 3,
+          "DocumentedFeature": 5,
+          "DocumentedFunctionality": 12
+        },
+        "acceptance_criteria": 32,
+        "scenarios": 0,
+        "warnings_by_code": {},
+        "sources_configured": 1,
+        "sources_failed": 0,
+        "unresolved_refs": 0,
+        "entities_skipped": 0
+      },
+      "field_occupancy": {
+        "user_stories[].entity_id": 3,
+        "user_stories[].source_ref.system": 3,
+        "user_stories[].source_ref.native_id": 3,
+        "user_stories[].source_ref.native_type": 3,
+        "user_stories[].source_ref.url": 3,
+        "user_stories[].source_ref.tracker_state": 3,
+        "user_stories[].source_ref.area_path": 0,
+        "user_stories[].source_ref.iteration_path": 0,
+        "user_stories[].type": 3,
+        "user_stories[].title": 3,
+        "user_stories[].state": 3,
+        "user_stories[].state_origin": 3,
+        "user_stories[].tags[]": 0,
+        "user_stories[].timestamps.created_at": 0,
+        "user_stories[].timestamps.updated_at": 0,
+        "user_stories[].timestamps.closed_at": 0,
+        "user_stories[].narrative": 0,
+        "user_stories[].purpose": 0,
+        "user_stories[].source": 1,
+        "user_stories[].notes[]": 1,
+        "user_stories[].business_value[]": 3,
+        "user_stories[].acceptance_criteria[].id": 10,
+        "user_stories[].acceptance_criteria[].state": 10,
+        "user_stories[].acceptance_criteria[].version": 9,
+        "user_stories[].acceptance_criteria[].description": 10,
+        "user_stories[].acceptance_criteria[].aspect[]": 1,
+        "user_stories[].acceptance_criteria[].preconditions[]": 1,
+        "user_stories[].acceptance_criteria[].not_in_scope[]": 1,
+        "user_stories[].acceptance_criteria[].removal_planned": 2,
+        "user_stories[].acceptance_criteria[].rationale": 2,
+        "user_stories[].acceptance_criteria[].placeholder_values": 0,
+        "user_stories[].preconditions[]": 1,
+        "user_stories[].not_in_scope[]": 1,
+        "user_stories[].deprecated_at": 1,
+        "user_stories[].deprecation_reason": 1,
+        "user_stories[].superseded_by": 1,
+        "user_stories[].surface_type": 0,
+        "user_stories[].owners[]": 0,
+        "user_stories[].user_stories[]": 0,
+        "user_stories[].functionalities[]": 0,
+        "user_stories[].external_dependencies[]": 0,
+        "user_stories[].feature_dependencies[]": 0,
+        "user_stories[].stub_reason": 0,
+        "user_stories[].wizard_steps[]": 0,
+        "user_stories[].pages[].is_primary": 0,
+        "user_stories[].pages[].route": 0,
+        "user_stories[].pages[].page_object": 0,
+        "user_stories[].pages[].owners[]": 0,
+        "user_stories[].pages[].purpose": 0,
+        "user_stories[].pages[].functionalities[]": 0,
+        "user_stories[].pages[].notes[]": 0,
+        "user_stories[].parent": 0,
+        "user_stories[].func_type": 0,
+        "user_stories[].rationale": 0,
+        "features[].entity_id": 5,
+        "features[].source_ref.system": 5,
+        "features[].source_ref.native_id": 5,
+        "features[].source_ref.native_type": 5,
+        "features[].source_ref.url": 5,
+        "features[].source_ref.tracker_state": 5,
+        "features[].source_ref.area_path": 0,
+        "features[].source_ref.iteration_path": 0,
+        "features[].type": 5,
+        "features[].title": 5,
+        "features[].state": 5,
+        "features[].state_origin": 5,
+        "features[].tags[]": 0,
+        "features[].timestamps.created_at": 0,
+        "features[].timestamps.updated_at": 0,
+        "features[].timestamps.closed_at": 0,
+        "features[].narrative": 0,
+        "features[].purpose": 5,
+        "features[].source": 0,
+        "features[].notes[]": 1,
+        "features[].business_value[]": 0,
+        "features[].acceptance_criteria[].id": 0,
+        "features[].acceptance_criteria[].state": 0,
+        "features[].acceptance_criteria[].version": 0,
+        "features[].acceptance_criteria[].description": 0,
+        "features[].acceptance_criteria[].aspect[]": 0,
+        "features[].acceptance_criteria[].preconditions[]": 0,
+        "features[].acceptance_criteria[].not_in_scope[]": 0,
+        "features[].acceptance_criteria[].removal_planned": 0,
+        "features[].acceptance_criteria[].rationale": 0,
+        "features[].acceptance_criteria[].placeholder_values": 0,
+        "features[].preconditions[]": 0,
+        "features[].not_in_scope[]": 0,
+        "features[].deprecated_at": 0,
+        "features[].deprecation_reason": 1,
+        "features[].superseded_by": 1,
+        "features[].surface_type": 5,
+        "features[].owners[]": 5,
+        "features[].user_stories[]": 5,
+        "features[].functionalities[]": 5,
+        "features[].external_dependencies[]": 2,
+        "features[].feature_dependencies[]": 0,
+        "features[].stub_reason": 1,
+        "features[].wizard_steps[]": 1,
+        "features[].pages[].is_primary": 7,
+        "features[].pages[].route": 7,
+        "features[].pages[].page_object": 7,
+        "features[].pages[].owners[]": 7,
+        "features[].pages[].purpose": 7,
+        "features[].pages[].functionalities[]": 1,
+        "features[].pages[].notes[]": 1,
+        "features[].parent": 0,
+        "features[].func_type": 0,
+        "features[].rationale": 0,
+        "functionalities[].entity_id": 12,
+        "functionalities[].source_ref.system": 12,
+        "functionalities[].source_ref.native_id": 12,
+        "functionalities[].source_ref.native_type": 12,
+        "functionalities[].source_ref.url": 12,
+        "functionalities[].source_ref.tracker_state": 12,
+        "functionalities[].source_ref.area_path": 0,
+        "functionalities[].source_ref.iteration_path": 0,
+        "functionalities[].type": 12,
+        "functionalities[].title": 12,
+        "functionalities[].state": 12,
+        "functionalities[].state_origin": 12,
+        "functionalities[].tags[]": 0,
+        "functionalities[].timestamps.created_at": 0,
+        "functionalities[].timestamps.updated_at": 0,
+        "functionalities[].timestamps.closed_at": 0,
+        "functionalities[].narrative": 0,
+        "functionalities[].purpose": 0,
+        "functionalities[].source": 1,
+        "functionalities[].notes[]": 1,
+        "functionalities[].business_value[]": 0,
+        "functionalities[].acceptance_criteria[].id": 22,
+        "functionalities[].acceptance_criteria[].state": 22,
+        "functionalities[].acceptance_criteria[].version": 21,
+        "functionalities[].acceptance_criteria[].description": 22,
+        "functionalities[].acceptance_criteria[].aspect[]": 5,
+        "functionalities[].acceptance_criteria[].preconditions[]": 0,
+        "functionalities[].acceptance_criteria[].not_in_scope[]": 0,
+        "functionalities[].acceptance_criteria[].removal_planned": 2,
+        "functionalities[].acceptance_criteria[].rationale": 1,
+        "functionalities[].acceptance_criteria[].placeholder_values": 3,
+        "functionalities[].preconditions[]": 2,
+        "functionalities[].not_in_scope[]": 2,
+        "functionalities[].deprecated_at": 2,
+        "functionalities[].deprecation_reason": 2,
+        "functionalities[].superseded_by": 1,
+        "functionalities[].surface_type": 0,
+        "functionalities[].owners[]": 0,
+        "functionalities[].user_stories[]": 0,
+        "functionalities[].functionalities[]": 0,
+        "functionalities[].external_dependencies[]": 0,
+        "functionalities[].feature_dependencies[]": 0,
+        "functionalities[].stub_reason": 0,
+        "functionalities[].wizard_steps[]": 0,
+        "functionalities[].pages[].is_primary": 0,
+        "functionalities[].pages[].route": 0,
+        "functionalities[].pages[].page_object": 0,
+        "functionalities[].pages[].owners[]": 0,
+        "functionalities[].pages[].purpose": 0,
+        "functionalities[].pages[].functionalities[]": 0,
+        "functionalities[].pages[].notes[]": 0,
+        "functionalities[].parent": 12,
+        "functionalities[].func_type": 12,
+        "functionalities[].rationale": 2
+      }
+    },
+    "source_inputs": []
+  },
+  "warnings": [],
+  "user_stories": [
+    {
+      "entity_id": "US-001",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedUserStory",
+      "title": "US-001 \u00b7 Borrow a Book",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [
+        "Members can take a book home without queuing at the desk, so the desk staff spend their time on enquiries instead of checkouts."
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "US-001-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "A member who borrows an available book from the catalogue sees the loan on the My Loans page with its due date.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "US-001-02",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "A member who already holds the maximum number of loans cannot borrow another book and is told why.",
+          "aspect": [],
+          "preconditions": [
+            "The loan limit for the member's category is set."
+          ],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "US-001-03",
+          "state": "in_review",
+          "version": "1.1.0",
+          "description": "A member can renew a loan once from the My Loans page, which moves its due date out by one loan period.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "US-001-04",
+          "state": "deprecated",
+          "version": "1.0.0",
+          "description": "A printable loan slip is offered after a book is borrowed.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": "2.0.0",
+          "rationale": "The due date is now shown on My Loans and sent by email, so the slip is no longer needed.",
+          "placeholder_values": {}
+        },
+        {
+          "id": "US-001-05",
+          "state": "planned",
+          "version": "1.2.0",
+          "description": "A member is reminded by email two days before a loan is due.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "US-001-06",
+          "state": "planned",
+          "version": null,
+          "description": "A member can borrow an e-book from the catalogue.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [
+            "Reading the e-book inside the web app."
+          ],
+          "removal_planned": null,
+          "rationale": "Backlog - no target version; the e-book licensing terms are not agreed yet.",
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [
+        "The member is signed in with an account in good standing."
+      ],
+      "not_in_scope": [
+        "Borrowing from a partner library through inter-library loan."
+      ],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": null,
+      "func_type": null,
+      "rationale": null
+    },
+    {
+      "entity_id": "US-002",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedUserStory",
+      "title": "US-002 \u00b7 Join the Library",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": "https://github.com/AbsaOSS/living-doc-testbed/blob/master/projects/core/README.md",
+      "notes": [
+        "The sign-up wizard is also used by desk staff on the desk terminal."
+      ],
+      "business_value": [
+        "New members can join online at any hour, so sign-ups no longer depend on desk opening times.\n  - Most sign-up requests used to arrive by email outside opening hours.",
+        "Desk staff stop re-typing paper forms."
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "US-002-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "An applicant who completes the sign-up wizard sees a membership number on the confirmation step.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "US-002-02",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "The applicant receives a confirmation email with the membership number.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "US-002-03",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "The applicant can choose the card type that matches their age.",
+          "aspect": [
+            "adult",
+            "junior"
+          ],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": null,
+      "func_type": null,
+      "rationale": null
+    },
+    {
+      "entity_id": "US-003",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedUserStory",
+      "title": "US-003 \u00b7 Register at the Desk",
+      "state": "deprecated",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [
+        "Residents without internet access can still become members."
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "US-003-01",
+          "state": "deprecated",
+          "version": "1.0.0",
+          "description": "Desk staff can register a resident from a paper form and hand over a printed membership card.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": "2.0.0",
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": "2026-06-01",
+      "deprecation_reason": "Desk staff now register members through the online sign-up wizard, so the separate desk registration flow is retired.",
+      "superseded_by": "US-002",
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": null,
+      "func_type": null,
+      "rationale": null
+    }
+  ],
+  "features": [
+    {
+      "entity_id": "FEAT-001",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/pages/CatalogueSearchPage.ts",
+        "native_type": "page-object",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/CatalogueSearchPage.ts",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFeature",
+      "title": "FEAT-001 \u00b7 Catalogue Search Page",
+      "state": "active",
+      "state_origin": "derived",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": "The screen where a member searches the library catalogue, narrows the results and borrows an available book.",
+      "source": null,
+      "notes": [
+        "Results are paged 20 at a time; filters and sorting apply to every page."
+      ],
+      "business_value": [],
+      "acceptance_criteria": [],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": "UI",
+      "owners": [
+        "Discovery Team"
+      ],
+      "user_stories": [
+        "US-001"
+      ],
+      "functionalities": [
+        "FUNC-001",
+        "FUNC-002",
+        "FUNC-008"
+      ],
+      "external_dependencies": [
+        "catalogue-search-index"
+      ],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [
+        {
+          "is_primary": true,
+          "route": "/catalogue",
+          "page_object": "CatalogueSearchPage.ts",
+          "owners": [
+            "Discovery Team"
+          ],
+          "purpose": "The screen where a member searches the library catalogue, narrows the results and borrows an available book.",
+          "functionalities": [],
+          "notes": []
+        }
+      ],
+      "parent": null,
+      "func_type": null,
+      "rationale": null
+    },
+    {
+      "entity_id": "FEAT-004",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/pages/LoanDetailPage.ts",
+        "native_type": "page-object",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/LoanDetailPage.ts",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFeature",
+      "title": "FEAT-004 \u00b7 Loan Detail Page",
+      "state": "planned",
+      "state_origin": "derived",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": "The screen where a member sees one loan in full.",
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": "UI",
+      "owners": [
+        "Lending Team"
+      ],
+      "user_stories": [
+        "US-001"
+      ],
+      "functionalities": [
+        "FUNC-012"
+      ],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": "The loan detail template carries no test-id attributes yet; surface documented from the design. discovered 2026-09-28",
+      "wizard_steps": [],
+      "pages": [
+        {
+          "is_primary": true,
+          "route": "/account/loans/{loanId}",
+          "page_object": "LoanDetailPage.ts",
+          "owners": [
+            "Lending Team"
+          ],
+          "purpose": "The screen where a member sees one loan in full.",
+          "functionalities": [],
+          "notes": []
+        }
+      ],
+      "parent": null,
+      "func_type": null,
+      "rationale": null
+    },
+    {
+      "entity_id": "FEAT-005",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/pages/LoanSlipPage.ts",
+        "native_type": "page-object",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/LoanSlipPage.ts",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFeature",
+      "title": "FEAT-005 \u00b7 Printable Loan Slip",
+      "state": "deprecated",
+      "state_origin": "derived",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": "A printable page with the title, member number and due date of a new loan.",
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": "Due dates are shown on My Loans and sent by email, so members no longer print slips.",
+      "superseded_by": "FEAT-002",
+      "surface_type": "UI",
+      "owners": [
+        "Lending Team"
+      ],
+      "user_stories": [
+        "US-001"
+      ],
+      "functionalities": [
+        "FUNC-007"
+      ],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [
+        {
+          "is_primary": true,
+          "route": "/account/loans/{loanId}/slip",
+          "page_object": "LoanSlipPage.ts",
+          "owners": [
+            "Lending Team"
+          ],
+          "purpose": "A printable page with the title, member number and due date of a new loan.",
+          "functionalities": [],
+          "notes": []
+        }
+      ],
+      "parent": null,
+      "func_type": null,
+      "rationale": null
+    },
+    {
+      "entity_id": "FEAT-003",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/pages/MembershipWizardPage.ts",
+        "native_type": "page-object",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/MembershipWizardPage.ts",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFeature",
+      "title": "FEAT-003 \u00b7 Membership Sign-up Wizard",
+      "state": "active",
+      "state_origin": "derived",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": "Multi-step wizard where a resident joins the library and receives a membership number.",
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": "UI",
+      "owners": [
+        "Membership Team"
+      ],
+      "user_stories": [
+        "US-002",
+        "US-003"
+      ],
+      "functionalities": [
+        "FUNC-005",
+        "FUNC-006",
+        "FUNC-011"
+      ],
+      "external_dependencies": [
+        "address-lookup-service",
+        "email-gateway"
+      ],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [
+        "Details",
+        "Card Type",
+        "Confirm"
+      ],
+      "pages": [
+        {
+          "is_primary": true,
+          "route": "/join",
+          "page_object": "MembershipWizardPage.ts",
+          "owners": [
+            "Membership Team"
+          ],
+          "purpose": "Multi-step wizard where a resident joins the library and receives a membership number.",
+          "functionalities": [],
+          "notes": []
+        },
+        {
+          "is_primary": false,
+          "route": "/join  (wizard stays on this URL)",
+          "page_object": "MembershipWizardConfirmStep.ts",
+          "owners": [
+            "Membership Team"
+          ],
+          "purpose": "Step 3 (Confirm) \u2014 the applicant reviews the details and joins.",
+          "functionalities": [],
+          "notes": []
+        },
+        {
+          "is_primary": false,
+          "route": "/join  (wizard stays on this URL)",
+          "page_object": "MembershipWizardDetailsStep.ts",
+          "owners": [
+            "Membership Team"
+          ],
+          "purpose": "Step 1 (Details) \u2014 the applicant's name, date of birth and home address.",
+          "functionalities": [
+            "FUNC-005"
+          ],
+          "notes": [
+            "The address field suggests matches as the applicant types."
+          ]
+        }
+      ],
+      "parent": null,
+      "func_type": null,
+      "rationale": null
+    },
+    {
+      "entity_id": "FEAT-002",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/pages/MyLoansPage.ts",
+        "native_type": "page-object",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/MyLoansPage.ts",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFeature",
+      "title": "FEAT-002 \u00b7 My Loans Page",
+      "state": "active",
+      "state_origin": "derived",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": "The screen where a member sees the books they have on loan, with due dates, and renews a loan.",
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": "UI",
+      "owners": [
+        "Lending Team",
+        "Finance Team"
+      ],
+      "user_stories": [
+        "US-001"
+      ],
+      "functionalities": [
+        "FUNC-003",
+        "FUNC-004",
+        "FUNC-009",
+        "FUNC-010"
+      ],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [
+        {
+          "is_primary": true,
+          "route": "/account/loans",
+          "page_object": "MyLoansPage.ts",
+          "owners": [
+            "Lending Team",
+            "Finance Team"
+          ],
+          "purpose": "The screen where a member sees the books they have on loan, with due dates, and renews a loan.",
+          "functionalities": [],
+          "notes": []
+        }
+      ],
+      "parent": null,
+      "func_type": null,
+      "rationale": null
+    }
+  ],
+  "functionalities": [
+    {
+      "entity_id": "FUNC-001",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-001 \u00b7 Catalogue Search Page - Filter Search Results",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-001-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "Selecting a filter value keeps only the results that match it.",
+          "aspect": [
+            "author",
+            "subject"
+          ],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-001-02",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "Clearing all filters restores the full result list.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [
+        "A search has returned results from more than one author and subject."
+      ],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-001",
+      "func_type": "component_action",
+      "rationale": "Filtering narrows the results already shown; it never runs a new search, so it stays a separate behaviour from the search box."
+    },
+    {
+      "entity_id": "FUNC-002",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-002 \u00b7 Catalogue Search Page - Sort by Popularity",
+      "state": "deprecated",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [
+        "The popularity score is refreshed overnight from the previous day's loans."
+      ],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-002-01",
+          "state": "deprecated",
+          "version": "1.0.0",
+          "description": "Choosing \"Most popular\" orders the results by the number of loans in the last 90 days, highest first.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": "2.0.0",
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": "2026-08-03",
+      "deprecation_reason": "Popularity favoured a handful of titles; members asked for relevance and newest-first instead.",
+      "superseded_by": "FUNC-008",
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-001",
+      "func_type": "component_action",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-003",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-003-renew-loan.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-003-renew-loan.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-003 \u00b7 My Loans Page - Renew Loan",
+      "state": "in_review",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-003-01",
+          "state": "in_review",
+          "version": "1.1.0",
+          "description": "Pressing \"Renew\" moves the loan's due date out by one loan period.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-003-02",
+          "state": "in_review",
+          "version": "1.1.0",
+          "description": "The \"Renew\" button is disabled once the loan has been renewed.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [
+        "Renewing a loan that another member has reserved."
+      ],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-002",
+      "func_type": "button_action",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-004",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-004-show-overdue-badge.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-004-show-overdue-badge.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-004 \u00b7 My Loans Page - Show Overdue Badge",
+      "state": "planned",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-004-01",
+          "state": "planned",
+          "version": "1.2.0",
+          "description": "An \"Overdue\" badge is shown on a loan whose due date has passed.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-004-02",
+          "state": "planned",
+          "version": null,
+          "description": "The badge shows the late fee accrued so far.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": "Backlog - no target version; the fee schedule is still under review by the library board.",
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-002",
+      "func_type": "visibility",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-005",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-005 \u00b7 Membership Sign-up Wizard - Validate Required Details",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": "https://github.com/AbsaOSS/living-doc-testbed/blob/master/projects/core/README.md",
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-005-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "Leaving a required detail empty shows an inline error under it and keeps the applicant on the details step.",
+          "aspect": [
+            "name",
+            "date-of-birth",
+            "address"
+          ],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-005-02",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "A date of birth in the future is rejected with an inline error.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-005-03",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "Filling in the {required-detail} clears the inline error under it.",
+          "aspect": [
+            "name",
+            "date-of-birth",
+            "address"
+          ],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {
+            "required_detail": [
+              "name",
+              "date-of-birth",
+              "address"
+            ]
+          }
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-003",
+      "func_type": "field_validation",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-006",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-006 \u00b7 Membership Sign-up Wizard - Submit Application",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-006-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "Pressing \"Join\" creates the membership and shows its number on the confirmation step.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-006-02",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "Pressing \"Join\" a second time does not create a second membership.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [
+        "The applicant has completed the details and card type steps."
+      ],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-003",
+      "func_type": "button_action",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-007",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-007 \u00b7 Printable Loan Slip - Print Slip",
+      "state": "deprecated",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-007-01",
+          "state": "deprecated",
+          "version": "1.0.0",
+          "description": "Pressing \"Print\" opens the browser print dialog with the slip's title, member number and due date.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": "2.0.0",
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": "2026-08-03",
+      "deprecation_reason": "The due date is shown on My Loans and sent by email, so the printed slip is no longer needed.",
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-005",
+      "func_type": "button_action",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-008",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-008 \u00b7 Catalogue Search Page - Sort Results",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-008-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "Results are ordered by relevance by default.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-008-02",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "Choosing \"Newest first\" orders the results by publication date, newest first.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-008-03",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "The {sort-order} applies to every page of results, not only the first.",
+          "aspect": [
+            "relevance",
+            "newest-first"
+          ],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {
+            "sort_order": [
+              "relevance",
+              "newest-first"
+            ]
+          }
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [
+        "Sorting by popularity, which was retired.",
+        "Saving a sort order between visits."
+      ],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-001",
+      "func_type": "component_action",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-009",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-009 \u00b7 My Loans Page - Loan List States",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-009-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "A member with loans sees one row per loan with its title and due date.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-009-02",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "A member with no loans sees \"You have no books on loan\" and a link to the catalogue.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-002",
+      "func_type": "component_state",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-010",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-010 \u00b7 My Loans Page - Total Fines Owed",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-010-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "The total shown is the sum of the fines on every loan, to the cent.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        },
+        {
+          "id": "FUNC-010-02",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "A fine that is {fine-state} is left out of the total.",
+          "aspect": [
+            "paid",
+            "waived",
+            "written-off"
+          ],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {
+            "fine_state": [
+              "paid",
+              "waived",
+              "written-off"
+            ]
+          }
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-002",
+      "func_type": "calculation",
+      "rationale": "The total is shown on its own, not on payment, so members see what they owe before they come to the desk."
+    },
+    {
+      "entity_id": "FUNC-011",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-011 \u00b7 Membership Sign-up Wizard - Redirect Existing Members",
+      "state": "active",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-011-01",
+          "state": "active",
+          "version": "1.0.0",
+          "description": "A signed-in member who opens the sign-up wizard is taken to the My Loans page instead.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-003",
+      "func_type": "navigation_rule",
+      "rationale": null
+    },
+    {
+      "entity_id": "FUNC-012",
+      "source_ref": {
+        "system": "GitHub",
+        "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-012-show-renewal-history.feature",
+        "native_type": "feature-file",
+        "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-012-show-renewal-history.feature",
+        "tracker_state": "committed",
+        "area_path": null,
+        "iteration_path": null
+      },
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-012 \u00b7 Loan Detail Page - Show Renewal History",
+      "state": "planned",
+      "state_origin": "authored",
+      "tags": [],
+      "timestamps": {
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null
+      },
+      "narrative": null,
+      "purpose": null,
+      "source": null,
+      "notes": [],
+      "business_value": [],
+      "acceptance_criteria": [
+        {
+          "id": "FUNC-012-01",
+          "state": "planned",
+          "version": "1.2.0",
+          "description": "A loan that has been renewed shows the date of each renewal.",
+          "aspect": [],
+          "preconditions": [],
+          "not_in_scope": [],
+          "removal_planned": null,
+          "rationale": null,
+          "placeholder_values": {}
+        }
+      ],
+      "preconditions": [],
+      "not_in_scope": [],
+      "deprecated_at": null,
+      "deprecation_reason": null,
+      "superseded_by": null,
+      "surface_type": null,
+      "owners": [],
+      "user_stories": [],
+      "functionalities": [],
+      "external_dependencies": [],
+      "feature_dependencies": [],
+      "stub_reason": null,
+      "wizard_steps": [],
+      "pages": [],
+      "parent": "FEAT-004",
+      "func_type": "visibility",
+      "rationale": null
+    }
+  ]
+}
