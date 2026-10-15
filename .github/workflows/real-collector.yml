@@ -1,0 +1,135 @@
+#
+# Copyright 2026 ABSA Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Runs the REAL living-doc-collector-gh (`doc-source` + `ui-tests`) over docs/examples/, in a venv of its own built
+# from the collector's runtime requirements.txt at the ref pinned in tests/collector/collector-pins.env, and:
+#   1. reports the living-doc-utilities pin of each component (tests/examples/check_utilities_pins.py) - a minor skew
+#      is a warning here; gates run the report with --strict,
+#   2. validates each artifact against its contract and asserts the collector stage's first-stage content
+#      (tests/examples/check_collector_stage.py),
+#   3. snapshot-tests the normalized JSON against docs/examples/_expected/collector-gh/<mode>/<artifact>.json.
+#
+# A failing diff means one of three things:
+#   1. the example corpus changed and docs/examples/_expected/ was not regenerated,
+#   2. the pinned collector was bumped and its parser output moved, or
+#   3. docs/examples/_expected/ holds a file this job no longer produces.
+# Either way: run `tests/examples/regen-collector-snapshots.sh` and commit the result
+# (see CONTRIBUTING.md -> "Regenerating the collector snapshots").
+#
+# A second job, `testbed-collector-stage`, runs the same pinned collector in the same venv over the `core` project of
+# AbsaOSS/living-doc-testbed, read at its current master (never pinned), and asserts invariants instead of snapshots
+# (tests/testbed/run-testbed-stage.sh -> tests/testbed/check_testbed_stage.py): every artifact valid, no warning
+# at all, every AC tag resolved, the cross-reference pages, the folders outside living doc, the keyword ACs. Every count
+# is derived from the checkout at run time. It then runs each derived problem case (tests/testbed/testbed_cases.py)
+# over a copy of `core` and asserts the one warning the case must raise. A failure there means one of:
+#   1. the pinned collector or its living-doc-utilities misreads `core` - a defect in that repository, or
+#   2. a testbed merge left `core` off the canon - fix it in the testbed, or
+#   3. a check or a case here no longer fits a valid `core`.
+# A testbed merge triggers nothing here: run the workflow by hand (workflow_dispatch) to read a new testbed master.
+#
+# The living-doc-toolkit `coverage-matrix` stage is not run yet: it returns once the toolkit itself is on
+# living-doc-utilities.
+#
+# This is deliberately separate from examples-check.yml, which stays self-contained and
+# installs no collector. This workflow exists to exercise the real mining code.
+
+name: "Real collector stages"
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - "docs/examples/**"
+      - "tests/**"
+      - ".github/workflows/real-collector.yml"
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    paths:
+      - "docs/examples/**"
+      - "tests/**"
+      - ".github/workflows/real-collector.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  real-collector-snapshot:
+    name: Snapshot the real collector over docs/examples
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+
+      - name: Report the living-doc-utilities pins
+        run: python tests/examples/check_utilities_pins.py
+
+      - name: Run the pinned collector-gh over the corpus, validate and assert
+        run: tests/examples/regen-collector-snapshots.sh "${{ runner.temp }}/actual"
+
+      - name: Diff mined output against docs/examples/_expected/
+        run: |
+          set -euo pipefail
+          # The whole tree: a snapshot the job no longer writes (e.g. a stale root-level file) fails too.
+          if ! diff -ru docs/examples/_expected "${{ runner.temp }}/actual" > "${{ runner.temp }}/snapshot.diff"; then
+            echo "::error file=docs/examples/_expected::snapshot diff - regenerate with tests/examples/regen-collector-snapshots.sh"
+            cat "${{ runner.temp }}/snapshot.diff"
+            echo ""
+            echo "Snapshot mismatch. Likely cause, one of:"
+            echo "  1. docs/examples/** changed and docs/examples/_expected/ was not regenerated."
+            echo "  2. the pinned collector in tests/collector/collector-pins.env was bumped and its parser"
+            echo "     output moved."
+            echo "  3. docs/examples/_expected/ holds a file this job no longer produces."
+            echo "Fix: run tests/examples/regen-collector-snapshots.sh and commit docs/examples/_expected/."
+            exit 1
+          fi
+          echo "docs/examples/_expected/ matches the mined output."
+
+  testbed-collector-stage:
+    name: Collector stage over the testbed's core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout the testbed at master
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AbsaOSS/living-doc-testbed
+          # Read at master like any repository living doc reads, never pinned: the SHA read is in the job summary.
+          ref: master
+          path: living-doc-testbed
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+
+      - name: Run the pinned collector-gh over core, assert the invariants and the derived cases
+        run: tests/testbed/run-testbed-stage.sh living-doc-testbed

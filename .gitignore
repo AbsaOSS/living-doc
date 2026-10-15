@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 
-# The per-component venvs tools/regen-collector-snapshots.sh builds and reuses.
+# The per-component venvs tests/collector/collector-gh.sh builds and reuses.
 .snapshot-venvs/
 
 # Local planning workspace — spec drafts, issue drafts, local tools. Never shipped.

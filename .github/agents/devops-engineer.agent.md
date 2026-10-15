@@ -83,15 +83,18 @@ Non-goals
 
 Repo specifics
 
-- This repo has no monorepo, no `Makefile`, and no `make qa` — CI is seven independent workflows in `.github/workflows/`:
+- This repo has no monorepo, no `Makefile`, and no `make qa` — CI is eight independent workflows in `.github/workflows/`:
   - `link-check.yml` — gated on `docs_changed == 'true'`; runs `lychee-action` over `./**/*.md` with `--include-fragments`.
-  - `examples-check.yml` — path-filtered on `docs/examples/**`, `docs/guides/**`, `tools/examples_check.py`; runs `python tools/examples_check.py` then `python -m pytest tools/test_examples_check.py -q` on Python `3.14`.
-  - `real-collector-snapshot.yml` — path-filtered plus a weekly `cron: "17 4 * * 1"` schedule; runs `tools/check_utilities_pins.py`, then the pinned real `living-doc-collector-gh` in its own venv via `tools/regen-collector-snapshots.sh`, and diffs against `docs/examples/_expected/collector-gh/**`.
+  - `examples-check.yml` — path-filtered on `docs/examples/**`, `docs/guides/**` and `tests/examples/**`; runs `python tests/examples/examples_check.py`, then `python -m pytest -q` over `tests/examples/test_examples_check.py` and `tests/examples/test_check_utilities_pins.py`, on Python `3.14`.
+  - `real-collector.yml` — path-filtered on `docs/examples/**` and `tests/**`, plus `workflow_dispatch`, no schedule; two jobs, one pinned real `living-doc-collector-gh` in its own venv (`tests/collector/collector-gh.sh`):
+    - `real-collector-snapshot`: `tests/examples/check_utilities_pins.py`, then `tests/examples/regen-collector-snapshots.sh`, then a diff against `docs/examples/_expected/collector-gh/**`.
+    - `testbed-collector-stage`: checks out `AbsaOSS/living-doc-testbed` at `master` (never pinned) and runs `tests/testbed/run-testbed-stage.sh` — invariants over `core` (`tests/testbed/check_testbed_stage.py`), then the derived cases (`tests/testbed/testbed_cases.py`). A testbed merge triggers nothing; dispatch the workflow by hand to read a new `master`.
+  - `agentic-tests.yml` — path-filtered on `agentic/**` and the two canon pages its copies are generated from; checks the canon copies, runs the agentic layer's script tests and validates the skill format (see `agentic/CONTRIBUTING.md`).
   - `check-pr-requirements.yml` — `AbsaOSS/check-pr-requirements`; enforces the `#<issue>: Title` or `<issue> - Title` PR-title format (`title-formats: issue-number`), a ticket number in the branch name, the `## Overview` / `## Release Notes` / `## Related` body sections, and an issue-closing keyword.
   - `check_pr_release_notes.yml`, `release_draft.yml`, `aquasec-night-scan.yml` — release-notes/draft-release bookkeeping and the nightly security scan; treat as out of scope unless a task names them.
-- Must pin every `uses:` to a full commit SHA with a trailing version comment (all seven workflows already do this) — do not relax a pin to a floating tag.
+- Must pin every `uses:` to a full commit SHA with a trailing version comment, and never relax a pin to a floating tag. Not every workflow complies yet (several use `actions/setup-python@v7`); pin any step you add.
 - Contract-sensitive outputs
-  - The path filters on each workflow (a filter that misses a changed file silently skips the check); the `check-pr-requirements` input set (`title-formats: issue-number`, `branch-require-ticket: "true"`, `description-required-sections`); the diffed tree in `real-collector-snapshot.yml` (`docs/examples/_expected/`, holding `collector-gh/doc-source/doc-source.json` / `collector-gh/ui-tests/ui-tests.json`).
-- Do not propose a lint, type-check, or coverage-percentage job — this repo has none configured, and `tools/requirements-examples-check.txt` states there is no other Python code to gate.
+  - The path filters on each workflow (a filter that misses a changed file silently skips the check); the `check-pr-requirements` input set (`title-formats: issue-number`, `branch-require-ticket: "true"`, `description-required-sections`); the diffed tree in `real-collector.yml` (`docs/examples/_expected/`, holding `collector-gh/doc-source/doc-source.json` / `collector-gh/ui-tests/ui-tests.json`); the testbed stage's configuration (`core` collector paths, `project-id`) in `tests/testbed/run-testbed-stage.sh` — here, never in the testbed.
+- Do not propose a lint, type-check, or coverage-percentage job — this repo has none configured, and its Python is a few standalone scripts in `tests/`, each gated by the workflow that runs it.
 - Review rubric
   - Prefer treating `.github/copilot-review-rules.md`'s "Repo specifics" as the source of truth for which paths are contract-sensitive when scoping a workflow's path filters.

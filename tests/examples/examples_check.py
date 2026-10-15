@@ -62,7 +62,7 @@ Canonical references:
 
 The script depends on the standard library, PyYAML and the authoring layer of
 ``living-doc-utilities`` (``normalize``, ``ac_grammar``, ``framing``, ``identity``), pinned in
-``tools/requirements-examples-check.txt``. It has no import-time dependency on ``collector-gh``
+``tests/examples/requirements-examples-check.txt``. It has no import-time dependency on ``collector-gh``
 or ``toolkit``. It exits non-zero on any violation and prints, per finding, the file, the line
 (where known), the failed rule and a fix hint.
 """
@@ -1225,7 +1225,7 @@ def check_corpus(examples_dir: Path) -> list[Finding]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    default_dir = Path(__file__).resolve().parent.parent / "docs" / "examples"
+    default_dir = Path(__file__).resolve().parents[2] / "docs" / "examples"
     parser.add_argument("--examples-dir", type=Path, default=default_dir,
                         help="path to the docs/examples corpus (default: %(default)s)")
     args = parser.parse_args(argv)

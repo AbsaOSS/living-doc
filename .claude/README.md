@@ -28,12 +28,12 @@ there is nothing for that rule to move. See the audit note in
 ## How the two commands relate
 
 Both check **acceptance criteria against the actual file** — reading the guide's literal
-field description, the rule in `tools/examples_check.py`, the example file's literal
+field description, the rule in `tests/examples/examples_check.py`, the example file's literal
 content — never "a test with that name is green".
 
 - **`/implement-task <id>`** is the full lifecycle: read the task → read every referenced
-  file → implement → run `python tools/examples_check.py` / `python -m pytest
-  tools/test_examples_check.py -q` until green → verify each acceptance criterion against
+  file → implement → run `python tests/examples/examples_check.py` / `python -m pytest
+  tests/examples/test_examples_check.py -q` until green → verify each acceptance criterion against
   code/docs → write the `## Overview` / `## Release Notes` / `## Related` PR description →
   stop. It collapses the `specification-master` → `senior-developer` → `sdet` →
   `reviewer` agent sequence into one driven command.

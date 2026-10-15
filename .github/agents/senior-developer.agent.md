@@ -55,7 +55,7 @@ Responsibilities
   - Avoid unnecessary refactors unrelated to the task.
 - Quality
   - Must meet formatting, lint, type-check, and test requirements — where this repo defines any.
-  - Must add type hints for new public functions in `tools/*.py`.
+  - Must add type hints for new public functions in `tests/**/*.py`.
 - Compatibility & contracts
   - Must not change externally-visible outputs unless approved.
   - If a contract change is required, must document it and update tests accordingly.
@@ -88,20 +88,20 @@ Non-goals
 Repo specifics
 
 - Scope of "code" in this repo
-  - There is no monorepo, no packages, and no `pyproject.toml` — most of this repo is documentation (`docs/`). The entire Python surface is `tools/examples_check.py` and `tools/normalize_snapshot.py`, plus their pinned deps in `tools/requirements-examples-check.txt` (`tools/requirements-examples-check.txt` says this explicitly: "this repo has no other Python code"). `tools/regen-collector-snapshots.sh` is a Bash wrapper around that Python, not Python itself — do not apply type-hint or pytest expectations to it.
-  - Most changes to this repo are prose edits to `docs/guides/**`, `docs/tutorials/**`, `docs/projects/**`, and `docs/examples/**`, not code. Apply this agent's rules only when a task actually touches `tools/*.py` or `tools/*.sh`.
+  - There is no monorepo, no packages, and no `pyproject.toml` — most of this repo is documentation (`docs/`). The Python surface: `tests/examples/examples_check.py` (pinned deps in `tests/examples/requirements-examples-check.txt`), `tests/examples/normalize_snapshot.py`, `tests/examples/check_utilities_pins.py`, the collector-stage checkers `tests/examples/check_collector_stage.py` and `tests/testbed/check_testbed_stage.py` (run in the collector's venv), and the derived testbed cases in `tests/testbed/testbed_cases.py`. `tests/examples/regen-collector-snapshots.sh`, `tests/testbed/run-testbed-stage.sh` and the `tests/collector/collector-gh.sh` both source are Bash wrappers around that Python — no type-hint or pytest expectations for them.
+  - Most changes to this repo are prose edits to `docs/guides/**`, `docs/tutorials/**`, `docs/projects/**`, and `docs/examples/**`, not code. Apply this agent's rules only when a task actually touches `tests/**/*.py` or `tests/**/*.sh`.
 - Runtime/toolchain targets
-  - `.github/workflows/examples-check.yml` and `real-collector-snapshot.yml` both pin Python `3.14` via `actions/setup-python`. Match that when testing locally.
+  - `.github/workflows/examples-check.yml` and `real-collector.yml` both pin Python `3.14` via `actions/setup-python`. Match that when testing locally.
 - Quality gates (there is no `Makefile` and no lint/type config — do not invent one)
-  - `pip install -r tools/requirements-examples-check.txt`
-  - `python tools/examples_check.py` (validates the real `docs/examples/**` corpus)
-  - `python -m pytest tools/test_examples_check.py -q` (self-test of the checker)
+  - `pip install -r tests/examples/requirements-examples-check.txt`
+  - `python tests/examples/examples_check.py` (validates the real `docs/examples/**` corpus)
+  - `python -m pytest tests/examples/test_examples_check.py -q` (self-test of the checker)
   - These three commands are exactly what `.github/workflows/examples-check.yml` runs.
 - Logging conventions
-  - `tools/examples_check.py` reports findings as `Finding` records (file + rule), not via a logger — keep new checks consistent with that shape rather than introducing `logging`.
+  - `tests/examples/examples_check.py` reports findings as `Finding` records (file + rule), not via a logger — keep new checks consistent with that shape rather than introducing `logging`.
 - Contract-sensitive outputs
-  - The rule set enforced by `tools/examples_check.py` (header fields, AC-tag grammar, coverage-pair rule, project-profile requirement) and the pinned refs in `tools/collector-snapshot-pins.env` — a pin bump must ship with regenerated `docs/examples/_expected/**` in the same PR (`CONTRIBUTING.md` § "Regenerating the collector snapshots").
+  - The rule set enforced by `tests/examples/examples_check.py` (header fields, AC-tag grammar, coverage-pair rule, project-profile requirement) and the pinned refs in `tests/collector/collector-pins.env` — a pin bump must ship with regenerated `docs/examples/_expected/**` in the same PR (`CONTRIBUTING.md` § "Regenerating the collector snapshots").
 - AI-free principle
-  - `tools/examples_check.py` and `tools/normalize_snapshot.py` must stay deterministic and offline — no LLM call and no network request other than the collector's own start-up connectivity check in `real-collector-snapshot.yml`.
+  - `tests/examples/examples_check.py`, `tests/examples/normalize_snapshot.py` and the collector-stage checkers (`tests/examples/check_collector_stage.py`, `tests/testbed/check_testbed_stage.py`) must stay deterministic and offline: no LLM call, no network request. The collector makes none either. The only network access in `real-collector.yml`: fetching the pinned collector (clone, `git ls-remote` for a tag pin, the `requirements.txt` that `tests/examples/check_utilities_pins.py` reads at that ref, its `pip install` from PyPI) and checking out the testbed.
 - Review rubric
   - Prefer checking changes against `.github/copilot-review-rules.md` before handing off to Reviewer — it lists this repo's high-risk areas and contract-sensitive outputs.

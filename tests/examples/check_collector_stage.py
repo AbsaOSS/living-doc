@@ -29,14 +29,14 @@ it against its contract, then asserts that what the corpus's source-code chain (
   covering scenario linked as ``aspect: minimum-length``;
 - none of the warnings a canonical corpus must never raise.
 
-Runs in the ``collector-gh`` venv that ``tools/regen-collector-snapshots.sh`` builds: it imports
+Runs in the ``collector-gh`` venv that ``tests/collector/collector-gh.sh`` builds: it imports
 nothing but ``living-doc-utilities``, which that venv holds through the collector's own
 ``requirements.txt``. The normalized snapshot cannot be re-read this way - its volatile values
 are placeholders - so the artifact is validated before it is normalized, and the snapshot diff
 ties the committed file to it.
 
 Usage:
-    python tools/check_collector_stage.py <output-root>   # the collector's output-path
+    python tests/examples/check_collector_stage.py <output-root>   # the collector's output-path
 """
 
 from __future__ import annotations

@@ -37,23 +37,26 @@ Task-list source (optional override): `$2`
 
 - Make the smallest change that satisfies the spec. Match existing structure and naming;
   there is no monorepo and no package-dependency rule to respect.
-- If the task changes `tools/examples_check.py`, add the matching mutation test in
-  `tools/test_examples_check.py` using the `corpus_dir` fixture — use the `test-author`
+- If the task changes `tests/examples/examples_check.py`, add the matching mutation test in
+  `tests/examples/test_examples_check.py` using the `corpus_dir` fixture — use the `test-author`
   agent for the test surface.
 - Do not change the format contracts (`docs/guides/living-doc-header-types.md` fields, the
   `AC:<id> (v<version> - <state>)` / `@AC:<id>[/<param>:<value>]` grammar (`<param>` is
   `aspect` or the AC's keyword name, one per tag),
   `docs/examples/_expected/**` structure) unless the task explicitly calls for it.
 - If the change moves what `docs/examples/**` mines to, or bumps a pin in
-  `tools/collector-snapshot-pins.env`, regenerate `docs/examples/_expected/**` in this
+  `tests/collector/collector-pins.env`, regenerate `docs/examples/_expected/**` in this
   same PR per `CONTRIBUTING.md` § "Regenerating the collector snapshots".
 
 ## 4. Run the checks until green
 
-- `python tools/examples_check.py` (only if `docs/examples/**`, `docs/guides/**`, or the
+- `python tests/examples/examples_check.py` (only if `docs/examples/**`, `docs/guides/**`, or the
   checker changed).
-- `python -m pytest tools/test_examples_check.py -q` (only if the checker or its tests
+- `python -m pytest tests/examples/test_examples_check.py -q` (only if the checker or its tests
   changed) — the same command `.github/workflows/examples-check.yml` runs.
+- `tests/testbed/run-testbed-stage.sh` (only if `tests/collector/**`, `tests/testbed/**` or
+  `.github/workflows/real-collector.yml` changed) — the script the `testbed-collector-stage`
+  job runs over the testbed's `core`.
 - There is no `make qa`, no lint, no type-check, and no coverage-percentage gate in this
   repo — do not invent one.
 - Fix every failure and re-run. Do not weaken a check to get past a gate.
@@ -63,14 +66,14 @@ Task-list source (optional override): `$2`
 For every criterion on your step 1 checklist, confirm the **literal claim** by reading the
 file that now exists — **not** by checking that a same-named test is green.
 
-- "a rule rejects X" → read the rule in `tools/examples_check.py` and confirm it actually
+- "a rule rejects X" → read the rule in `tests/examples/examples_check.py` and confirm it actually
   produces a `Finding` for X.
 - "the guide documents field Y" → open the guide and read the literal field description.
 - "the example shows extension Z" → open the example file and confirm Z is literally
   present, and confirm it is the corpus's one instance of that extension (see
   `docs/examples/README.md` "Conventions used by this corpus").
 - "the snapshot reflects the change" → confirm `docs/examples/_expected/**` was
-  regenerated and diffs clean against a fresh `tools/regen-collector-snapshots.sh` run.
+  regenerated and diffs clean against a fresh `tests/examples/regen-collector-snapshots.sh` run.
 
 Record each criterion as met (with the `file:line` that proves it) or not met. If any
 criterion is not met, return to step 3.

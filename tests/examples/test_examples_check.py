@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for tools/examples_check.py — the docs/examples corpus validator.
+"""Tests for tests/examples/examples_check.py — the docs/examples corpus validator.
 
-Run: ``python -m pytest tools/test_examples_check.py`` (needs pytest + PyYAML;
-see tools/requirements-examples-check.txt).
+Run: ``python -m pytest tests/examples/test_examples_check.py`` (needs pytest + PyYAML;
+see tests/examples/requirements-examples-check.txt).
 Each mutation test copies the real corpus, breaks one thing, and asserts the check
 reports it by file + rule.
 """
@@ -32,7 +32,7 @@ from examples_check import (AC_TAG_RE, FEATURE_STOP_RE, FEATURE_STRIP_RE, Corpus
                             _criteria, _decomment_block, _normalized, check_corpus,
                             check_feature_levels)
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 REAL_EXAMPLES = REPO_ROOT / "docs" / "examples"
 US_FEATURE = "gherkin/liv_doc_us/us-001-customer-login.feature"
 FUNC_FEATURE = "gherkin/liv_doc_func/func-001-validate-password-strength.feature"

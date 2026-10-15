@@ -15,7 +15,7 @@ Task-list source (optional override): `$2`
 
 - Read task `$1`'s acceptance criteria from the provided task list (or `$2`).
 - For each criterion, confirm the **literal claim** against the file that currently exists
-  on this branch — the guide's field description, the rule in `tools/examples_check.py`,
+  on this branch — the guide's field description, the rule in `tests/examples/examples_check.py`,
   the example file's literal content, the `docs/examples/_expected/**` diff. **Do not**
   accept "a test with that name passes" as evidence.
 - Always check one extra criterion: the change stays inside the frame in
@@ -25,12 +25,15 @@ Task-list source (optional override): `$2`
 
 ## 2. Run the checks
 
-- `python tools/examples_check.py` and `python -m pytest tools/test_examples_check.py -q`
-  if `docs/examples/**` or `tools/*` changed.
+- `python tests/examples/examples_check.py` and `python -m pytest tests/examples/test_examples_check.py -q`
+  if `docs/examples/**` or `tests/examples/**` changed.
 - Confirm `docs/examples/_expected/**` is regenerated and diffs clean if the branch changed
-  `docs/examples/**`, `tools/regen-collector-snapshots.sh`, `tools/normalize_snapshot.py`,
-  `tools/collector-snapshot-pins.env`, or `.github/workflows/real-collector-snapshot.yml`
-  itself — the exact trigger paths of that workflow.
+  `docs/examples/**`, `tests/examples/regen-collector-snapshots.sh`, `tests/collector/collector-gh.sh`,
+  `tests/examples/normalize_snapshot.py`, `tests/collector/collector-pins.env`, or
+  `.github/workflows/real-collector.yml` itself.
+- Run `tests/testbed/run-testbed-stage.sh` if the branch changed `tests/collector/**`, `tests/testbed/**` or
+  `.github/workflows/real-collector.yml`: no warning over the testbed's `core` at `master`, and
+  every derived case reports its code.
 - If the branch changes any Markdown file, confirm `link-check.yml` ran and is green.
 - There is no `make qa`, lint, type-check, or coverage gate in this repo — do not report one
   as missing.

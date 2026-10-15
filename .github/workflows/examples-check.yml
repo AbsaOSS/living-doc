@@ -22,22 +22,14 @@ on:
     paths:
       - "docs/examples/**"
       - "docs/guides/**"
-      - "tools/examples_check.py"
-      - "tools/test_examples_check.py"
-      - "tools/check_utilities_pins.py"
-      - "tools/test_check_utilities_pins.py"
-      - "tools/requirements-examples-check.txt"
+      - "tests/examples/**"
       - ".github/workflows/examples-check.yml"
   pull_request:
     types: [ opened, synchronize, reopened ]
     paths:
       - "docs/examples/**"
       - "docs/guides/**"
-      - "tools/examples_check.py"
-      - "tools/test_examples_check.py"
-      - "tools/check_utilities_pins.py"
-      - "tools/test_check_utilities_pins.py"
-      - "tools/requirements-examples-check.txt"
+      - "tests/examples/**"
       - ".github/workflows/examples-check.yml"
   workflow_dispatch:
 
@@ -64,13 +56,13 @@ jobs:
           python-version: "3.14"
 
       - name: Install pinned check requirements
-        run: pip install -r tools/requirements-examples-check.txt
+        run: pip install -r tests/examples/requirements-examples-check.txt
 
       - name: Validate the examples corpus
-        run: python tools/examples_check.py
+        run: python tests/examples/examples_check.py
 
       - name: Self-test the validator
-        run: python -m pytest tools/test_examples_check.py -q
+        run: python -m pytest tests/examples/test_examples_check.py -q
 
       - name: Self-test the living-doc-utilities pin report
-        run: python -m pytest tools/test_check_utilities_pins.py -q
+        run: python -m pytest tests/examples/test_check_utilities_pins.py -q

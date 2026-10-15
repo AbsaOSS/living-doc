@@ -1454,7 +1454,7 @@ def test_cli_stdin_input():
 # One declaration per AC, the keyword's name in the AC text, `aspect` reserved. The entity
 # JSON carries the declared values in `aspect` and a keyword's name in `placeholder_values`,
 # the shape `living-doc-utilities`' `AcceptanceCriterion` defines. `living-doc`'s
-# `tools/examples_check.py` runs the same checks over the corpus and is the reference.
+# `tests/examples/examples_check.py` runs the same checks over the corpus and is the reference.
 
 
 def _us_with_ac(ac: dict) -> dict:
