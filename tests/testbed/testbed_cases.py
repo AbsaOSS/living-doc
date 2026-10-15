@@ -22,14 +22,14 @@ copy of ``core``, changes it in place and returns what the run over the copy mus
 warning code, at the line it changed. A case finds what it changes by structure, never by literal
 text, so an edit to ``core`` does not break it.
 
-``integration/run-testbed-stage.sh`` runs every case in ``CASES``: it copies ``core``, applies the
+``tests/testbed/run-testbed-stage.sh`` runs every case in ``CASES``: it copies ``core``, applies the
 case, makes the copy a git checkout, runs ``doc-source`` over it, and asserts that the run reports
-exactly that one warning (``integration/tools/check_testbed_stage.py case``). A case run is not held to
+exactly that one warning (``tests/testbed/check_testbed_stage.py case``). A case run is not held to
 the invariants of ``core`` itself: what a case breaks can leave other data dangling.
 
 Usage:
-    python integration/testbed_cases.py --list                # the case names, one per line
-    python integration/testbed_cases.py <case> <core-copy>    # applies one; prints
+    python tests/testbed/testbed_cases.py --list                # the case names, one per line
+    python tests/testbed/testbed_cases.py <case> <core-copy>    # applies one; prints
                                                               # "<code>\\t<line>\\t<file>\\t<what changed>"
 """
 

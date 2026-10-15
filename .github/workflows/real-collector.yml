@@ -14,26 +14,26 @@
 # limitations under the License.
 #
 # Runs the REAL living-doc-collector-gh (`doc-source` + `ui-tests`) over docs/examples/, in a venv of its own built
-# from the collector's runtime requirements.txt at the ref pinned in integration/tools/collector-snapshot-pins.env, and:
-#   1. reports the living-doc-utilities pin of each component (integration/tools/check_utilities_pins.py) - a minor skew
+# from the collector's runtime requirements.txt at the ref pinned in tests/collector/collector-pins.env, and:
+#   1. reports the living-doc-utilities pin of each component (tests/examples/check_utilities_pins.py) - a minor skew
 #      is a warning here; gates run the report with --strict,
 #   2. validates each artifact against its contract and asserts the collector stage's first-stage content
-#      (integration/tools/check_collector_stage.py),
+#      (tests/examples/check_collector_stage.py),
 #   3. snapshot-tests the normalized JSON against docs/examples/_expected/collector-gh/<mode>/<artifact>.json.
 #
 # A failing diff means one of three things:
 #   1. the example corpus changed and docs/examples/_expected/ was not regenerated,
 #   2. the pinned collector was bumped and its parser output moved, or
 #   3. docs/examples/_expected/ holds a file this job no longer produces.
-# Either way: run `integration/regen-collector-snapshots.sh` and commit the result
+# Either way: run `tests/examples/regen-collector-snapshots.sh` and commit the result
 # (see CONTRIBUTING.md -> "Regenerating the collector snapshots").
 #
 # A second job, `testbed-collector-stage`, runs the same pinned collector in the same venv over the `core` project of
 # AbsaOSS/living-doc-testbed, read at its current master (never pinned), and asserts invariants instead of snapshots
-# (integration/run-testbed-stage.sh -> integration/tools/check_testbed_stage.py): every artifact valid, no warning
+# (tests/testbed/run-testbed-stage.sh -> tests/testbed/check_testbed_stage.py): every artifact valid, no warning
 # at all, every AC tag resolved, the cross-reference pages, the folders outside living doc, the keyword ACs. Every count
-# is derived from the checkout at run time. It then runs each derived problem case (integration/testbed_cases.py) over a
-# copy of `core` and asserts the one warning the case must raise. A failure there means one of:
+# is derived from the checkout at run time. It then runs each derived problem case (tests/testbed/testbed_cases.py)
+# over a copy of `core` and asserts the one warning the case must raise. A failure there means one of:
 #   1. the pinned collector or its living-doc-utilities misreads `core` - a defect in that repository, or
 #   2. a testbed merge left `core` off the canon - fix it in the testbed, or
 #   3. a check or a case here no longer fits a valid `core`.
@@ -45,25 +45,21 @@
 # This is deliberately separate from examples-check.yml, which stays self-contained and
 # installs no collector. This workflow exists to exercise the real mining code.
 
-name: "Real collector snapshot"
+name: "Real collector stages"
 
 on:
   push:
     branches: [ "master" ]
     paths:
       - "docs/examples/**"
-      - "integration/**"
-      # The corpus checker's pin, which the pin report compares with the collector's.
-      - "tools/requirements-examples-check.txt"
-      - ".github/workflows/real-collector-snapshot.yml"
+      - "tests/**"
+      - ".github/workflows/real-collector.yml"
   pull_request:
     types: [ opened, synchronize, reopened ]
     paths:
       - "docs/examples/**"
-      - "integration/**"
-      # The corpus checker's pin, which the pin report compares with the collector's.
-      - "tools/requirements-examples-check.txt"
-      - ".github/workflows/real-collector-snapshot.yml"
+      - "tests/**"
+      - ".github/workflows/real-collector.yml"
   workflow_dispatch:
 
 concurrency:
@@ -89,25 +85,25 @@ jobs:
           python-version: "3.14"
 
       - name: Report the living-doc-utilities pins
-        run: python integration/tools/check_utilities_pins.py
+        run: python tests/examples/check_utilities_pins.py
 
       - name: Run the pinned collector-gh over the corpus, validate and assert
-        run: integration/regen-collector-snapshots.sh "${{ runner.temp }}/actual"
+        run: tests/examples/regen-collector-snapshots.sh "${{ runner.temp }}/actual"
 
       - name: Diff mined output against docs/examples/_expected/
         run: |
           set -euo pipefail
           # The whole tree: a snapshot the job no longer writes (e.g. a stale root-level file) fails too.
           if ! diff -ru docs/examples/_expected "${{ runner.temp }}/actual" > "${{ runner.temp }}/snapshot.diff"; then
-            echo "::error file=docs/examples/_expected::snapshot diff - regenerate with integration/regen-collector-snapshots.sh"
+            echo "::error file=docs/examples/_expected::snapshot diff - regenerate with tests/examples/regen-collector-snapshots.sh"
             cat "${{ runner.temp }}/snapshot.diff"
             echo ""
             echo "Snapshot mismatch. Likely cause, one of:"
             echo "  1. docs/examples/** changed and docs/examples/_expected/ was not regenerated."
-            echo "  2. the pinned collector in integration/tools/collector-snapshot-pins.env was bumped and its parser"
+            echo "  2. the pinned collector in tests/collector/collector-pins.env was bumped and its parser"
             echo "     output moved."
             echo "  3. docs/examples/_expected/ holds a file this job no longer produces."
-            echo "Fix: run integration/regen-collector-snapshots.sh and commit docs/examples/_expected/."
+            echo "Fix: run tests/examples/regen-collector-snapshots.sh and commit docs/examples/_expected/."
             exit 1
           fi
           echo "docs/examples/_expected/ matches the mined output."
@@ -136,4 +132,4 @@ jobs:
           python-version: "3.14"
 
       - name: Run the pinned collector-gh over core, assert the invariants and the derived cases
-        run: integration/run-testbed-stage.sh living-doc-testbed
+        run: tests/testbed/run-testbed-stage.sh living-doc-testbed

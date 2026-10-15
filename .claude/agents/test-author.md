@@ -10,9 +10,9 @@ surface** — so you isolate the right boundary on the first try instead of gues
 
 ## Rules
 
-- Must use `pytest`. The test files are `tools/test_examples_check.py`, testing
-  `tools/examples_check.py`, and `integration/tools/test_check_utilities_pins.py`, testing
-  `integration/tools/check_utilities_pins.py`. There are no packages, no `Makefile`, and no
+- Must use `pytest`. The test files are `tests/examples/test_examples_check.py`, testing
+  `tests/examples/examples_check.py`, and `tests/examples/test_check_utilities_pins.py`, testing
+  `tests/examples/check_utilities_pins.py`. There are no packages, no `Makefile`, and no
   other test tree.
 - The checker only reads a directory tree — there is no network call and nothing else
   external to stub. Must isolate every mutation to `tmp_path`; must never write to the real
@@ -20,15 +20,15 @@ surface** — so you isolate the right boundary on the first try instead of gues
 - Must assert on behavior — the `Finding` objects `check_corpus()` returns (`file` + `rule`),
   never on a log message or a side channel.
 - Prefer adding to the existing `corpus_dir` fixture over introducing a second one.
-- Must keep the suite green under `python -m pytest tools/test_examples_check.py -q` — the
+- Must keep the suite green under `python -m pytest tests/examples/test_examples_check.py -q` — the
   exact command `.github/workflows/examples-check.yml` runs. There is no coverage-percentage
   gate to satisfy.
 
-## Mock / fixture cheat-table (sourced from what already exists in `tools/test_examples_check.py`)
+## Mock / fixture cheat-table (sourced from what already exists in `tests/examples/test_examples_check.py`)
 
 | What you need to fake | Pattern used in this repo | Where to copy it from |
 |---|---|---|
-| A broken corpus to check against | copy the real `docs/examples/` tree into `tmp_path` via the `corpus_dir` fixture, then mutate exactly one file | `tools/test_examples_check.py::corpus_dir` |
+| A broken corpus to check against | copy the real `docs/examples/` tree into `tmp_path` via the `corpus_dir` fixture, then mutate exactly one file | `tests/examples/test_examples_check.py::corpus_dir` |
 | A missing required header field | strip the one line (e.g. `# status:`) from the target file, re-write it, assert the finding names the file and a `rule` mentioning the field | `test_missing_required_header_field_fails` |
 | An undeclared `@AC:` tag | replace a valid `@AC:<id>` with an ID no entity declares, assert the finding names the bogus ID | `test_undeclared_ac_tag_fails` |
 | An unknown `/aspect:` value | replace a declared aspect value with a made-up one, assert the finding names it | `test_unknown_aspect_value_fails` |
@@ -43,20 +43,20 @@ surface** — so you isolate the right boundary on the first try instead of gues
 | The pristine baseline | assert `check_corpus(REAL_EXAMPLES)` returns `[]` — every mutation test depends on this holding | `test_pristine_corpus_passes` |
 
 **Adding a new rule to `examples_check.py`:** add a corresponding mutation test in
-`tools/test_examples_check.py` using the `corpus_dir` fixture — break the one thing the new
+`tests/examples/test_examples_check.py` using the `corpus_dir` fixture — break the one thing the new
 rule checks, assert the specific finding, and confirm `test_pristine_corpus_passes` still
 holds against the real, unmodified corpus.
 
-**No collector/toolkit surface here:** `tools/examples_check.py` never invokes the real
+**No collector/toolkit surface here:** `tests/examples/examples_check.py` never invokes the real
 `living-doc-collector-gh` or `living-doc-toolkit` — that only happens in
-`.github/workflows/real-collector-snapshot.yml`, outside pytest. Do not add a mock for it in
+`.github/workflows/real-collector.yml`, outside pytest. Do not add a mock for it in
 this test file; if a change needs to exercise the real collector, that belongs in
-`integration/regen-collector-snapshots.sh` (over `docs/examples/`) or `integration/run-testbed-stage.sh`
-(over the testbed's `core`, with a derived case in `integration/testbed_cases.py` for a problem
+`tests/examples/regen-collector-snapshots.sh` (over `docs/examples/`) or `tests/testbed/run-testbed-stage.sh`
+(over the testbed's `core`, with a derived case in `tests/testbed/testbed_cases.py` for a problem
 the run must report), not a unit test.
 
 ## Output
 
 - The test files/additions themselves.
 - A recap ≤ 10 lines: what is covered (success + failure paths), how to run it
-  (`python -m pytest tools/test_examples_check.py -q`), any coverage gap and why.
+  (`python -m pytest tests/examples/test_examples_check.py -q`), any coverage gap and why.

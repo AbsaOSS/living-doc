@@ -38,8 +38,8 @@ snapshotted yet; see [What the corpus mines to](#what-the-corpus-mines-to-_expec
 `living-doc-collector-gh` writes when its `doc-source` and `ui-tests` modes mine this corpus's
 source-code chain — `gherkin/` and `pageobject/` — in the collector's own output layout:
 `doc-source/doc-source.json` and `ui-tests/ui-tests.json`, normalized so only the mined content is
-compared. `.github/workflows/real-collector-snapshot.yml` regenerates them on every PR touching
-`docs/examples/**` or `integration/**`. It runs the pinned collector in a venv built from the collector's
+compared. `.github/workflows/real-collector.yml` regenerates them on every PR touching
+`docs/examples/**` or `tests/**`. It runs the pinned collector in a venv built from the collector's
 own `requirements.txt`, validates each artifact against its contract, asserts that what the corpus
 authors comes through with none of the warnings a canonical corpus must not raise, and fails on any
 diff — so a parser or schema change in the pinned collector that alters the mined output surfaces
@@ -172,7 +172,7 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   dependency resolves on the Feature id.
 - **The dependency pair.** `FEAT-001` records `auth-api` under `External Dependencies` — a system with
   no canonical anchor, named as free text. `FEAT-003` records `FEAT-002` under `feature_dependencies` —
-  an `API` Feature, named by id and validated by `tools/examples_check.py`. The two fields side by side
+  an `API` Feature, named by id and validated by `tests/examples/examples_check.py`. The two fields side by side
   are the distinction the [glossary](../guides/living-doc-glossary.md#feature) draws. `FEAT-003` is
   documented at surface level (`User Stories` and `Functionalities` are `none`), like `FEAT-002`.
 - **The dependency is authored in both `FEAT-003` forms**, as the one optional extension of each.

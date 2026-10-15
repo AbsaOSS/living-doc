@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 # Sourced, never run: the ONE definition of the pinned living-doc-collector-gh, the venv it runs in and how it is run.
-# integration/regen-collector-snapshots.sh (over docs/examples/) and integration/run-testbed-stage.sh (over
+# tests/examples/regen-collector-snapshots.sh (over docs/examples/) and tests/testbed/run-testbed-stage.sh (over
 # the testbed's `core`) both source it, so the two stages always run the same collector in the same venv.
 #
 # The caller sets `set -euo pipefail`, REPO_ROOT and WORK_DIR (native paths, see `native_dir`), then calls:
@@ -25,7 +25,7 @@
 #   collector_gh_run <project-id> <output-root> <doc-source-repositories> [<ui-tests-repositories>]
 #                                                         one run; a mode with no repository list is disabled
 #
-# The pinned ref comes from integration/tools/collector-snapshot-pins.env (the one place to bump it). No token: neither
+# The pinned ref comes from tests/collector/collector-pins.env (the one place to bump it). No token: neither
 # mode reads a credential. The venv is built from the collector's runtime requirements.txt at that ref and nothing else,
 # so living-doc-utilities arrives only through that file: a skew between what the collector ships and what a stage
 # assumes fails there, as it would in a real pipeline.
@@ -50,8 +50,8 @@ collector_gh_setup() {
     case "$name" in INPUT_*) unset "$name" ;; esac
   done
 
-  # shellcheck source=integration/tools/collector-snapshot-pins.env
-  source "$REPO_ROOT/integration/tools/collector-snapshot-pins.env"
+  # shellcheck source=tests/collector/collector-pins.env
+  source "$REPO_ROOT/tests/collector/collector-pins.env"
 
   # The pin MUST be an immutable ref: a full 40-hex commit SHA, or a tag that exists on the remote.
   # Anything else (a branch name, a short SHA, a typo) is rejected so every run stays reproducible.

@@ -41,17 +41,22 @@ PR body has to also include these sections: `## Overview`, `## Release Notes`, `
 
 ## Regenerating the collector snapshots
 
-`.github/workflows/real-collector-snapshot.yml` runs the real `living-doc-collector-gh`
-(`doc-source` + `ui-tests`) over `docs/examples/`, validates each artifact against its contract,
-asserts the corpus's first-stage content (`integration/tools/check_collector_stage.py`), and diffs
-the normalized result against the committed files in
-`docs/examples/_expected/collector-gh/<mode>/<artifact>.json`.
-The job fails on any diff, and on any file under `docs/examples/_expected/` it no longer writes.
+`.github/workflows/real-collector.yml` runs the real `living-doc-collector-gh`
+(`doc-source` + `ui-tests`) over `docs/examples/` and checks the mined output twice:
+
+1. `tests/examples/check_collector_stage.py` validates each raw artifact against its contract
+   and asserts the corpus's first-stage content against the values written in the script itself.
+2. The job diffs the normalized result against the committed files in
+   `docs/examples/_expected/collector-gh/<mode>/<artifact>.json`.
+
+Only that diff reads `docs/examples/_expected/`; `examples-check.yml` and the testbed stage below
+never do. The job fails on any diff, and on any file under `docs/examples/_expected/` it no longer
+writes.
 
 Regenerate and commit the expected files **in the same PR** whenever either side moves:
 
 ```shell
-integration/regen-collector-snapshots.sh     # writes docs/examples/_expected/collector-gh/
+tests/examples/regen-collector-snapshots.sh     # writes docs/examples/_expected/collector-gh/
 git add docs/examples/_expected
 ```
 
@@ -60,11 +65,11 @@ interpreter `PYTHON` names) and builds the collector's own venv in `.snapshot-ve
 (gitignored, reused while the interpreter and the pinned `requirements.txt` stay the same) from the
 collector's runtime `requirements.txt` at its pinned ref, and from nothing else.
 
-The pinned `collector-gh` ref lives in one place — `integration/tools/collector-snapshot-pins.env`.
+The pinned `collector-gh` ref lives in one place — `tests/collector/collector-pins.env`.
 Bumping a pin is a reviewed change, exactly like a dependency bump: change the ref there and commit
-the regenerated snapshots in the same PR. `python integration/tools/check_utilities_pins.py` prints
+the regenerated snapshots in the same PR. `python tests/examples/check_utilities_pins.py` prints
 the `living-doc-utilities` version the pinned collector and the corpus checker
-(`tools/requirements-examples-check.txt`) each pin, and warns when their minor versions differ;
+(`tests/examples/requirements-examples-check.txt`) each pin, and warns when their minor versions differ;
 `--strict` turns the warning into a failure.
 
 ## The collector stage over the testbed
@@ -72,14 +77,14 @@ the `living-doc-utilities` version the pinned collector and the corpus checker
 The same workflow's second job runs the same pinned collector over the `core` project of
 [`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed), read at its `master`.
 It asserts invariants instead of snapshots, then runs the derived problem cases. Run it locally
-before a PR that touches `integration/**` or the workflow:
+before a PR that touches `tests/collector/**`, `tests/testbed/**` or the workflow:
 
 ```shell
-integration/run-testbed-stage.sh
+tests/testbed/run-testbed-stage.sh
 ```
 
-How it works and how to read a failure: [`integration/README.md`](integration/README.md).
-Its negative cases and how to add one: [`integration/negative-cases.md`](integration/negative-cases.md).
+How it works and how to read a failure: [`tests/README.md`](tests/README.md).
+Its negative cases and how to add one: [`tests/testbed/negative-cases.md`](tests/testbed/negative-cases.md).
 
 ## The agentic layer
 

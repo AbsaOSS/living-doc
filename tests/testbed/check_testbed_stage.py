@@ -40,17 +40,17 @@ the checkout at run time. ``core`` asserts, on the artifacts ``living-doc-collec
 The checkout is read the way the collector reads it: ``tutorial*`` folders and ``@tutorial`` files
 and scenarios are skipped, a wrapped id list is joined before it is split, and ``none`` is no id.
 
-``case`` asserts what a derived problem case (``integration/testbed_cases.py``) must report: one
+``case`` asserts what a derived problem case (``tests/testbed/testbed_cases.py``) must report: one
 warning, of its code, at the line it changed.
 
-Runs in the ``collector-gh`` venv that ``integration/collector-gh.sh`` builds: it imports nothing but the
+Runs in the ``collector-gh`` venv that ``tests/collector/collector-gh.sh`` builds: it imports nothing but the
 standard library and ``living-doc-utilities``, which that venv holds through the collector's own
-``requirements.txt``. ``integration/run-testbed-stage.sh`` runs both commands.
+``requirements.txt``. ``tests/testbed/run-testbed-stage.sh`` runs both commands.
 
 Usage:
-    python integration/tools/check_testbed_stage.py core <output-root> <testbed-checkout> \\
+    python tests/testbed/check_testbed_stage.py core <output-root> <testbed-checkout> \\
         --us <dir> --func <dir> --pages <dir> --scenarios <dir>   # each dir relative to the checkout
-    python integration/tools/check_testbed_stage.py case <output-root> <code> <line> <changed-file>
+    python tests/testbed/check_testbed_stage.py case <output-root> <code> <line> <changed-file>
 """
 
 from __future__ import annotations

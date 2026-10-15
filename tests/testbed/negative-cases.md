@@ -6,8 +6,8 @@ This page is for contributors who read, run or add a negative case of the testbe
 A negative case breaks one thing in a copy of the testbed's `core` and names the one warning the run must report.
 The code calls it a derived problem case.
 
-Read before: [Integration tests § The testbed stage](README.md#the-testbed-stage).
-Next: [Integration tests § Read a testbed failure](README.md#read-a-testbed-failure).
+Read before: [Tests § The testbed stage](../README.md#the-testbed-stage).
+Next: [Tests § Read a testbed failure](../README.md#read-a-testbed-failure).
 
 ## Contents
 
@@ -34,7 +34,7 @@ The function's docstring is the full definition.
 |---|---|---|
 | `misindented_ac_line` | `MISINDENTED_LINE` | an AC line that fits no indent level is reported at its line, with no other warning |
 
-`python integration/testbed_cases.py --list` prints the names the runner uses.
+`python tests/testbed/testbed_cases.py --list` prints the names the runner uses.
 
 ### `misindented_ac_line`
 
@@ -61,11 +61,11 @@ The shape of the change, in placeholders; the real target is found at run time:
 - The copy is a git checkout with the testbed as `origin`: a file outside one is reported `NO_SOURCE_URL`
   → `run-testbed-stage.sh`, the case loop.
 - The copy is mined with `doc-source` only → `run-testbed-stage.sh::mine`.
-- The artifact validates against its contract, and `sources_failed` is 0 → `tools/check_testbed_stage.py::_read`.
+- The artifact validates against its contract, and `sources_failed` is 0 → `check_testbed_stage.py::_read`.
 - The run reports exactly one warning: the case's code, at its line, in the changed file
-  → `tools/check_testbed_stage.py::check_case`.
+  → `check_testbed_stage.py::check_case`.
 - Nothing else is asserted: what a case breaks can leave other data dangling, so the `core` invariants
-  do not apply → `tools/check_testbed_stage.py::check_case`.
+  do not apply → `check_testbed_stage.py::check_case`.
 
 ## What a case cannot cover
 
@@ -82,7 +82,7 @@ A case changes the folder it is given, in place, so copy `core` first:
 ```shell
 rm -rf /tmp/case && mkdir -p /tmp/case/projects
 cp -R ../living-doc-testbed/projects/core /tmp/case/projects/core
-python integration/testbed_cases.py misindented_ac_line /tmp/case/projects/core
+python tests/testbed/testbed_cases.py misindented_ac_line /tmp/case/projects/core
 # MISINDENTED_LINE  <line>  /tmp/case/projects/core/…/<file>.feature  line <line> dedented by one space: …
 ```
 
@@ -105,6 +105,6 @@ Add a case only when a warning needs a real-looking project to show it.
 7. Add the function to the tuple behind `CASES`. Its name is the case name.
 8. In the docstring, say what the case changes and why that yields exactly one warning.
 9. Add a row to [Cases](#cases), and a section under it: target, change, report, why exactly one, no target.
-10. Run `integration/run-testbed-stage.sh` against a local testbed checkout.
+10. Run `tests/testbed/run-testbed-stage.sh` against a local testbed checkout.
 
 Never add a patch file, and never change the testbed to make a case fit.

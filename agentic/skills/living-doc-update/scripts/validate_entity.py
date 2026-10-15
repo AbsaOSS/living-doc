@@ -518,7 +518,7 @@ def validate(entity: dict, catalog: dict | None = None) -> list[dict]:
 # JSON that reaches this validator the declared values land in `aspect`, and a keyword
 # declaration also records its name in `placeholder_values` (the shape
 # `living-doc-utilities`' `AcceptanceCriterion` defines). `living-doc`'s
-# `tools/examples_check.py` runs the same checks over the example corpus and is the reference.
+# `tests/examples/examples_check.py` runs the same checks over the example corpus and is the reference.
 AC_PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
 VARIANT_NAME_RE = re.compile(VARIANT_NAME)
 RESERVED_VARIANT_NAME = "aspect"
