@@ -28,7 +28,7 @@ target never blocks it, and its warnings are classified, not counted against it.
 - **Operator:** local operator (name not recorded)
 - **Machine type:** internal machine, internal targets included
 - **Verdict:** passed
-- **Owner sign-off:** pending
+- **Owner sign-off:** passed, 2026-10-15
 
 ### CI evidence
 
