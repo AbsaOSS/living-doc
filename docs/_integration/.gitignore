@@ -1,0 +1,7 @@
+# This repository is public. A run over a non-public repository never leaves the machine it ran on:
+# its config, its log and its artifacts all stay under <gate>/internal/, which git never sees. Its report
+# row in <gate>/report.md carries a label, counts and codes only (see README.md § What may be committed).
+/*/internal/
+
+# A log holds the machine's own paths (the venv, the checkouts, the output). Kept locally, never committed.
+local-integration.log
