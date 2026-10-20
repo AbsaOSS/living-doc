@@ -19,10 +19,10 @@ Normalize a collector / toolkit JSON artifact for snapshot comparison.
 
 The real collector stamps every run with volatile values: wall-clock timestamps, and — inside
 GitHub Actions — the run id / attempt / actor / sha, plus ``metadata.producer.build``. Every
-``source_ref.url``, and every warning's ``source_url``, also carries the commit the mined checkout
-is at, which moves with each commit to this repository. None of these says whether the *mined
-content* changed, so they are replaced with fixed placeholders before the file is diffed against
-the committed expected snapshot under ``docs/examples/_expected/``.
+``source_ref.url``, and every located warning's ``source_url``, also carries the commit the mined
+checkout is at, which moves with each commit to this repository. None of these says whether the
+*mined content* changed, so they are replaced with fixed placeholders before the file is diffed
+against the committed expected snapshot under ``docs/examples/_expected/``.
 
 Everything else, including ``metadata.producer.version`` and ``utilities_version``, is kept
 verbatim: a collector version bump that moves the parser output is exactly the drift this

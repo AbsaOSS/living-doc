@@ -11,8 +11,9 @@ surface** — so you isolate the right boundary on the first try instead of gues
 ## Rules
 
 - Must use `pytest`. The test files are `tests/examples/test_examples_check.py`, testing
-  `tests/examples/examples_check.py`, and `tests/examples/test_check_utilities_pins.py`, testing
-  `tests/examples/check_utilities_pins.py`. There are no packages, no `Makefile`, and no
+  `tests/examples/examples_check.py`, `tests/examples/test_check_utilities_pins.py`, testing
+  `tests/examples/check_utilities_pins.py`, and `tests/examples/test_normalize_snapshot.py`,
+  testing `tests/examples/normalize_snapshot.py`. There are no packages, no `Makefile`, and no
   other test tree.
 - The checker only reads a directory tree — there is no network call and nothing else
   external to stub. Must isolate every mutation to `tmp_path`; must never write to the real

@@ -76,7 +76,7 @@ referenced from `.github/agents/reviewer.agent.md` ("Review modes").
 - Must treat these as contract-sensitive — the `docs/examples/**` fixture corpus, the `docs/examples/_expected/**` snapshots, the pinned refs in `tests/collector/collector-pins.env`, and the cross-links `.github/workflows/link-check.yml` validates across `docs/**`.
 - Must expect `tests/examples/examples_check.py` and `tests/examples/normalize_snapshot.py` to stay deterministic and offline — flag any LLM call or unpinned network request introduced into either.
 - Must expect the testbed stage to read `AbsaOSS/living-doc-testbed` at `master` and derive every count from the checkout — flag a SHA pin on the testbed, a count or an id of `core`'s content written into `tests/testbed/check_testbed_stage.py`, a derived case that matches literal text, or anything that writes into the testbed.
-- Must expect the test suites to be `tests/examples/test_examples_check.py` and `tests/examples/test_check_utilities_pins.py`, each run via `python -m pytest <file> -q`, exactly as `.github/workflows/examples-check.yml` runs them.
+- Must expect the test suites to be `tests/examples/test_examples_check.py`, `tests/examples/test_check_utilities_pins.py` and `tests/examples/test_normalize_snapshot.py`, each run via `python -m pytest <file> -q`, exactly as `.github/workflows/examples-check.yml` runs them.
 - Must expect PRs to carry a `#<issue>: Title` or `<issue> - Title` title, a branch name with a ticket number, and `## Overview` / `## Release Notes` / `## Related` sections — enforced by `.github/workflows/check-pr-requirements.yml` and `check_pr_release_notes.yml`, and documented in `CONTRIBUTING.md`.
 
 ## Audit — what this repo deliberately lacks relative to the fleet's code repos

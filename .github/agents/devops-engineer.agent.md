@@ -85,7 +85,7 @@ Repo specifics
 
 - This repo has no monorepo, no `Makefile`, and no `make qa` — CI is eight independent workflows in `.github/workflows/`:
   - `link-check.yml` — gated on `docs_changed == 'true'`; runs `lychee-action` over `./**/*.md` with `--include-fragments`.
-  - `examples-check.yml` — path-filtered on `docs/examples/**`, `docs/guides/**` and `tests/examples/**`; runs `python tests/examples/examples_check.py`, then `python -m pytest -q` over `tests/examples/test_examples_check.py` and `tests/examples/test_check_utilities_pins.py`, on Python `3.14`.
+  - `examples-check.yml` — path-filtered on `docs/examples/**`, `docs/guides/**` and `tests/examples/**`; runs `python tests/examples/examples_check.py`, then `python -m pytest -q` over `tests/examples/test_examples_check.py`, `tests/examples/test_check_utilities_pins.py` and `tests/examples/test_normalize_snapshot.py`, on Python `3.14`.
   - `real-collector.yml` — path-filtered on `docs/examples/**` and `tests/**`, plus `workflow_dispatch`, no schedule; two jobs, one pinned real `living-doc-collector-gh` in its own venv (`tests/collector/collector-gh.sh`):
     - `real-collector-snapshot`: `tests/examples/check_utilities_pins.py`, then `tests/examples/regen-collector-snapshots.sh`, then a diff against `docs/examples/_expected/collector-gh/**`.
     - `testbed-collector-stage`: checks out `AbsaOSS/living-doc-testbed` at `master` (never pinned) and runs `tests/testbed/run-testbed-stage.sh` — invariants over `core` (`tests/testbed/check_testbed_stage.py`), then the derived cases (`tests/testbed/testbed_cases.py`). A testbed merge triggers nothing; dispatch the workflow by hand to read a new `master`.
