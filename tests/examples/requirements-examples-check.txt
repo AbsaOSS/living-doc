@@ -6,4 +6,4 @@
 # its minor in step with the collector's (tests/examples/check_utilities_pins.py reports both).
 PyYAML==6.0.3
 pytest==9.1.1
-living-doc-utilities==0.6.0
+living-doc-utilities==0.7.0

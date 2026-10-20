@@ -291,7 +291,7 @@
     "producer": {
       "build": null,
       "name": "AbsaOSS/living-doc-collector-gh",
-      "utilities_version": "0.6.0",
+      "utilities_version": "0.7.0",
       "version": "0.1.1"
     },
     "run": {
@@ -610,7 +610,8 @@
       "entity_id": "FEAT-003",
       "line_no": null,
       "message": "Feature has no linked Functionality in this run — either it is not yet populated, or it has been fully retired. Author its Functionalities, or remove the Feature.",
-      "path": null
+      "path": null,
+      "source_url": null
     },
     {
       "ac_id": null,
@@ -619,7 +620,8 @@
       "entity_id": "FEAT-003",
       "line_no": null,
       "message": "'feature_dependencies' points outside the collected entity set.",
-      "path": null
+      "path": null,
+      "source_url": null
     }
   ]
 }

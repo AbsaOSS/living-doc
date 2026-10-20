@@ -19,10 +19,10 @@ Normalize a collector / toolkit JSON artifact for snapshot comparison.
 
 The real collector stamps every run with volatile values: wall-clock timestamps, and — inside
 GitHub Actions — the run id / attempt / actor / sha, plus ``metadata.producer.build``. Every
-``source_ref.url`` also carries the commit the mined checkout is at, which moves with each commit
-to this repository. None of these says whether the *mined content* changed, so they are replaced
-with fixed placeholders before the file is diffed against the committed expected snapshot under
-``docs/examples/_expected/``.
+``source_ref.url``, and every located warning's ``source_url``, also carries the commit the mined
+checkout is at, which moves with each commit to this repository. None of these says whether the
+*mined content* changed, so they are replaced with fixed placeholders before the file is diffed
+against the committed expected snapshot under ``docs/examples/_expected/``.
 
 Everything else, including ``metadata.producer.version`` and ``utilities_version``, is kept
 verbatim: a collector version bump that moves the parser output is exactly the drift this
@@ -46,9 +46,10 @@ _VOLATILE_SCALAR_KEYS = {"generated_at"}
 # volatile run identity, exactly like the ``run`` block, and no signal about mined content.
 _VOLATILE_NULLED_KEYS = {"build"}
 
-# A ``url`` value is a permalink at the mined checkout's HEAD commit (``.../blob/<sha>/<path>``): only
-# the commit is replaced, so the path it points at is still compared.
-_URL_KEY = "url"
+# A ``url`` (``source_ref.url``) or ``source_url`` (a warning's) value is a permalink at the mined
+# checkout's HEAD commit (``.../blob/<sha>/<path>``): only the commit is replaced, so the path it
+# points at is still compared. A ``null`` ``source_url`` (a warning with no file) stays ``null``.
+_URL_KEYS = {"url", "source_url"}
 _COMMIT_IN_URL_RE = re.compile(r"/blob/[0-9a-f]{40}/")
 
 
@@ -66,7 +67,7 @@ def _normalize(node):
                 node[key] = _PLACEHOLDER
             elif key in _VOLATILE_NULLED_KEYS and not isinstance(value, (dict, list)):
                 node[key] = None
-            elif key == _URL_KEY and isinstance(value, str):
+            elif key in _URL_KEYS and isinstance(value, str):
                 node[key] = _COMMIT_IN_URL_RE.sub(f"/blob/{_PLACEHOLDER}/", value)
             else:
                 _normalize(value)
