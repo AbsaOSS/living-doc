@@ -66,3 +66,6 @@ jobs:
 
       - name: Self-test the living-doc-utilities pin report
         run: python -m pytest tests/examples/test_check_utilities_pins.py -q
+
+      - name: Self-test the snapshot normalizer
+        run: python -m pytest tests/examples/test_normalize_snapshot.py -q
