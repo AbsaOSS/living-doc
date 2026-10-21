@@ -1,5 +1,7 @@
 # Tutorial: Technical Project → PDF
 
+> **Planned.** GitHub issues as a documentation source are planned, not yet available: the workflow below shows the intended shape. Today, use [GitHub Source Code → PDF](gh-source-to-pdf.md). The issue-body format is already fixed: [GitHub issue-body layout](../examples/README.md#github-issue-body-layout-canonical).
+
 Goal: produce a PDF report — a technical project, a UI test catalog, or a coverage matrix — from collected issue/work-item data, suitable for sharing or archiving as a deliverable.
 
 ## 1. Add the workflow
@@ -32,7 +34,7 @@ jobs:
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-issues.json --output generator-ready.json
+          living-doc normalize-docs --input doc-entities.json --output generator-ready.json
 
       - name: Generate PDF
         uses: AbsaOSS/living-doc-generator-pdf@v1
@@ -52,7 +54,7 @@ This example triggers manually (`workflow_dispatch`) since PDF reports are typic
 
 ## 2. What happens on each run
 
-1. `collector-gh` mines issues into `doc-issues.json`.
+1. `collector-gh` mines issues into `doc-entities.json`.
 2. `toolkit` normalizes that into the canonical dataset.
 3. `generator-pdf` renders it to a PDF with the `technical-project` template set (`document-type` also accepts `ui-test-catalog` and `coverage-matrix`).
 4. The PDF is uploaded as a workflow artifact — attach a publish/notify step if it needs to reach a wider audience.

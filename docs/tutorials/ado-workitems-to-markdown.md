@@ -42,7 +42,7 @@ jobs:
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input work-items.json --output generator-ready.json
+          living-doc normalize-docs --input doc-entities.json --output generator-ready.json
 
       - name: Generate Markdown
         uses: AbsaOSS/living-doc-generator-markdown@v1
@@ -61,7 +61,7 @@ jobs:
 
 ## 2. What happens on each run
 
-1. `collector-ad` mines work items into `work-items.json`.
+1. `collector-ad` mines work items into `doc-entities.json`.
 2. `toolkit` normalizes that into the canonical dataset generators consume.
 3. `generator-markdown` renders it as `.md` files under `docs/generated`.
 4. The workflow commits any changes.

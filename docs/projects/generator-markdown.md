@@ -16,6 +16,6 @@ Final stage of the pipeline, consuming the canonical dataset produced by [living
 ## Used in
 
 - [Choosing a Generator](../guides/choosing-a-generator.md)
-- [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md)
+- [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md) *(planned)*
 - [GitHub Source Code → Markdown](../tutorials/gh-source-to-markdown.md)
-- [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md)
+- [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md) *(planned)*

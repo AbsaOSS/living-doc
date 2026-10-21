@@ -7,8 +7,8 @@ The ecosystem is split into three stages — **collect**, **normalize**, **gener
 ```mermaid
 flowchart LR
     subgraph Sources
-        GH[(GitHub Issues & Labels,<br/>Repository Source Code)]
-        AD[(Azure DevOps<br/>Work Items)]
+        GH[(Repository Source Code,<br/>GitHub Issues & Labels: planned)]
+        AD[(Azure DevOps<br/>Work Items: planned)]
     end
 
     subgraph Collect
@@ -67,7 +67,7 @@ sequenceDiagram
     participant Repo as Docs output (repo/site)
 
     Trigger->>Collector: run action
-    Collector->>Collector: mine issues, labels, metadata
+    Collector->>Collector: mine header blocks and scenarios
     Collector-->>Toolkit: JSON payload
     Toolkit->>Toolkit: normalize into canonical dataset
     Toolkit-->>Generator: canonical dataset

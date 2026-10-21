@@ -14,10 +14,10 @@ prerequisites, and each can be rendered as **Markdown** or **PDF** by pointing a
 |---|---|---|---|
 | [Technical project](#technical-project) | *What are we building, and what's the status?* | User Stories, Features, Functionalities + their ACs | One collector source |
 | [Test catalog](#test-catalog) | *What behaviours do our tests cover?* | Gherkin `.feature` files | Gherkin scenarios in the repo |
-| [Coverage matrix](#coverage-matrix) | *Which acceptance criteria actually have a test?* | Technical project **×** test catalog | Both of the above, for the same system |
+| [Coverage matrix](#coverage-matrix) | *Which acceptance criteria actually have a test?* | Technical project **×** test catalog | Both of the above, for the same project |
 
-Everything here is **mined, never hand-edited as output** — you maintain the *inputs* (issues,
-source-code header blocks, `.feature` files); the pipeline regenerates the document on every run.
+Everything here is **mined, never hand-edited as output** — you maintain the *inputs* (source-code
+header blocks and `.feature` files; issues are planned); the pipeline regenerates the document on every run.
 
 ---
 
@@ -41,8 +41,8 @@ See the [relationship diagram](living-doc-glossary.md#relationship-diagram) for 
 
 | Input | Collector mode | Status |
 |---|---|---|
-| GitHub issues labelled as US / Feature / Functionality | `collector-gh` `doc-issues` | Available |
 | Source-code header blocks (see [Header Types](living-doc-header-types.md)) | `collector-gh` `doc-source` | Available |
+| GitHub issues labelled as US / Feature / Functionality | `collector-gh` `doc-issues` | Planned |
 | Azure DevOps work items | `collector-ad` `work-items` | Planned |
 
 **Prerequisites** — a collector source, nothing else. This is the base document; the other two build
@@ -60,12 +60,16 @@ only, because an API contract anchor carries no living-doc header yet.
 | **Inner** | Everything, unchanged — `planned`, `in_review`, `active`, and `deprecated` entities and ACs alike — and what was not loaded from the input, under each entity | Team-internal planning and traceability; nothing is hidden |
 | **Release** | `planned` / `in_review` entities and ACs dropped; `deprecated` entities and ACs kept (they describe shipped behaviour still part of the solution) — i.e. *what was actually shipped*. What was not loaded from the input is never shown | A release note / delivery record shared outside the team |
 
-The view is a normalize-time filter over the same mined data — no separate authoring.
-`normalize-issues` selects it with `--view inner|release` (default `inner`), e.g.
+The view is a filter over the same mined data — no separate authoring. The `toolkit`'s `normalize-docs`
+command applies it when it writes the generator input, and selects it with `--view inner|release`
+(default `inner`), e.g.
 
 ```
-living-doc normalize-issues --input doc-issues.json --output generator-ready.json --view release
+living-doc normalize-docs --input doc-source.json --output generator-ready.json --view release
 ```
+
+See [`living-doc-toolkit`'s README](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/README.md)
+for the command and its GitHub Action.
 
 **Drop rules by state** (state matching is case-insensitive; hyphens and spaces are equivalent):
 
@@ -88,14 +92,12 @@ document does not hold — `MISSING_ENTITY_ID`, whose entity was never emitted �
 whole document, with its file and line. The release view shows none of them. The codes are listed in
 [`living-doc-utilities`' error codes](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/errors.md#codes).
 
-The applied view is recorded in the output's provenance envelope: `meta.view.view`,
-`meta.view.filtered_user_stories`, and `meta.view.filtered_acceptance_criteria` (counts of what the
-filter removed). See [`toolkit`'s `contracts.md` § Content Views](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/docs/contracts.md#content-views)
-for the field-level mechanics.
+The applied view is recorded in the generator input's `document` block: `document.view` holds the
+view, and `document.selection_summary` counts the entities and acceptance criteria the filter kept and
+dropped. See [`living-doc-utilities`' artifact rules — The metadata envelope](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/artifact-rules.md#the-metadata-envelope).
 
-**Generator input:** `document-type: technical-project`, reading the `toolkit`-normalized
-`generator-ready.json` (produced by `normalize-issues` from `doc-issues.json` / `doc-source.json`) —
-never raw collector output.
+**Generator input:** `document-type: technical-project`, reading `generator-ready.json`, which the
+`toolkit`'s `normalize-docs` writes from `doc-source.json` — never raw collector output.
 
 ---
 
@@ -126,8 +128,8 @@ useful alongside one.
 **Worked example** — [`docs/examples/gherkin/`](../examples/gherkin/): the two `.feature` files and
 their `@AC:` tagged scenarios.
 
-**Generator input:** `document-type: ui-test-catalog`, reading the `toolkit`-normalized artifact
-produced from `ui-tests.json` — never raw collector output.
+**Generator input:** `document-type: ui-test-catalog`, reading `ui-test-catalog.json`, which the
+`toolkit`'s `normalize-tests` writes from `ui-tests.json` — never raw collector output.
 
 ---
 
@@ -145,13 +147,15 @@ covered/declared (e.g. 1/3) with the per-value breakdown (see
 
 **Built from** — the technical project (`doc-source.json`: User Stories, Features, Functionalities +
 ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined by
-[`living-doc-toolkit`](https://github.com/AbsaOSS/living-doc-toolkit)'s `coverage-matrix` service.
+[`living-doc-toolkit`](https://github.com/AbsaOSS/living-doc-toolkit)'s `coverage-matrix` command.
 
-**Prerequisites** — **both** other document types, and they must describe **the same system**:
+**Prerequisites** — **both** other document types, and they must describe **the same project**:
 
 - a technical project with ACs assigned stable IDs,
 - a test catalog whose scenarios tag those same AC IDs,
-- both mined from the same repository, or merged into one dataset if they come from different sources.
+- one project and one documentation file: the technical project comes from exactly one documentation
+  file, and the tests may come from any repository of the same project (see
+  [`living-doc-utilities`' pipeline rules — One project, one pipeline, one documentation source](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/pipeline-rules.md#one-project-one-pipeline-one-documentation-source)).
 
 **Worked example** — the [`docs/examples/`](../examples/README.md) corpus is a complete coverage-matrix
 input: `AC:US-001-01`, `AC:US-001-04` and `AC:FUNC-001-01` are covered by scenarios, while
@@ -162,8 +166,9 @@ snapshots; the matrix itself is not snapshotted yet (see
 [What the corpus mines to](../examples/README.md#what-the-corpus-mines-to-_expected)). The `planned` ACs
 (`AC:US-001-03`, `AC:FUNC-002-01`) are not counted either way.
 
-**Generator input:** `document-type: coverage-matrix`, reading the `toolkit`-normalized artifact
-produced from `coverage-matrix.json` — never raw collector output.
+**Generator input:** `document-type: coverage-matrix`, reading `coverage-matrix.json`, which the
+`toolkit`'s `coverage-matrix` writes from `doc-source.json` and `ui-tests.json` — never raw collector
+output.
 
 ---
 
@@ -171,9 +176,9 @@ produced from `coverage-matrix.json` — never raw collector output.
 
 | To produce… | You need | Which in turn needs |
 |---|---|---|
-| Technical project | A collector source (issues, source code, or work items) | Entities authored in the [documented format](living-doc-header-types.md) |
+| Technical project | A collector source: source code (issues and work items are planned) | Entities authored in the [documented format](living-doc-header-types.md) |
 | Test catalog | Gherkin `.feature` files with `@AC:` tags | nothing further |
-| Coverage matrix | Technical project **+** test catalog, same system | Both of the above; AC IDs consistent across the two |
+| Coverage matrix | Technical project **+** test catalog, same project | Both of the above; AC IDs consistent across the two |
 
 ## Related
 
