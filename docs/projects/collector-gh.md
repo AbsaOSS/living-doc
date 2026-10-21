@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Mines a GitHub repository for living-documentation data and emits it as machine-readable JSON for the rest of the Living Documentation pipeline. It is not limited to issues: depending on which modes are enabled it also mines living-doc header blocks from repository source code and Gherkin UI-test scenarios from `.feature` files.
+Mines a GitHub repository for living-documentation data and emits it as machine-readable JSON for the rest of the Living Documentation pipeline: living-doc header blocks from repository source code and Gherkin UI-test scenarios from `.feature` files. Mining documentation issues is planned.
 
 ## Supported modes
 
@@ -14,11 +14,11 @@ The action runs one or more independent **mining regimes** ("modes"). Each is sw
 
 | Mode | Enable with | Mines | Output file |
 |---|---|---|---|
-| **Documentation Issues** | `doc-issues` | GitHub issues used as standalone documentation tickets — title, body, labels, state, timestamps, and audit events (created / closed / commented by whom); optionally enriched with linked **GitHub Projects** state | `doc-issues/doc-issues.json` |
+| **Documentation Issues** *(planned)* | `doc-issues` | GitHub issues used as standalone documentation tickets — title, body, labels, state, timestamps, and audit events (created / closed / commented by whom); optionally enriched with linked **GitHub Projects** state | `doc-issues/doc-entities.json` |
 | **Documentation Source** | `doc-source` | Living-doc header blocks in checked-out repository source — User Story and Functionality blocks in `.feature` files, Feature blocks in TypeScript PageObject files — with acceptance criteria, business value, ownership, and parent links | `doc-source/doc-source.json` |
 | **UI Tests** | `ui-tests` | Gherkin scenario blocks from `.feature` files, producing a test catalog keyed by `@US_ID` / `@AC` tags — scenario name, tags, steps, and source location | `ui-tests/ui-tests.json` |
 
-The [project README](https://github.com/AbsaOSS/living-doc-collector-gh) tracks each mode's maturity with a status badge. all three modes — `doc-issues`, `doc-source`, `ui-tests` — are Available, each with a published `v1.0.0` schema that [living-doc-toolkit](toolkit.md) and [generator-pdf](generator-pdf.md) consume; `doc-source` and `ui-tests` also feed toolkit's `coverage-matrix` service.
+The [project README](https://github.com/AbsaOSS/living-doc-collector-gh) tracks each mode's maturity with a status badge. `doc-source` and `ui-tests` are Available; `doc-issues` is planned. [living-doc-toolkit](toolkit.md)'s `normalize-docs` reads `doc-source`, its `normalize-tests` reads `ui-tests`, and its `coverage-matrix` reads both.
 
 All three modes mine content authored in the shared format described in [Living Doc Header Types](../guides/living-doc-header-types.md) and [Living Doc Glossary](../guides/living-doc-glossary.md).
 
@@ -42,5 +42,5 @@ First collection stage of the pipeline — its JSON output feeds [living-doc-too
 - [Collecting from GitHub](../guides/github-collection.md)
 - [Living Doc Glossary](../guides/living-doc-glossary.md)
 - [Living Doc Header Types](../guides/living-doc-header-types.md)
-- [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md)
-- [Technical Project → PDF](../tutorials/technical-project-to-pdf.md)
+- [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md) *(planned)*
+- [Technical Project → PDF](../tutorials/technical-project-to-pdf.md) *(planned)*

@@ -111,7 +111,8 @@ A named system surface — the structural layer between User Stories and atomic 
   A target the pipeline cannot resolve is reported as `UNRESOLVED_RELATION`. In a project documented in
   source code that is the **expected** outcome, not a defect: a `UI` Feature's PageObject header can name an
   `API` Feature that such a project cannot document, because the contract anchor carries no living-doc header
-  yet. The field resolves fully in a project documented in GitHub Issues or in Azure DevOps work items.
+  yet. The field resolves fully in a project documented in GitHub Issues or in Azure DevOps work items
+  (both planned sources).
 - Status: **derived from its Functionalities — never authored.** A Feature is the structural node
   that names a visible surface; the behaviour that can be planned, reviewed, shipped or retired lives
   in its Functionalities and their ACs. A hand-written Feature status can therefore only restate them

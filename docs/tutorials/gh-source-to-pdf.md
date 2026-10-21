@@ -47,7 +47,7 @@ jobs:
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-source.json --output generator-ready.json
+          living-doc normalize-docs --input doc-source.json --output generator-ready.json
 
       # 3. GENERATE PDF — pick the document-type for the document you want
       - name: Generate PDF
@@ -68,7 +68,7 @@ jobs:
 ## 3. What happens on each run
 
 1. `collector-gh` parses the header blocks and `.feature` files into `doc-source.json` / `ui-tests.json`.
-2. `toolkit` normalizes that into the canonical dataset (for a coverage matrix, `toolkit coverage-matrix` joins the two).
+2. `toolkit` normalizes that into the canonical dataset (for a coverage matrix, `living-doc coverage-matrix` joins the two).
 3. `generator-pdf` renders the chosen template to a PDF.
 4. The PDF is uploaded as a workflow artifact — add a publish/notify step if it needs a wider audience.
 
@@ -81,6 +81,6 @@ contains and needs.
 
 ## Related
 
-- [Technical Project → PDF](technical-project-to-pdf.md) — the same output from issues instead of code
+- [Technical Project → PDF](technical-project-to-pdf.md) — the same output from issues instead of code *(planned)*
 - [GitHub Source → Markdown](gh-source-to-markdown.md) — same inputs, Markdown output
 - [Choosing a Generator](../guides/choosing-a-generator.md)

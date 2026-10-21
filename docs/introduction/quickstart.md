@@ -1,7 +1,8 @@
 # Living Documentation in 5 Minutes
 
-Living Documentation generates your project docs **from the tracker you already use** — GitHub
-issues, Azure DevOps work items — so they never go stale. Brand new to the idea? Read
+Living Documentation generates your project docs **from what your repository already holds** —
+header blocks in your source code and Gherkin `.feature` files — so they never go stale. GitHub
+issues and Azure DevOps work items as sources are planned. Brand new to the idea? Read
 [What is Living Documentation?](what-is-living-documentation.md) first. Otherwise, follow along.
 
 ## The whole idea
@@ -10,10 +11,11 @@ Three stages, always in this order:
 
 ```mermaid
 flowchart LR
-    S[Your tracker<br/>issues / work items] --> C[collect] --> N[normalize] --> G[generate] --> D[Docs<br/>Markdown or PDF]
+    S[Your repository<br/>source code / .feature files] --> C[collect] --> N[normalize] --> G[generate] --> D[Docs<br/>Markdown or PDF]
 ```
 
-- **collect** — a *collector* pulls issues / work items out of your tracker as JSON.
+- **collect** — a *collector* pulls the header blocks and scenarios out of your source code as JSON
+  (issues / work items are planned).
 - **normalize** — the *toolkit* turns that JSON into one canonical shape (needed even with a single source).
 - **generate** — a *generator* renders the canonical data as Markdown or PDF.
 
@@ -26,9 +28,9 @@ This decides what you have to prepare for the collector to mine:
 
 | You want a… | Prepare |
 |---|---|
-| **Technical project** — User Stories, Features, Functionalities | Issues labelled as US / Feature / Functionality, **or** the same entities as header blocks in source code |
+| **Technical project** — User Stories, Features, Functionalities | The entities as header blocks in source code (issues labelled as US / Feature / Functionality are planned) |
 | **Test catalog** — the behaviours your tests cover | Gherkin `.feature` files in the repo |
-| **Coverage matrix** — which acceptance criteria have tests | Both of the above, for the same system |
+| **Coverage matrix** — which acceptance criteria have tests | Both of the above, for the same project |
 
 Full detail: [Living Documentation Document Types](../guides/living-doc-document-types.md). The rest
 of this guide builds a **technical project → Markdown** pipeline; swap the generator (or add a step)
@@ -38,8 +40,8 @@ for the others.
 
 | Your source | Collector |
 |---|---|
-| GitHub issues (and source-code header blocks) | [living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) · [guide](../guides/github-collection.md) |
-| Azure DevOps work items | [living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) · [guide](../guides/azure-devops-collection.md) |
+| GitHub source code (header blocks, `.feature` files); GitHub issues are planned | [living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) · [guide](../guides/github-collection.md) |
+| Azure DevOps work items *(planned)* | [living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) · [guide](../guides/azure-devops-collection.md) |
 
 | You want | Generator |
 |---|---|
@@ -50,7 +52,7 @@ Undecided? → [Choosing a Generator](../guides/choosing-a-generator.md).
 
 ## Step 3 — Add one workflow file
 
-The example below is **GitHub issues → Markdown**, refreshed nightly. Save it as
+The example below is **GitHub source code → Markdown**, refreshed nightly. Save it as
 `.github/workflows/living-doc.yml`:
 
 ```yaml
@@ -69,14 +71,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. COLLECT — mine issues into doc-issues.json
-      - name: Collect from GitHub
+      # 1. COLLECT — mine source code into doc-source.json
+      - name: Collect from source
         uses: AbsaOSS/living-doc-collector-gh@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
+          modes: doc-source
 
-      # 2. NORMALIZE — doc-issues.json -> canonical dataset (required, even for one source)
+      # 2. NORMALIZE — doc-source.json -> canonical dataset (required, even for one source)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -84,7 +87,7 @@ jobs:
       - name: Normalize (toolkit)
         run: |
           pip install living-doc-toolkit
-          living-doc normalize-issues --input doc-issues.json --output generator-ready.json
+          living-doc normalize-docs --input doc-source.json --output generator-ready.json
 
       # 3. GENERATE — canonical dataset -> Markdown files
       - name: Generate Markdown
@@ -104,7 +107,7 @@ jobs:
 ```
 
 > **Heads-up:** `generator-markdown` is early stage and its action inputs may still change; for a
-> stable output today, generate a PDF instead ([Technical Project → PDF](../tutorials/technical-project-to-pdf.md)).
+> stable output today, generate a PDF instead ([GitHub Source Code → PDF](../tutorials/gh-source-to-pdf.md)).
 > Each project's README is the authoritative source for its current inputs.
 
 To use a different source or output, change **only the collect and generate steps** — the worked
@@ -117,9 +120,8 @@ for the nightly run.)
 
 ## Step 5 — Check the result
 
-Open `docs/generated/`. You should see Markdown that matches your issue tracker *right now* — one
-file or section per issue category your labels define. Every run overwrites it with the current
-state; that is the whole point.
+Open `docs/generated/`. You should see Markdown that matches your source code *right now*. Every run
+overwrites it with the current state; that is the whole point.
 
 ## Go deeper
 

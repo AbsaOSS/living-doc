@@ -16,6 +16,7 @@ Collectors from different sources (GitHub, Azure DevOps) don't naturally agree o
 
 - **Input:** JSON output from one or more collectors
 - **Output:** canonical dataset, ready for a generator
+- **Commands:** `normalize-docs` (`doc-source.json` → `generator-ready.json`, with `--view inner|release`), `normalize-tests` (`ui-tests.json` → `ui-test-catalog.json`) and `coverage-matrix` (`doc-source.json` + `ui-tests.json` → `coverage-matrix.json`), as a CLI or as the repository's GitHub Action
 
 For the exact CLI usage and current data contract, see the [project README](https://github.com/AbsaOSS/living-doc-toolkit).
 
