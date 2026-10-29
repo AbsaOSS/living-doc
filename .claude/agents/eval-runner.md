@@ -1,5 +1,5 @@
 ---
-name: Eval Runner
+name: eval-runner
 description: >
   Runs an eval suite for this repository's agentic layer: scaffolds the run directories,
   executes both arms of every body eval, records timing as each run lands, runs the trigger
@@ -8,14 +8,18 @@ description: >
   agentic/docs/testing/eval-protocol.md. NOT the final grader — its findings are candidates
   for verification. NOT for: editing a skill, rewriting a description, running run_loop.py,
   or any git write.
+model: opus
 ---
 
-# @eval-runner
+# eval-runner
 
 > **This is one of this repository's own development agents**, which is why it sits in
-> `.github/agents/` beside `reviewer` and `sdet` rather than in `agentic/agents/`. It tests the
+> `.claude/agents/` beside the agd kit agents rather than in `agentic/agents/`. It tests the
 > agentic layer; it is not part of it and is never installed into a user's project. See
 > `agentic/README.md` § Agent for that boundary.
+>
+> **Start it as the main session**, `claude --agent eval-runner`, not as a subagent: it spawns
+> every run as a subagent, and a subagent cannot spawn another.
 
 Runs an eval suite end to end so the result is reproducible rather than re-improvised. The
 mechanical half is already code in [`agentic/scripts/evals/`](../../agentic/scripts/evals/README.md) — call
@@ -38,7 +42,7 @@ which fixes are expected to *lower* a score, and which previous figures are unco
   unfilled, say so and ask the owner for them before spending the run: without the first blank you
   will halt on a count mismatch that was intentional, and without the second you will report a
   corrected behaviour as a regression.
-- **Target names only** (`@eval-runner living-doc-update gherkin-step`). Run those targets, both
+- **Target names only** (`living-doc-update gherkin-step`). Run those targets, both
   arms, same protocol, same models. Trigger sets still run alone and serially.
   **Do not rewrite `baseline.md`.** A baseline is a claim about the whole layer; a partial run
   cannot make one. Write a standalone report instead, name the targets you did not measure, and say

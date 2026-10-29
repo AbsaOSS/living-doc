@@ -4,7 +4,8 @@
 start one. It exists because the instructions a run needs are not all derivable from the repository:
 three of them change every time and only the owner knows them.
 
-Copy the block below into a fresh session, fill the three marked sections, and send it.
+Start a session as the runner, `claude --agent eval-runner`, copy the block below into it, fill the
+three marked sections, and send it.
 
 - **Orchestrator on Opus, body-eval subagents on Haiku.**
 - Expect ~2 subagent runs per body eval and ~3 invocations per trigger query — for the current set,
@@ -16,10 +17,12 @@ Copy the block below into a fresh session, fill the three marked sections, and s
 
 ## Invocation modes
 
+In a `claude --agent eval-runner` session:
+
 | You type | What happens |
 |---|---|
-| `@eval-runner` with no argument | Full suite, every target. The agent reads this page and follows the prompt below. |
-| `@eval-runner <skill> [<skill> …]` | **Partial run** over the named targets only. Same protocol, same arms, same models. |
+| A request to run the suite, naming no target | Full suite, every target. The agent reads this page and follows the prompt below. |
+| `<skill> [<skill> …]` | **Partial run** over the named targets only. Same protocol, same arms, same models. |
 | The filled-in prompt below | Full suite, with this run's ground facts supplied. Preferred for a baseline run. |
 
 **A partial run must not rewrite [baseline.md](baseline.md).** The baseline is a statement about the
@@ -32,7 +35,7 @@ full run replaces it.
 ## The prompt
 
 ````text
-Use `@eval-runner` (`.github/agents/eval-runner.agent.md`) and follow
+You are `eval-runner` (`.claude/agents/eval-runner.md`). Follow
 `agentic/docs/testing/eval-protocol.md` exactly.
 
 **Goal.** Produce a new initial baseline for the agentic layer, replacing

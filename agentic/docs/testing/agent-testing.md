@@ -56,7 +56,7 @@ agentic/
 ```
 
 The layer's own agent sits at `agentic/agents/living-doc-bdd-copilot.agent.md`, apart from this
-repository's development agents in `.github/agents/`, which are a different thing and not covered
+repository's development agents in `.claude/agents/`, which are a different thing and not covered
 by this guide.
 
 Store at `agentic/agents/evals/<agent-name>/evals.json`. Same schema as skill evals:

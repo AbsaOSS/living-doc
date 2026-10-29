@@ -115,11 +115,10 @@ first real task.
 above. Invoke it by `@`-mention; it is not auto-triggered.
 [Guide](docs/guides/living-doc-bdd-copilot.md) · [evals](agents/evals/living-doc-bdd-copilot/)
 
-The agent lives here, apart from [`.github/agents/`](../.github/agents/README.md), which holds this
+The agent lives here, apart from [`.claude/agents/`](../.claude/agents/), which holds this
 repository's own development agents and has nothing to do with the layer. The test for which
 directory an agent belongs in: would it be useful to someone who installed the layer and never opens
-this repository? If no, it goes to `.github/agents/`. That page records the rest of the convention —
-frontmatter keys, and why those agents carry no guide and no eval set.
+this repository? If no, it goes to `.claude/agents/`, with no guide and no eval set.
 
 ## Reference documents
 
