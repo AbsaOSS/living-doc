@@ -53,18 +53,16 @@ Files and parts marked "From agentic-defaults" are replaced when the kit updates
 
 ### Profile
 
-- Stage: prototype | early | production | mature
-- Audience: personal | internal | customer | public
-- Team: solo | small | several
-- Handles: none | money | personal data | regulated data | safety
+- Stage: early
+- Audience: public
+- Team: solo
+- Handles: none
 
 ### Commands
 
 <!-- Standard commands wrapping the project's real tools (the project-scan skill). -->
 
-- `make setup`: ...
-- `make run`: ...
-- `make build`: ...
-- `make test`: ... (one file or test: `make test T=<path>`)
-- `make lint` and `make format`: ...
-- `make check`: everything that must pass before work is done: ...
+- Setup: `pip install -r tests/examples/requirements-examples-check.txt` and `pip install -r agentic/requirements-agentic-tests.txt`
+- Test: `python -m pytest tests/examples -q` (one file: `python -m pytest tests/examples/<file> -q`); the agentic scripts, each run as a script: `find agentic/skills -type f -name "test_*.py" | sort | xargs -n1 python`
+- Lint, skill folder format (Python 3.11+, after `pip install -r agentic/requirements-skill-lint.txt`): `agentskills validate agentic/skills/<name>`
+- Check, everything that must pass before work is done: the tests and lint above, `python tests/examples/examples_check.py`, `bash agentic/scripts/sync-canon-copies.sh all` and `tests/examples/regen-collector-snapshots.sh` with no resulting change under `agentic/skills/shared/references/` or `docs/examples/_expected/`, `tests/testbed/run-testbed-stage.sh`, and `lychee --include-fragments './**/*.md'`
