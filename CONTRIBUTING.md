@@ -42,39 +42,46 @@ PR body has to also include these sections: `## Overview`, `## Release Notes`, `
 ## Regenerating the collector snapshots
 
 `.github/workflows/real-collector.yml` runs the real `living-doc-collector-gh` (`doc-source` +
-`ui-tests`) over `docs/examples/` and checks the output twice:
+`ui-tests`) over `docs/examples/`, then the real `living-doc-toolkit` over what it mined, and checks the
+output twice:
 
-1. `tests/examples/check_collector_stage.py` validates each raw artifact against its contract and
-   asserts the corpus's first-stage content against values written in the script.
-2. The normalized output is diffed against `docs/examples/_expected/collector-gh/<mode>/<artifact>.json`.
-   Any diff fails the job, and so does a file under `docs/examples/_expected/` the job no longer writes.
+1. `tests/examples/check_collector_stage.py` and `tests/examples/check_toolkit_stage.py` validate each
+   raw artifact against its contract and assert its content against values written in the script. The
+   toolkit's check also runs two documentation files through its CLI and asserts the failure.
+2. The normalized output is diffed against `docs/examples/_expected/collector-gh/` and
+   `docs/examples/_expected/toolkit/`. Any diff fails the job, and so does a file under
+   `docs/examples/_expected/` the job no longer writes.
 
 Only this diff reads `docs/examples/_expected/`; `examples-check.yml` and the testbed stage do not.
 
 Regenerate and commit the expected files **in the same PR** whenever either side moves:
 
 ```shell
-tests/examples/regen-collector-snapshots.sh     # writes docs/examples/_expected/collector-gh/
+tests/examples/regen-collector-snapshots.sh     # writes docs/examples/_expected/{collector-gh,toolkit}/
 git add docs/examples/_expected
 ```
 
-No token is needed. The script needs Python 3.10 or later (`python3`, else `python`, or the
-interpreter `PYTHON` names) and builds the collector's own venv in `.snapshot-venvs/collector-gh/`
-(gitignored, reused while the interpreter and the pinned `requirements.txt` stay the same) from the
-collector's runtime `requirements.txt` at its pinned ref, and from nothing else.
+The script writes nothing until every check has passed. No token is needed. It needs Python 3.10 or
+later (`python3`, else `python`, or the interpreter `PYTHON` names) and builds two venvs (gitignored),
+each from that component's runtime `requirements.txt` at its pinned ref, and from nothing else:
 
-The `collector-gh` pin lives only in `tests/collector/collector-pins.env`. A pin bump is a reviewed
-change, like a dependency bump: change the ref and commit the regenerated snapshots in the same PR.
-`python tests/examples/check_utilities_pins.py` prints the `living-doc-utilities` version pinned by
-the collector and by the corpus checker (`tests/examples/requirements-examples-check.txt`) and warns
-on a minor-version skew; `--strict` makes that a failure.
+- `.snapshot-venvs/collector-gh/`, reused while the interpreter and the pinned `requirements.txt` stay
+  the same.
+- `.snapshot-venvs/toolkit/`, reused while the interpreter and `TOOLKIT_REF` stay the same: the toolkit's
+  packages are installed by path, so a new ref with the same `requirements.txt` still needs a new venv.
+
+The `collector-gh` and `toolkit` pins live only in `tests/collector/collector-pins.env`. A pin bump is a
+reviewed change, like a dependency bump: change the ref and commit the regenerated snapshots in the same
+PR. `python tests/examples/check_utilities_pins.py` prints the `living-doc-utilities` version pinned by
+the collector, the toolkit and the corpus checker (`tests/examples/requirements-examples-check.txt`) and
+warns on a minor-version skew; `--strict` makes that a failure.
 
 ## The collector stage over the testbed
 
-The workflow's second job runs the same pinned collector over the `core` project of
+The workflow's second job runs the same pinned collector and toolkit over the `core` project of
 [`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed) at `master`. It asserts
-invariants, not snapshots, then runs the derived problem cases. Run it locally before a PR that
-touches `tests/collector/**`, `tests/testbed/**` or the workflow:
+invariants, not snapshots, then runs the derived problem cases, collector only. Run it locally before a
+PR that touches `tests/collector/**`, `tests/testbed/**` or the workflow:
 
 ```shell
 tests/testbed/run-testbed-stage.sh

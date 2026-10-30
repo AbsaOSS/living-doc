@@ -11,8 +11,8 @@ dependency on it — so that, taken together, the `.feature` files plus the enti
 [coverage-matrix](../guides/living-doc-document-types.md#coverage-matrix) input: in each of the two
 `.feature` files that carry scenarios, at least one AC is covered by a scenario and one is left
 uncovered, and `AC:FUNC-001-03` has a scenario for one of its three values, so the matrix shows all
-three verdicts — `covered`, `not_covered` and `partially_covered` (the matrix itself is not
-snapshotted yet; see [What the corpus mines to](#what-the-corpus-mines-to-_expected)).
+three verdicts — `covered`, `not_covered` and `partially_covered` (the matrix is snapshotted; see
+[What the corpus mines to](#what-the-corpus-mines-to-_expected)).
 
 ## Files
 
@@ -54,15 +54,23 @@ from its Functionalities, the `feature_dependencies` edge `FEAT-003` declares, a
 `rule` values as the AC's `aspect`, and its one scenario linked as `aspect: minimum-length`. They also
 carry the two warnings this corpus expects: `UNRESOLVED_RELATION` for that edge (see
 [The dependency is authored in both `FEAT-003` forms](#conventions-used-by-this-corpus)) and
-`FEATURE_WITHOUT_FUNCTIONALITY` for `FEAT-003`, documented at surface level. Two things are not in
-`_expected/`, and neither is a gap in the collector:
+`FEATURE_WITHOUT_FUNCTIONALITY` for `FEAT-003`, documented at surface level.
 
-- What only `gh-issues/` authors — the `## Notes` on `FEAT-001`, the `## Not In Scope` on `US-001`,
-  and the `API` Feature `FEAT-002`. The `doc-issues` mode that mines issue bodies is planned, not yet
-  available, so `examples_check` alone checks that form.
-- The coverage verdicts, `AC:FUNC-001-03` partly covered (**1/3**) among them. They come from the
-  `living-doc-toolkit` `coverage-matrix` stage, which joins the two artifacts and returns to the
-  snapshot job once the toolkit itself is on `living-doc-utilities`.
+[`_expected/toolkit/`](_expected/toolkit/) holds what the **real** `living-doc-toolkit` writes from
+the collector's raw output, never from these snapshots: the
+[inner](_expected/toolkit/gh-headers/generator-ready.inner.json) and
+[release](_expected/toolkit/gh-headers/generator-ready.release.json) views of the technical project,
+the [coverage matrix](_expected/toolkit/gh-headers/coverage-matrix.json) and the
+[test catalog](_expected/toolkit/tests/ui-test-catalog.json). The same job runs the pinned toolkit in a
+venv of its own, validates each artifact against its contract, asserts its content and fails on any
+diff. The matrix holds the coverage verdicts, `AC:FUNC-001-03` partly covered (**1/3**) among them; its
+release view differs only in `document.view`, so it has no snapshot of its own. The two warnings above
+stay in both views and the matrix, and none reaches the catalog.
+
+One thing is not in `_expected/`, and it is not a gap in the collector: what only `gh-issues/`
+authors — the `## Notes` on `FEAT-001`, the `## Not In Scope` on `US-001`, and the `API` Feature
+`FEAT-002`. The `doc-issues` mode that mines issue bodies is planned, not yet available, so
+`examples_check` alone checks that form.
 
 ## GitHub issue-body layout (canonical)
 

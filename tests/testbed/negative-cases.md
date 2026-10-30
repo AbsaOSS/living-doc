@@ -71,7 +71,7 @@ Shape of the change (placeholders; the target is found at run time):
 
 - A warning only `ui-tests` reports: a case run mines `doc-source` alone, and the check reads only that artifact.
 - `NO_SOURCE_URL`: every copy is a git checkout.
-- A code a later stage raises, such as the toolkit's: the stage runs the collector only.
+- A code a later stage raises, such as the toolkit's: a case runs the collector only.
 - A defect that needs two changes, or a change that makes a later line report too: the run must report
   exactly one warning.
 

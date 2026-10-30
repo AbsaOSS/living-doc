@@ -17,18 +17,21 @@
 # Run the pinned living-doc-collector-gh (`doc-source` + `ui-tests`) over the `core` project of
 # AbsaOSS/living-doc-testbed, read at its current master, and assert invariants on what it produces
 # (tests/testbed/check_testbed_stage.py): `core` follows the canon 100 %, so any warning is a defect. Every count
-# comes from the checkout at run time; nothing about `core`'s content is written down here. Then run each derived
-# problem case (tests/testbed/testbed_cases.py) over a copy of `core` and assert the one warning it must raise.
+# comes from the checkout at run time; nothing about `core`'s content is written down here. Then run the pinned
+# living-doc-toolkit over that output and assert its invariants (tests/testbed/check_testbed_toolkit_stage.py), and run
+# each derived problem case (tests/testbed/testbed_cases.py), collector only, over a copy of `core` and assert the one
+# warning it must raise.
 #
 #   tests/testbed/run-testbed-stage.sh                      # shallow-clones the testbed's master
 #   tests/testbed/run-testbed-stage.sh <testbed-checkout>   # reads a checkout already made (CI: actions/checkout)
 #
 # The testbed is only read: never pinned, never written to - the stage fails if it leaves the checkout changed. Its
-# collector paths, project-id and cases live in living-doc, never in the testbed. The collector, its venv and the run
-# come from tests/collector/collector-gh.sh, shared with tests/examples/regen-collector-snapshots.sh. No token.
+# collector paths, project-id and cases live in living-doc, never in the testbed. The collector and the toolkit, their
+# venvs and their runs come from tests/collector/collector-gh.sh and tests/collector/toolkit.sh, shared with
+# tests/examples/regen-collector-snapshots.sh. No token.
 #
 # Environment (both optional):
-#   PYTHON                the interpreter the collector's venv is built from (see tests/collector/collector-gh.sh)
+#   PYTHON                the interpreter the venvs are built from (see tests/collector/collector-gh.sh)
 #   GITHUB_STEP_SUMMARY   set in CI: the testbed SHA and the checks' output are appended to it
 #
 # Runs in bash 3.2 or later: Linux, macOS, or Git Bash on Windows.
@@ -37,6 +40,8 @@ set -euo pipefail
 
 # shellcheck source=tests/collector/collector-gh.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../collector/collector-gh.sh"
+# shellcheck source=tests/collector/toolkit.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../collector/toolkit.sh"
 
 REPO_ROOT="$(native_dir "$(dirname "${BASH_SOURCE[0]}")/../..")"
 
@@ -59,6 +64,7 @@ trap 'rm -rf "$WORK_DIR"' EXIT
 WORK_DIR="$(native_dir "$WORK_DIR")"
 
 collector_gh_setup
+toolkit_setup
 
 if [[ $# -ge 1 ]]; then
   TESTBED="$(native_dir "$1")"
@@ -77,7 +83,8 @@ summary() {
 }
 summary "### Collector stage over the testbed's \`$CORE\`" "" \
   "- living-doc-testbed \`master\` at [\`$TESTBED_SHA\`]($TESTBED_URL/commit/$TESTBED_SHA)" \
-  "- collector-gh at \`$COLLECTOR_GH_REF\`" ""
+  "- collector-gh at \`$COLLECTOR_GH_REF\`" \
+  "- toolkit at \`$TOOLKIT_REF\`" ""
 
 # One run over a testbed root (the checkout, or a case's copy): `doc-source`, and `ui-tests` unless told otherwise.
 mine() {
@@ -93,19 +100,22 @@ mine() {
     "$ui_tests"
 }
 
-# Runs one check, prints its output and appends it to the job summary under a title; the check's status is returned.
-check() {
-  local title="$1" status=0
-  shift
-  "$VPY" -E -X utf8 "$@" > "$WORK_DIR/check.txt" || status=$?
+# Runs one check in the given venv's interpreter, prints its output and appends it to the job summary under a title;
+# the check's status is returned.
+check_in() {
+  local python="$1" title="$2" status=0
+  shift 2
+  "$python" -E -X utf8 "$@" > "$WORK_DIR/check.txt" || status=$?
   tr -d '\r' < "$WORK_DIR/check.txt"
   summary "$title" '```' "$(tr -d '\r' < "$WORK_DIR/check.txt")" '```' ""
   return "$status"
 }
 
+check() { check_in "$VPY" "$@"; }
+
 failed=0
 
-# A collector run or a check that fails marks the stage failed and moves on, so the testbed write check below still
+# A collector or toolkit run or a check that fails marks the stage failed and moves on, so the testbed write check below still
 # runs. A setup step that fails (listing the cases, copying `core`, making the copy a git checkout) stops the stage at
 # once: it touches only the work dir, and the stage is red either way.
 echo "==> mining $CORE (project-id $PROJECT_ID)"
@@ -113,6 +123,18 @@ if mine "$TESTBED" "$WORK_DIR/core"; then
   echo "==> asserting the invariants over $CORE"
   check "**Invariants over \`$CORE\`**" "$REPO_ROOT/tests/testbed/check_testbed_stage.py" core "$WORK_DIR/core" "$TESTBED" \
     --us "$US_PATHS" --func "$FUNC_PATHS" --pages "$PAGES_PATHS" --scenarios "$SCENARIO_PATHS" || failed=1
+
+  echo "==> running the toolkit over the collector's output"
+  if toolkit_chain "$WORK_DIR/core/doc-source/doc-source.json" "$WORK_DIR/core/ui-tests/ui-tests.json" \
+       "$WORK_DIR/core-toolkit"; then
+    echo "==> asserting the toolkit's invariants over $CORE"
+    check_in "$TOOLKIT_PY" "**Toolkit invariants over \`$CORE\`**, toolkit at \`$TOOLKIT_REF\`" \
+      "$REPO_ROOT/tests/testbed/check_testbed_toolkit_stage.py" "$WORK_DIR/core-toolkit" \
+      "$WORK_DIR/core/doc-source/doc-source.json" "$WORK_DIR/core/ui-tests/ui-tests.json" || failed=1
+  else
+    echo "ERROR: the toolkit failed over $CORE" >&2
+    failed=1
+  fi
 else
   echo "ERROR: the collector failed over $CORE" >&2
   failed=1
