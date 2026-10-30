@@ -3,11 +3,10 @@
 ## Purpose
 
 The record of the toolkit gate: CI's testbed stage, and the operator's two `local-integration.sh` runs over the
-testbed's `core` and over internal repositories. How to run and fill it: [Integration runs](../README.md). Internal
-targets appear under a label, with counts and codes only ([What may be committed](../README.md#what-may-be-committed)).
+testbed's `core`. How to run and fill it: [Integration runs](../README.md).
 
-Every figure comes from that target's two logs. Only the testbed decides the gate. An internal target never blocks it,
-and its warnings are classified, not counted against it. The rows of a label that was not run are deleted.
+Every figure comes from the target's two logs. Only the testbed decides the gate. No internal target was run for this
+gate.
 
 ## Contents
 
@@ -24,11 +23,11 @@ and its warnings are classified, not counted against it. The rows of a label tha
 ## 1. Header
 
 - **Gate:** G2
-- **Date:** {…}
-- **Operator:** {…}
-- **Machine type:** {…}
-- **Verdict:** {…}
-- **Owner sign-off:** {…}
+- **Date:** 2026-10-30
+- **Operator:** miroslavpojer
+- **Machine type:** macOS, testbed only
+- **Verdict:** passed
+- **Owner sign-off:** passed, 2026-10-30
 
 ### CI evidence
 
@@ -56,23 +55,17 @@ and its warnings are classified, not counted against it. The rows of a label tha
 
 | Label | Kind | Decides the gate | Target SHA (`target:` line) | Paths configured |
 |---|---|---|---|---|
-| `testbed-core` | public, `AbsaOSS/living-doc-testbed` `projects/core/` | yes | {…} | [`testbed-core/env.local`](testbed-core/env.local), as in CI; [`testbed-core/toolkit.env.local`](testbed-core/toolkit.env.local) |
-| `absa-1` | internal | no | {…} | in `internal/absa-1/` only |
-| `absa-2` | internal | no | {…} | in `internal/absa-2/` only |
-| `absa-3` | internal | no | {…} | in `internal/absa-3/` only |
+| `testbed-core` | public, `AbsaOSS/living-doc-testbed` `projects/core/` | yes | `36a0ee65ad11df7588cd74a505ea1ace1ef7abc9` | [`testbed-core/env.local`](testbed-core/env.local), as in CI; [`testbed-core/toolkit.env.local`](testbed-core/toolkit.env.local) |
 
-Authoring deviations noted while finding an internal target's paths (README, step 1), by label: {…}
+Both `--check` passed and both runs exited 0.
 
 ## 3. Component refs and `utilities` pins
 
-One row per target run, from the two logs' header blocks:
+From the two logs' header blocks:
 
 | Label | `collector:` | `toolkit:` | `living-doc-utilities:` (installed, collector / toolkit) | `requirements.txt` pin (collector / toolkit) | `python:` (collector / toolkit) |
 |---|---|---|---|---|---|
-| `testbed-core` | {…} | {…} | {…} | {…} | {…} |
-| `absa-1` | {…} | {…} | {…} | {…} | {…} |
-| `absa-2` | {…} | {…} | {…} | {…} | {…} |
-| `absa-3` | {…} | {…} | {…} | {…} | {…} |
+| `testbed-core` | `93faed7fb3afcc6514a494114ee25a1fff0fe3ea` | `ed03f179ce6f894f51e48695827331c48a585c21` | `0.8.0` / `0.8.0` | `living-doc-utilities==0.8.0` / `living-doc-utilities==0.8.0` | `3.14.7` / `3.14.7` |
 
 `python tests/examples/check_utilities_pins.py --strict` output (in `living-doc` at `b49b19f`, 2026-10-30; exit 0):
 
@@ -92,50 +85,34 @@ sources; that is no failure.
 
 | Label · artifact | `sources_configured` | `sources_failed` | `entities_skipped` | `entities` | `acceptance_criteria` | `scenarios` | `unresolved_refs` |
 |---|---|---|---|---|---|---|---|
-| `testbed-core` · `doc-source` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `testbed-core` · `ui-tests` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `testbed-core` · `generator-ready` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `testbed-core` · `ui-test-catalog` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `testbed-core` · `coverage-matrix` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-1` · `doc-source` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-1` · `ui-tests` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-1` · `generator-ready` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-1` · `ui-test-catalog` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-1` · `coverage-matrix` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-2` · `doc-source` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-2` · `ui-tests` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-2` · `generator-ready` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-2` · `ui-test-catalog` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-2` · `coverage-matrix` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-3` · `doc-source` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-3` · `ui-tests` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-3` · `generator-ready` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-3` · `ui-test-catalog` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
-| `absa-3` · `coverage-matrix` | {…} | {…} | {…} | {…} | {…} | {…} | {…} |
+| `testbed-core` · `doc-source` | 1 | 0 | 0 | 20 | 32 | 0 | 0 |
+| `testbed-core` · `ui-tests` | 1 | 0 | 0 | 0 | 0 | 28 | 0 |
+| `testbed-core` · `generator-ready` | 0 | 0 | 0 | 20 | 32 | 0 | 0 |
+| `testbed-core` · `ui-test-catalog` | 0 | 0 | 0 | 0 | 0 | 28 | 0 |
+| `testbed-core` · `coverage-matrix` | 0 | 0 | 0 | 15 | 24 | 0 | 0 |
+
+Every artifact's `contract:` line reads `valid (read_artifact)`.
 
 **The matrix's `summary`**, from its `summary:` block:
 
 | Label | `counted_acs` | `covered_acs` | `partially_covered_acs` | `not_covered_acs` | `coverage_pct` |
 |---|---|---|---|---|---|
-| `testbed-core` | {…} | {…} | {…} | {…} | {…} |
-| `absa-1` | {…} | {…} | {…} | {…} | {…} |
-| `absa-2` | {…} | {…} | {…} | {…} | {…} |
-| `absa-3` | {…} | {…} | {…} | {…} | {…} |
+| `testbed-core` | 24 | 20 | 2 | 2 | 88.2 |
 
 **Input warnings forwarded**, each `forwarded:` line of the toolkit's log. `core` has no warning, so `0 of 0` on
-`testbed-core` means there was nothing to forward; it cannot show forwarding. The corpus job in CI (see
-[CI evidence](#ci-evidence)) and an internal target that has warnings do.
+`testbed-core` means there was nothing to forward; it cannot show forwarding. The corpus job in CI does (see
+[CI evidence](#ci-evidence)).
 
 | Label | `generator-ready` from `doc-source` | `ui-test-catalog` from `ui-tests` | `coverage-matrix` from `doc-source` | `coverage-matrix` from `ui-tests` |
 |---|---|---|---|---|
-| `testbed-core` | {…} | {…} | {…} | {…} |
-| `absa-1` | {…} | {…} | {…} | {…} |
-| `absa-2` | {…} | {…} | {…} | {…} |
-| `absa-3` | {…} | {…} | {…} | {…} |
+| `testbed-core` | 0 of 0 | 0 of 0 | 0 of 0 | 0 of 0 |
 
 **Compared with the G1 baseline.** Method: [Compare two runs](../README.md#compare-two-runs), over
 `../G1/testbed-core/collector-gh/` and `testbed-core/collector-gh/`, each artifact through
-`tests/examples/normalize_snapshot.py`. Result for `testbed-core`: {…}
+`tests/examples/normalize_snapshot.py`. Result for `testbed-core`: each artifact differs in one line,
+`utilities_version` `0.6.0` → `0.8.0`, the version the collector now pins. What was mined is unchanged.
+
+`tests/testbed/check_testbed_stage.py core` passes over the committed collector artifacts (exit 0).
 
 ## 5. Warnings by code
 
@@ -144,59 +121,38 @@ sources; that is no failure.
 
 | Code | Count | First ten occurrences |
 |---|---|---|
-| {…} | {…} | {…} |
+| none | 0 | — |
 
-**Internal targets.** Code and count only; the occurrences stay in the target's log. Classification: *authoring* (the
-file deviates from the canon) or *pipeline* (a defect, listed in § 8).
-
-| Label · artifact | Code | Count | Classification |
-|---|---|---|---|
-| {…} | {…} | {…} | {…} |
+No `FIELD_LOSS` in either log.
 
 ## 6. Duplicates found
 
-`DUPLICATE_ENTITY_ID` and `DUPLICATE_AC_ID` per target, by count, or "none": {…}
+`DUPLICATE_ENTITY_ID` and `DUPLICATE_AC_ID` per target, by count, or "none": none.
 
 ## 7. Timings and artifact sizes
 
 | Label · artifact | `time:` | `size:` |
 |---|---|---|
-| `testbed-core` · `doc-source` | {…} | {…} |
-| `testbed-core` · `ui-tests` | {…} | {…} |
-| `testbed-core` · `generator-ready` | {…} | {…} |
-| `testbed-core` · `ui-test-catalog` | {…} | {…} |
-| `testbed-core` · `coverage-matrix` | {…} | {…} |
-| `absa-1` · `doc-source` | {…} | {…} |
-| `absa-1` · `ui-tests` | {…} | {…} |
-| `absa-1` · `generator-ready` | {…} | {…} |
-| `absa-1` · `ui-test-catalog` | {…} | {…} |
-| `absa-1` · `coverage-matrix` | {…} | {…} |
-| `absa-2` · `doc-source` | {…} | {…} |
-| `absa-2` · `ui-tests` | {…} | {…} |
-| `absa-2` · `generator-ready` | {…} | {…} |
-| `absa-2` · `ui-test-catalog` | {…} | {…} |
-| `absa-2` · `coverage-matrix` | {…} | {…} |
-| `absa-3` · `doc-source` | {…} | {…} |
-| `absa-3` · `ui-tests` | {…} | {…} |
-| `absa-3` · `generator-ready` | {…} | {…} |
-| `absa-3` · `ui-test-catalog` | {…} | {…} |
-| `absa-3` · `coverage-matrix` | {…} | {…} |
+| `testbed-core` · `doc-source` | 0.64 s | 57664 bytes |
+| `testbed-core` · `ui-tests` | 0.76 s | 26413 bytes |
+| `testbed-core` · `generator-ready` | 0.67 s | 74607 bytes |
+| `testbed-core` · `ui-test-catalog` | 0.69 s | 40628 bytes |
+| `testbed-core` · `coverage-matrix` | 0.65 s | 41264 bytes |
 
 ## 8. Defects
 
 One row per defect found during these runs. The gate cannot pass while one from `testbed-core` is open; a parser
-defect is fixed by a `utilities` patch and a re-pin first. A defect found on an internal target is filed with a
-canonical example that names nothing internal. A defect in the toolkit's script on the operator's platform goes in
-`living-doc-toolkit`.
+defect is fixed by a `utilities` patch and a re-pin first. A defect in the toolkit's script on the operator's platform
+goes in `living-doc-toolkit`.
 
 | # | Found on | Description | Issue link | State |
 |---|---|---|---|---|
-| {…} | {…} | {…} | {…} | {…} |
+| none | — | — | — | — |
 
 ## 9. "The output reads correctly"
 
 What is read is the inner `testbed-core/toolkit/normalize-docs/generator-ready.json`. The verdict and the sentence are
 the owner's.
 
-- **Verdict:** {…}
-- **What was read (one sentence):** {…}
+- **Verdict:** yes
+- **What was read (one sentence):** The inner `generator-ready.json`, read against its input `doc-source.json` record by record: all 20 entities and 32 criteria are there, each of the 489 populated values is unchanged, nothing is lost or added, and the matrix's 24 counted criteria are those 32 less the 5 planned and 3 in review.

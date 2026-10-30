@@ -1,0 +1,1118 @@
+{
+  "schema_version": "coverage-matrix-v1.0.0",
+  "metadata": {
+    "producer": {
+      "name": "AbsaOSS/living-doc-toolkit",
+      "version": "0.1.0",
+      "build": null,
+      "utilities_version": "0.8.0"
+    },
+    "run": {
+      "run_id": null,
+      "run_attempt": null,
+      "actor": null,
+      "workflow": null,
+      "ref": null,
+      "sha": null
+    },
+    "source": {
+      "project_id": "testbed-core",
+      "systems": [
+        "GitHub"
+      ],
+      "organizations": [
+        "AbsaOSS"
+      ],
+      "repositories": [
+        "AbsaOSS/living-doc-testbed"
+      ],
+      "extraction_mode": null
+    },
+    "generated_at": "2026-10-30T14:47:43Z",
+    "stats": {
+      "cardinality": {
+        "entities": 15,
+        "entities_by_type": {
+          "DocumentedUserStory": 3,
+          "DocumentedFunctionality": 12
+        },
+        "acceptance_criteria": 24,
+        "scenarios": 0,
+        "warnings_by_code": {},
+        "sources_configured": 0,
+        "sources_failed": 0,
+        "unresolved_refs": 0,
+        "entities_skipped": 0
+      },
+      "field_occupancy": {
+        "entities[].entity_id": 15,
+        "entities[].type": 15,
+        "entities[].title": 15,
+        "entities[].state": 15,
+        "entities[].acceptance_criteria[].ac_id": 24,
+        "entities[].acceptance_criteria[].state": 24,
+        "entities[].acceptance_criteria[].status": 24,
+        "entities[].acceptance_criteria[].keyword": 3,
+        "entities[].acceptance_criteria[].aspects[].aspect": 15,
+        "entities[].acceptance_criteria[].aspects[].status": 15,
+        "entities[].acceptance_criteria[].aspects[].scenario_ids[]": 13,
+        "entities[].acceptance_criteria[].scenario_ids[]": 16,
+        "entities[].summary.counted_acs": 15,
+        "entities[].summary.covered_acs": 15,
+        "entities[].summary.partially_covered_acs": 15,
+        "entities[].summary.not_covered_acs": 15,
+        "entities[].summary.coverage_pct": 12
+      }
+    },
+    "source_inputs": [
+      {
+        "schema_version": "doc-source-v1.0.0",
+        "producer": {
+          "name": "AbsaOSS/living-doc-collector-gh",
+          "version": "0.1.1",
+          "build": null,
+          "utilities_version": "0.8.0"
+        },
+        "run": {
+          "run_id": null,
+          "run_attempt": null,
+          "actor": null,
+          "workflow": null,
+          "ref": null,
+          "sha": null
+        },
+        "source": {
+          "project_id": "testbed-core",
+          "systems": [
+            "GitHub"
+          ],
+          "organizations": [
+            "AbsaOSS"
+          ],
+          "repositories": [
+            "AbsaOSS/living-doc-testbed"
+          ],
+          "extraction_mode": null
+        },
+        "stats": {
+          "cardinality": {
+            "entities": 20,
+            "entities_by_type": {
+              "DocumentedUserStory": 3,
+              "DocumentedFeature": 5,
+              "DocumentedFunctionality": 12
+            },
+            "acceptance_criteria": 32,
+            "scenarios": 0,
+            "warnings_by_code": {},
+            "sources_configured": 1,
+            "sources_failed": 0,
+            "unresolved_refs": 0,
+            "entities_skipped": 0
+          },
+          "field_occupancy": {
+            "user_stories[].entity_id": 3,
+            "user_stories[].source_ref.system": 3,
+            "user_stories[].source_ref.native_id": 3,
+            "user_stories[].source_ref.native_type": 3,
+            "user_stories[].source_ref.url": 3,
+            "user_stories[].source_ref.tracker_state": 3,
+            "user_stories[].source_ref.area_path": 0,
+            "user_stories[].source_ref.iteration_path": 0,
+            "user_stories[].type": 3,
+            "user_stories[].title": 3,
+            "user_stories[].state": 3,
+            "user_stories[].state_origin": 3,
+            "user_stories[].tags[]": 0,
+            "user_stories[].timestamps.created_at": 0,
+            "user_stories[].timestamps.updated_at": 0,
+            "user_stories[].timestamps.closed_at": 0,
+            "user_stories[].narrative": 0,
+            "user_stories[].purpose": 0,
+            "user_stories[].source": 1,
+            "user_stories[].notes[]": 1,
+            "user_stories[].business_value[]": 3,
+            "user_stories[].acceptance_criteria[].id": 10,
+            "user_stories[].acceptance_criteria[].state": 10,
+            "user_stories[].acceptance_criteria[].version": 9,
+            "user_stories[].acceptance_criteria[].description": 10,
+            "user_stories[].acceptance_criteria[].aspect[]": 1,
+            "user_stories[].acceptance_criteria[].preconditions[]": 1,
+            "user_stories[].acceptance_criteria[].not_in_scope[]": 1,
+            "user_stories[].acceptance_criteria[].removal_planned": 2,
+            "user_stories[].acceptance_criteria[].rationale": 2,
+            "user_stories[].acceptance_criteria[].placeholder_values": 0,
+            "user_stories[].preconditions[]": 1,
+            "user_stories[].not_in_scope[]": 1,
+            "user_stories[].deprecated_at": 1,
+            "user_stories[].deprecation_reason": 1,
+            "user_stories[].superseded_by": 1,
+            "user_stories[].surface_type": 0,
+            "user_stories[].owners[]": 0,
+            "user_stories[].user_stories[]": 0,
+            "user_stories[].functionalities[]": 0,
+            "user_stories[].external_dependencies[]": 0,
+            "user_stories[].feature_dependencies[]": 0,
+            "user_stories[].stub_reason": 0,
+            "user_stories[].wizard_steps[]": 0,
+            "user_stories[].pages[].is_primary": 0,
+            "user_stories[].pages[].route": 0,
+            "user_stories[].pages[].page_object": 0,
+            "user_stories[].pages[].owners[]": 0,
+            "user_stories[].pages[].purpose": 0,
+            "user_stories[].pages[].functionalities[]": 0,
+            "user_stories[].pages[].notes[]": 0,
+            "user_stories[].parent": 0,
+            "user_stories[].func_type": 0,
+            "user_stories[].rationale": 0,
+            "features[].entity_id": 5,
+            "features[].source_ref.system": 5,
+            "features[].source_ref.native_id": 5,
+            "features[].source_ref.native_type": 5,
+            "features[].source_ref.url": 5,
+            "features[].source_ref.tracker_state": 5,
+            "features[].source_ref.area_path": 0,
+            "features[].source_ref.iteration_path": 0,
+            "features[].type": 5,
+            "features[].title": 5,
+            "features[].state": 5,
+            "features[].state_origin": 5,
+            "features[].tags[]": 0,
+            "features[].timestamps.created_at": 0,
+            "features[].timestamps.updated_at": 0,
+            "features[].timestamps.closed_at": 0,
+            "features[].narrative": 0,
+            "features[].purpose": 5,
+            "features[].source": 0,
+            "features[].notes[]": 1,
+            "features[].business_value[]": 0,
+            "features[].acceptance_criteria[].id": 0,
+            "features[].acceptance_criteria[].state": 0,
+            "features[].acceptance_criteria[].version": 0,
+            "features[].acceptance_criteria[].description": 0,
+            "features[].acceptance_criteria[].aspect[]": 0,
+            "features[].acceptance_criteria[].preconditions[]": 0,
+            "features[].acceptance_criteria[].not_in_scope[]": 0,
+            "features[].acceptance_criteria[].removal_planned": 0,
+            "features[].acceptance_criteria[].rationale": 0,
+            "features[].acceptance_criteria[].placeholder_values": 0,
+            "features[].preconditions[]": 0,
+            "features[].not_in_scope[]": 0,
+            "features[].deprecated_at": 0,
+            "features[].deprecation_reason": 1,
+            "features[].superseded_by": 1,
+            "features[].surface_type": 5,
+            "features[].owners[]": 5,
+            "features[].user_stories[]": 5,
+            "features[].functionalities[]": 5,
+            "features[].external_dependencies[]": 2,
+            "features[].feature_dependencies[]": 0,
+            "features[].stub_reason": 1,
+            "features[].wizard_steps[]": 1,
+            "features[].pages[].is_primary": 7,
+            "features[].pages[].route": 7,
+            "features[].pages[].page_object": 7,
+            "features[].pages[].owners[]": 7,
+            "features[].pages[].purpose": 7,
+            "features[].pages[].functionalities[]": 1,
+            "features[].pages[].notes[]": 1,
+            "features[].parent": 0,
+            "features[].func_type": 0,
+            "features[].rationale": 0,
+            "functionalities[].entity_id": 12,
+            "functionalities[].source_ref.system": 12,
+            "functionalities[].source_ref.native_id": 12,
+            "functionalities[].source_ref.native_type": 12,
+            "functionalities[].source_ref.url": 12,
+            "functionalities[].source_ref.tracker_state": 12,
+            "functionalities[].source_ref.area_path": 0,
+            "functionalities[].source_ref.iteration_path": 0,
+            "functionalities[].type": 12,
+            "functionalities[].title": 12,
+            "functionalities[].state": 12,
+            "functionalities[].state_origin": 12,
+            "functionalities[].tags[]": 0,
+            "functionalities[].timestamps.created_at": 0,
+            "functionalities[].timestamps.updated_at": 0,
+            "functionalities[].timestamps.closed_at": 0,
+            "functionalities[].narrative": 0,
+            "functionalities[].purpose": 0,
+            "functionalities[].source": 1,
+            "functionalities[].notes[]": 1,
+            "functionalities[].business_value[]": 0,
+            "functionalities[].acceptance_criteria[].id": 22,
+            "functionalities[].acceptance_criteria[].state": 22,
+            "functionalities[].acceptance_criteria[].version": 21,
+            "functionalities[].acceptance_criteria[].description": 22,
+            "functionalities[].acceptance_criteria[].aspect[]": 5,
+            "functionalities[].acceptance_criteria[].preconditions[]": 0,
+            "functionalities[].acceptance_criteria[].not_in_scope[]": 0,
+            "functionalities[].acceptance_criteria[].removal_planned": 2,
+            "functionalities[].acceptance_criteria[].rationale": 1,
+            "functionalities[].acceptance_criteria[].placeholder_values": 3,
+            "functionalities[].preconditions[]": 2,
+            "functionalities[].not_in_scope[]": 2,
+            "functionalities[].deprecated_at": 2,
+            "functionalities[].deprecation_reason": 2,
+            "functionalities[].superseded_by": 1,
+            "functionalities[].surface_type": 0,
+            "functionalities[].owners[]": 0,
+            "functionalities[].user_stories[]": 0,
+            "functionalities[].functionalities[]": 0,
+            "functionalities[].external_dependencies[]": 0,
+            "functionalities[].feature_dependencies[]": 0,
+            "functionalities[].stub_reason": 0,
+            "functionalities[].wizard_steps[]": 0,
+            "functionalities[].pages[].is_primary": 0,
+            "functionalities[].pages[].route": 0,
+            "functionalities[].pages[].page_object": 0,
+            "functionalities[].pages[].owners[]": 0,
+            "functionalities[].pages[].purpose": 0,
+            "functionalities[].pages[].functionalities[]": 0,
+            "functionalities[].pages[].notes[]": 0,
+            "functionalities[].parent": 12,
+            "functionalities[].func_type": 12,
+            "functionalities[].rationale": 2
+          }
+        },
+        "selected_stats": {
+          "cardinality": {
+            "entities": 15,
+            "entities_by_type": {
+              "DocumentedUserStory": 3,
+              "DocumentedFunctionality": 12
+            },
+            "acceptance_criteria": 24,
+            "scenarios": 0,
+            "warnings_by_code": {},
+            "sources_configured": 1,
+            "sources_failed": 0,
+            "unresolved_refs": 0,
+            "entities_skipped": 0
+          },
+          "field_occupancy": {
+            "user_stories[].entity_id": 3,
+            "user_stories[].source_ref.system": 3,
+            "user_stories[].source_ref.native_id": 3,
+            "user_stories[].source_ref.native_type": 3,
+            "user_stories[].source_ref.url": 3,
+            "user_stories[].source_ref.tracker_state": 3,
+            "user_stories[].source_ref.area_path": 0,
+            "user_stories[].source_ref.iteration_path": 0,
+            "user_stories[].type": 3,
+            "user_stories[].title": 3,
+            "user_stories[].state": 3,
+            "user_stories[].state_origin": 3,
+            "user_stories[].tags[]": 0,
+            "user_stories[].timestamps.created_at": 0,
+            "user_stories[].timestamps.updated_at": 0,
+            "user_stories[].timestamps.closed_at": 0,
+            "user_stories[].narrative": 0,
+            "user_stories[].purpose": 0,
+            "user_stories[].source": 1,
+            "user_stories[].notes[]": 1,
+            "user_stories[].business_value[]": 3,
+            "user_stories[].acceptance_criteria[].id": 7,
+            "user_stories[].acceptance_criteria[].state": 7,
+            "user_stories[].acceptance_criteria[].version": 7,
+            "user_stories[].acceptance_criteria[].description": 7,
+            "user_stories[].acceptance_criteria[].aspect[]": 1,
+            "user_stories[].acceptance_criteria[].preconditions[]": 1,
+            "user_stories[].acceptance_criteria[].not_in_scope[]": 0,
+            "user_stories[].acceptance_criteria[].removal_planned": 2,
+            "user_stories[].acceptance_criteria[].rationale": 1,
+            "user_stories[].acceptance_criteria[].placeholder_values": 0,
+            "user_stories[].preconditions[]": 1,
+            "user_stories[].not_in_scope[]": 1,
+            "user_stories[].deprecated_at": 1,
+            "user_stories[].deprecation_reason": 1,
+            "user_stories[].superseded_by": 1,
+            "user_stories[].surface_type": 0,
+            "user_stories[].owners[]": 0,
+            "user_stories[].user_stories[]": 0,
+            "user_stories[].functionalities[]": 0,
+            "user_stories[].external_dependencies[]": 0,
+            "user_stories[].feature_dependencies[]": 0,
+            "user_stories[].stub_reason": 0,
+            "user_stories[].wizard_steps[]": 0,
+            "user_stories[].pages[].is_primary": 0,
+            "user_stories[].pages[].route": 0,
+            "user_stories[].pages[].page_object": 0,
+            "user_stories[].pages[].owners[]": 0,
+            "user_stories[].pages[].purpose": 0,
+            "user_stories[].pages[].functionalities[]": 0,
+            "user_stories[].pages[].notes[]": 0,
+            "user_stories[].parent": 0,
+            "user_stories[].func_type": 0,
+            "user_stories[].rationale": 0,
+            "features[].entity_id": 0,
+            "features[].source_ref.system": 0,
+            "features[].source_ref.native_id": 0,
+            "features[].source_ref.native_type": 0,
+            "features[].source_ref.url": 0,
+            "features[].source_ref.tracker_state": 0,
+            "features[].source_ref.area_path": 0,
+            "features[].source_ref.iteration_path": 0,
+            "features[].type": 0,
+            "features[].title": 0,
+            "features[].state": 0,
+            "features[].state_origin": 0,
+            "features[].tags[]": 0,
+            "features[].timestamps.created_at": 0,
+            "features[].timestamps.updated_at": 0,
+            "features[].timestamps.closed_at": 0,
+            "features[].narrative": 0,
+            "features[].purpose": 0,
+            "features[].source": 0,
+            "features[].notes[]": 0,
+            "features[].business_value[]": 0,
+            "features[].acceptance_criteria[].id": 0,
+            "features[].acceptance_criteria[].state": 0,
+            "features[].acceptance_criteria[].version": 0,
+            "features[].acceptance_criteria[].description": 0,
+            "features[].acceptance_criteria[].aspect[]": 0,
+            "features[].acceptance_criteria[].preconditions[]": 0,
+            "features[].acceptance_criteria[].not_in_scope[]": 0,
+            "features[].acceptance_criteria[].removal_planned": 0,
+            "features[].acceptance_criteria[].rationale": 0,
+            "features[].acceptance_criteria[].placeholder_values": 0,
+            "features[].preconditions[]": 0,
+            "features[].not_in_scope[]": 0,
+            "features[].deprecated_at": 0,
+            "features[].deprecation_reason": 0,
+            "features[].superseded_by": 0,
+            "features[].surface_type": 0,
+            "features[].owners[]": 0,
+            "features[].user_stories[]": 0,
+            "features[].functionalities[]": 0,
+            "features[].external_dependencies[]": 0,
+            "features[].feature_dependencies[]": 0,
+            "features[].stub_reason": 0,
+            "features[].wizard_steps[]": 0,
+            "features[].pages[].is_primary": 0,
+            "features[].pages[].route": 0,
+            "features[].pages[].page_object": 0,
+            "features[].pages[].owners[]": 0,
+            "features[].pages[].purpose": 0,
+            "features[].pages[].functionalities[]": 0,
+            "features[].pages[].notes[]": 0,
+            "features[].parent": 0,
+            "features[].func_type": 0,
+            "features[].rationale": 0,
+            "functionalities[].entity_id": 12,
+            "functionalities[].source_ref.system": 12,
+            "functionalities[].source_ref.native_id": 12,
+            "functionalities[].source_ref.native_type": 12,
+            "functionalities[].source_ref.url": 12,
+            "functionalities[].source_ref.tracker_state": 12,
+            "functionalities[].source_ref.area_path": 0,
+            "functionalities[].source_ref.iteration_path": 0,
+            "functionalities[].type": 12,
+            "functionalities[].title": 12,
+            "functionalities[].state": 12,
+            "functionalities[].state_origin": 12,
+            "functionalities[].tags[]": 0,
+            "functionalities[].timestamps.created_at": 0,
+            "functionalities[].timestamps.updated_at": 0,
+            "functionalities[].timestamps.closed_at": 0,
+            "functionalities[].narrative": 0,
+            "functionalities[].purpose": 0,
+            "functionalities[].source": 1,
+            "functionalities[].notes[]": 1,
+            "functionalities[].business_value[]": 0,
+            "functionalities[].acceptance_criteria[].id": 17,
+            "functionalities[].acceptance_criteria[].state": 17,
+            "functionalities[].acceptance_criteria[].version": 17,
+            "functionalities[].acceptance_criteria[].description": 17,
+            "functionalities[].acceptance_criteria[].aspect[]": 5,
+            "functionalities[].acceptance_criteria[].preconditions[]": 0,
+            "functionalities[].acceptance_criteria[].not_in_scope[]": 0,
+            "functionalities[].acceptance_criteria[].removal_planned": 2,
+            "functionalities[].acceptance_criteria[].rationale": 0,
+            "functionalities[].acceptance_criteria[].placeholder_values": 3,
+            "functionalities[].preconditions[]": 2,
+            "functionalities[].not_in_scope[]": 2,
+            "functionalities[].deprecated_at": 2,
+            "functionalities[].deprecation_reason": 2,
+            "functionalities[].superseded_by": 1,
+            "functionalities[].surface_type": 0,
+            "functionalities[].owners[]": 0,
+            "functionalities[].user_stories[]": 0,
+            "functionalities[].functionalities[]": 0,
+            "functionalities[].external_dependencies[]": 0,
+            "functionalities[].feature_dependencies[]": 0,
+            "functionalities[].stub_reason": 0,
+            "functionalities[].wizard_steps[]": 0,
+            "functionalities[].pages[].is_primary": 0,
+            "functionalities[].pages[].route": 0,
+            "functionalities[].pages[].page_object": 0,
+            "functionalities[].pages[].owners[]": 0,
+            "functionalities[].pages[].purpose": 0,
+            "functionalities[].pages[].functionalities[]": 0,
+            "functionalities[].pages[].notes[]": 0,
+            "functionalities[].parent": 12,
+            "functionalities[].func_type": 12,
+            "functionalities[].rationale": 2
+          }
+        }
+      },
+      {
+        "schema_version": "ui-tests-v1.0.0",
+        "producer": {
+          "name": "AbsaOSS/living-doc-collector-gh",
+          "version": "0.1.1",
+          "build": null,
+          "utilities_version": "0.8.0"
+        },
+        "run": {
+          "run_id": null,
+          "run_attempt": null,
+          "actor": null,
+          "workflow": null,
+          "ref": null,
+          "sha": null
+        },
+        "source": {
+          "project_id": "testbed-core",
+          "systems": [
+            "GitHub"
+          ],
+          "organizations": [
+            "AbsaOSS"
+          ],
+          "repositories": [
+            "AbsaOSS/living-doc-testbed"
+          ],
+          "extraction_mode": null
+        },
+        "stats": {
+          "cardinality": {
+            "entities": 0,
+            "entities_by_type": {},
+            "acceptance_criteria": 0,
+            "scenarios": 28,
+            "warnings_by_code": {},
+            "sources_configured": 1,
+            "sources_failed": 0,
+            "unresolved_refs": 0,
+            "entities_skipped": 0
+          },
+          "field_occupancy": {
+            "scenarios[].scenario_id": 28,
+            "scenarios[].title": 28,
+            "scenarios[].source_ref.system": 28,
+            "scenarios[].source_ref.native_id": 28,
+            "scenarios[].source_ref.native_type": 28,
+            "scenarios[].source_ref.url": 28,
+            "scenarios[].source_ref.tracker_state": 28,
+            "scenarios[].source_ref.area_path": 0,
+            "scenarios[].source_ref.iteration_path": 0,
+            "scenarios[].tags[]": 26,
+            "scenarios[].acceptance_criteria[].id": 27,
+            "scenarios[].acceptance_criteria[].aspect": 10
+          }
+        },
+        "selected_stats": {
+          "cardinality": {
+            "entities": 0,
+            "entities_by_type": {},
+            "acceptance_criteria": 0,
+            "scenarios": 28,
+            "warnings_by_code": {},
+            "sources_configured": 1,
+            "sources_failed": 0,
+            "unresolved_refs": 0,
+            "entities_skipped": 0
+          },
+          "field_occupancy": {
+            "scenarios[].scenario_id": 28,
+            "scenarios[].title": 28,
+            "scenarios[].source_ref.system": 28,
+            "scenarios[].source_ref.native_id": 28,
+            "scenarios[].source_ref.native_type": 28,
+            "scenarios[].source_ref.url": 28,
+            "scenarios[].source_ref.tracker_state": 28,
+            "scenarios[].source_ref.area_path": 0,
+            "scenarios[].source_ref.iteration_path": 0,
+            "scenarios[].tags[]": 26,
+            "scenarios[].acceptance_criteria[].id": 27,
+            "scenarios[].acceptance_criteria[].aspect": 10
+          }
+        }
+      }
+    ]
+  },
+  "warnings": [],
+  "document": {
+    "view": "inner"
+  },
+  "entities": [
+    {
+      "entity_id": "US-001",
+      "type": "DocumentedUserStory",
+      "title": "US-001 \u00b7 Borrow a Book",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "US-001-01",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-borrows-an-available-book"
+          ]
+        },
+        {
+          "ac_id": "US-001-02",
+          "state": "active",
+          "status": "not_covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": []
+        },
+        {
+          "ac_id": "US-001-04",
+          "state": "deprecated",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-is-offered-a-loan-slip"
+          ]
+        }
+      ],
+      "summary": {
+        "counted_acs": 3,
+        "covered_acs": 2,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 1,
+        "coverage_pct": 66.7
+      }
+    },
+    {
+      "entity_id": "US-002",
+      "type": "DocumentedUserStory",
+      "title": "US-002 \u00b7 Join the Library",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "US-002-01",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/applicant-joins-the-library"
+          ]
+        },
+        {
+          "ac_id": "US-002-02",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/applicant-joins-the-library"
+          ]
+        },
+        {
+          "ac_id": "US-002-03",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [
+            {
+              "aspect": "adult",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/adult-applicant-gets-an-adult-card"
+              ]
+            },
+            {
+              "aspect": "junior",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/junior-applicant-gets-a-junior-card"
+              ]
+            }
+          ],
+          "scenario_ids": []
+        }
+      ],
+      "summary": {
+        "counted_acs": 3,
+        "covered_acs": 3,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    {
+      "entity_id": "US-003",
+      "type": "DocumentedUserStory",
+      "title": "US-003 \u00b7 Register at the Desk",
+      "state": "deprecated",
+      "acceptance_criteria": [
+        {
+          "ac_id": "US-003-01",
+          "state": "deprecated",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature/desk-staff-register-a-resident"
+          ]
+        }
+      ],
+      "summary": {
+        "counted_acs": 1,
+        "covered_acs": 1,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    {
+      "entity_id": "FUNC-001",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-001 \u00b7 Catalogue Search Page - Filter Search Results",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-001-01",
+          "state": "active",
+          "status": "partially_covered",
+          "keyword": null,
+          "aspects": [
+            {
+              "aspect": "author",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature/filtering-by-author-keeps-only-that-authors-books"
+              ]
+            },
+            {
+              "aspect": "subject",
+              "status": "not_covered",
+              "scenario_ids": []
+            }
+          ],
+          "scenario_ids": []
+        },
+        {
+          "ac_id": "FUNC-001-02",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature/clearing-the-filters-restores-every-result"
+          ]
+        }
+      ],
+      "summary": {
+        "counted_acs": 2,
+        "covered_acs": 1,
+        "partially_covered_acs": 1,
+        "not_covered_acs": 0,
+        "coverage_pct": 75.0
+      }
+    },
+    {
+      "entity_id": "FUNC-002",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-002 \u00b7 Catalogue Search Page - Sort by Popularity",
+      "state": "deprecated",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-002-01",
+          "state": "deprecated",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature/results-are-ordered-by-recent-loans"
+          ]
+        }
+      ],
+      "summary": {
+        "counted_acs": 1,
+        "covered_acs": 1,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    {
+      "entity_id": "FUNC-003",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-003 \u00b7 My Loans Page - Renew Loan",
+      "state": "in_review",
+      "acceptance_criteria": [],
+      "summary": {
+        "counted_acs": 0,
+        "covered_acs": 0,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": null
+      }
+    },
+    {
+      "entity_id": "FUNC-004",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-004 \u00b7 My Loans Page - Show Overdue Badge",
+      "state": "planned",
+      "acceptance_criteria": [],
+      "summary": {
+        "counted_acs": 0,
+        "covered_acs": 0,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": null
+      }
+    },
+    {
+      "entity_id": "FUNC-005",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-005 \u00b7 Membership Sign-up Wizard - Validate Required Details",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-005-01",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [
+            {
+              "aspect": "name",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-name-is-rejected"
+              ]
+            },
+            {
+              "aspect": "date-of-birth",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-date-of-birth-is-rejected"
+              ]
+            },
+            {
+              "aspect": "address",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-address-is-rejected"
+              ]
+            }
+          ],
+          "scenario_ids": []
+        },
+        {
+          "ac_id": "FUNC-005-02",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/future-date-of-birth-is-rejected"
+          ]
+        },
+        {
+          "ac_id": "FUNC-005-03",
+          "state": "active",
+          "status": "partially_covered",
+          "keyword": "required_detail",
+          "aspects": [
+            {
+              "aspect": "name",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/filling-in-the-name-clears-its-error"
+              ]
+            },
+            {
+              "aspect": "date-of-birth",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/filling-in-the-date-of-birth-clears-its-error"
+              ]
+            },
+            {
+              "aspect": "address",
+              "status": "not_covered",
+              "scenario_ids": []
+            }
+          ],
+          "scenario_ids": []
+        }
+      ],
+      "summary": {
+        "counted_acs": 3,
+        "covered_acs": 2,
+        "partially_covered_acs": 1,
+        "not_covered_acs": 0,
+        "coverage_pct": 88.9
+      }
+    },
+    {
+      "entity_id": "FUNC-006",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-006 \u00b7 Membership Sign-up Wizard - Submit Application",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-006-01",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature/joining-creates-a-membership"
+          ]
+        },
+        {
+          "ac_id": "FUNC-006-02",
+          "state": "active",
+          "status": "not_covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": []
+        }
+      ],
+      "summary": {
+        "counted_acs": 2,
+        "covered_acs": 1,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 1,
+        "coverage_pct": 50.0
+      }
+    },
+    {
+      "entity_id": "FUNC-007",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-007 \u00b7 Printable Loan Slip - Print Slip",
+      "state": "deprecated",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-007-01",
+          "state": "deprecated",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature/member-prints-a-loan-slip"
+          ]
+        }
+      ],
+      "summary": {
+        "counted_acs": 1,
+        "covered_acs": 1,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    {
+      "entity_id": "FUNC-008",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-008 \u00b7 Catalogue Search Page - Sort Results",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-008-01",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/results-are-ordered-by-relevance"
+          ]
+        },
+        {
+          "ac_id": "FUNC-008-02",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/results-are-ordered-newest-first"
+          ]
+        },
+        {
+          "ac_id": "FUNC-008-03",
+          "state": "active",
+          "status": "covered",
+          "keyword": "sort_order",
+          "aspects": [
+            {
+              "aspect": "relevance",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/relevance-order-continues-on-the-next-page"
+              ]
+            },
+            {
+              "aspect": "newest-first",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/newest-first-order-continues-on-the-next-page"
+              ]
+            }
+          ],
+          "scenario_ids": []
+        }
+      ],
+      "summary": {
+        "counted_acs": 3,
+        "covered_acs": 3,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    {
+      "entity_id": "FUNC-009",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-009 \u00b7 My Loans Page - Loan List States",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-009-01",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-with-loans-sees-their-loans"
+          ]
+        },
+        {
+          "ac_id": "FUNC-009-02",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state"
+          ]
+        }
+      ],
+      "summary": {
+        "counted_acs": 2,
+        "covered_acs": 2,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    {
+      "entity_id": "FUNC-010",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-010 \u00b7 My Loans Page - Total Fines Owed",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-010-01",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/total-fines-add-up-across-loans"
+          ]
+        },
+        {
+          "ac_id": "FUNC-010-02",
+          "state": "active",
+          "status": "covered",
+          "keyword": "fine_state",
+          "aspects": [
+            {
+              "aspect": "paid",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/a-settled-fine-is-left-out-of-the-total"
+              ]
+            },
+            {
+              "aspect": "waived",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/a-settled-fine-is-left-out-of-the-total"
+              ]
+            },
+            {
+              "aspect": "written-off",
+              "status": "covered",
+              "scenario_ids": [
+                "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/a-settled-fine-is-left-out-of-the-total"
+              ]
+            }
+          ],
+          "scenario_ids": []
+        }
+      ],
+      "summary": {
+        "counted_acs": 2,
+        "covered_acs": 2,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    {
+      "entity_id": "FUNC-011",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-011 \u00b7 Membership Sign-up Wizard - Redirect Existing Members",
+      "state": "active",
+      "acceptance_criteria": [
+        {
+          "ac_id": "FUNC-011-01",
+          "state": "active",
+          "status": "covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature/signed-in-member-is-redirected-to-my-loans"
+          ]
+        }
+      ],
+      "summary": {
+        "counted_acs": 1,
+        "covered_acs": 1,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    {
+      "entity_id": "FUNC-012",
+      "type": "DocumentedFunctionality",
+      "title": "FUNC-012 \u00b7 Loan Detail Page - Show Renewal History",
+      "state": "planned",
+      "acceptance_criteria": [],
+      "summary": {
+        "counted_acs": 0,
+        "covered_acs": 0,
+        "partially_covered_acs": 0,
+        "not_covered_acs": 0,
+        "coverage_pct": null
+      }
+    }
+  ],
+  "planned_summary": {
+    "total": 5,
+    "backlog": 2,
+    "by_target_version": {
+      "1.2.0": 3
+    }
+  },
+  "summary": {
+    "counted_acs": 24,
+    "covered_acs": 20,
+    "partially_covered_acs": 2,
+    "not_covered_acs": 2,
+    "coverage_pct": 88.2
+  }
+}
