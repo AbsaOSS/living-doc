@@ -291,7 +291,7 @@
     "producer": {
       "build": null,
       "name": "AbsaOSS/living-doc-collector-gh",
-      "utilities_version": "0.7.0",
+      "utilities_version": "0.8.0",
       "version": "0.1.1"
     },
     "run": {
