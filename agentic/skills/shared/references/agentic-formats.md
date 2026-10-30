@@ -79,7 +79,7 @@ manifest_shape: object         # manifest is an object with routes array (see Ma
 > entity files and issue bodies (e.g. `active`, `in_review`). Wherever a skill shows `ACTIVE` or
 > `PLANNED` in upper-case prose, it refers to the *logical* state; the *written* form is always
 > lowercase with underscores. There is no PageObject `status:` field — see
-> [Feature in a PageObject File](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md#2-feature-in-a-pageobject-file).
+> [Feature in a PageObject File](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md#2-feature-in-a-pageobject-file).
 
 ---
 

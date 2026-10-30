@@ -21,15 +21,15 @@ on:
     branches: [ "master" ]
     paths:
       - "agentic/**"
-      - "docs/guides/living-doc-glossary.md"
-      - "docs/guides/living-doc-header-types.md"
+      - "docs/reference/glossary.md"
+      - "docs/reference/authoring-formats.md"
       - ".github/workflows/agentic-tests.yml"
   pull_request:
     types: [ opened, synchronize, reopened ]
     paths:
       - "agentic/**"
-      - "docs/guides/living-doc-glossary.md"
-      - "docs/guides/living-doc-header-types.md"
+      - "docs/reference/glossary.md"
+      - "docs/reference/authoring-formats.md"
       - ".github/workflows/agentic-tests.yml"
   workflow_dispatch:
 

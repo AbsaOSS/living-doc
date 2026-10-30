@@ -90,7 +90,7 @@ def get_ac_tags_above(lines: list[str], scenario_index: int) -> list[tuple[str, 
 
     The value is the tag's one `/<param>:<value>` segment, which names the declared variant
     value this scenario covers. `None` is a bare tag: it covers the whole AC — every declared
-    value at once, as a data-driven scenario does (living-doc-header-types.md#ac-variants).
+    value at once, as a data-driven scenario does (living-doc-bdd-schemas.md#ac-variants).
     The parameter name is validated by `scan_ac_links.py`; coverage only needs the value.
     """
     tags: list[tuple[str, str | None]] = []

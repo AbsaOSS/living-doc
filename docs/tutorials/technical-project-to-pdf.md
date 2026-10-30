@@ -1,6 +1,6 @@
 # Tutorial: Technical Project → PDF
 
-> **Planned.** GitHub issues as a documentation source are planned, not yet available: the workflow below shows the intended shape. Today, use [GitHub Source Code → PDF](gh-source-to-pdf.md). The issue-body format is already fixed: [GitHub issue-body layout](../examples/README.md#github-issue-body-layout-canonical).
+> **Planned.** GitHub issues as a documentation source are planned, not yet available: the workflow below shows the intended shape. Today, use [GitHub Source Code → PDF](gh-source-to-pdf.md). The issue-body format is already fixed: [GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout).
 
 Goal: produce a PDF report — a technical project, a UI test catalog, or a coverage matrix — from collected issue/work-item data, suitable for sharing or archiving as a deliverable.
 

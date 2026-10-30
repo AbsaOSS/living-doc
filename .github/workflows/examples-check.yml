@@ -22,6 +22,7 @@ on:
     paths:
       - "docs/examples/**"
       - "docs/guides/**"
+      - "docs/reference/**"
       - "tests/examples/**"
       - ".github/workflows/examples-check.yml"
   pull_request:
@@ -29,6 +30,7 @@ on:
     paths:
       - "docs/examples/**"
       - "docs/guides/**"
+      - "docs/reference/**"
       - "tests/examples/**"
       - ".github/workflows/examples-check.yml"
   workflow_dispatch:

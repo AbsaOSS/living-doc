@@ -100,7 +100,7 @@ DEPRECATION_FIELDS = ["deprecated_at", "deprecation_reason"]
 # What a *deprecated Feature* should carry. Not the same list: a Feature has **no**
 # `deprecated_at` at all — not authored and not derived. A Feature issue body carries no
 # `## Deprecated At` heading and a PageObject header no `deprecated_at:` field (see the
-# glossary's Feature entry and Header Types' "Common mistakes"). Warning a Feature for a
+# glossary's Feature entry and Authoring formats' "Common mistakes"). Warning a Feature for a
 # missing `deprecated_at` would therefore ask the agent to author a field that does not exist
 # for this entity type.
 FEATURE_AUTHORED_DEPRECATION_FIELDS = ["deprecation_reason"]
@@ -512,7 +512,7 @@ def validate(entity: dict, catalog: dict | None = None) -> list[dict]:
     return issues
 
 
-# ── AC variants (living-doc-header-types.md#ac-variants) ─────────────────────────────
+# ── AC variants (living-doc-bdd-schemas.md#ac-variants) ─────────────────────────────
 # An AC that must hold for several values declares them once: either `- Aspect: a, b` or one
 # named keyword `- <name>: a, b`, where the AC text names it as `{<name>}`. In the entity
 # JSON that reaches this validator the declared values land in `aspect`, and a keyword

@@ -76,6 +76,9 @@ jobs:
         with:
           persist-credentials: false
 
+      # This repository's own blob/master links are checked against this checkout: the generated
+      # agentic copies and the skills link the canon absolutely, and a change that adds or moves a
+      # page must pass with the links it will have once merged.
       - name: Check cross-reference and cross-repo links
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8
         with:
@@ -84,6 +87,7 @@ jobs:
             --include-fragments
             --max-retries 3
             --retry-wait-time 5
+            --remap 'https://github\.com/AbsaOSS/living-doc/blob/master/(.*) file://${{ github.workspace }}/$1'
             './**/*.md'
           fail: true
         env:

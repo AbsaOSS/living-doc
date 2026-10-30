@@ -1450,7 +1450,7 @@ def test_cli_stdin_input():
     print("✓ '-' reads the entity from stdin")
 
 
-# ── AC variants (living-doc-header-types.md#ac-variants) ─────────────────────────────
+# ── AC variants (living-doc-bdd-schemas.md#ac-variants) ─────────────────────────────
 # One declaration per AC, the keyword's name in the AC text, `aspect` reserved. The entity
 # JSON carries the declared values in `aspect` and a keyword's name in `placeholder_values`,
 # the shape `living-doc-utilities`' `AcceptanceCriterion` defines. `living-doc`'s

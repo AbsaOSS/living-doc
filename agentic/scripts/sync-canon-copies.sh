@@ -12,10 +12,9 @@
 # next to them. The copies cannot drift, because the source is the same commit's docs/ and CI
 # diffs the result.
 #
-# Both canon sources live at docs/guides/ today. A later change relocates them under
-# docs/reference/ — when that lands, update the source paths in TARGETS below (and the
-# link-rewriting rules, which assume each source and its cross-references live under docs/guides/
-# and docs/examples/). The relocation affects BOTH targets, not just one.
+# Both canon sources live at docs/reference/. The link-rewriting resolves each source's relative
+# links from that source's own folder, read from its TARGETS row, so moving a source needs only
+# its row changed below.
 #
 # Usage:
 #   agentic/scripts/sync-canon-copies.sh              # every target
@@ -45,8 +44,8 @@ BLOB_BASE="https://github.com/${LIVING_DOC_REPO}/blob/master"
 # A plain indexed array rather than an associative one: macOS ships bash 3.2, which has no
 # `declare -A`, and contributors run this script locally as well as in CI.
 TARGETS=(
-  "glossary|docs/guides/living-doc-glossary.md|${REFERENCES_DIR}/living-doc-glossary.md"
-  "bdd-schemas|docs/guides/living-doc-header-types.md|${REFERENCES_DIR}/living-doc-bdd-schemas.md"
+  "glossary|docs/reference/glossary.md|${REFERENCES_DIR}/living-doc-glossary.md"
+  "bdd-schemas|docs/reference/authoring-formats.md|${REFERENCES_DIR}/living-doc-bdd-schemas.md"
 )
 
 target_names() {
@@ -124,6 +123,15 @@ if [ "${TARGET}" != "all" ] && ! target_row "${TARGET}" >/dev/null; then
   exit 1
 fi
 
+# Echo the absolute URL of a repo-relative folder, with a trailing slash ("." is the repo root).
+dir_url() {
+  if [ "$1" = "." ]; then
+    printf '%s/' "${BLOB_BASE}"
+  else
+    printf '%s/%s/' "${BLOB_BASE}" "$1"
+  fi
+}
+
 TMP_FILE="$(mktemp)"
 trap 'rm -f "${TMP_FILE}" "${TMP_FILE}.rewritten"' EXIT
 
@@ -148,18 +156,25 @@ sync_one() {
   fi
 
   # Rewrite the canon's relative links to absolute living-doc URLs so the copy reads correctly
-  # from a project that has no living-doc checkout. Same-page anchors (#section) are left
-  # untouched, as are already-absolute links (http/https) — none of the patterns below can match
-  # those, since each requires "(" to be followed immediately by a slash-free, colon-free
-  # relative segment. Handled shapes, generic rather than a fixed filename list so a newly-added
-  # sibling doc or example asset in the source needs no change here:
-  #   - "(../foo)"      — parent-relative, resolves under docs/ (each source lives in docs/guides/)
-  #   - "(./foo)"       — explicit same-dir relative, resolves under docs/guides/
-  #   - "(foo.md)"      — bare sibling filename (no path separator), resolves under docs/guides/
+  # from a project that has no living-doc checkout. Every link resolves from the source's own
+  # folder, taken from its TARGETS row, so no folder is hard-coded here. Same-page anchors
+  # (#section) are left untouched, as are already-absolute links (http/https) — none of the
+  # patterns below can match those, since each requires "(" to be followed immediately by a
+  # slash-free, colon-free relative segment. Handled shapes, generic rather than a fixed filename
+  # list so a newly-added sibling doc or example asset in the source needs no change here:
+  #   - "(../../foo)"   — two levels up, resolves under the source folder's grandparent
+  #   - "(../foo)"      — parent-relative, resolves under the source folder's parent
+  #   - "(./foo)"       — explicit same-dir relative, resolves under the source folder
+  #   - "(foo.md)"      — bare sibling filename (no path separator), resolves under the source folder
+  local src_dir parent_dir grand_dir
+  src_dir="$(dirname "${source_path}")"
+  parent_dir="$(dirname "${src_dir}")"
+  grand_dir="$(dirname "${parent_dir}")"
   sed -E \
-    -e "s|\(\.\./([^)]+)\)|(${BLOB_BASE}/docs/\1)|g" \
-    -e "s|\(\./([^)]+)\)|(${BLOB_BASE}/docs/guides/\1)|g" \
-    -e "s|\(([A-Za-z0-9_.-]+\.md)(#[^)]*)?\)|(${BLOB_BASE}/docs/guides/\1\2)|g" \
+    -e "s|\(\.\./\.\./([^)]+)\)|($(dir_url "${grand_dir}")\1)|g" \
+    -e "s|\(\.\./([^)]+)\)|($(dir_url "${parent_dir}")\1)|g" \
+    -e "s|\(\./([^)]+)\)|($(dir_url "${src_dir}")\1)|g" \
+    -e "s|\(([A-Za-z0-9_.-]+\.md)(#[^)]*)?\)|($(dir_url "${src_dir}")\1\2)|g" \
     "${source}" > "${TMP_FILE}"
 
   {

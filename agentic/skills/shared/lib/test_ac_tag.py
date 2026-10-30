@@ -2,7 +2,7 @@
 """
 Tag-grammar tests for ac_tag.py — the `@AC:` scenario tag as the canon defines it.
 
-Covers the AC-variants rule from living-doc-header-types.md#ac-variants, which the tag
+Covers the AC-variants rule from living-doc-bdd-schemas.md#ac-variants, which the tag
 grammar has to carry: a tag takes **at most one** `/<param>:<value>` segment, and `<param>`
 is one lowercase kebab-case name. A tag with two parameters is MALFORMED_AC, so it must fail
 the match rather than being silently truncated to the first segment — the behaviour before

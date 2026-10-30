@@ -18,8 +18,8 @@ license: Apache-2.0
 
 # BDD Maintenance
 
-> **Glossary:** Feature, Functionality, User Story — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md)).
-> **BDD schemas:** manifest.json schema (routes, elements, coverage_gaps, navigation_context) — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md)).
+> **Glossary:** Feature, Functionality, User Story — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
+> **Agentic formats:** manifest.json schema (routes, elements, coverage_gaps, navigation_context) — see [agentic-formats — manifest.json](../shared/references/agentic-formats.md#manifestjson-exploration-manifest).
 
 Two modes — activate the one that matches the trigger.
 

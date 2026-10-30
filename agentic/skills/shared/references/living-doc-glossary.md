@@ -1,30 +1,23 @@
-<!-- generated from docs/guides/living-doc-glossary.md by agentic/scripts/sync-canon-copies.sh — do not edit -->
+<!-- generated from docs/reference/glossary.md by agentic/scripts/sync-canon-copies.sh — do not edit -->
 <!-- Generated file — do not edit by hand. CI re-runs the sync and fails on any diff. -->
 
-# Living Doc Glossary
+# Glossary
 
-Core entity contracts: IDs, status vocabulary, relationships, and AC format. Every `living-doc-*` repo and `agentic-toolkit`'s `living-doc-bdd-copilot` agent operate on this canonical entity model.
+## Purpose
 
-For the file-header schemas that carry these entities (feature file headers, PageObject headers, Project Profile, seed.yaml, manifest.json), see [Living Doc Header Types](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md).
+This page defines the living-doc entity model: the four entities, their IDs and status vocabulary, the
+acceptance-criterion grammar, ID uniqueness and how the entities relate. Every `living-doc-*` repository
+works on this model, and so does the agentic layer in [`agentic/`](https://github.com/AbsaOSS/living-doc/blob/master/agentic/README.md), whose own
+formats and skill matrix are in [agentic-formats.md](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/agentic-formats.md).
+The layer reads a copy generated from this page, and a rule changed here changes its example in
+[`docs/examples/`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md) in the [same PR](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md#sync-obligation).
 
-> **Source of truth.** This page is the canonical definition of the entity model. The agentic layer's copy, `agentic/skills/shared/references/living-doc-glossary.md`, is generated from it at the same commit by `agentic/scripts/sync-canon-copies.sh`; CI fails if the two differ.
-
-> **Worked examples & sync obligation.** A minimal, copyable example of each entity lives in
-> [`docs/examples/`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md). When a field or rule on this page changes, the matching
-> example changes in the same PR.
-
----
+Read before: [Authoring formats](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md) · Next: [Example corpus](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md)
 
 ## Contents
 
 - [Core entities](#core-entities)
-  - [User Story (US)](#user-story-us)
-  - [Feature](#feature)
-  - [Functionality (FUNC)](#functionality-func)
-  - [Acceptance Criterion (AC)](#acceptance-criterion-ac)
-  - [ID uniqueness](#id-uniqueness)
 - [Relationship diagram](#relationship-diagram)
-- [What each `living-doc-bdd-copilot` skill creates or consumes](#what-each-living-doc-bdd-copilot-skill-creates-or-consumes)
 
 ---
 
@@ -43,8 +36,8 @@ For the file-header schemas that carry these entities (feature file headers, Pag
 > only the status is required, and only on a User Story and a Functionality — a
 > Feature has no authored status at all, and `deprecated_at` exists on a User Story and a
 > Functionality only — see [Feature](#feature).
-> See the [GitHub issue-body layout](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md#github-issue-body-layout-canonical) and
-> [Living Doc Header Types](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md).
+> See the [GitHub issue-body layout](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md#github-issue-body-layout) and
+> [Authoring formats](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md).
 
 > **`## Notes` — the one place for human context.** Every entity may carry an optional `## Notes`
 > section in an issue body (`# notes:` in a source-code header): a **bullet list, one note per
@@ -77,7 +70,7 @@ so that <business outcome>.
 - Notes (optional): human context as a bullet list — see *`## Notes` — the one place for human
   context* above
 
-> Feature file template: see [Living Doc Header Types — User Story in a Gherkin Feature File](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md#1-user-story-in-a-gherkin-feature-file).
+> Feature file template: see [Authoring formats — User Story in a Gherkin Feature File](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md#1-user-story-in-a-gherkin-feature-file).
 
 ### Feature
 
@@ -131,7 +124,7 @@ A named system surface — the structural layer between User Stories and atomic 
 - Notes (optional): human context as a bullet list — see *`## Notes` — the one place for human
   context* above
 
-> PageObject file header schemas (full header, cross-reference, operational notes, common mistakes): see [Living Doc Header Types — Feature in a PageObject File](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md#2-feature-in-a-pageobject-file).
+> PageObject file header schemas (full header, cross-reference, operational notes, common mistakes): see [Authoring formats — Feature in a PageObject File](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md#2-feature-in-a-pageobject-file).
 
 ### Functionality (FUNC)
 
@@ -174,7 +167,7 @@ If an AC belongs to the wrong entity type, redirect:
 - AC too atomic / technical inside a US → move to a **Functionality**
 - AC describes a full user journey inside a FUNC → move to a **User Story**
 
-> Feature file template and `func_type` values: see [Living Doc Header Types — Functionality in a Gherkin Feature File](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md#3-functionality-in-a-gherkin-feature-file).
+> Feature file template and `func_type` values: see [Authoring formats — Functionality in a Gherkin Feature File](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md#3-functionality-in-a-gherkin-feature-file).
 
 ### Acceptance Criterion (AC)
 
@@ -247,7 +240,7 @@ bullet, and its scenarios cover them value by value:
   really does. A tag value the AC does not declare is `STALE_AC_REF`.
 
 The authoring view of the same rule is
-[Living Doc Header Types — AC variants](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md#ac-variants).
+[Authoring formats — AC variants](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md#ac-variants).
 
 **Scenario traceability:** living-doc scenarios (US and Functionality feature files) carry two
 complementary annotations — a human-readable `# AC:` comment and a machine-readable `@AC:` tag:
@@ -369,10 +362,6 @@ describes the false-gap failure mode when the two sides of the join do not descr
 
 ---
 
-> `seed.yaml` and `manifest.json` schemas: see [Living Doc Header Types — manifest.json (Exploration Manifest)](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-header-types.md#manifestjson-exploration-manifest).
-
----
-
 ## Relationship diagram
 
 ```
@@ -395,16 +384,3 @@ User Story (US)
                                                                └── delegates to: PageObjects
                   └── can map to: API coverage / contract tests
 ```
-
----
-
-## What each `living-doc-bdd-copilot` skill creates or consumes
-
-| Skill | Creates | Reads |
-|---|---|---|
-| `living-doc-create-user-story` | User Story entity | Feature entities |
-| `living-doc-create-feature` | Feature entity | User Story entities |
-| `living-doc-create-functionality` | Functionality entity + Functionality feature file stub | Feature entity |
-| `living-doc-pageobject-scan` | PageObject files + Functionality feature file stubs + fixture entries in `seed.yaml` | App URL or test suite; `seed.yaml form_fixtures` |
-| `living-doc-scenario-creator` | E2E BDD scenario files (US) + Functionality feature files (FUNC) | US / FUNC entities, PageObjects |
-| `living-doc-gap-finder` | Gap report | All of the above |

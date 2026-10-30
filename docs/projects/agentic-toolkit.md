@@ -18,11 +18,11 @@ First stage of the pipeline, upstream of [collector-gh](collector-gh.md). See [A
 
 ## Why it matters to this ecosystem specifically
 
-`living-doc` (this docs repo) is the source of truth for the entity/AC/header-block format the whole ecosystem shares: [Living Doc Glossary](../guides/living-doc-glossary.md) (entity definitions, IDs, AC/tag grammar) and [Living Doc Header Types](../guides/living-doc-header-types.md) (the three living-doc header types — **User Story in a Gherkin Feature File**, **Feature in a PageObject File**, **Functionality in a Gherkin Feature File** — plus the Project Profile and `seed.yaml`/`manifest.json`). `agentic-toolkit`'s non-task companion skill, `shared` (`skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md`), is synced from these two pages, and every other skill in the family imports it.
+`living-doc` (this docs repo) is the source of truth for the entity/AC/header-block format the whole ecosystem shares: [Glossary](../reference/glossary.md) (entity definitions, IDs, AC/tag grammar) and [Authoring formats](../reference/authoring-formats.md) (the three living-doc header types — **User Story in a Gherkin Feature File**, **Feature in a PageObject File**, **Functionality in a Gherkin Feature File**); the Project Profile and `seed.yaml`/`manifest.json` are the layer's own, in [agentic-formats.md](../../agentic/skills/shared/references/agentic-formats.md). `agentic-toolkit`'s non-task companion skill, `shared` (`skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md`), is synced from these two pages, and every other skill in the family imports it.
 
 ## Used in
 
 - [Architecture](../introduction/architecture.md)
-- [Living Doc Glossary](../guides/living-doc-glossary.md)
-- [Living Doc Header Types](../guides/living-doc-header-types.md)
+- [Glossary](../reference/glossary.md)
+- [Authoring formats](../reference/authoring-formats.md)
 - Phase 2 roadmap item — implementing `collector-gh`'s `doc-source`/`ui-tests` modes against this format

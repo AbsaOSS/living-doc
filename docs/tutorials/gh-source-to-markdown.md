@@ -6,14 +6,14 @@
 Goal: turn the **User Story / Feature / Functionality header blocks and Gherkin `.feature` files that
 live in your source tree** (not issues) into Markdown, refreshed on every push.
 
-Use this when living documentation is authored [directly in code](../guides/living-doc-header-types.md)
+Use this when living documentation is authored [directly in code](../reference/authoring-formats.md)
 — the preferred authoring path — rather than as issues (planned).
 
 ## 1. Prepare the inputs
 
 | Document type you want | What must be in the repo |
 |---|---|
-| [Technical project](../guides/living-doc-document-types.md#technical-project) | US / Feature / Functionality header blocks and PageObject headers in the [documented format](../guides/living-doc-header-types.md) |
+| [Technical project](../guides/living-doc-document-types.md#technical-project) | US / Feature / Functionality header blocks and PageObject headers in the [documented format](../reference/authoring-formats.md) |
 | [Test catalog](../guides/living-doc-document-types.md#test-catalog) | `.feature` files under `features/liv_doc_us/` and `features/liv_doc_func/` with `@AC:` tags |
 
 ## 2. Add the workflow
@@ -82,5 +82,5 @@ jobs:
 
 - [GitHub Issues → Markdown](gh-issues-to-markdown.md) — the same output from issues instead of code *(planned)*
 - [GitHub Source → PDF](gh-source-to-pdf.md) — same inputs, PDF output
-- [Living Doc Header Types](../guides/living-doc-header-types.md) — the source-code format being mined
+- [Authoring formats](../reference/authoring-formats.md) — the source-code format being mined
 - [Living Documentation Document Types](../guides/living-doc-document-types.md)

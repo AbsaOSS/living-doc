@@ -3,7 +3,7 @@
 Tests for migrate_pageobject_headers.py — the migration path for PageObject headers written
 before the canon dropped a surface's state and a Feature's deprecation date.
 
-Covers Header Types' "Common mistakes" table: `status:` and `deprecated_at:` are removed,
+Covers Authoring formats' "Common mistakes" table: `status:` and `deprecated_at:` are removed,
 `type:`/`owner:` are renamed (and `type: screen` becomes `surface_type: UI`), the retirement
 keys that stay are left alone, `feature_dependencies: none` and a missing required key are
 reported for a human, and a header already at the canon reports nothing.

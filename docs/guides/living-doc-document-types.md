@@ -3,8 +3,9 @@
 The pipeline produces **three kinds of document**. Each is a distinct dataset with its own
 prerequisites, and each can be rendered as **Markdown** or **PDF** by pointing a generator at it.
 
-- For the entities these are built from (User Story, Feature, Functionality, AC), see [Living Doc Glossary](living-doc-glossary.md).
-- For the file formats a collector mines, see [Living Doc Header Types](living-doc-header-types.md).
+- For the entities these are built from (User Story, Feature, Functionality, AC), see [Glossary](../reference/glossary.md).
+- For the file formats a collector mines, see [Authoring formats](../reference/authoring-formats.md).
+- For what each view shows and how coverage is counted, see [Rendering rules](../reference/rendering-rules.md).
 - For a minimal, copyable input corpus feeding all three document types, see [`docs/examples/`](../examples/README.md).
 - To choose Markdown vs PDF, see [Choosing a Generator](choosing-a-generator.md).
 
@@ -35,13 +36,13 @@ User Story  (US-nnn)  — actor, capability, business value, authored status, AC
        └─ Functionality  (FUNC-nnn)  — one atomic behaviour, authored status, ACs
 ```
 
-See the [relationship diagram](living-doc-glossary.md#relationship-diagram) for the full model.
+See the [relationship diagram](../reference/glossary.md#relationship-diagram) for the full model.
 
 **Built from** — one of:
 
 | Input | Collector mode | Status |
 |---|---|---|
-| Source-code header blocks (see [Header Types](living-doc-header-types.md)) | `collector-gh` `doc-source` | Available |
+| Source-code header blocks (see [Authoring formats](../reference/authoring-formats.md)) | `collector-gh` `doc-source` | Available |
 | GitHub issues labelled as US / Feature / Functionality | `collector-gh` `doc-issues` | Planned |
 | Azure DevOps work items | `collector-ad` `work-items` | Planned |
 
@@ -53,12 +54,9 @@ on it.
 as source-code headers), plus `FEAT-002`, the `API` Feature `FUNC-002` depends on — an issue body
 only, because an API contract anchor carries no living-doc header yet.
 
-**Two views.** The same technical project is generated in one of two views:
-
-| View | Contains | Use for |
-|---|---|---|
-| **Inner** | Everything, unchanged — `planned`, `in_review`, `active`, and `deprecated` entities and ACs alike — and what was not loaded from the input, under each entity | Team-internal planning and traceability; nothing is hidden |
-| **Release** | `planned` / `in_review` entities and ACs dropped; `deprecated` entities and ACs kept (they describe shipped behaviour still part of the solution) — i.e. *what was actually shipped*. What was not loaded from the input is never shown | A release note / delivery record shared outside the team |
+**Two views.** The same technical project is generated in one of two views: **inner**, for team-internal
+planning and traceability, and **release**, a delivery record shared outside the team. What each shows and
+drops, and what was not loaded from the input, is in [Rendering rules](../reference/rendering-rules.md#views).
 
 The view is a filter over the same mined data — no separate authoring. The `toolkit`'s `normalize-docs`
 command applies it when it writes the generator input, and selects it with `--view inner|release`
@@ -70,27 +68,6 @@ living-doc normalize-docs --input doc-source.json --output generator-ready.json 
 
 See [`living-doc-toolkit`'s README](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/README.md)
 for the command and its GitHub Action.
-
-**Drop rules by state** (state matching is case-insensitive; hyphens and spaces are equivalent):
-
-| State of entity / AC | Inner | Release |
-|---|---|---|
-| `planned` | kept | dropped |
-| `in_review` | kept | dropped |
-| `active` | kept | kept |
-| `deprecated` | kept | kept |
-
-When an entity is dropped, its ACs go with it; `deprecated` ACs on a retained entity stay.
-
-**What was not loaded.** A collector that cannot read part of an input reports it as a warning and
-goes on; the run does not fail on it (see [Header Types — Indentation](living-doc-header-types.md#indentation)).
-The inner view shows each warning under the entity it names: its code, its message and its line, with
-a link to that line in the source — never the warning's raw `context`. Every collector warning that
-names an entity is shown, not only a dropped criterion (`MALFORMED_AC`): each one means something the
-author wrote did not reach the document. A collector warning that names no entity, or an entity the
-document does not hold — `MISSING_ENTITY_ID`, whose entity was never emitted — is shown once, for the
-whole document, with its file and line. The release view shows none of them. The codes are listed in
-[`living-doc-utilities`' error codes](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/errors.md#codes).
 
 The applied view is recorded in the generator input's `document` block: `document.view` holds the
 view, and `document.selection_summary` counts the entities and acceptance criteria the filter kept and
@@ -115,13 +92,13 @@ Feature file  (@US_ID / @FUNC_ID)
 ```
 
 Scenario-to-AC traceability comes from the `# AC:` comment and `@AC:` tag on each scenario; see
-[Living Doc Glossary § Acceptance Criterion](living-doc-glossary.md#acceptance-criterion-ac).
+[Glossary § Acceptance Criterion](../reference/glossary.md#acceptance-criterion-ac).
 
 **Built from** — Gherkin `.feature` files in the living-doc directories
 (`features/liv_doc_us/`, `features/liv_doc_func/` by default), mined by `collector-gh`'s `ui-tests`
 mode (Available).
 
-**Prerequisites** — `.feature` files that follow the [feature-file header format](living-doc-header-types.md#1-user-story-in-a-gherkin-feature-file)
+**Prerequisites** — `.feature` files that follow the [feature-file header format](../reference/authoring-formats.md#1-user-story-in-a-gherkin-feature-file)
 and carry `@AC:` tags. A test catalog can be produced without a technical project, but it is far more
 useful alongside one.
 
@@ -140,10 +117,8 @@ project, whether a scenario in the test catalog covers it, and which one. This i
 *gaps* (ACs with no test) and *orphans* (scenarios not tied to any AC).
 
 **Structure** — a matrix of `AC ID × scenario`, with a verdict per AC and a coverage summary for each
-User Story and Functionality and for the whole matrix. The verdict is `covered`, `not_covered`, or —
-for an AC with variants that has scenarios for only some of its values — `partially_covered`, shown as
-covered/declared (e.g. 1/3) with the per-value breakdown (see
-[Header Types — AC variants](living-doc-header-types.md#ac-variants)).
+User Story and Functionality and for the whole matrix. Which criteria are counted, and how each verdict
+and the summary are reached, is in [Rendering rules — Coverage](../reference/rendering-rules.md#coverage).
 
 **Built from** — the technical project (`doc-source.json`: User Stories, Features, Functionalities +
 ACs) **and** the test catalog (`ui-tests.json`: scenarios + `@AC:` tags), joined by
@@ -177,7 +152,7 @@ output.
 
 | To produce… | You need | Which in turn needs |
 |---|---|---|
-| Technical project | A collector source: source code (issues and work items are planned) | Entities authored in the [documented format](living-doc-header-types.md) |
+| Technical project | A collector source: source code (issues and work items are planned) | Entities authored in the [documented format](../reference/authoring-formats.md) |
 | Test catalog | Gherkin `.feature` files with `@AC:` tags | nothing further |
 | Coverage matrix | Technical project **+** test catalog, same project | Both of the above; AC IDs consistent across the two |
 

@@ -100,7 +100,7 @@ def test_two_parameter_tag_excluded_from_coverage():
 
 def test_ac_coverage_state_three_states():
     """The coverage matrix's three states, counted per declared value, with a bare tag
-    counting for every value (living-doc-header-types.md#ac-variants)."""
+    counting for every value (living-doc-bdd-schemas.md#ac-variants)."""
     declared = ["email", "sms", "push"]
     none_entry = None
     assert ac_coverage_state(declared, none_entry) == ("not_covered", declared)

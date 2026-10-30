@@ -15,6 +15,7 @@ This repository is the entry point for the whole topic: it explains the concept,
 ## Guides
 
 - [Living Documentation Document Types](docs/guides/living-doc-document-types.md)
+- [Authoring documentation](docs/guides/authoring-documentation.md)
 - [Collecting from GitHub](docs/guides/github-collection.md)
 - [Collecting from Azure DevOps](docs/guides/azure-devops-collection.md)
 - [Choosing a Generator](docs/guides/choosing-a-generator.md)

@@ -126,8 +126,8 @@ this repository? If no, it goes to `.claude/agents/`, with no guide and no eval 
 
 | File | Source |
 |---|---|
-| `living-doc-glossary.md` | **Generated** from `docs/guides/living-doc-glossary.md` |
-| `living-doc-bdd-schemas.md` | **Generated** from `docs/guides/living-doc-header-types.md` |
+| `living-doc-glossary.md` | **Generated** from `docs/reference/glossary.md` |
+| `living-doc-bdd-schemas.md` | **Generated** from `docs/reference/authoring-formats.md` |
 | `agentic-formats.md` | Hand-maintained: the Project Profile, `seed.yaml`, `manifest.json` and the skill matrix — formats the layer owns |
 | `schemas/*.schema.json` | Hand-maintained JSON schemas for the three formats above |
 
