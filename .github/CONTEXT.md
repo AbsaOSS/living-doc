@@ -11,7 +11,7 @@ CI workflows, the PR template, issue templates, CODEOWNERS and Dependabot.
 | Workflow | Runs on | Does |
 |---|---|---|
 | `examples-check.yml` | push to `master` and PRs touching `docs/examples/**`, `docs/guides/**`, `tests/examples/**` | `tests/examples/examples_check.py`, then pytest over `tests/examples/`; Python 3.14 |
-| `real-collector.yml` | push to `master` and PRs touching `docs/examples/**`, `tests/**`; manual dispatch | two jobs on the pinned collector: `real-collector-snapshot` and `testbed-collector-stage` ([tests/README.md § The workflow](../tests/README.md#the-workflow)) |
+| `real-collector.yml` | push to `master` and PRs touching `docs/examples/**`, `tests/**`; manual dispatch | two jobs on the pinned collector and toolkit: `real-collector-snapshot` and `testbed-collector-stage` ([tests/README.md § The workflow](../tests/README.md#the-workflow)) |
 | `agentic-tests.yml` | push to `master` and PRs touching `agentic/**` or the two canon guides it copies | canon-copy check, script tests on 3.10 and 3.14, skill format validation |
 | `link-check.yml` | push to `master`, PRs; lychee runs only when a `*.md` changed | `lychee` over `./**/*.md` with `--include-fragments` |
 | `check-pr-requirements.yml` | PRs | title, ticket in branch, body sections, closing keyword |

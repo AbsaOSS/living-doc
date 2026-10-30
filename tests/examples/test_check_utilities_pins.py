@@ -35,14 +35,23 @@ pydantic==2.13.5
 tomli==2.4.1; python_version < "3.11"
 """
 
+TOOLKIT_REQUIREMENTS = """\
+# Runtime only: the packages, each installed by path.
+living-doc-utilities==0.6.0
+./packages/core
+./apps/cli
+"""
+
 
 @pytest.fixture
 def requirements(tmp_path: Path):
-    """Write the two requirements files and return the ``--requirements`` arguments for them."""
+    """Write the three requirements files and return the ``--requirements`` arguments for them."""
     def write(collector: str, examples_check: str) -> list[str]:
         (tmp_path / "collector.txt").write_text(collector, encoding="utf-8")
+        (tmp_path / "toolkit.txt").write_text(TOOLKIT_REQUIREMENTS, encoding="utf-8")
         (tmp_path / "examples.txt").write_text(examples_check, encoding="utf-8")
         return ["--requirements", f"collector-gh={tmp_path / 'collector.txt'}",
+                "--requirements", f"toolkit={tmp_path / 'toolkit.txt'}",
                 "--requirements", f"examples-check={tmp_path / 'examples.txt'}"]
     return write
 
@@ -75,7 +84,7 @@ def test_minor_mismatch_warns(requirements, capsys: pytest.CaptureFixture[str]) 
     assert main(args) == 0
     out = capsys.readouterr().out
     assert ("warning: living-doc-utilities minor-version mismatch: collector-gh 0.6.0, "
-            "examples-check 0.5.0") in out
+            "toolkit 0.6.0, examples-check 0.5.0") in out
 
 
 def test_minor_mismatch_fails_with_strict(requirements, capsys: pytest.CaptureFixture[str]) -> None:
@@ -123,6 +132,10 @@ def test_requirement_line_parsing(line: str, spec: str | None) -> None:
     assert utilities_spec(f"PyYAML==6.0.3\n{line}\n") == spec
 
 
+def test_requirements_with_local_package_lines() -> None:
+    assert utilities_spec(TOOLKIT_REQUIREMENTS) == "==0.6.0"
+
+
 def test_unreadable_requirements_file_exits_2(tmp_path: Path,
                                               capsys: pytest.CaptureFixture[str]) -> None:
     missing = tmp_path / "nope.txt"
@@ -134,7 +147,8 @@ def test_unreadable_requirements_file_exits_2(tmp_path: Path,
 def test_component_requirements_fetched_at_the_pinned_ref(tmp_path: Path,
                                                           capsys: pytest.CaptureFixture[str]) -> None:
     pins = tmp_path / "pins.env"
-    pins.write_text("# comment\nCOLLECTOR_GH_REF=0123456789abcdef0123456789abcdef01234567\n",
+    pins.write_text("# comment\nCOLLECTOR_GH_REF=0123456789abcdef0123456789abcdef01234567\n"
+                    "TOOLKIT_REF=89abcdef0123456789abcdef0123456789abcdef\n",
                     encoding="utf-8")
     examples = tmp_path / "examples.txt"
     examples.write_text("living-doc-utilities==0.6.0\n", encoding="utf-8")
@@ -147,7 +161,9 @@ def test_component_requirements_fetched_at_the_pinned_ref(tmp_path: Path,
     assert main(["--pins", str(pins), "--requirements", f"examples-check={examples}"],
                 fetcher=fetcher) == 0
     assert fetched == ["https://raw.githubusercontent.com/AbsaOSS/living-doc-collector-gh/"
-                       "0123456789abcdef0123456789abcdef01234567/requirements.txt"]
+                       "0123456789abcdef0123456789abcdef01234567/requirements.txt",
+                       "https://raw.githubusercontent.com/AbsaOSS/living-doc-toolkit/"
+                       "89abcdef0123456789abcdef0123456789abcdef/requirements.txt"]
     assert "AbsaOSS/living-doc-collector-gh@0123456789ab requirements.txt" in capsys.readouterr().out
 
 

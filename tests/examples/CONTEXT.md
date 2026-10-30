@@ -27,4 +27,4 @@ The corpus checker `examples_check.py` (its rules: the module docstring), the sn
 
 ## Gotchas
 
-- Nothing here invokes the real collector or toolkit. Mining over `docs/examples/` belongs in `regen-collector-snapshots.sh`, over the testbed in `tests/testbed/`.
+- No test suite here invokes the real collector or toolkit. Running them over `docs/examples/` belongs in `regen-collector-snapshots.sh` and its checks, `check_collector_stage.py` and `check_toolkit_stage.py`; over the testbed in `tests/testbed/`.

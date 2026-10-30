@@ -54,6 +54,7 @@ PACKAGE = "living-doc-utilities"
 # the runtime requirements file its venv is built from.
 COMPONENTS = {
     "collector-gh": ("COLLECTOR_GH_REF", "AbsaOSS/living-doc-collector-gh", "requirements.txt"),
+    "toolkit": ("TOOLKIT_REF", "AbsaOSS/living-doc-toolkit", "requirements.txt"),
 }
 # Requirements files of this repository's own tools, read from the working tree.
 LOCAL = {
