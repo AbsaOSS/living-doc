@@ -1,0 +1,939 @@
+{
+  "schema_version": "ui-test-catalog-v1.0.0",
+  "metadata": {
+    "producer": {
+      "name": "AbsaOSS/living-doc-toolkit",
+      "version": "0.1.0",
+      "build": null,
+      "utilities_version": "0.8.0"
+    },
+    "run": {
+      "run_id": null,
+      "run_attempt": null,
+      "actor": null,
+      "workflow": null,
+      "ref": null,
+      "sha": null
+    },
+    "source": {
+      "project_id": "testbed-core",
+      "systems": [
+        "GitHub"
+      ],
+      "organizations": [
+        "AbsaOSS"
+      ],
+      "repositories": [
+        "AbsaOSS/living-doc-testbed"
+      ],
+      "extraction_mode": null
+    },
+    "generated_at": "2026-10-30T14:47:42Z",
+    "stats": {
+      "cardinality": {
+        "entities": 0,
+        "entities_by_type": {},
+        "acceptance_criteria": 0,
+        "scenarios": 28,
+        "warnings_by_code": {},
+        "sources_configured": 0,
+        "sources_failed": 0,
+        "unresolved_refs": 0,
+        "entities_skipped": 0
+      },
+      "field_occupancy": {
+        "feature_files[].feature_file": 13,
+        "feature_files[].linked_to_user_story[].entity_id": 3,
+        "feature_files[].linked_to_user_story[].scenarios[].scenario_id": 6,
+        "feature_files[].linked_to_user_story[].scenarios[].title": 6,
+        "feature_files[].linked_to_user_story[].scenarios[].source_ref.system": 6,
+        "feature_files[].linked_to_user_story[].scenarios[].source_ref.native_id": 6,
+        "feature_files[].linked_to_user_story[].scenarios[].source_ref.native_type": 6,
+        "feature_files[].linked_to_user_story[].scenarios[].source_ref.url": 6,
+        "feature_files[].linked_to_user_story[].scenarios[].source_ref.tracker_state": 6,
+        "feature_files[].linked_to_user_story[].scenarios[].source_ref.area_path": 0,
+        "feature_files[].linked_to_user_story[].scenarios[].source_ref.iteration_path": 0,
+        "feature_files[].linked_to_user_story[].scenarios[].tags[]": 6,
+        "feature_files[].linked_to_user_story[].scenarios[].acceptance_criteria[].id": 7,
+        "feature_files[].linked_to_user_story[].scenarios[].acceptance_criteria[].aspect": 2,
+        "feature_files[].linked_to_functionality[].entity_id": 9,
+        "feature_files[].linked_to_functionality[].scenarios[].scenario_id": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].title": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].source_ref.system": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].source_ref.native_id": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].source_ref.native_type": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].source_ref.url": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].source_ref.tracker_state": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].source_ref.area_path": 0,
+        "feature_files[].linked_to_functionality[].scenarios[].source_ref.iteration_path": 0,
+        "feature_files[].linked_to_functionality[].scenarios[].tags[]": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].acceptance_criteria[].id": 20,
+        "feature_files[].linked_to_functionality[].scenarios[].acceptance_criteria[].aspect": 8,
+        "feature_files[].unlinked[].scenario_id": 2,
+        "feature_files[].unlinked[].title": 2,
+        "feature_files[].unlinked[].source_ref.system": 2,
+        "feature_files[].unlinked[].source_ref.native_id": 2,
+        "feature_files[].unlinked[].source_ref.native_type": 2,
+        "feature_files[].unlinked[].source_ref.url": 2,
+        "feature_files[].unlinked[].source_ref.tracker_state": 2,
+        "feature_files[].unlinked[].source_ref.area_path": 0,
+        "feature_files[].unlinked[].source_ref.iteration_path": 0,
+        "feature_files[].unlinked[].tags[]": 0,
+        "feature_files[].unlinked[].acceptance_criteria[].id": 0,
+        "feature_files[].unlinked[].acceptance_criteria[].aspect": 0
+      }
+    },
+    "source_inputs": [
+      {
+        "schema_version": "ui-tests-v1.0.0",
+        "producer": {
+          "name": "AbsaOSS/living-doc-collector-gh",
+          "version": "0.1.1",
+          "build": null,
+          "utilities_version": "0.8.0"
+        },
+        "run": {
+          "run_id": null,
+          "run_attempt": null,
+          "actor": null,
+          "workflow": null,
+          "ref": null,
+          "sha": null
+        },
+        "source": {
+          "project_id": "testbed-core",
+          "systems": [
+            "GitHub"
+          ],
+          "organizations": [
+            "AbsaOSS"
+          ],
+          "repositories": [
+            "AbsaOSS/living-doc-testbed"
+          ],
+          "extraction_mode": null
+        },
+        "stats": {
+          "cardinality": {
+            "entities": 0,
+            "entities_by_type": {},
+            "acceptance_criteria": 0,
+            "scenarios": 28,
+            "warnings_by_code": {},
+            "sources_configured": 1,
+            "sources_failed": 0,
+            "unresolved_refs": 0,
+            "entities_skipped": 0
+          },
+          "field_occupancy": {
+            "scenarios[].scenario_id": 28,
+            "scenarios[].title": 28,
+            "scenarios[].source_ref.system": 28,
+            "scenarios[].source_ref.native_id": 28,
+            "scenarios[].source_ref.native_type": 28,
+            "scenarios[].source_ref.url": 28,
+            "scenarios[].source_ref.tracker_state": 28,
+            "scenarios[].source_ref.area_path": 0,
+            "scenarios[].source_ref.iteration_path": 0,
+            "scenarios[].tags[]": 26,
+            "scenarios[].acceptance_criteria[].id": 27,
+            "scenarios[].acceptance_criteria[].aspect": 10
+          }
+        },
+        "selected_stats": {
+          "cardinality": {
+            "entities": 0,
+            "entities_by_type": {},
+            "acceptance_criteria": 0,
+            "scenarios": 28,
+            "warnings_by_code": {},
+            "sources_configured": 1,
+            "sources_failed": 0,
+            "unresolved_refs": 0,
+            "entities_skipped": 0
+          },
+          "field_occupancy": {
+            "scenarios[].scenario_id": 28,
+            "scenarios[].title": 28,
+            "scenarios[].source_ref.system": 28,
+            "scenarios[].source_ref.native_id": 28,
+            "scenarios[].source_ref.native_type": 28,
+            "scenarios[].source_ref.url": 28,
+            "scenarios[].source_ref.tracker_state": 28,
+            "scenarios[].source_ref.area_path": 0,
+            "scenarios[].source_ref.iteration_path": 0,
+            "scenarios[].tags[]": 26,
+            "scenarios[].acceptance_criteria[].id": 27,
+            "scenarios[].acceptance_criteria[].aspect": 10
+          }
+        }
+      }
+    ]
+  },
+  "warnings": [],
+  "document": {
+    "view": "inner"
+  },
+  "feature_files": [
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-001",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature/filtering-by-author-keeps-only-that-authors-books",
+              "title": "Filtering by author keeps only that author's books",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-001-01/aspect:author"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-001-01",
+                  "aspect": "author"
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature/clearing-the-filters-restores-every-result",
+              "title": "Clearing the filters restores every result",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-001-02"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-001-02",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-002",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature/results-are-ordered-by-recent-loans",
+              "title": "Results are ordered by recent loans",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-002-01"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-002-01",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-005",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-name-is-rejected",
+              "title": "Empty name is rejected",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-005-01/aspect:name"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-005-01",
+                  "aspect": "name"
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-date-of-birth-is-rejected",
+              "title": "Empty date of birth is rejected",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-005-01/aspect:date-of-birth"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-005-01",
+                  "aspect": "date-of-birth"
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-address-is-rejected",
+              "title": "Empty address is rejected",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-005-01/aspect:address"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-005-01",
+                  "aspect": "address"
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/future-date-of-birth-is-rejected",
+              "title": "Future date of birth is rejected",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-005-02"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-005-02",
+                  "aspect": null
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/filling-in-the-name-clears-its-error",
+              "title": "Filling in the name clears its error",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-005-03/required-detail:name"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-005-03",
+                  "aspect": "name"
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/filling-in-the-date-of-birth-clears-its-error",
+              "title": "Filling in the date of birth clears its error",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-005-03/required-detail:date-of-birth"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-005-03",
+                  "aspect": "date-of-birth"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-006",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature/joining-creates-a-membership",
+              "title": "Joining creates a membership",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-006-01"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-006-01",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-007",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature/member-prints-a-loan-slip",
+              "title": "Member prints a loan slip",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-007-01"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-007-01",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-008",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/results-are-ordered-by-relevance",
+              "title": "Results are ordered by relevance",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-008-01"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-008-01",
+                  "aspect": null
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/results-are-ordered-newest-first",
+              "title": "Results are ordered newest first",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-008-02"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-008-02",
+                  "aspect": null
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/relevance-order-continues-on-the-next-page",
+              "title": "Relevance order continues on the next page",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-008-03/sort-order:relevance"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-008-03",
+                  "aspect": "relevance"
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/newest-first-order-continues-on-the-next-page",
+              "title": "Newest-first order continues on the next page",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-008-03/sort-order:newest-first"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-008-03",
+                  "aspect": "newest-first"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-009",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-with-loans-sees-their-loans",
+              "title": "Member with loans sees their loans",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-009-01"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-009-01",
+                  "aspect": null
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state",
+              "title": "Member without loans sees the empty state",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-009-02"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-009-02",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-010",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/total-fines-add-up-across-loans",
+              "title": "Total fines add up across loans",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-010-01"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-010-01",
+                  "aspect": null
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/a-settled-fine-is-left-out-of-the-total",
+              "title": "A settled fine is left out of the total",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-010-02"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-010-02",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [
+        {
+          "entity_id": "FUNC-011",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature/signed-in-member-is-redirected-to-my-loans",
+              "title": "Signed-in member is redirected to My Loans",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:FUNC-011-01"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "FUNC-011-01",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
+      "linked_to_user_story": [
+        {
+          "entity_id": "US-001",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-borrows-an-available-book",
+              "title": "Member borrows an available book",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:US-001-01",
+                "@Regression"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "US-001-01",
+                  "aspect": null
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-is-offered-a-loan-slip",
+              "title": "Member is offered a loan slip",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:US-001-04"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "US-001-04",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "linked_to_functionality": [],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+      "linked_to_user_story": [
+        {
+          "entity_id": "US-002",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/applicant-joins-the-library",
+              "title": "Applicant joins the library",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:US-002-01",
+                "@AC:US-002-02",
+                "@Regression"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "US-002-01",
+                  "aspect": null
+                },
+                {
+                  "id": "US-002-02",
+                  "aspect": null
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/adult-applicant-gets-an-adult-card",
+              "title": "Adult applicant gets an adult card",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:US-002-03/aspect:adult"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "US-002-03",
+                  "aspect": "adult"
+                }
+              ]
+            },
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/junior-applicant-gets-a-junior-card",
+              "title": "Junior applicant gets a junior card",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:US-002-03/aspect:junior"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "US-002-03",
+                  "aspect": "junior"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "linked_to_functionality": [],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature",
+      "linked_to_user_story": [
+        {
+          "entity_id": "US-003",
+          "scenarios": [
+            {
+              "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature/desk-staff-register-a-resident",
+              "title": "Desk staff register a resident",
+              "source_ref": {
+                "system": "GitHub",
+                "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature",
+                "native_type": "scenario",
+                "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature",
+                "tracker_state": "committed",
+                "area_path": null,
+                "iteration_path": null
+              },
+              "tags": [
+                "@AC:US-003-01"
+              ],
+              "acceptance_criteria": [
+                {
+                  "id": "US-003-01",
+                  "aspect": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "linked_to_functionality": [],
+      "unlinked": []
+    },
+    {
+      "feature_file": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/smoke/site-is-up.feature",
+      "linked_to_user_story": [],
+      "linked_to_functionality": [],
+      "unlinked": [
+        {
+          "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/smoke/site-is-up.feature/catalogue-page-loads",
+          "title": "Catalogue page loads",
+          "source_ref": {
+            "system": "GitHub",
+            "native_id": "projects/core/tests/e2e/features/smoke/site-is-up.feature",
+            "native_type": "scenario",
+            "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/smoke/site-is-up.feature",
+            "tracker_state": "committed",
+            "area_path": null,
+            "iteration_path": null
+          },
+          "tags": [],
+          "acceptance_criteria": []
+        },
+        {
+          "scenario_id": "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/smoke/site-is-up.feature/sign-up-wizard-loads",
+          "title": "Sign-up wizard loads",
+          "source_ref": {
+            "system": "GitHub",
+            "native_id": "projects/core/tests/e2e/features/smoke/site-is-up.feature",
+            "native_type": "scenario",
+            "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/smoke/site-is-up.feature",
+            "tracker_state": "committed",
+            "area_path": null,
+            "iteration_path": null
+          },
+          "tags": [],
+          "acceptance_criteria": []
+        }
+      ]
+    }
+  ]
+}
