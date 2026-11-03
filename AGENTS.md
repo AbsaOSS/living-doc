@@ -65,7 +65,7 @@ Files and parts marked "From agentic-defaults" are replaced when the kit updates
 - Setup: `pip install -r tests/examples/requirements-examples-check.txt` and `pip install -r agentic/requirements-agentic-tests.txt`
 - Test: `python -m pytest tests/examples -q` (one file: `python -m pytest tests/examples/<file> -q`); the agentic scripts, each run as a script: `find agentic/skills -type f -name "test_*.py" | sort | xargs -n1 python`
 - Lint, skill folder format (Python 3.11+, after `pip install -r agentic/requirements-skill-lint.txt`): `agentskills validate agentic/skills/<name>`
-- Check, everything that must pass before work is done: the tests and lint above, `python tests/examples/examples_check.py`, `bash agentic/scripts/sync-canon-copies.sh all` and `tests/examples/regen-collector-snapshots.sh` with no resulting change under `agentic/skills/shared/references/` or `docs/examples/_expected/`, `tests/testbed/run-testbed-stage.sh`, and `lychee --include-fragments './**/*.md'` with the `--remap` of `.github/workflows/link-check.yml`
+- Check, everything that must pass before work is done: the tests and lint above, `python tests/examples/examples_check.py`, `bash agentic/scripts/sync-canon-copies.sh all` and `tests/examples/regen-collector-snapshots.sh` with no resulting change under `agentic/skills/shared/references/` or `docs/examples/_expected/`, `tests/testbed/run-testbed-stage.sh`, and, from the repository root, `lychee --include-fragments --remap "https://github\.com/AbsaOSS/living-doc/blob/master/(.*) file://$PWD/\$1" './**/*.md'` (the `--remap` of `.github/workflows/link-check.yml`, with the checkout's path for `${{ github.workspace }}`)
 
 ### Pull requests
 

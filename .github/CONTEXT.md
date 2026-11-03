@@ -31,4 +31,4 @@ CI workflows, the PR template, issue templates, CODEOWNERS and Dependabot.
 
 - `real-collector.yml` has no schedule, and none is to be added (owner decision). A testbed merge triggers nothing: dispatch the workflow by hand to read a new testbed `master`.
 - `testbed-collector-stage` checks out `AbsaOSS/living-doc-testbed` at `master`, never a SHA.
-- `link-check.yml` checks `https://github.com/AbsaOSS/living-doc/blob/master/…` links against the checkout (`--remap`), because the generated agentic copies and the skills link the canon absolutely and a new page is not on `master` until merged. A local lychee run needs the same `--remap`.
+- `link-check.yml` checks `https://github.com/AbsaOSS/living-doc/blob/master/…` links against the checkout (`--remap`), because the generated agentic copies and the skills link the canon absolutely and a new page is not on `master` until merged. A local lychee run needs it too, with the checkout's path for `${{ github.workspace }}`: the command is in `AGENTS.md` § Commands.

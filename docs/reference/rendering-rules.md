@@ -27,7 +27,8 @@ records and changes nothing that was authored
 - **Release** shows what was shipped: it drops `planned` and `in_review` entities and criteria, and keeps
   `deprecated` ones, which still describe shipped behaviour
   ([Records and presentation](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#records-and-presentation)).
-- A dropped entity takes its criteria with it; a `deprecated` criterion on a kept entity stays.
+- A dropped entity takes its criteria with it; a `deprecated` criterion on a kept entity stays
+  ([Records and presentation](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#records-and-presentation)).
 - Every authored field reaches the generator at the level it was authored: an entity's preconditions are not
   copied into its criteria, and a criterion's own ones show under it as "also …"
   ([Records and presentation](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#records-and-presentation)).
