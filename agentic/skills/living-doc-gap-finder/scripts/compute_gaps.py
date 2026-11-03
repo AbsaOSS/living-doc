@@ -131,7 +131,7 @@ def compute_gaps(snapshot: dict) -> list[dict]:
     # ── Gap 1 — UNTESTED_AC / PARTIALLY_TESTED_AC ─────────────────────────────
     # Counted per declared variant value: an AC with values is a gap until every one of them
     # has a scenario. Only the missing values go in the proposed action — the covered ones
-    # need no scenario (living-doc-header-types.md#ac-variants, DEC-74).
+    # need no scenario (living-doc-bdd-schemas.md#ac-variants).
     declared = declared_values(catalog)
     covered_by_value = covered_values(known_test_links)
     for ac_id in {aid for aid, _ in (_split_link_key(k) for k in known_test_links)}:
@@ -273,7 +273,7 @@ def compute_gaps(snapshot: dict) -> list[dict]:
 # ── AC variants: coverage per declared value ─────────────────────────────────────────
 # An AC that declares variants is `covered` only when every declared value has a scenario,
 # `not_covered` when none has, `partially_covered` otherwise — the coverage matrix's three
-# states (living-doc-header-types.md#ac-variants). A link may name the value it covers, in
+# states (living-doc-bdd-schemas.md#ac-variants). A link may name the value it covers, in
 # the tag's own form (`AC:US-001-01/channel:email`); a bare AC id covers the whole AC, every
 # declared value at once.
 

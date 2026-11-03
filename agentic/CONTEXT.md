@@ -30,6 +30,6 @@ Not here: this repository's own dev agents, which live in `.claude/agents/`. The
 
 ## Invariants and gotchas
 
-- `skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md` are generated from `docs/guides/` by `scripts/sync-canon-copies.sh`. Never hand-edit them; CI fails when a committed copy differs. They exist because `npx skills add` copies only a skill's folder and `shared`'s, so the canon in `docs/` isn't there.
+- `skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md` are generated from `docs/reference/glossary.md` and `docs/reference/authoring-formats.md` by `scripts/sync-canon-copies.sh`. Never hand-edit them; CI fails when a committed copy differs. They exist because `npx skills add` copies only a skill's folder and `shared`'s, so the canon in `docs/` isn't there.
 - Nothing in CI runs an eval. Raw eval evidence (`agentic-evals-workspace/`) is gitignored; only the distilled `docs/testing/baseline.md` is tracked.
 - Trigger evals need `--num-workers 1` and must run alone (eval-protocol § 2).

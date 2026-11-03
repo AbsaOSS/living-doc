@@ -19,7 +19,7 @@ license: Apache-2.0
 # data-cy-instrument
 
 > **Glossary:** Feature, Functionality, status vocabulary — see [living-doc-glossary](../shared/references/living-doc-glossary.md).
-> **BDD schemas:** manifest.json coverage_gaps schema, seed.yaml form_fixtures — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md).
+> **Agentic formats:** manifest.json coverage_gaps schema, seed.yaml form_fixtures — see [agentic-formats](../shared/references/agentic-formats.md).
 
 **Framework scope:** **Angular-first. Phases 1, 3, and 5 are framework-agnostic; Phases 2 and 4 are Angular-only.** For React or Vue, use the project's configured test-id attribute (often `data-testid`; `data-cy` is only the default), keep the same audit and PageObject-sync flow, and skip Angular-only route-to-component and host-wiring instructions. In user-facing answers, prefer the plain labels **Instrument** and **Sync** (see "User-facing labels" below) — not phase numbers, to avoid colliding with the internal Phase 1–7 sequence.
 

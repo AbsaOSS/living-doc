@@ -2,8 +2,8 @@
 
 A canonical, minimal corpus of the **input** files the living-doc pipeline mines — the things a
 collector reads, not the documents a generator produces. For the formats these files follow, see
-[Living Doc Header Types](../guides/living-doc-header-types.md) and
-[Living Doc Glossary](../guides/living-doc-glossary.md).
+[Authoring formats](../reference/authoring-formats.md) and
+[Glossary](../reference/glossary.md).
 
 All examples describe **one coherent mini technical project** — `US-001` / `FEAT-001` / `FUNC-001` /
 `FUNC-002`, plus `FEAT-002`, an `API` Feature, and `FEAT-003`, the `UI` Feature that declares a
@@ -18,19 +18,19 @@ three verdicts — `covered`, `not_covered` and `partially_covered` (the matrix 
 
 | Path | Format reference |
 |---|---|
-| [gherkin/liv_doc_us/us-001-customer-login.feature](gherkin/liv_doc_us/us-001-customer-login.feature) | [Header Types § User Story](../guides/living-doc-header-types.md#1-user-story-in-a-gherkin-feature-file) |
-| [gherkin/liv_doc_func/func-001-validate-password-strength.feature](gherkin/liv_doc_func/func-001-validate-password-strength.feature) | [Header Types § Functionality](../guides/living-doc-header-types.md#3-functionality-in-a-gherkin-feature-file) |
-| [gherkin/liv_doc_func/func-002-reject-breached-password.feature](gherkin/liv_doc_func/func-002-reject-breached-password.feature) | [Header Types § Functionality](../guides/living-doc-header-types.md#3-functionality-in-a-gherkin-feature-file) |
-| [pageobject/LoginPage.ts](pageobject/LoginPage.ts) | [Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file) |
-| [pageobject/RegistrationPage.ts](pageobject/RegistrationPage.ts) | [Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file) |
-| [project-profile/.project-profile.yaml](project-profile/.project-profile.yaml) | [Header Types § Project Profile](../guides/living-doc-header-types.md#project-profile-config-driven-conventions) |
-| [project-profile/seed.yaml](project-profile/seed.yaml) | [Header Types § seed.yaml](../guides/living-doc-header-types.md#seedyaml-business-seed) |
-| [gh-issues/us-001-customer-login.md](gh-issues/us-001-customer-login.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
-| [gh-issues/feat-001-login-page.md](gh-issues/feat-001-login-page.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
-| [gh-issues/feat-002-breached-password-check.md](gh-issues/feat-002-breached-password-check.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
-| [gh-issues/feat-003-registration-page.md](gh-issues/feat-003-registration-page.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
-| [gh-issues/func-001-validate-password-strength.md](gh-issues/func-001-validate-password-strength.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
-| [gh-issues/func-002-reject-breached-password.md](gh-issues/func-002-reject-breached-password.md) | [GitHub issue-body layout](#github-issue-body-layout-canonical) |
+| [gherkin/liv_doc_us/us-001-customer-login.feature](gherkin/liv_doc_us/us-001-customer-login.feature) | [Authoring formats § User Story](../reference/authoring-formats.md#1-user-story-in-a-gherkin-feature-file) |
+| [gherkin/liv_doc_func/func-001-validate-password-strength.feature](gherkin/liv_doc_func/func-001-validate-password-strength.feature) | [Authoring formats § Functionality](../reference/authoring-formats.md#3-functionality-in-a-gherkin-feature-file) |
+| [gherkin/liv_doc_func/func-002-reject-breached-password.feature](gherkin/liv_doc_func/func-002-reject-breached-password.feature) | [Authoring formats § Functionality](../reference/authoring-formats.md#3-functionality-in-a-gherkin-feature-file) |
+| [pageobject/LoginPage.ts](pageobject/LoginPage.ts) | [Authoring formats § Feature in a PageObject File](../reference/authoring-formats.md#2-feature-in-a-pageobject-file) |
+| [pageobject/RegistrationPage.ts](pageobject/RegistrationPage.ts) | [Authoring formats § Feature in a PageObject File](../reference/authoring-formats.md#2-feature-in-a-pageobject-file) |
+| [project-profile/.project-profile.yaml](project-profile/.project-profile.yaml) | [Agentic formats § Project Profile](../../agentic/skills/shared/references/agentic-formats.md#project-profile-config-driven-conventions) |
+| [project-profile/seed.yaml](project-profile/seed.yaml) | [Agentic formats § seed.yaml](../../agentic/skills/shared/references/agentic-formats.md#seedyaml-business-seed) |
+| [gh-issues/us-001-customer-login.md](gh-issues/us-001-customer-login.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
+| [gh-issues/feat-001-login-page.md](gh-issues/feat-001-login-page.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
+| [gh-issues/feat-002-breached-password-check.md](gh-issues/feat-002-breached-password-check.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
+| [gh-issues/feat-003-registration-page.md](gh-issues/feat-003-registration-page.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
+| [gh-issues/func-001-validate-password-strength.md](gh-issues/func-001-validate-password-strength.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
+| [gh-issues/func-002-reject-breached-password.md](gh-issues/func-002-reject-breached-password.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
 
 ## What the corpus mines to (`_expected/`)
 
@@ -50,7 +50,7 @@ after an intended change, see
 The snapshots carry everything the source-code chain authors: the backlog AC
 `AC:FUNC-002-01 (planned)` and the `not_in_scope` on `FUNC-002`, `FEAT-001` with its state derived
 from its Functionalities, the `feature_dependencies` edge `FEAT-003` declares, and the
-[named keyword](../guides/living-doc-header-types.md#ac-variants) on `AC:FUNC-001-03` — its three
+[named keyword](../reference/authoring-formats.md#ac-variants) on `AC:FUNC-001-03` — its three
 `rule` values as the AC's `aspect`, and its one scenario linked as `aspect: minimum-length`. They also
 carry the two warnings this corpus expects: `UNRESOLVED_RELATION` for that edge (see
 [The dependency is authored in both `FEAT-003` forms](#conventions-used-by-this-corpus)) and
@@ -72,52 +72,6 @@ authors — the `## Notes` on `FEAT-001`, the `## Not In Scope` on `US-001`, and
 `FEAT-002`. The `doc-issues` mode that mines issue bodies is planned, not yet available, so
 `examples_check` alone checks that form.
 
-## GitHub issue-body layout (canonical)
-
-The `.feature` / header-block format is fully specified in
-[Living Doc Header Types](../guides/living-doc-header-types.md). The **issue-body** format for an
-entity authored as a GitHub issue (mined by `collector-gh` `doc-issues`) was previously
-under-specified ecosystem-wide — the closest reference was the `toolkit/docs/contracts.md` synonym
-table (`description` / `business_value` / `preconditions` / `acceptance_criteria` / …). The
-[`gh-issues/`](gh-issues/) files pin it down:
-
-- Each entity is one GitHub issue. Entity **type** comes from the issue **label** —
-  `DocumentedUserStory` / `DocumentedFeature` / `DocumentedFunctionality`, the same values
-  `collector-gh` writes into each item's `tags` — and the entity **ID** (`US-001` / `FEAT-001` /
-  `FUNC-001`) from the prefix of the issue **title** (`US-001 · Customer Login`); neither is repeated
-  as a body heading. (`collector-gh` also records every issue under its own `owner/repo#number` item
-  ID; the entity ID above is what links the issue to the matching `.feature` file and PageObject.)
-- Section headings are `##`-level and map 1:1 to the fields of the equivalent feature-file header;
-  the heading text is the Title-Case form of the synonym-table key.
-- AC blocks are `###` sub-headings using the same `AC:<id> (v<version> - <state>)` grammar as the
-  [glossary](../guides/living-doc-glossary.md#acceptance-criterion-ac) — including the version-less
-  backlog form `AC:<id> (planned)`. Feature-level `Preconditions` / `Not In Scope` are inherited by
-  all ACs; AC-level extensions go under the AC sub-heading.
-- Bullet sections are ordinary Markdown lists. An item indented under another item's text is that
-  item's child and stays part of it. A nested item may sit under a bullet-list heading
-  (`## Business Value`, `## Preconditions`, `## Not In Scope`, `## Rationale`, `## Notes`), never
-  under an id-list heading (`## User Stories`, `## Functionalities`, `## Feature Dependencies`,
-  `## Parent Feature`, `## Superseded By`). A flat list stays valid. The shared rule is in
-  [Header Types § Indentation](../guides/living-doc-header-types.md#indentation).
-- Anything outside this heading set is treated as free prose and ignored by the miner.
-
-| Entity | Required headings | Optional headings |
-|---|---|---|
-| User Story | `## Description`, `## Status`, `## Business Value`, `## Acceptance Criteria` | `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
-| Feature | `## Description`, `## Surface Type`, `## Owners`, `## User Stories`, `## Functionalities` | `## External Dependencies`, `## Feature Dependencies`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
-| Functionality | `## Description`, `## Status`, `## Parent Feature`, `## Func Type`, `## Acceptance Criteria` | `## Rationale`, `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
-
-**`## Status` and `## Deprecated At` have no place on a Feature**, and `## Notes` is available on
-every entity as a bullet list of human context. The rules, and why, are in
-[Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature) and
-[Core entities](../guides/living-doc-glossary.md#core-entities): a Feature's status is derived from its
-Functionalities, and a Feature has no deprecation date.
-
-**`## User Stories` and `## Functionalities` take `none`** — the same value and the same meaning as the
-matching PageObject header fields (see
-[Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#required-fields)).
-The heading stays required; `none` is how a Feature says it has no link of that kind documented yet.
-
 ## Conventions used by this corpus
 
 - **Minimal.** Each entity file carries every required field plus one optional field — just enough to
@@ -125,7 +79,7 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   with no optional-field layer.)
 - **AC states are part of the AC grammar, not optional field extensions.** A `planned`, `in_review`,
   `active` or `deprecated` AC — with or without a target version, with or without a removal note — is
-  the grammar of [`AC:<id> (…)`](../guides/living-doc-glossary.md#acceptance-criterion-ac) doing its
+  the grammar of [`AC:<id> (…)`](../reference/glossary.md#acceptance-criterion-ac) doing its
   job, so it does not count against the one-optional-extension-per-file rule above.
 - **`## Notes` is not a field extension either.** It extends no mined field set, so the one instance in
   the corpus does not count against the one-optional-extension-per-file rule above. It is shown once, on
@@ -143,7 +97,7 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   - `Aspect:` on an AC — `gherkin/liv_doc_func/func-001-validate-password-strength.feature`, in both
     its spellings: `- Aspect:` on `AC:FUNC-001-01`, and the named keyword `- rule:` on `AC:FUNC-001-03`.
     The keyword is the second spelling of the `Aspect:` extension, not a second extension (see
-    [Header Types § AC variants](../guides/living-doc-header-types.md#ac-variants)), so the file still
+    [Authoring formats § AC variants](../reference/authoring-formats.md#ac-variants)), so the file still
     carries one.
   - `Rationale` — `gh-issues/func-001-validate-password-strength.md`
   - `Feature Dependencies` — `gh-issues/feat-003-registration-page.md`
@@ -166,7 +120,7 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   template is not
   yet instrumented for test automation, and the PageObject says so with `stub-reason:` — the
   instrumentation marker, which is removed once the surface is instrumented. See
-  [Header Types § Feature in a PageObject File](../guides/living-doc-header-types.md#2-feature-in-a-pageobject-file).
+  [Authoring formats § Feature in a PageObject File](../reference/authoring-formats.md#2-feature-in-a-pageobject-file).
   `RegistrationPage.ts` is the instrumented counterpart: real `getByTestId()` locators and no
   `stub-reason:`.
 - **Two forms per entity, in step.** `US-001`, `FUNC-001` and `FUNC-002` each exist as a GitHub issue
@@ -175,13 +129,13 @@ The heading stays required; `none` is how a Feature says it has no link of that 
   Functionalities, the same AC set; only the optional field extension differs, by the assignment above.
 - **One form for an `API` Feature.** `FEAT-002` exists as an issue body only. An `API` Feature's
   contract anchor carries no living-doc header yet, so there is no source-code form to write — see
-  [Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature). It is documented at
+  [Glossary — Feature](../reference/glossary.md#feature). It is documented at
   surface level (`## Functionalities` is `none`): the corpus needs it as a resolvable **target**, and a
   dependency resolves on the Feature id.
 - **The dependency pair.** `FEAT-001` records `auth-api` under `External Dependencies` — a system with
   no canonical anchor, named as free text. `FEAT-003` records `FEAT-002` under `feature_dependencies` —
   an `API` Feature, named by id and validated by `tests/examples/examples_check.py`. The two fields side by side
-  are the distinction the [glossary](../guides/living-doc-glossary.md#feature) draws. `FEAT-003` is
+  are the distinction the [glossary](../reference/glossary.md#feature) draws. `FEAT-003` is
   documented at surface level (`User Stories` and `Functionalities` are `none`), like `FEAT-002`.
 - **The dependency is authored in both `FEAT-003` forms**, as the one optional extension of each.
   `living-doc-utilities` carries the field from `0.5.0`; an earlier release drops an authored value on
@@ -205,9 +159,9 @@ The heading stays required; `none` is how a Feature says it has no link of that 
 This corpus is part of the persisted product documentation and does not depend on any planning spec.
 Two rules keep it truthful, both enforced **in the same PR** as the change that triggers them:
 
-1. **Format change.** When a field or rule on [Living Doc Header Types](../guides/living-doc-header-types.md)
-   or [Living Doc Glossary](../guides/living-doc-glossary.md) changes, update the matching example here.
+1. **Format change.** When a field or rule on [Authoring formats](../reference/authoring-formats.md)
+   or [Glossary](../reference/glossary.md) changes, update the matching example here.
 2. **Implementation change (last check).** When a collector mode that mines these inputs
    (`collector-gh` `doc-source` / `ui-tests` / `doc-issues`) is implemented or changed, re-check this
-   corpus **and** the guides above against what the tooling actually mines, and correct any drift.
+   corpus **and** the pages above against what the tooling actually mines, and correct any drift.
    This is the checkpoint that catches divergence between the documented format and the shipped state.

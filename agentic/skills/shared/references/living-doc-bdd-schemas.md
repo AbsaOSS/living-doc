@@ -1,39 +1,30 @@
-<!-- generated from docs/guides/living-doc-header-types.md by agentic/scripts/sync-canon-copies.sh — do not edit -->
+<!-- generated from docs/reference/authoring-formats.md by agentic/scripts/sync-canon-copies.sh — do not edit -->
 <!-- Generated file — do not edit by hand. CI re-runs the sync and fails on any diff. -->
 
-# Living Doc Header Types
+# Authoring formats
 
-Templates and schemas for BDD automation files. Two kinds of file are covered here:
+## Purpose
 
-- **File headers you author** — the header blocks that carry a **User Story**, a **Feature**, or a **Functionality**. A human can write any of these by hand (no AI agent required — see [agentic-toolkit](https://github.com/AbsaOSS/living-doc/blob/master/docs/projects/agentic-toolkit.md)) as long as the file follows the format below.
-- **Tooling files the AI agent manages** — the Project Profile (`.project-profile.yaml`), `seed.yaml`, and `manifest.json`. The `agentic-toolkit` agent creates and maintains these as configuration and durable local memory between runs; they are not written by hand.
+This page defines the headers an author writes: the `.feature` User Story and Functionality headers, the
+PageObject Feature header and the rules they share, then the layouts of two planned sources. Anyone can write a
+header by hand; the optional agentic layer in [`agentic/`](https://github.com/AbsaOSS/living-doc/blob/master/agentic/README.md) writes the same format, and
+keeps its own Project Profile, `seed.yaml` and `manifest.json` formats in
+[agentic-formats.md](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/agentic-formats.md). The layer reads a copy generated
+from this page, and a rule changed here changes its example in [`docs/examples/`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md) in the
+[same PR](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md#sync-obligation).
 
-For entity definitions (IDs, status vocabulary, AC format, relationship diagram), see [Living Doc Glossary](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md).
-
-> **Source of truth.** This page is the canonical definition of this format. The agentic layer's copy, `agentic/skills/shared/references/living-doc-bdd-schemas.md`, is generated from it at the same commit by `agentic/scripts/sync-canon-copies.sh`; CI fails if the two differ.
-
-> **Worked examples.** A minimal, copyable example of every format on this page lives in
-> [`docs/examples/`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md). **Sync obligation:** when a field or rule on this page
-> changes, the matching example in `docs/examples/` changes in the same PR.
-
----
+Read before: [Authoring documentation](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/authoring-documentation.md) · Next: [Glossary](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)
 
 ## Contents
 
-**File headers you author** — human-editable, one per entity, all following the
-[Indentation](#indentation) rule; the acceptance criteria in them follow the [AC variants](#ac-variants) rule:
-
-1. [User Story in a Gherkin Feature File](#1-user-story-in-a-gherkin-feature-file)
-2. [Feature in a PageObject File](#2-feature-in-a-pageobject-file)
-3. [Functionality in a Gherkin Feature File](#3-functionality-in-a-gherkin-feature-file)
-
-**Tooling files the AI agent manages** — not authored by hand:
-
-- [Project Profile](#project-profile-config-driven-conventions) — config-driven conventions every skill reads
-- [seed.yaml](#seedyaml-business-seed) — the agent's business-surface memory between runs
-- [manifest.json](#manifestjson-exploration-manifest) — the agent's record of every scanned surface
-
-See also: [Repository adoption scope](#repository-adoption-scope).
+- [Repository adoption scope](#repository-adoption-scope)
+- [Indentation](#indentation)
+- [AC variants](#ac-variants)
+- [1. User Story in a Gherkin Feature File](#1-user-story-in-a-gherkin-feature-file)
+- [2. Feature in a PageObject File](#2-feature-in-a-pageobject-file)
+- [3. Functionality in a Gherkin Feature File](#3-functionality-in-a-gherkin-feature-file)
+- [GitHub issue-body layout](#github-issue-body-layout)
+- [Azure DevOps work items](#azure-devops-work-items)
 
 ---
 
@@ -56,7 +47,7 @@ existing User Story headers, and adding Functionalities does not change Feature 
 ## Indentation
 
 Indentation is significant in every input you author: a `.feature` header, a PageObject header and
-a GitHub issue body (see the [issue-body layout](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md#github-issue-body-layout-canonical)).
+a GitHub issue body (see the [issue-body layout](#github-issue-body-layout)).
 One rule covers all three:
 
 **A line indented deeper than an open item's `- ` belongs to that item**, as wrapped text or as a
@@ -101,8 +92,7 @@ Every line the reader does not take into a field is reported, so nothing an auth
 without a word. A report names its entity, its criterion when the criterion has a valid id, its line
 number and, for a source file, the file. The inner view of the generated document shows it under that
 entity; the release view never does (see
-[Document Types — Technical project](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-document-types.md#technical-project), *What was not
-loaded*).
+[Rendering rules — What was not loaded](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/rendering-rules.md#what-was-not-loaded)).
 
 **`.feature` header** — levels counted after `# `; the template levels are the canonical ones:
 
@@ -161,7 +151,7 @@ Functionality template:
   `MALFORMED_AC`.
 
 The same rule, with the tag format, is in
-[Living Doc Glossary — Acceptance Criterion](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#acceptance-criterion-ac).
+[Glossary — Acceptance Criterion](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#acceptance-criterion-ac).
 
 ---
 
@@ -246,7 +236,7 @@ Feature: <US Title>
 | `# business_value:` | Yes | Why this User Story exists (bullets) |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at US level; inherited and extended by all ACs |
-| `# notes:` | Optional | Human context at User Story level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#core-entities) |
+| `# notes:` | Optional | Human context at User Story level — a bullet list, one note per bullet; see [Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#core-entities) |
 | `# acceptance_criteria:` | Yes | Full AC listing with IDs, versions, and states; each AC may extend inherited preconditions and not_in_scope |
 | `@US_ID:US-<n>` tag | Yes | Machine-parseable User Story ID (feature-level tag) |
 
@@ -264,32 +254,32 @@ Every PageObject file opens with a living-doc header block. Use this format so e
 
 > **No surface status.** A PageObject header carries **no `status:` field**. The Feature it documents
 > has no authored status either — a Feature's state is derived from its Functionalities (see
-> [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature)). A surface that is known but not
+> [Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#feature)). A surface that is known but not
 > yet instrumented for test automation says so with `stub-reason:`, not with a status value.
 
 ### Required fields
 
 | Field | Canonical values |
 |---|---|
-| `surface_type` | `UI` — a PageObject is the test abstraction for a UI surface only (see [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature)); an API surface has no PageObject and [carries no header here](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature) |
+| `surface_type` | `UI` — a PageObject is the test abstraction for a UI surface only (see [Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#feature)); an API surface has no PageObject and [carries no header here](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#feature) |
 | `route` | URL path — use `{param}` for dynamic segments |
 | `owners` | Team name(s), comma-separated |
 | `purpose` | One-to-two sentence description in business language |
 | `user_stories` | `US-N` IDs, comma-separated — or `none` (gap reports flag a Feature with no User Story) |
 | `functionalities` | `FUNC-N` IDs, comma-separated — or `none` (triggers a reminder to define FUNCs) |
-| `external_dependencies` | Names of systems this surface calls that are **not** Features themselves — or `none`. A system that has a canonical anchor is an `API` Feature instead, and the call is declared as `feature_dependencies` on the same header (see [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature)) |
+| `external_dependencies` | Names of systems this surface calls that are **not** Features themselves — or `none`. A system that has a canonical anchor is an `API` Feature instead, and the call is declared as `feature_dependencies` on the same header (see [Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#feature)) |
 | `page-object` | Filename of this PageObject |
 
 **Optional fields:**
 
 | Field | When |
 |---|---|
-| `feature_dependencies` | The surface calls a documented `API` Feature — `FEAT-<nnn>` IDs, comma-separated. Any Feature may carry it, `UI` or `API`; each target must be an `API` Feature. Only the caller writes it; the reverse direction is not authored. Omit the key when the Feature calls nothing — there is no `none` value. See [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature). |
+| `feature_dependencies` | The surface calls a documented `API` Feature — `FEAT-<nnn>` IDs, comma-separated. Any Feature may carry it, `UI` or `API`; each target must be an `API` Feature. Only the caller writes it; the reverse direction is not authored. Omit the key when the Feature calls nothing — there is no `none` value. See [Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#feature). |
 | `wizard-steps` | Multi-step wizard UI — list the named steps in order |
 | `stub-reason` | The surface is documented but not yet fully instrumented — one-to-two sentence statement of **why**; treated as tech-debt resolvable by instrumenting the template and re-scanning. Its presence *is* the marker; there is no status value for this. |
-| `notes` | Human context at Feature level — a bullet list under the key, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#core-entities). Not a scan diary — the rows under [Where operational notes belong](#where-operational-notes-belong) keep their homes. |
-| `deprecation_reason` | The surface is being retired — one-to-two sentences on **why**; human intent, which nothing can derive. It drives no state: the Feature's state still comes from its Functionalities. See [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature). |
-| `superseded_by` | The surface is being retired in favour of another — the replacement's `FEAT-<nnn>` ID, a typed entity link the pipeline traverses as a relation edge. It drives no state. See [Living Doc Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#feature). |
+| `notes` | Human context at Feature level — a bullet list under the key, one note per bullet; see [Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#core-entities). Not a scan diary — the rows under [Where operational notes belong](#where-operational-notes-belong) keep their homes. |
+| `deprecation_reason` | The surface is being retired — one-to-two sentences on **why**; human intent, which nothing can derive. It drives no state: the Feature's state still comes from its Functionalities. See [Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#feature). |
+| `superseded_by` | The surface is being retired in favour of another — the replacement's `FEAT-<nnn>` ID, a typed entity link the pipeline traverses as a relation edge. It drives no state. See [Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#feature). |
 
 ### Two header formats: Full vs Cross-reference
 
@@ -387,7 +377,8 @@ accelerators, not a requirement.
 The PageObject **header block and class JSDoc are living-doc contracts** — they encode identity and traceability. They are not a changelog, scan diary, or issue tracker.
 
 When the scan workflow *is* in use, scan-derived detail has a home outside the header — the table
-below says where. (Without the scan workflow, none of these rows apply: the data simply is not
+below says where, and [agentic-formats.md](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/agentic-formats.md#manifestjson-exploration-manifest)
+defines `manifest.json`. (Without the scan workflow, none of these rows apply: the data simply is not
 produced, and the header stays clean by default.)
 
 | Information type | Correct location | NOT in |
@@ -515,7 +506,7 @@ Feature: <Feature Name> - <Functionality Name>
 | `# rationale:` | Optional | **Why** this FUNC is scoped the way it is — business context, a deliberate design decision, or a constraint that explains the boundary. Not for implementation notes. |
 | `# preconditions:` | Optional | System-level state required before test execution; inherited and extended by all ACs |
 | `# not_in_scope:` | Optional | Explicit exclusions at FUNC level; inherited and extended by all ACs |
-| `# notes:` | Optional | Human context at Functionality level — a bullet list, one note per bullet; see [Living Doc Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-glossary.md#core-entities) |
+| `# notes:` | Optional | Human context at Functionality level — a bullet list, one note per bullet; see [Glossary — Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#core-entities) |
 | `# acceptance_criteria:` | Yes | Full AC listing in business language — do not include `data-cy` IDs or implementation names in AC text; each AC may extend inherited preconditions and not_in_scope |
 | `@FUNC_ID:FUNC-<nnn>` tag | Yes | Machine-parseable Functionality ID (feature-level tag) |
 | Feature description (below `Feature:`) | Optional | One-to-two sentence purpose in business language. Use when the title alone is not self-explanatory. |
@@ -550,259 +541,61 @@ Feature: <Feature Name> - <Functionality Name>
 
 ---
 
-## Project Profile (config-driven conventions)
+## GitHub issue-body layout
 
-**Every value a skill could otherwise hardcode — directory names, the test-id attribute,
-state-casing, tag conventions — lives in one Project Profile file.** Tooling reads the profile at
-session start and never assumes defaults. This keeps the format portable across projects that use
-different directory layouts or naming. `agentic-toolkit`'s agent creates it on first run from the
-defaults below (confirming each value with the user) and loads it as-is thereafter — it is not a file
-you are expected to write from scratch.
+> **Planned.** GitHub issues as a documentation source are planned: `collector-gh`'s `doc-issues` mode, which mines them, is not available yet.
 
-**Location:** `<bdd_artifacts_dir>/.project-profile.yaml` (default `.copilot/bdd/.project-profile.yaml`).
+An entity authored as a GitHub issue follows this layout; the [`gh-issues/`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/gh-issues/) files of
+the example corpus show each entity in it.
 
-**Example:** [`docs/examples/project-profile/.project-profile.yaml`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/project-profile/.project-profile.yaml).
+- Each entity is one GitHub issue. Entity **type** comes from the issue **label** —
+  `DocumentedUserStory` / `DocumentedFeature` / `DocumentedFunctionality`, the same values
+  `collector-gh` writes into each item's `tags` — and the entity **ID** (`US-001` / `FEAT-001` /
+  `FUNC-001`) from the prefix of the issue **title** (`US-001 · Customer Login`); neither is repeated
+  as a body heading. (`collector-gh` also records every issue under its own `owner/repo#number` item
+  ID; the entity ID above is what links the issue to the matching `.feature` file and PageObject.)
+- Section headings are `##`-level and map 1:1 to the fields of the equivalent feature-file header;
+  `living-doc-utilities` names the field each heading fills
+  ([Parsers — Issue body](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.8.0/docs/authoring/parsers.md#issue-body)).
+- AC blocks are `###` sub-headings using the same `AC:<id> (v<version> - <state>)` grammar as the
+  [glossary](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#acceptance-criterion-ac) — including the version-less
+  backlog form `AC:<id> (planned)`. Feature-level `Preconditions` / `Not In Scope` are inherited by
+  all ACs; AC-level extensions go under the AC sub-heading.
+- Bullet sections are ordinary Markdown lists. An item indented under another item's text is that
+  item's child and stays part of it. A nested item may sit under a bullet-list heading
+  (`## Business Value`, `## Preconditions`, `## Not In Scope`, `## Rationale`, `## Notes`), never
+  under an id-list heading (`## User Stories`, `## Functionalities`, `## Feature Dependencies`,
+  `## Parent Feature`, `## Superseded By`). A flat list stays valid. The shared rule is
+  [Indentation](#indentation).
+- Anything outside this heading set is treated as free prose and ignored by the miner.
 
-```yaml
-# .copilot/bdd/.project-profile.yaml — defaults shown match the reference (AUL) project.
-test_id_attribute: data-cy            # what page.getByTestId() resolves to (Playwright testIdAttribute)
-
-feature_dirs:
-  user_story:    features/liv_doc_us      # E2E User Story feature files
-  functionality: features/liv_doc_func    # Functionality (system-test) feature files
-
-paths:
-  bdd_artifacts:  .copilot/bdd            # seed.yaml, manifest.json, breaking-changes.md
-  pageobjects:    playwright/pages
-  steps:          playwright/steps
-
-# AC state vocabulary as written inside `# AC:` blocks and feature-file headers (lowercase with underscores).
-ac_states: [planned, in_review, active, deprecated]
-
-# Scenario tagging conventions (see "Feature file tags" below).
-scenario_conventions:
-  feature_tag:        true     # @US_ID:<id> / @FUNC_ID:<id> on the Feature
-  domain_tag:         true     # optional second feature-level tag, e.g. @domain_create
-  suite_tags:         ["@Regression"]   # additional scenario-level tags allowed beside @AC:
-  section_banners:    true     # "# *** Happy day scenarios ***" / "# *** Negative scenarios ***"
-
-manifest_shape: object         # manifest is an object with routes array (see Manifest schema)
-```
-
-| Field | Used by | Default (AUL) |
+| Entity | Required headings | Optional headings |
 |---|---|---|
-| `test_id_attribute` | pageobject-scan, data-cy-instrument, gherkin-step | `data-cy` |
-| `feature_dirs.user_story` | scenario-creator, gherkin-living-doc-sync, gap-finder, scripts | `features/liv_doc_us` |
-| `feature_dirs.functionality` | scenario-creator, pageobject-scan, gap-finder, scripts | `features/liv_doc_func` |
-| `paths.bdd_artifacts` | pageobject-scan, data-cy-instrument | `.copilot/bdd` |
-| `paths.pageobjects` / `paths.steps` | pageobject-scan, gherkin-step | `playwright/pages` / `playwright/steps` |
-| `ac_states` | all catalog skills, scenario-creator, gherkin-living-doc-sync | `active` etc. (lowercase with underscores) |
-| `scenario_conventions` | scenario-creator, gherkin-living-doc-sync | as shown |
+| User Story | `## Description`, `## Status`, `## Business Value`, `## Acceptance Criteria` | `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
+| Feature | `## Description`, `## Surface Type`, `## Owners`, `## User Stories`, `## Functionalities` | `## External Dependencies`, `## Feature Dependencies`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
+| Functionality | `## Description`, `## Status`, `## Parent Feature`, `## Func Type`, `## Acceptance Criteria` | `## Rationale`, `## Preconditions`, `## Not In Scope`, `## Deprecated At`, `## Deprecation Reason`, `## Superseded By`, `## Notes` |
 
-> **Casing rule:** AC and entity states use **lowercase with underscores** inside `# AC:` blocks,
-> entity files and issue bodies (e.g. `active`, `in_review`). Wherever a skill shows `ACTIVE` or
-> `PLANNED` in upper-case prose, it refers to the *logical* state; the *written* form is always
-> lowercase with underscores. There is no PageObject `status:` field — see
-> [Feature in a PageObject File](#2-feature-in-a-pageobject-file).
+**`## Status` and `## Deprecated At` have no place on a Feature**, and `## Notes` is available on
+every entity as a bullet list of human context. The rules, and why, are in
+[Glossary — Feature](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#feature) and
+[Core entities](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md#core-entities): a Feature's status is derived from its
+Functionalities, and a Feature has no deprecation date.
+
+**`## User Stories` and `## Functionalities` take `none`** — the same value and the same meaning as the
+matching PageObject header fields (see
+[Feature in a PageObject File](#required-fields)).
+The heading stays required; `none` is how a Feature says it has no link of that kind documented yet.
 
 ---
 
-## seed.yaml (Business Seed)
+## Azure DevOps work items
 
-`seed.yaml` lives at `<paths.bdd_artifacts>/seed.yaml` (default `.copilot/bdd/seed.yaml`). It is **the
-agent's local memory, not a human-authored file** — its durable record of the app's business surface
-between scan sessions: app entry point, business domains → routes, known entities for parameterised
-routes, test-user roles, and pre-declared form values. The agent creates it, re-reads it in full at
-the start of every scan session, and appends to it as it discovers entities. A human may pre-seed
-known values or correct them, but is not expected to write the file.
+> **Planned.** Azure DevOps as a documentation source is planned: `living-doc-collector-ad` is not available yet.
 
-**Example:** [`docs/examples/project-profile/seed.yaml`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/project-profile/seed.yaml) — required keys plus one optional `form_fixtures` entry.
-
-```yaml
-# .copilot/bdd/seed.yaml
-# Business Seed — last verified <date> (app <version>)
-
-app:
-  name: <App Name>
-  base_url: https://<host>
-  auth_entry_path: /auth/dashboard        # landing route after auth
-
-credentials_source: <path/to/.env>        # file holding TEST_USERID / TEST_PASSWORD etc.
-
-test_id_attribute: data-cy                # mirrors the Project Profile value
-
-business_domains:                         # business surface → route → Feature entity
-  - name: Authentication
-    route_prefix: /login
-    feature_id: FEAT-001
-  - name: Create Domain Wizard
-    route_prefix: /auth/all-domains/create-domain/about
-    feature_id: FEAT-006
-  - name: Edit Domain
-    route_prefix: /auth/all-domains/{domainId}/{version}/edit-domain
-    feature_id: FEAT-UNKNOWN              # no Feature yet — flagged for living-doc-create-feature
-    note: "RE-SCAN [<date>]. Reuses the shared stepper in edit mode."
-
-user_roles:
-  - role: standard_user
-    description: Default E2E test user — covers most flows
-    note: Items that do not navigate for this role
-
-# known_entities — real entity IDs observed during scans. Copyable values for
-# parameterised routes ({domainId}/{version}) and form fields. Never store prod IDs.
-known_entities:
-  domains:
-    - id: <uuid>
-      version: 1
-      name: "E2E Domain ..."
-      status: Draft
-      owner: <test-user>
-      note: "Primary owned domain for the test user."
-      next_scan_targets:                  # optional: queued sub-routes/tabs to scan next
-        - tab: Version management
-          url: /auth/all-domains/<uuid>/1/about
-          action: "Click 'Version management' tab — scan for data-cy elements."
-      data_feeds:                         # optional nested entities
-        - id: <uuid>
-          version: 1
-          name: "test csv"
-
-# form_fixtures — pre-declared field values for form/wizard traversal, keyed by route path.
-# Read before falling back to the sourcing cascade below.
-form_fixtures:
-  /auth/all-domains/create-domain/about:
-    - field: domain-name
-      value: "E2E Test Domain"
-      source: seed_declared               # seed_declared | user_provided | agent_observed
-      note: "Append a timestamp suffix at runtime to avoid duplicate rejection."
-    - field: cost-center
-      value: "SA345678"
-      source: seed_declared
-      note: "HEALED [<date>] — format must be 2 alpha + 6 digits per component validator."
-```
-
-**Top-level keys:**
-
-| Key | Required | Purpose |
-|---|---|---|
-| `app` | Yes | `name`, `base_url`, `auth_entry_path` |
-| `credentials_source` | Yes | Path to the env file holding test credentials — **never inline literals** |
-| `test_id_attribute` | Yes | Mirrors the Project Profile (`data-cy` by default) |
-| `business_domains[]` | Yes | `name`, `route_prefix`, `feature_id` (+ optional `note`). Use `FEAT-UNKNOWN` when no Feature entity exists yet |
-| `user_roles[]` | Yes | `role`, `description` (+ optional `note`) |
-| `known_entities` | No | Real IDs harvested during scans for parameterised routes; `domains[]` with `id/version/name/status/owner/note`, optional `next_scan_targets[]` and nested `data_feeds[]` |
-| `form_fixtures` | No | Map of `route → [ {field, value, source, note?} ]`. `source`: `seed_declared` \| `user_provided` \| `agent_observed` |
-
-**Credential rule:** credentials are referenced via `credentials_source` (an env file) or `env:VAR_NAME`
-placeholders. A literal credential value anywhere in `seed.yaml` is a **security violation** — the file must be
-corrected before proceeding.
-
-### form_fixtures sourcing cascade (how a field value is resolved)
-
-1. **`seed.yaml form_fixtures`** — pre-declared (`source: seed_declared`) or written in a prior session (`agent_observed`).
-2. **Existing app entities** — navigate to the entity list; read a real field value; copy it, or derive (e.g. append a suffix to avoid duplicate rejection).
-3. **Field context inference** — read label + placeholder + tooltip → infer a plausible value (`"Domain name"` → `"E2E Test Domain"`, `email` → `"test@example.com"`).
-4. **User-assist pause** — for a value that must exist in the real environment and none of the above suffices → show the form, request the value, record it back with `source: user_provided`.
-
-> **Optional advanced fields.** For complex forms a fixture entry may also carry `value_class`
-> (`copyable` / `derived` / `fake` / `real-world`), a `values[]` array of labelled traversal branches
-> (each `{label, value, source}`, `label: default` = happy path), or a `condition`
-> (`{when_field, when_value}`) that gates the fill. These are optional extensions to the base
-> `{field, value, source}` shape — omit them unless the form requires branch exploration or conditional fields.
-
-### Input validation probing
-
-After a successful form fill and submission, probe each text input and scan the form after each probe
-to capture error `data-cy` elements visible only in the invalid state:
-
-| Probe | Input | What to observe |
-|---|---|---|
-| Special characters | `<>'"&\` | Inline error, silent strip, or truncation |
-| Oversized input | 200+ characters | Character counter, truncation, or rejection message |
-| Wrong type | Text in a numeric/date field | Inline validation message or rejection |
-| Duplicate detection | A known existing entity name | Duplicate-rejected error and its `data-cy` |
-
-Findings become source material for `field_validation` Functionality stubs and are recorded in the
-manifest route's optional `field_constraints[]` (see below).
-
----
-
-## manifest.json (Exploration Manifest)
-
-`manifest.json` lives at `<paths.bdd_artifacts>/manifest.json` (default `.copilot/bdd/manifest.json`).
-It is **the agent's local memory, not a human-authored file** — its machine record of every scanned
-surface, written and read by the tooling across runs. The manifest is a JSON object; **`routes` is a JSON array** of route objects
-(profile `manifest_shape: object`). Targeted entries are loaded by route during a session; the full file
-is loaded only for a RE-SCAN.
-
-The manifest uses **normalized test_id keys** (not attribute-specific). The root-level `test_id_attribute` metadata
-tells downstream generators (PageObject, data-cy-instrument) how to map these normalized keys to the actual HTML attribute.
-
-```json
-{
-  "generated": "2026-06-08T12:00:00Z",
-  "scan_version": "v1.9.2-36-g6660993",
-  "test_id_attribute": "data-cy",
-  "routes": [
-    {
-      "url": "/login",
-      "title": "App - Login",
-      "pageobject_path": "playwright/pages/LoginPage.ts",
-      "feature_id": "FEAT-001",
-      "last_scanned": "2026-05-28T13:32:00Z",
-      "note": "Optional scan provenance.",
-      "elements": [
-        { "test_id": "input-username", "tag": "cps-input",  "label": "Username" },
-        { "test_id": "btn-login",      "tag": "cps-button", "label": "Login", "note": "NEW [scan: ...]" }
-      ],
-      "coverage_gaps": [
-        { "tag": "button", "ariaLabel": "Collapse sidebar", "suggested_test_id": "btn-collapse-sidebar", "note": "no test-id" }
-      ],
-      "open_actions_menu": {
-        "owned_domain": ["View data feeds", "Grant access", "Edit domain"],
-        "note": "Optional — menu contents per context."
-      },
-      "navigation_context": "Default landing page after login.",
-      "field_constraints": [
-        { "field": "domain-name", "max_length": 100, "special_chars": "rejected", "duplicate": "rejected-with-error", "duplicate_error_test_id": "domain-name-duplicate-error" }
-      ]
-    }
-  ]
-}
-```
-
-**Route object fields:**
-
-| Field | Required | Purpose |
-|---|---|---|
-| `url` | Yes | Route path; use `{param}` for dynamic segments. `modal:<host-route>` for dialog-only surfaces |
-| `title` | Yes | Document/page title at scan time |
-| `pageobject_path` | Yes | Repo-relative path to the PageObject file |
-| `feature_id` | Yes | Living-doc Feature ID, or `FEAT-UNKNOWN` |
-| `last_scanned` | Yes | ISO 8601 timestamp; surfaces stale entries |
-| `elements[]` | Yes | Discovered test-id elements: `{ "test_id": <id>, "tag": <html-tag>, "label": <text\|null>, "note"?: <scan note> }`. `test_id` is normalized and maps to root `test_id_attribute` downstream. |
-| `coverage_gaps[]` | Yes | Interactive elements lacking a test-id: `{ "tag", "text"\|"ariaLabel"\|"role"\|"type", "suggested_test_id", "note"? }`. Empty array = fully instrumented. `suggested_test_id` is normalized. |
-| `navigation_context` | Yes | **String** — how to reach the route (prose). Reused across sessions |
-| `note` | No | Scan provenance for the route as a whole |
-| `open_actions_menu` | No | Context-menu contents keyed by context (e.g. owned vs non-owned) |
-| `field_constraints[]` | No | Per-field validation findings: `{ field, max_length?, special_chars?, duplicate?, duplicate_error_test_id?, allowed_format?, real_world_required? }` |
-
-> **Normalized test_id keys:** The manifest uses `test_id` (not `data-cy`) and `suggested_test_id` (not `suggestedDataCy`)
-> as fixed, attribute-agnostic keys. The root-level `test_id_attribute` (mirrors Project Profile) tells downstream
-> generators what HTML attribute these keys map to (e.g., `data-cy`, `data-testid`, or a custom attribute).
-> PageObject generators read this metadata and emit the correct attribute; the manifest shape remains consistent
-> regardless of the configured attribute.
-
-### Lifecycle
-
-| Event | What happens |
-|---|---|
-| First form encountered | The sourcing cascade is applied; the form is filled; validation is probed |
-| `real-world` value missing | User-assist pause → value saved to `form_fixtures` with `source: user_provided` |
-| Validation probe finds a new `data-cy` | Added to the route `elements[]`; flagged as a `field_validation` Functionality candidate |
-| Next scan session | `form_fixtures` is read; the cascade is skipped for pre-declared fields |
-| Constraint changes (e.g. max length) | `field_constraints` is updated; the change is flagged in `breaking-changes.md` |
-| Element missing on re-scan | Flagged `BREAKING CHANGE`; the locator is never auto-deleted |
+A work item is authored with the same `##` sections as a GitHub issue body: the same headings and the same
+acceptance-criterion grammar ([GitHub issue-body layout](#github-issue-body-layout)). Its HTML is converted to
+Markdown and then read by the issue-body rules
+([Normalisation — Source formats](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.8.0/docs/authoring/normalisation.md#source-formats)).
 
 ---
 

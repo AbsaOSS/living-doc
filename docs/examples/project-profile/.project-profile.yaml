@@ -1,6 +1,6 @@
 # .project-profile.yaml — conventions every skill reads at session start.
 # Values below match the documented defaults (see
-# ../../guides/living-doc-header-types.md#project-profile-config-driven-conventions).
+# ../../../agentic/skills/shared/references/agentic-formats.md#project-profile-config-driven-conventions).
 test_id_attribute: data-cy
 
 feature_dirs:

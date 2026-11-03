@@ -20,7 +20,7 @@ The action runs one or more independent **mining regimes** ("modes"). Each is sw
 
 The [project README](https://github.com/AbsaOSS/living-doc-collector-gh) tracks each mode's maturity with a status badge. `doc-source` and `ui-tests` are Available; `doc-issues` is planned. [living-doc-toolkit](toolkit.md)'s `normalize-docs` reads `doc-source`, its `normalize-tests` reads `ui-tests`, and its `coverage-matrix` reads both.
 
-All three modes mine content authored in the shared format described in [Living Doc Header Types](../guides/living-doc-header-types.md) and [Living Doc Glossary](../guides/living-doc-glossary.md).
+All three modes mine content authored in the shared format described in [Authoring formats](../reference/authoring-formats.md) and [Glossary](../reference/glossary.md).
 
 ## Inputs / Outputs
 
@@ -40,7 +40,7 @@ First collection stage of the pipeline — its JSON output feeds [living-doc-too
 ## Used in
 
 - [Collecting from GitHub](../guides/github-collection.md)
-- [Living Doc Glossary](../guides/living-doc-glossary.md)
-- [Living Doc Header Types](../guides/living-doc-header-types.md)
+- [Glossary](../reference/glossary.md)
+- [Authoring formats](../reference/authoring-formats.md)
 - [GitHub Issues → Markdown](../tutorials/gh-issues-to-markdown.md) *(planned)*
 - [Technical Project → PDF](../tutorials/technical-project-to-pdf.md) *(planned)*

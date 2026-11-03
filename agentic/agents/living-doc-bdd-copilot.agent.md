@@ -61,7 +61,7 @@ naming the missing companion command, rather than a raw import traceback.
 `.copilot/bdd/.project-profile.yaml`. It holds every project-specific convention skills must not
 hardcode: the test-id attribute, feature/PageObject/steps directories, AC state and PageObject
 status vocabularies, scenario tag conventions, and the manifest shape. If it is absent, create it
-from the defaults in the [BDD schemas reference — Project Profile](../skills/shared/references/living-doc-bdd-schemas.md) and confirm each value with the user. Once loaded, profile values override any default path, attribute, or casing shown in a skill.
+from the defaults in [agentic-formats — Project Profile](../skills/shared/references/agentic-formats.md#project-profile-config-driven-conventions) and confirm each value with the user. Once loaded, profile values override any default path, attribute, or casing shown in a skill.
 
 **Storage Profile (catalog layer).** When the user is setting up living documentation for the first time, also ask:
 
@@ -187,7 +187,9 @@ Do not skip steps or run them out of order. Complete catalog changes (step 1) be
 
 **Manifest loading rule:** Use targeted line ranges for the current route(s). Load full manifest only for RE-SCAN. `seed.yaml`: always load in full. When PageObject generation discovers a route with no linked Feature entity, set `feature_id: FEAT-UNKNOWN`, flag the route as needing a Feature entity, and cross-load `living-doc-create-feature` to create it before continuing.
 
-**living-doc-bdd-schemas:** Load [agentic/skills/shared/references/living-doc-bdd-schemas.md](../skills/shared/references/living-doc-bdd-schemas.md) only when generating or validating feature file headers, PageObject headers, seed.yaml form_fixtures, or manifest.json route entries.
+**living-doc-bdd-schemas:** Load [agentic/skills/shared/references/living-doc-bdd-schemas.md](../skills/shared/references/living-doc-bdd-schemas.md) only when generating or validating feature file headers or PageObject headers.
+
+**agentic-formats:** Load [agentic/skills/shared/references/agentic-formats.md](../skills/shared/references/agentic-formats.md) only when generating or validating seed.yaml form_fixtures or manifest.json route entries.
 
 **Indentation is significant** in every header you write or edit — the marker on every line, keys at the key level, a deeper line belonging to the item above it, one `AC:` level, a one-token value on one line, nesting only in a bullet-list field. Load [Indentation](../skills/shared/references/living-doc-bdd-schemas.md#indentation) before editing a header by hand; each skill's own body carries the short form.
 

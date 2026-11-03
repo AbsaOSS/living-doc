@@ -131,7 +131,7 @@ overwrites it with the current state; that is the whole point.
 | Build a pipeline properly, stage by stage | [Getting Started](../guides/getting-started.md) |
 | Copy a working example for your exact source + output | [Getting Started § worked examples](../guides/getting-started.md#worked-examples) · [tutorials](../tutorials/) |
 | Understand what each collector mines | [Collecting from GitHub](../guides/github-collection.md) · [Collecting from Azure DevOps](../guides/azure-devops-collection.md) |
-| Write User Stories / Features / Functionalities in the format collectors read | [Living Doc Glossary](../guides/living-doc-glossary.md) · [Living Doc Header Types](../guides/living-doc-header-types.md) |
+| Write User Stories / Features / Functionalities in the format collectors read | [Glossary](../reference/glossary.md) · [Authoring formats](../reference/authoring-formats.md) |
 | Let an AI agent help author that content (optional) | [agentic-toolkit](../projects/agentic-toolkit.md) |
 | See how the stages connect | [Architecture](architecture.md) |
 | Browse every repo in the ecosystem | [Projects](../projects/) · [repo README](../../README.md#ecosystem) |

@@ -65,7 +65,7 @@ Files and parts marked "From agentic-defaults" are replaced when the kit updates
 - Setup: `pip install -r tests/examples/requirements-examples-check.txt` and `pip install -r agentic/requirements-agentic-tests.txt`
 - Test: `python -m pytest tests/examples -q` (one file: `python -m pytest tests/examples/<file> -q`); the agentic scripts, each run as a script: `find agentic/skills -type f -name "test_*.py" | sort | xargs -n1 python`
 - Lint, skill folder format (Python 3.11+, after `pip install -r agentic/requirements-skill-lint.txt`): `agentskills validate agentic/skills/<name>`
-- Check, everything that must pass before work is done: the tests and lint above, `python tests/examples/examples_check.py`, `bash agentic/scripts/sync-canon-copies.sh all` and `tests/examples/regen-collector-snapshots.sh` with no resulting change under `agentic/skills/shared/references/` or `docs/examples/_expected/`, `tests/testbed/run-testbed-stage.sh`, and `lychee --include-fragments './**/*.md'`
+- Check, everything that must pass before work is done: the tests and lint above, `python tests/examples/examples_check.py`, `bash agentic/scripts/sync-canon-copies.sh all` and `tests/examples/regen-collector-snapshots.sh` with no resulting change under `agentic/skills/shared/references/` or `docs/examples/_expected/`, `tests/testbed/run-testbed-stage.sh`, and `lychee --include-fragments './**/*.md'` with the `--remap` of `.github/workflows/link-check.yml`
 
 ### Pull requests
 
@@ -81,5 +81,5 @@ These replace the generic title and description shapes in the `commits-and-prs` 
 
 - Check each acceptance criterion against the code or doc that delivers it, never against a green test with a matching name. For "an undeclared `@AC:` tag is flagged", read the rule in `tests/examples/examples_check.py`; for "the snapshot is current", read the `diff -ru` step in `.github/workflows/real-collector.yml` and its exit code.
 - Flag a change that gives an ecosystem part a responsibility beyond its row in `docs/introduction/principles.md` without adding the exception there, and name the row (F1–F7). Check that the PR's `## Framework` box matches the diff.
-- Review closer, and re-check the same-PR obligations in the root `CONTEXT.md`, when a change touches the three format guides, the rule set in `tests/examples/examples_check.py`, the pin in `tests/collector/collector-pins.env`, or `docs/examples/**`.
+- Review closer, and re-check the same-PR obligations in the root `CONTEXT.md`, when a change touches the canon pages in `docs/reference/`, the rule set in `tests/examples/examples_check.py`, the pin in `tests/collector/collector-pins.env`, or `docs/examples/**`.
 - Don't ask for a lint, type-check or coverage gate: the project has none.
