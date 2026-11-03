@@ -17,6 +17,11 @@ Read before: [Authoring formats](https://github.com/AbsaOSS/living-doc/blob/mast
 ## Contents
 
 - [Core entities](#core-entities)
+  - [User Story (US)](#user-story-us)
+  - [Feature](#feature)
+  - [Functionality (FUNC)](#functionality-func)
+  - [Acceptance Criterion (AC)](#acceptance-criterion-ac)
+  - [ID uniqueness](#id-uniqueness)
 - [Relationship diagram](#relationship-diagram)
 
 ---

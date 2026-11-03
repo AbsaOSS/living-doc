@@ -160,7 +160,9 @@ This corpus is part of the persisted product documentation and does not depend o
 Two rules keep it truthful, both enforced **in the same PR** as the change that triggers them:
 
 1. **Format change.** When a field or rule on [Authoring formats](../reference/authoring-formats.md)
-   or [Glossary](../reference/glossary.md) changes, update the matching example here.
+   or [Glossary](../reference/glossary.md) changes, update the matching example here. The same holds
+   for the Project Profile and `seed.yaml` formats in
+   [agentic-formats.md](../../agentic/skills/shared/references/agentic-formats.md) and `project-profile/`.
 2. **Implementation change (last check).** When a collector mode that mines these inputs
    (`collector-gh` `doc-source` / `ui-tests` / `doc-issues`) is implemented or changed, re-check this
    corpus **and** the pages above against what the tooling actually mines, and correct any drift.

@@ -14,6 +14,11 @@ Read before: [Authoring formats](authoring-formats.md) · Next: [Example corpus]
 ## Contents
 
 - [Core entities](#core-entities)
+  - [User Story (US)](#user-story-us)
+  - [Feature](#feature)
+  - [Functionality (FUNC)](#functionality-func)
+  - [Acceptance Criterion (AC)](#acceptance-criterion-ac)
+  - [ID uniqueness](#id-uniqueness)
 - [Relationship diagram](#relationship-diagram)
 
 ---
