@@ -1,6 +1,6 @@
 # Tutorial: GitHub Issues → Markdown
 
-> **Planned.** GitHub issues as a documentation source are planned, not yet available: the workflow below shows the intended shape. Today, use [GitHub Source Code → Markdown](gh-source-to-markdown.md). The issue-body format is already fixed: [GitHub issue-body layout](../examples/README.md#github-issue-body-layout-canonical).
+> **Planned.** GitHub issues as a documentation source are planned, not yet available: the workflow below shows the intended shape. Today, use [GitHub Source Code → Markdown](gh-source-to-markdown.md). The issue-body format is already fixed: [GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout).
 
 > `living-doc-generator-markdown` is early stage; treat the generator step below as illustrative until its action inputs stabilize. Check the [project README](https://github.com/AbsaOSS/living-doc-generator-markdown) before running this for real.
 

@@ -18,7 +18,7 @@ it adds (see [Checking a change against the frame](#checking-a-change-against-th
 
 | Id | Part | Does | Does not |
 |---|---|---|---|
-| **F1** | Entities | User Story, Feature, Functionality and Acceptance Criterion, each with a defined header format — see [Living Doc Glossary](../guides/living-doc-glossary.md) and [Living Doc Header Types](../guides/living-doc-header-types.md). | Carry meaning outside a typed header field — `## Notes` drives nothing. |
+| **F1** | Entities | User Story, Feature, Functionality and Acceptance Criterion, each with a defined header format — see [Glossary](../reference/glossary.md) and [Authoring formats](../reference/authoring-formats.md). | Carry meaning outside a typed header field — `## Notes` drives nothing. |
 | **F2** | Collectors | Mine entity headers from issues / work items or from source code, and collect auditable data from the source system (tracker state, audit events, project state) as provenance for later use. | Interpret, merge or compute — a collector records what the source says. |
 | **F3** | Toolkit | Carries every technical transformation between collector output and generator input: normalisation, validation, filtering and cross-referencing — including the coverage matrix. | Render output or talk to a source system. |
 | **F4** | Generators | Convert a toolkit output into one target format (Markdown, PDF). | Transform or enrich data — a generator reads only toolkit outputs. |
@@ -37,7 +37,7 @@ it adds (see [Checking a change against the frame](#checking-a-change-against-th
 
 | Id | Exception | Bends | Why |
 |---|---|---|---|
-| **E1** | A Feature's state is derived from its Functionalities, never authored. | F2, F3 — a value the author did not write appears in the dataset. | A Feature is the structural node of a surface; its behaviour lives in its Functionalities, so an authored Feature state would contradict them. Rule: [Living Doc Glossary — Feature](../guides/living-doc-glossary.md#feature). |
+| **E1** | A Feature's state is derived from its Functionalities, never authored. | F2, F3 — a value the author did not write appears in the dataset. | A Feature is the structural node of a surface; its behaviour lives in its Functionalities, so an authored Feature state would contradict them. Rule: [Glossary — Feature](../reference/glossary.md#feature). |
 
 An exception is added only together with the pull request that introduces it, and removed when the
 behaviour goes.

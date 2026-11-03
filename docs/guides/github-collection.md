@@ -5,7 +5,7 @@
 ## What it collects
 
 - **Documentation Issues** (`doc-issues`) *(planned)*: issue title, body, labels, state, and audit history for issues used as standalone documentation tickets — optionally enriched with linked **GitHub Projects** state.
-- **Documentation Source** (`doc-source`): User Story / Feature / Functionality header blocks from repository source code — in `.feature` files and TypeScript PageObject files. See [Living Doc Header Types](living-doc-header-types.md) for the format.
+- **Documentation Source** (`doc-source`): User Story / Feature / Functionality header blocks from repository source code — in `.feature` files and TypeScript PageObject files. See [Authoring formats](../reference/authoring-formats.md) for the format.
 - **UI Tests** (`ui-tests`): Gherkin test scenarios from `.feature` files, as a test catalog keyed by `@US_ID` / `@AC` tags.
 
 See [living-doc-collector-gh](../projects/collector-gh.md) for the mode-by-mode breakdown.

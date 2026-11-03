@@ -8,7 +8,7 @@ rules landed carry keys that the pipeline now rejects or ignores, and a project 
 them by hand without missing some. This reports every such key and, with --fix, removes the
 ones whose correction is unambiguous.
 
-What it reports, from Header Types' "Common mistakes" table
+What it reports, from Authoring formats' "Common mistakes" table
 (skills/shared/references/living-doc-bdd-schemas.md#common-mistakes):
 
   removable — --fix deletes the line, nothing is lost

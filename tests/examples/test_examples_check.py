@@ -967,7 +967,7 @@ def test_retired_project_profile_key_fails(corpus_dir: Path) -> None:
 # --- indentation: the corpus uses the template levels only --------------------------------
 #
 # The check is stricter than the canon: the flat layout stays valid for authors, but the corpus
-# shows only the canonical levels (living-doc-header-types.md#indentation).
+# shows only the canonical levels (authoring-formats.md#indentation).
 
 US_HEADER = """\
 # =============================================================================

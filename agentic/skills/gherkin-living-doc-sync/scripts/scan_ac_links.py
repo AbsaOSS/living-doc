@@ -88,7 +88,7 @@ def _malformed_tag_detail(tag: str) -> str:
     """Why a tag failed the canonical grammar, in the author's terms.
 
     The two-parameter case earns its own message: a scenario covers one value, so one
-    scenario is tagged per value (living-doc-header-types.md#ac-variants). It used to pass,
+    scenario is tagged per value (living-doc-bdd-schemas.md#ac-variants). It used to pass,
     with everything after the first segment silently ignored.
     """
     if tag.count("/") > 1:
