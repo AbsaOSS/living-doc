@@ -26,7 +26,7 @@ Not here: the agentic layer's tests, which sit next to each script in `agentic/`
 ## Invariants and gotchas
 
 - Deterministic and offline: no LLM call and no network request in any checker or the normalizer. The only network access is fetching the pinned components (clone, `git ls-remote`, each `requirements.txt`, `pip` from PyPI) and checking out the testbed.
-- A pin bump is a reviewed change: regenerate `docs/examples/_expected/` in the same PR and keep the testbed stage green.
+- A pin bump is a reviewed change: regenerate `docs/examples/_expected/` in the same PR and keep the testbed stage green. A bump that moves the `living-doc-utilities` version also re-checks the before/after pairs in `docs/guides/authoring-documentation.md` (root `CONTEXT.md` § Conventions).
 - The testbed is read at `master`, never pinned to a SHA. Nothing about `core`'s content (counts, ids) is written here; every value comes from the checkout at run time. Any warning over `core` is a defect.
 - The toolkit stage reads the collector's raw output, never `docs/examples/_expected/**`, and nothing is written under the output directory until every check passed.
 - The stage only reads the testbed and fails if its `git status` changes. Never write into the testbed.

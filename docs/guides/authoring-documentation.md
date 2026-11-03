@@ -111,7 +111,7 @@ its canonical form. Each pair is a case of `living-doc-utilities`'
 [`normalisation_cases.yaml`](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.8.0/living_doc_utilities/authoring/normalisation_cases.yaml)
 at `v0.8.0`, named by its id: the case's `input` before, its `expected` after. What each rule rewrites, and what it
 never touches, is in
-[Normalisation — Rules](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.8.0/docs/authoring/normalisation.md#rules).
+[Normalisation — Rules](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/authoring/normalisation.md#rules).
 These are corrections, not alternatives: write the canonical form.
 
 ### Bullet markers
@@ -435,7 +435,7 @@ Scenario: Customer signs in with valid credentials
 
 A collector corrects form, never meaning. Where a header lacks something only its author knows, the pipeline does
 not guess it: it drops what it cannot read and reports a warning with the file and the line
-([codes](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.8.0/docs/contracts/errors.md#codes)).
+([codes](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/errors.md#codes)).
 
 | You wrote | The warning | What happens |
 |---|---|---|

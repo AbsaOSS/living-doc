@@ -67,7 +67,7 @@ Commands: `AGENTS.md` § This project. The collector stages need `git` and githu
 ## Conventions
 
 - Every PR stays inside the frame in `docs/introduction/principles.md`, or names the row it bends and adds the exception there in the same PR.
-- Same-PR obligations: a format change in a canon page updates `docs/examples/`; a canon change regenerates the agentic copies; a collector or toolkit pin bump regenerates `docs/examples/_expected/` and keeps the testbed stage green.
+- Same-PR obligations: a format change in a canon page updates `docs/examples/`; a canon change regenerates the agentic copies; a collector or toolkit pin bump regenerates `docs/examples/_expected/` and keeps the testbed stage green; a move of the `living-doc-utilities` version re-checks the before/after pairs in `docs/guides/authoring-documentation.md` against that version ([CONTRIBUTING.md § Regenerating the collector snapshots](CONTRIBUTING.md#regenerating-the-collector-snapshots)).
 - Docs link, they don't copy. Lychee checks every link and fragment in every `*.md`.
 - Nothing from `specs/` is committed or cited: it is local planning.
 - PR, branch, title and review rules: `AGENTS.md` § This project.

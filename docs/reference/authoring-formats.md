@@ -553,7 +553,7 @@ the example corpus show each entity in it.
   ID; the entity ID above is what links the issue to the matching `.feature` file and PageObject.)
 - Section headings are `##`-level and map 1:1 to the fields of the equivalent feature-file header;
   `living-doc-utilities` names the field each heading fills
-  ([Parsers — Issue body](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.8.0/docs/authoring/parsers.md#issue-body)).
+  ([Parsers — Issue body](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/authoring/parsers.md#issue-body)).
 - AC blocks are `###` sub-headings using the same `AC:<id> (v<version> - <state>)` grammar as the
   [glossary](glossary.md#acceptance-criterion-ac) — including the version-less
   backlog form `AC:<id> (planned)`. Feature-level `Preconditions` / `Not In Scope` are inherited by
@@ -592,4 +592,4 @@ The heading stays required; `none` is how a Feature says it has no link of that 
 A work item is authored with the same `##` sections as a GitHub issue body: the same headings and the same
 acceptance-criterion grammar ([GitHub issue-body layout](#github-issue-body-layout)). Its HTML is converted to
 Markdown and then read by the issue-body rules
-([Normalisation — Source formats](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.8.0/docs/authoring/normalisation.md#source-formats)).
+([Normalisation — Source formats](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/authoring/normalisation.md#source-formats)).

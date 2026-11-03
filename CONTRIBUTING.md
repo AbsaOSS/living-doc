@@ -76,6 +76,19 @@ PR. `python tests/examples/check_utilities_pins.py` prints the `living-doc-utili
 the collector, the toolkit and the corpus checker (`tests/examples/requirements-examples-check.txt`) and
 warns on a minor-version skew; `--strict` makes that a failure.
 
+[Authoring documentation § What the pipeline also accepts](docs/guides/authoring-documentation.md#what-the-pipeline-also-accepts)
+shows each corrected variant as a before/after pair copied from `living-doc-utilities`'
+`living_doc_utilities/authoring/normalisation_cases.yaml` at the version the page names. No check compares
+them, so when a change moves that `living-doc-utilities` version, the same PR re-checks the pairs against
+the file at the new version's tag:
+
+1. For each case id the page names, compare the `before` block with the case's `input` and the `after`
+   block with its `expected`, byte for byte, and copy any difference.
+2. For a case id the file no longer has, show the case that replaced it, or drop the pair.
+3. Add a pair for a new `feature_header`, `page_object` or `scenario_file` case whose variant the page
+   does not show yet.
+4. Move the version in the page's link to the file and in the sentence after it.
+
 ## The collector stage over the testbed
 
 The workflow's second job runs the same pinned collector and toolkit over the `core` project of

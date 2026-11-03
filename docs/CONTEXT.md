@@ -34,9 +34,10 @@ Not here: each tool's own docs (its repository) and the agentic layer's guides (
 - Never hand-edit `examples/_expected/**`, the collector's or the toolkit's; regenerate it with `tests/examples/regen-collector-snapshots.sh`.
 - Renaming a heading breaks fragment links elsewhere; lychee checks fragments.
 - A moved page keeps a redirect stub at its old path: its `# Title` and one line linking the new page, nothing else.
+- Links to `living-doc-utilities` point at `master` until the release repoints them to its tag. The one exception is the source of a copy, which names the version copied: `normalisation_cases.yaml` in `guides/authoring-documentation.md`.
 
 ## Invariants and gotchas
 
 - `_integration/`: the repository is public. An internal target's configuration, log and artifacts stay on the machine; only its redacted report row is committed, under an `absa-N` label ([_integration/README.md](_integration/README.md)).
 - Pages and tutorials marked *(planned)* describe intended behavior that no tool ships yet.
-- `guides/authoring-documentation.md`'s before/after pairs are copied byte for byte from `living-doc-utilities` `living_doc_utilities/authoring/normalisation_cases.yaml` at `v0.8.0`, each under its case id. Re-check them when the `living-doc-utilities` pin moves; no check enforces it yet.
+- `guides/authoring-documentation.md`'s before/after pairs are copied byte for byte from `living-doc-utilities` `living_doc_utilities/authoring/normalisation_cases.yaml` at `v0.8.0`, each under its case id. No check compares them: a move of the `living-doc-utilities` version re-checks them in the same PR ([CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots)).
