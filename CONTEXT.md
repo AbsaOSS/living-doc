@@ -30,7 +30,7 @@ Not here: the collectors, toolkit, generators and utilities. Each lives in its o
 
 ```mermaid
 flowchart LR
-    canon["docs/reference<br/>format canon"] --> corpus["docs/examples<br/>example corpus"]
+    canon["docs/reference<br/>canon pages"] --> corpus["docs/examples<br/>example corpus"]
     corpus --> static["tests/examples/examples_check.py<br/>static check"]
     corpus --> collector["living-doc-collector-gh<br/>(pinned)"]
     testbed["living-doc-testbed<br/>core @ master"] --> collector
@@ -49,7 +49,7 @@ The canon pages in `docs/reference/` define the format; the corpus shows it; the
 - Entities: User Story, Feature, Functionality, Acceptance Criterion (AC): [glossary](docs/reference/glossary.md), header formats in [authoring formats](docs/reference/authoring-formats.md).
 - Document types: technical project (inner and release views), test catalog, coverage matrix: [document types](docs/guides/living-doc-document-types.md); what each view shows and how coverage is counted: [rendering rules](docs/reference/rendering-rules.md).
 - Authoring: the canonical form, the variants normalisation corrects and the mistakes it never guesses: [authoring documentation](docs/guides/authoring-documentation.md).
-- Pipeline: author, collector, toolkit, generator: [architecture](docs/introduction/architecture.md); which component writes and reads each file: [data flows](docs/reference/data-flows.md); the six contracts: [contracts](docs/reference/contracts.md); every error and warning code with its remedy: [error codes](docs/reference/errors.md). These three summarise `living-doc-utilities` and are not canon.
+- Pipeline: author, collector, toolkit, generator: [architecture](docs/introduction/architecture.md); which component writes and reads each file: [data flows](docs/reference/data-flows.md); the six contracts: [contracts](docs/reference/contracts.md); every error and warning code with its remedy: [error codes](docs/reference/errors.md). These three summarise `living-doc-utilities` and the component pages, and are not canon.
 
 ## Contracts
 

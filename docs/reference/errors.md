@@ -3,8 +3,8 @@
 ## Purpose
 
 This page tells you, for every code in `living-doc-utilities`' [Errors and warnings][ut-codes] registry, who raises
-it, what it means for you and what to do. Each code's kind and the conditions that raise it are defined there, and
-not restated here.
+it, what it means for you and what to do. Each code's kind and the exact conditions that raise it are defined
+there; this page says what they mean for you.
 
 Read before: [Contracts](contracts.md) · Next: back to [Data flows](data-flows.md)
 
@@ -18,17 +18,17 @@ Read before: [Contracts](contracts.md) · Next: back to [Data flows](data-flows.
 - `collector-gh`, `toolkit`, `generator-markdown`: that step, in its log when it fails, or as a warning in its file.
 - `collector-gh`'s authoring warnings come from the header parsers it runs, which `living-doc-utilities` provides.
 - every component: `living-doc-utilities`' reader and writer, through which every step reads and writes its files.
-- planned: only a planned component, or a planned mode of one, raises it; the row names it.
+- planned: no shipped component raises it; the row names the planned component, mode or capability that will.
 - The inner view of a document shows the collector warnings ([What was not loaded](rendering-rules.md#what-was-not-loaded)).
 
 ## Codes
 
 | Code | Raised by | What it means for you | What to do |
 |---|---|---|---|
-| `INVALID_CONTRACT_ID` | every component | The step cannot tell which contract the file is, so it cannot read it. | Regenerate the file with the step that writes it instead of editing it. If the two `living-doc-utilities` versions the message names differ, pin actions released together, as the [example][example] does. |
-| `CONTRACT_MISMATCH` | every component | The step was given a file of another contract, usually through a wrong path. | Point the input at the file this step reads ([Files][files]). |
+| `INVALID_CONTRACT_ID` | every component | The step does not recognise the file's contract id, or that version of it, so it cannot read the file. | If the two `living-doc-utilities` versions the message names differ, pin actions released together, as the [example][example] does. Otherwise regenerate the file with the step that writes it instead of editing it. |
+| `CONTRACT_MISMATCH` | `toolkit`, `generator-markdown` | The step was given a file of another contract, usually through a wrong path. | Point the input at the file this step reads ([Files][files]); given a collector output, `generator-markdown`'s message names the `toolkit` command that writes the file it reads. |
 | `SCHEMA_VALIDATION_FAILED` | every component | The file names the right contract, but its content does not fit it. | If the two `living-doc-utilities` versions the message names differ, pin actions released together ([example][example]). Otherwise regenerate the file, and report the message to the component that wrote it if that fails again. |
-| `MISSING_INPUT` | `toolkit` | A file the command needs is not given, or is not where the input says. | Set `input`, and `tests-input` for `coverage-matrix`, to the files earlier steps wrote ([`toolkit` inputs][tk-inputs], [Files][files]). |
+| `MISSING_INPUT` | `toolkit` | A path the command was given points at no file. | Point `input`, and `tests-input` for `coverage-matrix`, at the files earlier steps wrote, and run those steps first ([`toolkit` inputs][tk-inputs], [Files][files]). |
 | `UNKNOWN_PRODUCER` | `toolkit` | The file was written by a tool `toolkit` does not read from. | Give it the file `collector-gh` wrote ([Files][files]). |
 | `PROJECT_MISMATCH` | `toolkit` `coverage-matrix` | The documentation and the tests belong to different projects. | Set the same `project-id` on every collector step ([`collector-gh` inputs][cgh-inputs], [Project id][pr-project-id]). |
 | `MULTIPLE_DOCUMENTATION_SOURCES` | `toolkit` `coverage-matrix` | The command was given more than one documentation file. | Pass one, and collect every repository of the project in one `collector-gh` step ([`collector-gh` inputs][cgh-inputs], [One project, one pipeline, one documentation source][pr-one]). |
@@ -48,7 +48,7 @@ Read before: [Contracts](contracts.md) · Next: back to [Data flows](data-flows.
 | `UNPARSED_BULLET_LINE` | `collector-gh` | Text in a list field is not in the document. | Put it in a `- ` bullet on its own line under the key ([Indentation][indent]). |
 | `MISINDENTED_LINE` | `collector-gh` | A list line's indent puts it at no level of its list, so it is lost. | Align it with an item of its list, or indent it deeper than the item it belongs to ([Indentation][indent]). |
 | `UNKNOWN_SECTION` | planned: `collector-gh` mode `doc-issues`, `collector-ad` | A section of an issue body would not reach the document. | Use the headings of the [GitHub issue-body layout](authoring-formats.md#github-issue-body-layout). |
-| `MISSING_ENTITY_ID` | `collector-gh` | A scanned file has no living-doc header, or its header's title has no id, so no entity is read from it. | Put the entity's id in the title, as its [header format][formats] shows ([What it never guesses][never-guesses]); keep a file with no header out of the header paths ([`collector-gh` inputs][cgh-inputs]). |
+| `MISSING_ENTITY_ID` | `collector-gh` | A `.feature` file has no living-doc header, a PageObject's banner is not its first block comment, or a title has no id the collector can read, so no entity is read from that file. | Put the entity's id in the title, as its [header format][formats] shows ([What it never guesses][never-guesses]), and a PageObject's banner first ([Discovery][cgh-discovery]). Add a header to a `.feature` file that documents an entity, or keep one that does not out of `us-paths` and `func-paths` ([`collector-gh` inputs][cgh-inputs]). |
 | `IGNORED_AUTHORED_KEY` | `collector-gh` | A key you wrote is not in the document: the header format has no such key for that entity. | Remove the key, or rename it to one the [header format][formats] has; a Feature's state comes from its Functionalities ([Feature](glossary.md#feature)). |
 | `MALFORMED_STATUS` | `collector-gh` | The status you wrote is not one of the states, so it is not read. | Write one of the four states ([User Story](glossary.md#user-story-us), [Functionality](glossary.md#functionality-func)). |
 | `MISSING_STATUS` | `collector-gh` | The User Story or Functionality has no status of its own. | Add a `status:` line to its header ([User Story](authoring-formats.md#1-user-story-in-a-gherkin-feature-file), [Functionality](authoring-formats.md#3-functionality-in-a-gherkin-feature-file)). |
@@ -62,7 +62,7 @@ Read before: [Contracts](contracts.md) · Next: back to [Data flows](data-flows.
 | `DUPLICATE_AC_SOURCE` | planned: `collector-ad` | A work item would state one criterion in two places. | Keep each criterion in one place ([Azure DevOps work items][ado]). |
 | `EXCLUDED_STATE` | planned: `collector-ad` | A work item's state would keep it out of the document. | If it belongs in the document, change its state, or the states the collector leaves out ([collector-ad](../projects/collector-ad.md)). |
 | `AUTHORING_WARNING` | `collector-gh` | A line in a header is not in the document: no field reads it. | If it comes with a `MALFORMED_AC`, fix that criterion; otherwise move the line under a field the [header format][formats] has. |
-| `AUTHORING_ERROR` | `collector-gh` | A header line breaks its format, or an entity or scenario repeats an id from another file, so it is not read. | Fix the header the message names to its [format][formats]. Renumber an entity id another file already uses ([ID uniqueness][ids]); for a repeated scenario, remove the repository entry that reaches its file a second time ([`collector-gh` inputs][cgh-inputs]). |
+| `AUTHORING_ERROR` | `collector-gh` | A header line breaks its format, an entity breaks its contract, or an entity or scenario repeats an id from another file, so that line or item is not read. | Fix what the message names: the header's [format][formats], a criterion id that is not its entity's ([Acceptance Criterion][ac]), or an entity id another file already uses ([ID uniqueness][ids]). For a repeated scenario, make sure no two repository entries reach the same file ([`collector-gh` inputs][cgh-inputs]). |
 | `TEMPLATE_KEY_MISSING` | `generator-markdown` | A template needs data its input lacks: a defect in the generator, not in your files. | Report it to [`living-doc-generator-markdown`](https://github.com/AbsaOSS/living-doc-generator-markdown/issues) with the input file. |
 | `URL_FETCH_REFUSED` | planned: `generator-pdf` | A PDF would miss an image or link from outside its template's directory. | Keep a custom template's images in its own directory ([generator-pdf](../projects/generator-pdf.md)). |
 
@@ -71,6 +71,7 @@ Read before: [Contracts](contracts.md) · Next: back to [Data flows](data-flows.
 [pr-project-id]: https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/pipeline-rules.md#project-id
 [cgh-inputs]: https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md#inputs
 [cgh-prereq]: https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md#prerequisites
+[cgh-discovery]: https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/doc_source/README.md#discovery
 [tk-inputs]: https://github.com/AbsaOSS/living-doc-toolkit/blob/master/docs/action.md#inputs
 [example]: data-flows.md#example
 [files]: data-flows.md#files
