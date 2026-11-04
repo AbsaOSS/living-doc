@@ -14,7 +14,7 @@ Not here: each tool's own docs (its repository) and the agentic layer's guides (
 |---|---|
 | `introduction/` | concept, quickstart, architecture, principles (the frame) |
 | `guides/` | how-tos: authoring, document types, collection; two redirect stubs for the moved canon pages |
-| `reference/` | the canon: glossary, authoring formats, rendering rules |
+| `reference/` | the canon: glossary, authoring formats, rendering rules; and three summaries of `living-doc-utilities`: data flows, contracts, error codes |
 | `tutorials/` | one per source + output combination |
 | `projects/` | one page per ecosystem project |
 | `examples/` | the canonical minimal input corpus; `_expected/` holds what the pinned collector mines from it and the pinned toolkit writes from that |
@@ -23,6 +23,8 @@ Not here: each tool's own docs (its repository) and the agentic layer's guides (
 ## Contracts
 
 - Format canon: `reference/authoring-formats.md`, `reference/glossary.md`. `reference/rendering-rules.md` explains the views and coverage, whose normative rules are `living-doc-utilities`' `docs/contracts/rendering.md`; its *What was not loaded* is the canon's own rule, which that page maps onto warning fields. `guides/living-doc-document-types.md` stays the guide and links it.
+- `reference/data-flows.md`, `reference/contracts.md` and `reference/errors.md` are not canon: they summarise `living-doc-utilities`' `docs/contracts/pipeline-rules.md`, `docs/contracts.md` with `artifact-rules.md` and `entities-and-state.md`, and `docs/contracts/errors.md`, and link them without restating a rule. Their paths, inputs, commands and who raises a code come from the component pages and code (`collector-gh` `docs/action.md` and mode READMEs, `toolkit` `docs/action.md`, `generator-markdown` `README.md`), so a change there can make them stale. Each marks a part no component ships as planned.
+- `reference/errors.md` has one row per code of `living_doc_utilities.contracts.codes.ALL_CODES`, the code alone in backticks in the first column; no check compares the two, so a code added to or removed from the registry changes the table by hand.
 - `authoring-formats` and `glossary` have generated copies in `agentic/skills/shared/references/` (`agentic/scripts/sync-canon-copies.sh`); a change to either triggers `agentic-tests.yml`.
 - Any change under `guides/`, `reference/` or `examples/` triggers `examples-check.yml`, which validates `examples/` with `tests/examples/examples_check.py`.
 

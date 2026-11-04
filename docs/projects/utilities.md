@@ -12,6 +12,8 @@ Provides the core data models and transformation/serialization logic shared acro
 
 Not a pipeline stage on its own — it's a dependency of every other project. See [Architecture](../introduction/architecture.md) for how it underlies collect, normalize, and generate.
 
+The contracts it defines, with the component that writes and reads each: [Contracts](../reference/contracts.md). The files they carry through a pipeline: [Data flows](../reference/data-flows.md). The codes it registers, with what to do about each: [Error codes](../reference/errors.md).
+
 ## Used by
 
 - [collector-gh](collector-gh.md), [collector-ad](collector-ad.md)

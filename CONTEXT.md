@@ -30,7 +30,7 @@ Not here: the collectors, toolkit, generators and utilities. Each lives in its o
 
 ```mermaid
 flowchart LR
-    canon["docs/reference<br/>format canon"] --> corpus["docs/examples<br/>example corpus"]
+    canon["docs/reference<br/>canon pages"] --> corpus["docs/examples<br/>example corpus"]
     corpus --> static["tests/examples/examples_check.py<br/>static check"]
     corpus --> collector["living-doc-collector-gh<br/>(pinned)"]
     testbed["living-doc-testbed<br/>core @ master"] --> collector
@@ -42,14 +42,14 @@ flowchart LR
     canon --> sync["agentic/scripts/sync-canon-copies.sh"] --> skills["agentic/skills<br/>shared/references"]
 ```
 
-The reference pages define the format; the corpus shows it; the checks prove the corpus follows them and that the real collector and toolkit carry it through as expected. The agentic layer reads generated copies of two canon pages.
+The canon pages in `docs/reference/` define the format; the corpus shows it; the checks prove the corpus follows them and that the real collector and toolkit carry it through as expected. The agentic layer reads generated copies of two canon pages.
 
 ## Domain
 
 - Entities: User Story, Feature, Functionality, Acceptance Criterion (AC): [glossary](docs/reference/glossary.md), header formats in [authoring formats](docs/reference/authoring-formats.md).
 - Document types: technical project (inner and release views), test catalog, coverage matrix: [document types](docs/guides/living-doc-document-types.md); what each view shows and how coverage is counted: [rendering rules](docs/reference/rendering-rules.md).
 - Authoring: the canonical form, the variants normalisation corrects and the mistakes it never guesses: [authoring documentation](docs/guides/authoring-documentation.md).
-- Pipeline: author, collector, toolkit, generator: [architecture](docs/introduction/architecture.md).
+- Pipeline: author, collector, toolkit, generator: [architecture](docs/introduction/architecture.md); which component writes and reads each file: [data flows](docs/reference/data-flows.md); the six contracts: [contracts](docs/reference/contracts.md); every error and warning code with its remedy: [error codes](docs/reference/errors.md). These three summarise `living-doc-utilities` and the component pages, and are not canon.
 
 ## Contracts
 
@@ -80,7 +80,7 @@ Commands: `AGENTS.md` § This project. The collector stages need `git` and githu
 
 ## Invariants and gotchas
 
-- High-risk: the canon pages in `docs/reference/`, the rule set in `tests/examples/examples_check.py`, the snapshot pipeline (`tests/examples/regen-collector-snapshots.sh`, `normalize_snapshot.py`, `check_collector_stage.py`, `check_toolkit_stage.py`), the shared collector and toolkit runs and testbed stage (`tests/collector/`, `tests/testbed/`), the pins in `tests/collector/collector-pins.env`.
+- High-risk: the canon pages in `docs/reference/` (glossary, authoring formats, rendering rules), the rule set in `tests/examples/examples_check.py`, the snapshot pipeline (`tests/examples/regen-collector-snapshots.sh`, `normalize_snapshot.py`, `check_collector_stage.py`, `check_toolkit_stage.py`), the shared collector and toolkit runs and testbed stage (`tests/collector/`, `tests/testbed/`), the pins in `tests/collector/collector-pins.env`.
 - Generated, never hand-edited: `docs/examples/_expected/**` and `agentic/skills/shared/references/{living-doc-glossary,living-doc-bdd-schemas}.md`. A diff there means its source changed; regenerate it.
 - The repository is public: `docs/_integration/` commits only redacted rows for internal targets.
 - `agentic/` tests are scripts, not pytest tests: a bare `pytest` there collects nothing and passes.
