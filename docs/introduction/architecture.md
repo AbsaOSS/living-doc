@@ -56,6 +56,9 @@ flowchart LR
 
 What each part must not do, and the deliberate exceptions, are fixed in [Principles](principles.md).
 
+Which file each component writes and reads: [Data flows](../reference/data-flows.md). The six contracts between them:
+[Contracts](../reference/contracts.md). What an error or warning code means and what to do: [Error codes](../reference/errors.md).
+
 ## Typical run (GitHub Action)
 
 ```mermaid
