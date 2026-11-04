@@ -16,5 +16,5 @@ specs/
 # per iteration). Only the distilled result is tracked, in agentic/docs/testing/baseline.md.
 agentic-evals-workspace/
 
-# Claude Code permission allowlist written per machine as commands are approved; never shared.
+# Claude Code project settings (the approved-command allowlist); kept local, not committed.
 .claude/settings.json

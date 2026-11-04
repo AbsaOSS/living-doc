@@ -96,12 +96,11 @@ What each document shows: [Living Documentation Document Types](../guides/living
 - `normalize-tests` takes none: a test catalog has no field that differs by view
   ([normalize-tests](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/packages/services/normalize_tests/README.md)).
 - The file records its view in `document.view`; `generator-markdown` renders that view and has no view input.
-- One step writes one view: a pipeline that publishes both runs the command twice, to two `output` paths.
 - What each view shows and drops: [Rendering rules — Views](rendering-rules.md#views).
 
 ## Pipeline rules
 
-Three `living-doc-utilities` rules bind every pipeline. This page names them; each link defines one.
+Three of `living-doc-utilities`' pipeline rules shape this flow. This page names them; each link defines one.
 
 - [One project, one pipeline, one documentation source](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/pipeline-rules.md#one-project-one-pipeline-one-documentation-source):
   what one run documents and which files it reads.
@@ -112,8 +111,8 @@ Three `living-doc-utilities` rules bind every pipeline. This page names them; ea
 
 ## Example
 
-One job's steps: collect the documentation, normalize it in the release view, render the technical project. Each
-action is pinned by its release tag, and one `project-id` names the project.
+One job's steps: collect a repository's User Stories, normalize them in the release view, render the technical
+project. Each action is pinned by its release tag, and one `project-id` names the project.
 
 ```yaml
 - uses: actions/checkout@v7
@@ -138,7 +137,10 @@ action is pinned by its release tag, and one `project-id` names the project.
     source-path: output/toolkit/generator-ready.json
 ```
 
-The document lands in `output/generator-markdown/technical-project.md`. Every input of each step:
+The document lands in `output/generator-markdown/technical-project.md`. `func-paths` and `pages-paths` in the same
+entry add the Functionalities and Features
+([repository entry](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/doc_source/README.md#repository-entry)).
+Every input of each step:
 [`collector-gh`](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md#inputs),
 [`toolkit`](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/docs/action.md#inputs),
 [`generator-markdown`](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/README.md#usage).

@@ -39,7 +39,7 @@ was written, and the file's own counts. A `toolkit` output also lists the files 
 
 ## Identity and state
 
-- `entity_id`: the id authored in an entity's header, such as `US-001`; every file joins on it
+- `entity_id`: the id authored in an entity's header, such as `US-001`, and the only key the files join on
   ([Entity identity](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/entities-and-state.md#entity-identity)).
 - `source_ref`: where the entity was read, with a link back to it; nothing joins on it
   ([Entity identity](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/entities-and-state.md#entity-identity)).

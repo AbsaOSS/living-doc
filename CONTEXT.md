@@ -42,7 +42,7 @@ flowchart LR
     canon --> sync["agentic/scripts/sync-canon-copies.sh"] --> skills["agentic/skills<br/>shared/references"]
 ```
 
-The reference pages define the format; the corpus shows it; the checks prove the corpus follows them and that the real collector and toolkit carry it through as expected. The agentic layer reads generated copies of two canon pages.
+The canon pages in `docs/reference/` define the format; the corpus shows it; the checks prove the corpus follows them and that the real collector and toolkit carry it through as expected. The agentic layer reads generated copies of two canon pages.
 
 ## Domain
 
@@ -80,7 +80,7 @@ Commands: `AGENTS.md` § This project. The collector stages need `git` and githu
 
 ## Invariants and gotchas
 
-- High-risk: the canon pages in `docs/reference/`, the rule set in `tests/examples/examples_check.py`, the snapshot pipeline (`tests/examples/regen-collector-snapshots.sh`, `normalize_snapshot.py`, `check_collector_stage.py`, `check_toolkit_stage.py`), the shared collector and toolkit runs and testbed stage (`tests/collector/`, `tests/testbed/`), the pins in `tests/collector/collector-pins.env`.
+- High-risk: the canon pages in `docs/reference/` (glossary, authoring formats, rendering rules), the rule set in `tests/examples/examples_check.py`, the snapshot pipeline (`tests/examples/regen-collector-snapshots.sh`, `normalize_snapshot.py`, `check_collector_stage.py`, `check_toolkit_stage.py`), the shared collector and toolkit runs and testbed stage (`tests/collector/`, `tests/testbed/`), the pins in `tests/collector/collector-pins.env`.
 - Generated, never hand-edited: `docs/examples/_expected/**` and `agentic/skills/shared/references/{living-doc-glossary,living-doc-bdd-schemas}.md`. A diff there means its source changed; regenerate it.
 - The repository is public: `docs/_integration/` commits only redacted rows for internal targets.
 - `agentic/` tests are scripts, not pytest tests: a bare `pytest` there collects nothing and passes.
