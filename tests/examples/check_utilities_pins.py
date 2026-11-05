@@ -50,11 +50,13 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PINS_FILE = REPO_ROOT / "tests" / "collector" / "collector-pins.env"
 PACKAGE = "living-doc-utilities"
 
-# Each component the snapshot job installs: its pin key in the pins file, its GitHub repository and
-# the runtime requirements file its venv is built from.
+# Each pinned component: its pin key in the pins file, its GitHub repository and its runtime
+# requirements file.
 COMPONENTS = {
     "collector-gh": ("COLLECTOR_GH_REF", "AbsaOSS/living-doc-collector-gh", "requirements.txt"),
     "toolkit": ("TOOLKIT_REF", "AbsaOSS/living-doc-toolkit", "requirements.txt"),
+    "generator-markdown": ("GENERATOR_MARKDOWN_REF", "AbsaOSS/living-doc-generator-markdown",
+                           "requirements.txt"),
 }
 # Requirements files of this repository's own tools, read from the working tree.
 LOCAL = {

@@ -1,11 +1,13 @@
 # Pinned dependencies for tests/examples/examples_check.py and its test (see
-# .github/workflows/examples-check.yml). Scoped to the docs/examples corpus check only; the
-# collector-stage scripts run in the collector's own venv (tests/collector/collector-gh.sh), and
-# tests/examples/check_utilities_pins.py needs only the standard library. living-doc-utilities
-# brings the canonical-form and acceptance-criterion grammar the checker reads the corpus with; keep
-# its minor in step with the collector's (tests/examples/check_utilities_pins.py reports both). Moving
-# its version re-checks the before/after pairs in docs/guides/authoring-documentation.md
-# (CONTRIBUTING.md -> "Regenerating the collector snapshots").
+# .github/workflows/examples-check.yml). Scoped to that workflow; the collector-stage scripts run in
+# the collector's own venv (tests/collector/collector-gh.sh), and tests/examples/check_utilities_pins.py
+# and tests/docs/retired_names_check.py need only the standard library (pytest for their tests).
+# living-doc-utilities brings the canonical-form and acceptance-criterion grammar the checker reads the
+# corpus with; keep its minor in step with the components' (tests/examples/check_utilities_pins.py
+# reports them all). examples_check.py checks the before/after pairs in
+# docs/guides/authoring-documentation.md against the normalisation cases at this version's tag, and
+# docs/reference/errors.md against its code registry, so moving the version fails that check until both
+# pages match it (CONTRIBUTING.md -> "Regenerating the collector snapshots").
 PyYAML==6.0.3
 pytest==9.1.1
 living-doc-utilities==0.8.0

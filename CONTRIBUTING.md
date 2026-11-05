@@ -70,24 +70,29 @@ each from that component's runtime `requirements.txt` at its pinned ref, and fro
 - `.snapshot-venvs/toolkit/`, reused while the interpreter and `TOOLKIT_REF` stay the same: the toolkit's
   packages are installed by path, so a new ref with the same `requirements.txt` still needs a new venv.
 
-The `collector-gh` and `toolkit` pins live only in `tests/collector/collector-pins.env`. A pin bump is a
-reviewed change, like a dependency bump: change the ref and commit the regenerated snapshots in the same
-PR. `python tests/examples/check_utilities_pins.py` prints the `living-doc-utilities` version pinned by
-the collector, the toolkit and the corpus checker (`tests/examples/requirements-examples-check.txt`) and
-warns on a minor-version skew; `--strict` makes that a failure.
+The `collector-gh`, `toolkit` and `generator-markdown` pins live only in
+`tests/collector/collector-pins.env`. A pin bump is a reviewed change, like a dependency bump: change the
+ref and commit the regenerated snapshots in the same PR. `generator-markdown` feeds no snapshot, so its pin
+alone regenerates nothing. `python tests/examples/check_utilities_pins.py` prints the
+`living-doc-utilities` version pinned by the collector, the toolkit, `generator-markdown` and the corpus
+checker (`tests/examples/requirements-examples-check.txt`) and warns on a minor-version skew; `--strict`
+makes that a failure.
 
 [Authoring documentation § What the pipeline also accepts](docs/guides/authoring-documentation.md#what-the-pipeline-also-accepts)
 shows each corrected variant as a before/after pair copied from `living-doc-utilities`'
-`living_doc_utilities/authoring/normalisation_cases.yaml` at the version the page names. No check compares
-them, so when a change moves that `living-doc-utilities` version, the same PR re-checks the pairs against
-the file at the new version's tag:
+`living_doc_utilities/authoring/normalisation_cases.yaml` at the version the page names.
+`tests/examples/examples_check.py` compares each pair with that file at the tag of the corpus checker's
+`living-doc-utilities` version, and the codes of [Error codes](docs/reference/errors.md#codes) with that
+version's registry. A change that moves that version fails `examples-check.yml` until the same PR brings
+both pages in line:
 
-1. For each case id the page names, compare the `before` block with the case's `input` and the `after`
-   block with its `expected`, byte for byte, and copy any difference.
+1. For each pair the check names, copy the case's `input` into the `before` block and its `expected` into
+   the `after` block, byte for byte.
 2. For a case id the file no longer has, show the case that replaced it, or drop the pair.
-3. Add a pair for a new `feature_header`, `page_object` or `scenario_file` case whose variant the page
-   does not show yet.
-4. Move the version in the page's link to the file and in the sentence after it.
+3. Move the version in the page's link to the file and in the sentence after it.
+4. Add or remove the row of each code the check names.
+5. Not checked: add a pair for a new `feature_header`, `page_object` or `scenario_file` case whose variant
+   the page does not show yet.
 
 ## The collector stage over the testbed
 

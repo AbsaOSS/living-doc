@@ -12,14 +12,14 @@ Not here: the collectors, toolkit, generators and utilities. Each lives in its o
 - Python: standalone scripts under `tests/` and `agentic/`. No package, no `pyproject.toml`, no `Makefile`, no lint, type-check or coverage gate.
 - Bash: the runners `tests/**/*.sh` and `agentic/scripts/*.sh`.
 - GitHub Actions, Python 3.14; the agentic script tests also run on 3.10.
-- Pinned externals: `living-doc-collector-gh` and `living-doc-toolkit` (`tests/collector/collector-pins.env`), `living-doc-utilities` (`tests/examples/requirements-examples-check.txt`). Read unpinned: `AbsaOSS/living-doc-testbed` at `master`.
+- Pinned externals: `living-doc-collector-gh`, `living-doc-toolkit` and `living-doc-generator-markdown` (`tests/collector/collector-pins.env`), `living-doc-utilities` (`tests/examples/requirements-examples-check.txt`). Read unpinned: `AbsaOSS/living-doc-testbed` at `master`.
 
 ## Structure
 
 | Path | Holds | Context |
 |---|---|---|
 | `docs/` | people docs, the format canon, the example corpus and its snapshots, integration gate reports | [docs/CONTEXT.md](docs/CONTEXT.md) |
-| `tests/` | the corpus checker and the two collector stages | [tests/CONTEXT.md](tests/CONTEXT.md) |
+| `tests/` | the corpus checker (with the authoring guide's pairs and the error codes), the two collector stages, the retired-names check | [tests/CONTEXT.md](tests/CONTEXT.md) |
 | `agentic/` | the shipped AI authoring layer: skills, one agent, evals, eval scripts | [agentic/CONTEXT.md](agentic/CONTEXT.md) |
 | `.github/` | CI workflows, PR and issue templates | [.github/CONTEXT.md](.github/CONTEXT.md) |
 | `.claude/` | this repository's own dev agents and skills: the agd kit (listed in `.agd.lock`) plus the project agent `agents/eval-runner.md` | none |
@@ -59,6 +59,7 @@ The canon pages in `docs/reference/` define the format; the corpus shows it; the
 | Document types and views | `docs/guides/living-doc-document-types.md`; `docs/reference/rendering-rules.md` explains the views, normative in `living-doc-utilities`, and defines *What was not loaded*, which `living-doc-utilities` only maps onto warning fields | review |
 | Ecosystem frame F1–F7 and its exceptions | `docs/introduction/principles.md` | the PR template's `## Framework` box, review |
 | Collector and toolkit output | owned by `living-doc-utilities`; snapshots in `docs/examples/_expected/` | the checks and the diff in `real-collector.yml` |
+| Retired artifact, field and command names, here and in the pinned components | `living-doc-utilities` `docs/contracts.md` (R3, R8) | `tests/docs/retired_names_check.py --strict` in `retired-names.yml` |
 
 ## Running it
 
@@ -67,14 +68,14 @@ Commands: `AGENTS.md` § This project. The collector stages need `git` and githu
 ## Conventions
 
 - Every PR stays inside the frame in `docs/introduction/principles.md`, or names the row it bends and adds the exception there in the same PR.
-- Same-PR obligations: a format change in a canon page updates `docs/examples/`, and a Project Profile or `seed.yaml` change in `agentic/skills/shared/references/agentic-formats.md` updates `docs/examples/project-profile/`; a canon change regenerates the agentic copies; a collector or toolkit pin bump regenerates `docs/examples/_expected/` and keeps the testbed stage green; a move of the `living-doc-utilities` version re-checks the before/after pairs in `docs/guides/authoring-documentation.md` against that version ([CONTRIBUTING.md § Regenerating the collector snapshots](CONTRIBUTING.md#regenerating-the-collector-snapshots)).
+- Same-PR obligations: a format change in a canon page updates `docs/examples/`, and a Project Profile or `seed.yaml` change in `agentic/skills/shared/references/agentic-formats.md` updates `docs/examples/project-profile/`; a canon change regenerates the agentic copies; a collector or toolkit pin bump regenerates `docs/examples/_expected/` and keeps the testbed stage green; a move of the checker's `living-doc-utilities` version brings the before/after pairs in `docs/guides/authoring-documentation.md` and the codes in `docs/reference/errors.md` in line with it, which `tests/examples/examples_check.py` checks ([CONTRIBUTING.md § Regenerating the collector snapshots](CONTRIBUTING.md#regenerating-the-collector-snapshots)).
 - Docs link, they don't copy. Lychee checks every link and fragment in every `*.md`.
 - Nothing from `specs/` is committed or cited: it is local planning.
 - PR, branch, title and review rules: `AGENTS.md` § This project.
 
 ## Key decisions
 
-- The pipeline is AI-free; AI exists only in authoring (`agentic/`). Every checker here is deterministic and offline (principles F6).
+- The pipeline is AI-free; AI exists only in authoring (`agentic/`). Every checker here is deterministic (principles F6) and reads the network only for pinned inputs ([tests/CONTEXT.md](tests/CONTEXT.md)).
 - No lint, type-check or coverage gate, because the Python is a few standalone scripts with no package.
 - Planning docs stay local and gitignored, so tracked docs carry everything normative.
 
