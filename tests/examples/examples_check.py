@@ -1368,7 +1368,7 @@ def check_error_codes(page: Path, root: Path, codes: Iterable[str]) -> list[Find
     listed: dict[str, int] = {}
     for index in range(*section):
         first = lines[index].split("|")[1].strip() if lines[index].startswith("|") else None
-        if first is None or first == "Code" or set(first) <= set("-: "):
+        if first is None or first == "Code" or (first and set(first) <= set("-: ")):
             continue        # not a table line, the header row, or the separator
         row = CODE_ROW_RE.match(lines[index])
         if row is None:

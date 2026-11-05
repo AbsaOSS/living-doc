@@ -1242,6 +1242,17 @@ def test_row_whose_first_column_is_no_code_fails(errors_copy: Path, tmp_path: Pa
     assert findings[0].line == _line_of(errors_copy, extra)
 
 
+def test_row_with_an_empty_first_column_fails(errors_copy: Path, tmp_path: Path) -> None:
+    row = _errors_row(errors_copy, "FIELD_LOSS")
+    extra = row.replace("`FIELD_LOSS`", "")
+    _mutate(errors_copy.parent, errors_copy.name, row + "\n", row + "\n" + extra + "\n")
+
+    findings = check_error_codes(errors_copy, tmp_path, ALL_CODES)
+    assert [(f.file, f.line, f.rule) for f in findings] == [
+        (ERRORS_PAGE, _line_of(errors_copy, extra),
+         "a row under § Codes whose first column is not one code alone in backticks")], findings
+
+
 def _line_of(page: Path, line: str, occurrence: int = 1) -> int:
     numbers = [n for n, text in enumerate(page.read_text(encoding="utf-8").splitlines(), 1) if text == line]
     return numbers[occurrence - 1]
