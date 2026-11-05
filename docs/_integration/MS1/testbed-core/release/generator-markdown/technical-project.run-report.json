@@ -1,0 +1,211 @@
+{
+  "generator": {
+    "name": "living-doc-generator-markdown",
+    "utilities_version": "0.8.0"
+  },
+  "document_type": "technical-project",
+  "document": "technical-project.md",
+  "title": "testbed-core",
+  "view": "release",
+  "input": {
+    "schema_version": "generator-ready-v1.0.0",
+    "producer": {
+      "name": "AbsaOSS/living-doc-toolkit",
+      "version": "0.1.0",
+      "utilities_version": "0.8.0"
+    }
+  },
+  "counts": {
+    "entities": 16,
+    "entities_by_type": {
+      "DocumentedUserStory": 3,
+      "DocumentedFeature": 4,
+      "DocumentedFunctionality": 9
+    },
+    "acceptance_criteria": 24,
+    "scenarios": 0,
+    "warnings_by_code": {}
+  },
+  "render_manifest": {
+    "view": "release",
+    "entities": [
+      "US-001",
+      "US-002",
+      "US-003",
+      "FEAT-001",
+      "FEAT-005",
+      "FEAT-003",
+      "FEAT-002",
+      "FUNC-001",
+      "FUNC-002",
+      "FUNC-005",
+      "FUNC-006",
+      "FUNC-007",
+      "FUNC-008",
+      "FUNC-009",
+      "FUNC-010",
+      "FUNC-011"
+    ],
+    "acceptance_criteria": [
+      "US-001-01",
+      "US-001-02",
+      "US-001-04",
+      "US-002-01",
+      "US-002-02",
+      "US-002-03",
+      "US-003-01",
+      "FUNC-001-01",
+      "FUNC-001-02",
+      "FUNC-002-01",
+      "FUNC-005-01",
+      "FUNC-005-02",
+      "FUNC-005-03",
+      "FUNC-006-01",
+      "FUNC-006-02",
+      "FUNC-007-01",
+      "FUNC-008-01",
+      "FUNC-008-02",
+      "FUNC-008-03",
+      "FUNC-009-01",
+      "FUNC-009-02",
+      "FUNC-010-01",
+      "FUNC-010-02",
+      "FUNC-011-01"
+    ],
+    "aspects": [
+      {
+        "ac_id": "US-002-03",
+        "label": "Aspect",
+        "values": [
+          "adult",
+          "junior"
+        ]
+      },
+      {
+        "ac_id": "FUNC-001-01",
+        "label": "Aspect",
+        "values": [
+          "author",
+          "subject"
+        ]
+      },
+      {
+        "ac_id": "FUNC-005-01",
+        "label": "Aspect",
+        "values": [
+          "name",
+          "date-of-birth",
+          "address"
+        ]
+      },
+      {
+        "ac_id": "FUNC-005-03",
+        "label": "required_detail",
+        "values": [
+          "name",
+          "date-of-birth",
+          "address"
+        ]
+      },
+      {
+        "ac_id": "FUNC-008-03",
+        "label": "sort_order",
+        "values": [
+          "relevance",
+          "newest-first"
+        ]
+      },
+      {
+        "ac_id": "FUNC-010-02",
+        "label": "fine_state",
+        "values": [
+          "paid",
+          "waived",
+          "written-off"
+        ]
+      }
+    ],
+    "badges": [
+      {
+        "id": "US-001",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "US-002",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "US-003",
+        "badges": [
+          "DEPRECATED"
+        ]
+      },
+      {
+        "id": "FEAT-005",
+        "badges": [
+          "DEPRECATED"
+        ]
+      },
+      {
+        "id": "FUNC-001",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-002",
+        "badges": [
+          "DEPRECATED"
+        ]
+      },
+      {
+        "id": "FUNC-005",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-006",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-007",
+        "badges": [
+          "DEPRECATED"
+        ]
+      },
+      {
+        "id": "FUNC-008",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-009",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-010",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-011",
+        "badges": [
+          "ACTIVE"
+        ]
+      }
+    ],
+    "scenarios": [],
+    "not_loaded": []
+  }
+}
