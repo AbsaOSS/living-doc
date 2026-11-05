@@ -23,6 +23,7 @@ reports it by file + rule.
 
 from __future__ import annotations
 
+import functools
 import re
 import shutil
 from importlib.metadata import version
@@ -1086,7 +1087,10 @@ def _cases_like(guide_text: str) -> str:
     return yaml.safe_dump(cases, allow_unicode=True, sort_keys=False)
 
 
-REAL_GUIDE_CASES = _cases_like(REAL_GUIDE.read_text(encoding="utf-8"))
+@functools.cache
+def real_guide_cases() -> str:
+    # Built on first use, not at import: a guide this cannot read fails the guide tests only.
+    return _cases_like(REAL_GUIDE.read_text(encoding="utf-8"))
 
 
 @pytest.fixture
@@ -1098,8 +1102,9 @@ def guide_copy(tmp_path: Path) -> Path:
 
 
 def guide_findings(guide: Path, root: Path, installed: str = UTILITIES_VERSION,
-                   cases: str = REAL_GUIDE_CASES) -> list:
-    return check_authoring_guide(guide, root, installed, fetcher=lambda url: cases)
+                   cases: str | None = None) -> list:
+    text = real_guide_cases() if cases is None else cases
+    return check_authoring_guide(guide, root, installed, fetcher=lambda url: text)
 
 
 def test_guide_pairs_match_their_cases() -> None:
@@ -1107,7 +1112,7 @@ def test_guide_pairs_match_their_cases() -> None:
 
     def fetcher(url: str) -> str:
         fetched.append(url)
-        return REAL_GUIDE_CASES
+        return real_guide_cases()
 
     assert check_authoring_guide(REAL_GUIDE, REPO_ROOT, UTILITIES_VERSION, fetcher) == []
     assert fetched == [CASES_URL.format(version=UTILITIES_VERSION)]
@@ -1150,7 +1155,7 @@ def test_guide_version_other_than_the_installed_one_fails() -> None:
 
     def fetcher(url: str) -> str:
         fetched.append(url)
-        return REAL_GUIDE_CASES
+        return real_guide_cases()
 
     findings = check_authoring_guide(REAL_GUIDE, REPO_ROOT, "99.0.0", fetcher)
     assert fetched == [CASES_URL.format(version="99.0.0")]
