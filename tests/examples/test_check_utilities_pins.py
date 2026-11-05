@@ -42,16 +42,23 @@ living-doc-utilities==0.6.0
 ./apps/cli
 """
 
+GENERATOR_REQUIREMENTS = """\
+living-doc-utilities==0.6.0
+Jinja2==3.1.6
+"""
+
 
 @pytest.fixture
 def requirements(tmp_path: Path):
-    """Write the three requirements files and return the ``--requirements`` arguments for them."""
-    def write(collector: str, examples_check: str) -> list[str]:
+    """Write the four requirements files and return the ``--requirements`` arguments for them."""
+    def write(collector: str, examples_check: str, generator: str = GENERATOR_REQUIREMENTS) -> list[str]:
         (tmp_path / "collector.txt").write_text(collector, encoding="utf-8")
         (tmp_path / "toolkit.txt").write_text(TOOLKIT_REQUIREMENTS, encoding="utf-8")
+        (tmp_path / "generator.txt").write_text(generator, encoding="utf-8")
         (tmp_path / "examples.txt").write_text(examples_check, encoding="utf-8")
         return ["--requirements", f"collector-gh={tmp_path / 'collector.txt'}",
                 "--requirements", f"toolkit={tmp_path / 'toolkit.txt'}",
+                "--requirements", f"generator-markdown={tmp_path / 'generator.txt'}",
                 "--requirements", f"examples-check={tmp_path / 'examples.txt'}"]
     return write
 
@@ -84,7 +91,18 @@ def test_minor_mismatch_warns(requirements, capsys: pytest.CaptureFixture[str]) 
     assert main(args) == 0
     out = capsys.readouterr().out
     assert ("warning: living-doc-utilities minor-version mismatch: collector-gh 0.6.0, "
-            "toolkit 0.6.0, examples-check 0.5.0") in out
+            "toolkit 0.6.0, generator-markdown 0.6.0, examples-check 0.5.0") in out
+
+
+def test_generator_markdown_pin_is_reported(requirements, capsys: pytest.CaptureFixture[str]) -> None:
+    args = requirements(COLLECTOR_REQUIREMENTS, "living-doc-utilities==0.6.0\n",
+                        generator="living-doc-utilities==0.5.0\n")
+
+    assert main(["--strict", *args]) == 1
+    out = capsys.readouterr().out
+    assert any(line.split()[:2] == ["generator-markdown", "0.5.0"] for line in out.splitlines()), out
+    assert ("error: living-doc-utilities minor-version mismatch: collector-gh 0.6.0, toolkit 0.6.0, "
+            "generator-markdown 0.5.0, examples-check 0.6.0") in out
 
 
 def test_minor_mismatch_fails_with_strict(requirements, capsys: pytest.CaptureFixture[str]) -> None:
@@ -148,7 +166,8 @@ def test_component_requirements_fetched_at_the_pinned_ref(tmp_path: Path,
                                                           capsys: pytest.CaptureFixture[str]) -> None:
     pins = tmp_path / "pins.env"
     pins.write_text("# comment\nCOLLECTOR_GH_REF=0123456789abcdef0123456789abcdef01234567\n"
-                    "TOOLKIT_REF=89abcdef0123456789abcdef0123456789abcdef\n",
+                    "TOOLKIT_REF=89abcdef0123456789abcdef0123456789abcdef\n"
+                    "GENERATOR_MARKDOWN_REF=fedcba9876543210fedcba9876543210fedcba98\n",
                     encoding="utf-8")
     examples = tmp_path / "examples.txt"
     examples.write_text("living-doc-utilities==0.6.0\n", encoding="utf-8")
@@ -163,7 +182,9 @@ def test_component_requirements_fetched_at_the_pinned_ref(tmp_path: Path,
     assert fetched == ["https://raw.githubusercontent.com/AbsaOSS/living-doc-collector-gh/"
                        "0123456789abcdef0123456789abcdef01234567/requirements.txt",
                        "https://raw.githubusercontent.com/AbsaOSS/living-doc-toolkit/"
-                       "89abcdef0123456789abcdef0123456789abcdef/requirements.txt"]
+                       "89abcdef0123456789abcdef0123456789abcdef/requirements.txt",
+                       "https://raw.githubusercontent.com/AbsaOSS/living-doc-generator-markdown/"
+                       "fedcba9876543210fedcba9876543210fedcba98/requirements.txt"]
     assert "AbsaOSS/living-doc-collector-gh@0123456789ab requirements.txt" in capsys.readouterr().out
 
 

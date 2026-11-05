@@ -55,16 +55,34 @@ This is the *grammar + cross-reference* gate for the copyable input corpus:
    ``living-doc-utilities``. Valid non-canonical layouts, the flat one among them, are test data
    there, not corpus content.
 
+Two more rules check pages against the installed ``living-doc-utilities``; ``check_corpus`` does not
+run them, ``main`` runs them after the corpus:
+
+8. **Authoring guide pairs** — every pair under ``docs/guides/authoring-documentation.md`` § What the
+   pipeline also accepts (a ``**`<case id>`**:`` line, then a ``text before`` and a ``text after``
+   block) is its case of ``normalisation_cases.yaml`` at the installed version: ``before`` is the case's
+   ``input``, ``after`` its ``expected`` (the YAML block's trailing newline aside), and ``normalize``
+   with the case's format and entity type turns ``before`` into ``after``. An unknown case id, a block
+   without its id line, an ``after`` block before its ``before`` block, an id line without both blocks,
+   and a pair count that differs from the id-line count are findings. The page's link to the file and its "at ``v<version>``" name the installed
+   version. The wheel does not ship the file, so it is fetched from GitHub at the tag
+   ``v<version>``; a failed fetch is a finding.
+9. **Error codes** — the codes in the first column of ``docs/reference/errors.md`` § Codes are
+   exactly ``living_doc_utilities.contracts.codes.ALL_CODES``: each missing and each extra code, a
+   second row for a code, and a row whose first column is not one code alone in backticks are
+   findings.
+
 Canonical references:
   docs/reference/authoring-formats.md  (the GitHub issue-body layout among them)
   docs/reference/glossary.md
   agentic/skills/shared/references/agentic-formats.md  (Project Profile)
 
-The script depends on the standard library, PyYAML and the authoring layer of
-``living-doc-utilities`` (``normalize``, ``ac_grammar``, ``framing``, ``identity``), pinned in
-``tests/examples/requirements-examples-check.txt``. It has no import-time dependency on ``collector-gh``
-or ``toolkit``. It exits non-zero on any violation and prints, per finding, the file, the line
-(where known), the failed rule and a fix hint.
+The script depends on the standard library, PyYAML, the authoring layer of ``living-doc-utilities``
+(``normalize``, ``ac_grammar``, ``framing``, ``identity``) and its code registry
+(``contracts.codes``), pinned in ``tests/examples/requirements-examples-check.txt``. It has no
+import-time dependency on ``collector-gh`` or ``toolkit``. Its one network read is rule 8's cases
+file. It exits non-zero on any violation and prints, per finding, the file, the line (where known),
+the failed rule and a fix hint.
 """
 
 from __future__ import annotations
@@ -72,14 +90,18 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import urllib.request
 from dataclasses import dataclass
+from importlib.metadata import version
 from pathlib import Path
+from typing import Callable, Iterable
 
 import yaml
 from living_doc_utilities.authoring import ac_grammar, normalize
 from living_doc_utilities.authoring.framing import criterion_blocks
 from living_doc_utilities.authoring.identity import derive_entity_id, extract_living_doc_title
 from living_doc_utilities.authoring.normalize import SourceFormat
+from living_doc_utilities.contracts.codes import ALL_CODES
 from living_doc_utilities.contracts.common import AcceptanceCriterion
 
 # --- vocabularies, mirrored from the canonical pages --------------------------------------
@@ -1188,6 +1210,184 @@ def coverage_pair(corpus: Corpus) -> None:
                     "(the corpus is a coverage-matrix input and must show both verdicts)")
 
 
+# --- rules 8 and 9: two pages against the installed living-doc-utilities ---------------------
+# Not part of `check_corpus`: `main` runs them after the corpus, on the pages of the repository root.
+
+UTILITIES = "living-doc-utilities"
+AUTHORING_GUIDE = "docs/guides/authoring-documentation.md"
+GUIDE_SECTION = "## What the pipeline also accepts"
+ERRORS_PAGE = "docs/reference/errors.md"
+CODES_SECTION = "## Codes"
+# The wheel does not ship the cases: they are read from GitHub at the tag of the installed version.
+CASES_FILE = "living_doc_utilities/authoring/normalisation_cases.yaml"
+CASES_URL = "https://raw.githubusercontent.com/AbsaOSS/living-doc-utilities/v{version}/" + CASES_FILE
+CASES_LINK_RE = re.compile(r"https://github\.com/AbsaOSS/living-doc-utilities/blob/(?P<ref>[^/\s)]+)/"
+                           + re.escape(CASES_FILE))
+CASES_AT_RE = re.compile(r"\bat `(?P<ref>v[^`]+)`")
+PAIR_ID_RE = re.compile(r"^\*\*`(?P<id>[^`]+)`\*\*:")
+PAIR_FENCE_RE = re.compile(r"^```text (?P<side>before|after)$")
+CODE_ROW_RE = re.compile(r"^\|\s*`(?P<code>[A-Z][A-Z0-9_]*)`\s*\|")
+_FETCH_TIMEOUT_SECONDS = 30
+GUIDE_HINT = (f"copy the case's input and expected from {CASES_FILE} at the installed version's tag "
+              "(CONTRIBUTING.md § Regenerating the collector snapshots)")
+PAIR_SHAPE_HINT = ("write each pair as a '**`<case id>`**: <one sentence>' line, then a ```text before "
+                   "and a ```text after block")
+CODES_HINT = (f"keep one row per code of living_doc_utilities.contracts.codes.ALL_CODES, the code alone in "
+              f"backticks in the first column ({ERRORS_PAGE})")
+
+
+def fetch_text(url: str) -> str:
+    """The text at ``url``, a GitHub raw-content URL at a tag."""
+    with urllib.request.urlopen(url, timeout=_FETCH_TIMEOUT_SECONDS) as response:
+        return response.read().decode("utf-8")
+
+
+def _section(lines: list[str], heading: str) -> tuple[int, int] | None:
+    """The index range of the lines under ``heading``, up to the next heading of its level."""
+    if heading not in lines:
+        return None
+    start = lines.index(heading) + 1
+    level = heading.split(" ", 1)[0] + " "
+    end = next((i for i in range(start, len(lines)) if lines[i].startswith(level)), len(lines))
+    return start, end
+
+
+def _guide_pairs(lines: list[str], start: int, end: int,
+                 fail: Callable[[int, str], None]) -> list[tuple[str, int, str, str]]:
+    """Each ``(case id, line, before, after)``: a ``**`<id>`**:`` line, then its two ``text`` blocks."""
+    pairs: list[tuple[str, int, str, str]] = []
+    open_pair: dict | None = None
+    id_lines = 0
+
+    def close() -> None:
+        if open_pair is None:
+            return
+        missing = [side for side in ("before", "after") if open_pair[side] is None]
+        if missing:
+            fail(open_pair["line"], f"case '{open_pair['id']}' has no "
+                                    + " and no ".join(f"```text {side}" for side in missing) + " block")
+        else:
+            pairs.append((open_pair["id"], open_pair["line"], open_pair["before"], open_pair["after"]))
+
+    i = start
+    while i < end:
+        id_match = PAIR_ID_RE.match(lines[i])
+        fence = PAIR_FENCE_RE.match(lines[i])
+        if id_match:
+            close()
+            open_pair = {"id": id_match.group("id"), "line": i + 1, "before": None, "after": None}
+            id_lines += 1
+        elif fence:
+            close_at = next((j for j in range(i + 1, end) if lines[j] == "```"), end)
+            side, block = fence.group("side"), "\n".join(lines[i + 1:close_at])
+            if open_pair is None or open_pair[side] is not None:
+                fail(i + 1, f"a ```text {side} block without its case id line")
+            elif side == "after" and open_pair["before"] is None:
+                fail(i + 1, "a ```text after block before its ```text before block")
+            else:
+                open_pair[side] = block
+            i = close_at
+        i += 1
+    close()
+    if len(pairs) != id_lines:
+        fail(start, f"{len(pairs)} pairs found for {id_lines} case id lines")
+    elif not pairs:
+        fail(start, f"no before/after pair found under '{GUIDE_SECTION}'")
+    return pairs
+
+
+def check_authoring_guide(guide: Path, root: Path, installed: str,
+                          fetcher: Callable[[str], str] = fetch_text) -> list[Finding]:
+    """Rule 8: each before/after pair of the guide is its case at ``installed`` and ``normalize``'s output."""
+    file = _rel(guide, root)
+    findings: list[Finding] = []
+
+    def fail(index: int | None, rule: str, hint: str = GUIDE_HINT) -> None:
+        findings.append(Finding(file, index, rule, hint))
+
+    lines = guide.read_text(encoding="utf-8").splitlines()
+    section = _section(lines, GUIDE_SECTION)
+    if section is None:
+        fail(None, f"no '{GUIDE_SECTION}' section")
+        return findings
+    start, end = section
+    text = "\n".join(lines[start:end])
+    tag = f"v{installed}"
+
+    version_hint = f"name {tag} in the link to {CASES_FILE} and in 'at `{tag}`' after it"
+    links = list(CASES_LINK_RE.finditer(text))
+    if not links:
+        fail(start, f"no link to normalisation_cases.yaml under '{GUIDE_SECTION}'", version_hint)
+    for link in links:
+        if link.group("ref") != tag:
+            fail(start + text.count("\n", 0, link.start()) + 1,
+                 f"the link to normalisation_cases.yaml is at {link.group('ref')}, not {tag}", version_hint)
+    named = CASES_AT_RE.search(text)
+    if named is None:
+        fail(start, f"no 'at `{tag}`' names the version of the cases", version_hint)
+    elif named.group("ref") != tag:
+        fail(start + text.count("\n", 0, named.start()) + 1,
+             f"the page names the cases at `{named.group('ref')}`, not `{tag}`", version_hint)
+
+    pairs = _guide_pairs(lines, start, end, lambda index, rule: fail(index, rule, PAIR_SHAPE_HINT))
+
+    url = CASES_URL.format(version=installed)
+    try:
+        cases_text = fetcher(url)
+    except (OSError, UnicodeDecodeError) as exc:
+        fail(None, f"cannot fetch normalisation_cases.yaml at {tag}: {exc}",
+             f"check that {url} is reachable")
+        return findings
+    cases = {case["id"]: case for case in yaml.safe_load(cases_text)}
+
+    for case_id, line, before, after in pairs:
+        case = cases.get(case_id)
+        if case is None:
+            fail(line, f"case '{case_id}' is not in normalisation_cases.yaml at {tag}",
+                 "show the case that replaced it, or drop the pair")
+            continue
+        # A YAML literal block ends with one newline the Markdown block does not show.
+        if before != case["input"].removesuffix("\n"):
+            fail(line, f"pair '{case_id}': the before block is not the case's input")
+        if after != case["expected"].removesuffix("\n"):
+            fail(line, f"pair '{case_id}': the after block is not the case's expected")
+        produced = normalize.normalize(before, SourceFormat(case["format"]), case["entity_type"]).text
+        if produced != after:
+            fail(line, f"pair '{case_id}': normalize does not turn the before block into the after block")
+    return findings
+
+
+def check_error_codes(page: Path, root: Path, codes: Iterable[str]) -> list[Finding]:
+    """Rule 9: the first column of the page's § Codes lists exactly ``codes``."""
+    file = _rel(page, root)
+    lines = page.read_text(encoding="utf-8").splitlines()
+    section = _section(lines, CODES_SECTION)
+    if section is None:
+        return [Finding(file, None, f"no '{CODES_SECTION}' section", CODES_HINT)]
+    findings: list[Finding] = []
+    listed: dict[str, int] = {}
+    for index in range(*section):
+        first = lines[index].split("|")[1].strip() if lines[index].startswith("|") else None
+        if first is None or first == "Code" or (first and set(first) <= set("-: ")):
+            continue        # not a table line, the header row, or the separator
+        row = CODE_ROW_RE.match(lines[index])
+        if row is None:
+            findings.append(Finding(file, index + 1, "a row under § Codes whose first column is not one code "
+                                                     "alone in backticks", CODES_HINT))
+        elif row.group("code") in listed:
+            findings.append(Finding(file, index + 1, f"code {row.group('code')} has a second row under § Codes",
+                                    CODES_HINT))
+        else:
+            listed[row.group("code")] = index + 1
+    registry = list(codes)
+    # A missing code has no row of its own: the finding points at the `## Codes` heading.
+    findings += [Finding(file, section[0], f"code {code} of ALL_CODES has no row under § Codes", CODES_HINT)
+                 for code in registry if code not in listed]
+    findings += [Finding(file, line, f"code {code} under § Codes is not in ALL_CODES", CODES_HINT)
+                 for code, line in listed.items() if code not in registry]
+    return findings
+
+
 # --- driver ----------------------------------------------------------------------
 
 def check_corpus(examples_dir: Path) -> list[Finding]:
@@ -1224,10 +1424,10 @@ def check_corpus(examples_dir: Path) -> list[Finding]:
     return corpus.findings
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None, fetcher: Callable[[str], str] = fetch_text) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    default_dir = Path(__file__).resolve().parents[2] / "docs" / "examples"
-    parser.add_argument("--examples-dir", type=Path, default=default_dir,
+    root = Path(__file__).resolve().parents[2]
+    parser.add_argument("--examples-dir", type=Path, default=root / "docs" / "examples",
                         help="path to the docs/examples corpus (default: %(default)s)")
     args = parser.parse_args(argv)
 
@@ -1237,17 +1437,29 @@ def main(argv: list[str] | None = None) -> int:
         except (AttributeError, ValueError):
             pass
 
-    findings = check_corpus(args.examples_dir.resolve())
-    if not findings:
-        print("docs/examples corpus: OK — grammar and cross-references validate.")
-        return 0
-
-    print(f"docs/examples corpus: {len(findings)} violation(s)\n")
-    for finding in findings:
-        print(finding)
-        print()
-    print("See docs/reference/authoring-formats.md and glossary.md for the formats.")
-    return 1
+    installed = version(UTILITIES)
+    checks = [
+        ("docs/examples corpus", "grammar and cross-references validate",
+         check_corpus(args.examples_dir.resolve()),
+         "See docs/reference/authoring-formats.md and glossary.md for the formats."),
+        (AUTHORING_GUIDE, f"every before/after pair is its case at {UTILITIES} {installed}",
+         check_authoring_guide(root / AUTHORING_GUIDE, root, installed, fetcher), None),
+        (ERRORS_PAGE, f"§ Codes lists the {len(ALL_CODES)} codes of {UTILITIES} {installed}",
+         check_error_codes(root / ERRORS_PAGE, root, ALL_CODES), None),
+    ]
+    failed = False
+    for name, ok, findings, see in checks:
+        if not findings:
+            print(f"{name}: OK — {ok}.")
+            continue
+        failed = True
+        print(f"{name}: {len(findings)} violation(s)\n")
+        for finding in findings:
+            print(finding)
+            print()
+        if see:
+            print(see)
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

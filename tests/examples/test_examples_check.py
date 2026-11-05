@@ -23,17 +23,26 @@ reports it by file + rule.
 
 from __future__ import annotations
 
+import functools
+import re
 import shutil
+from importlib.metadata import version
 from pathlib import Path
 
 import pytest
+import yaml
+from living_doc_utilities.contracts.codes import ALL_CODES
 
-from examples_check import (AC_TAG_RE, FEATURE_STOP_RE, FEATURE_STRIP_RE, Corpus, SourceFormat,
-                            _criteria, _decomment_block, _normalized, check_corpus,
-                            check_feature_levels)
+from examples_check import (AC_TAG_RE, AUTHORING_GUIDE, CASES_URL, ERRORS_PAGE, FEATURE_STOP_RE,
+                            FEATURE_STRIP_RE, Corpus, SourceFormat, _criteria, _decomment_block,
+                            _normalized, check_authoring_guide, check_corpus, check_error_codes,
+                            check_feature_levels, main)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REAL_EXAMPLES = REPO_ROOT / "docs" / "examples"
+REAL_GUIDE = REPO_ROOT / AUTHORING_GUIDE
+REAL_ERRORS_PAGE = REPO_ROOT / ERRORS_PAGE
+UTILITIES_VERSION = version("living-doc-utilities")
 US_FEATURE = "gherkin/liv_doc_us/us-001-customer-login.feature"
 FUNC_FEATURE = "gherkin/liv_doc_func/func-001-validate-password-strength.feature"
 FUNC2_FEATURE = "gherkin/liv_doc_func/func-002-reject-breached-password.feature"
@@ -1052,3 +1061,229 @@ def test_pageobject_wrapped_line_at_key_indent_fails(corpus_dir: Path) -> None:
     assert any(PAGEOBJECT in f.file
                and f.rule == "wrapped line at indent 0, expected deeper than its key at 0"
                for f in findings), findings
+
+
+# --- the authoring guide's pairs and the error-code page, against living-doc-utilities --------
+# No test fetches `normalisation_cases.yaml`: each injects cases built from the real guide, one per
+# pair, its `input` and `expected` the pair's blocks, its format and entity type the ones the block's
+# own text shows. `normalize` still runs for real, so the pristine test proves each pair offline.
+
+_GUIDE_PAIR_RE = re.compile(r"^\*\*`(?P<id>[^`]+)`\*\*:.*?^```text before\n(?P<before>.*?)\n```$"
+                            r".*?^```text after\n(?P<after>.*?)\n```$", re.M | re.S)
+_ENTITY_TYPES = {"US": "DocumentedUserStory", "FEAT": "DocumentedFeature",
+                 "FUNC": "DocumentedFunctionality"}
+
+
+def _cases_like(guide_text: str) -> str:
+    cases = []
+    for m in _GUIDE_PAIR_RE.finditer(guide_text):
+        before = m.group("before")
+        fmt = ("page_object" if before.startswith("/*")
+               else "scenario_file" if before.startswith("# AC:") else "feature_header")
+        prefix = re.search(r"\b(US|FEAT|FUNC)-\d", before).group(1)
+        cases.append({"id": m.group("id"), "rule": "test", "format": fmt,
+                      "entity_type": _ENTITY_TYPES[prefix], "input": before + "\n",
+                      "expected": m.group("after") + "\n", "note": "built from the guide"})
+    return yaml.safe_dump(cases, allow_unicode=True, sort_keys=False)
+
+
+@functools.cache
+def real_guide_cases() -> str:
+    # Built on first use, not at import: a guide this cannot read fails the guide tests only.
+    return _cases_like(REAL_GUIDE.read_text(encoding="utf-8"))
+
+
+@pytest.fixture
+def guide_copy(tmp_path: Path) -> Path:
+    dest = tmp_path / AUTHORING_GUIDE
+    dest.parent.mkdir(parents=True)
+    shutil.copyfile(REAL_GUIDE, dest)
+    return dest
+
+
+def guide_findings(guide: Path, root: Path, installed: str = UTILITIES_VERSION,
+                   cases: str | None = None) -> list:
+    text = real_guide_cases() if cases is None else cases
+    return check_authoring_guide(guide, root, installed, fetcher=lambda url: text)
+
+
+def test_guide_pairs_match_their_cases() -> None:
+    fetched: list[str] = []
+
+    def fetcher(url: str) -> str:
+        fetched.append(url)
+        return real_guide_cases()
+
+    assert check_authoring_guide(REAL_GUIDE, REPO_ROOT, UTILITIES_VERSION, fetcher) == []
+    assert fetched == [CASES_URL.format(version=UTILITIES_VERSION)]
+    assert fetched[0].startswith("https://raw.githubusercontent.com/AbsaOSS/living-doc-utilities/v")
+
+
+def test_guide_pair_that_differs_from_its_case_fails(guide_copy: Path, tmp_path: Path) -> None:
+    _mutate(guide_copy.parent, guide_copy.name,
+            "#   - Password strength is checked client-side for immediate feedback.",
+            "#   - Password strength is checked on the server.")
+
+    findings = guide_findings(guide_copy, tmp_path)
+    assert any(f.file == AUTHORING_GUIDE and f.rule == "pair 'rule1_bullet_marker_star_rationale_"
+               "feature_header': the after block is not the case's expected" for f in findings), findings
+
+
+def test_guide_pair_the_normaliser_does_not_produce_fails(guide_copy: Path, tmp_path: Path) -> None:
+    _mutate(guide_copy.parent, guide_copy.name,
+            "#   - Password strength is checked client-side for immediate feedback.",
+            "#   * Password strength is checked client-side for immediate feedback.")
+    cases = _cases_like(guide_copy.read_text(encoding="utf-8"))  # the case agrees, the normaliser not
+
+    findings = guide_findings(guide_copy, tmp_path, cases=cases)
+    assert [f.rule for f in findings] == [
+        "pair 'rule1_bullet_marker_star_rationale_feature_header': normalize does not turn the "
+        "before block into the after block"], findings
+
+
+def test_guide_unknown_case_id_fails(guide_copy: Path, tmp_path: Path) -> None:
+    _mutate(guide_copy.parent, guide_copy.name, "**`rule4_version_form_bare_numeric_feature_header`**:",
+            "**`rule4_version_form_renamed_feature_header`**:")
+
+    findings = guide_findings(guide_copy, tmp_path)
+    assert any(f.file == AUTHORING_GUIDE and f.rule == "case 'rule4_version_form_renamed_feature_header'"
+               f" is not in normalisation_cases.yaml at v{UTILITIES_VERSION}" for f in findings), findings
+
+
+def test_guide_version_other_than_the_installed_one_fails() -> None:
+    fetched: list[str] = []
+
+    def fetcher(url: str) -> str:
+        fetched.append(url)
+        return real_guide_cases()
+
+    findings = check_authoring_guide(REAL_GUIDE, REPO_ROOT, "99.0.0", fetcher)
+    assert fetched == [CASES_URL.format(version="99.0.0")]
+    rules = [f.rule for f in findings]
+    assert any(r.startswith("the link to normalisation_cases.yaml is at ") and r.endswith(", not v99.0.0")
+               for r in rules), findings
+    assert any(r.startswith("the page names the cases at `v") and r.endswith("`, not `v99.0.0`")
+               for r in rules), findings
+
+
+def test_guide_fetch_failure_is_a_finding(guide_copy: Path, tmp_path: Path) -> None:
+    def fetcher(url: str) -> str:
+        raise OSError("no network")
+
+    findings = check_authoring_guide(guide_copy, tmp_path, UTILITIES_VERSION, fetcher)
+    assert any(f.file == AUTHORING_GUIDE and f.rule.startswith(
+        f"cannot fetch normalisation_cases.yaml at v{UTILITIES_VERSION}") for f in findings), findings
+
+
+def test_guide_block_without_its_id_line_fails(guide_copy: Path, tmp_path: Path) -> None:
+    _mutate(guide_copy.parent, guide_copy.name,
+            "**`rule3_state_casing_status_key_feature_header`**: `In Review` becomes `in_review`.\n", "")
+
+    findings = guide_findings(guide_copy, tmp_path)
+    assert any(f.file == AUTHORING_GUIDE and f.rule == "a ```text before block without its case id line"
+               for f in findings), findings
+
+
+def test_guide_id_line_without_both_blocks_fails(guide_copy: Path, tmp_path: Path) -> None:
+    text = guide_copy.read_text(encoding="utf-8")
+    start = text.index("**`rule5b_title_id_separator_colon_page_object`**:")
+    after = text.index("```text after", start)
+    guide_copy.write_text(text[:after] + text[text.index("```\n", after) + 4:], encoding="utf-8")
+
+    rules = [f.rule for f in guide_findings(guide_copy, tmp_path)]
+    assert "case 'rule5b_title_id_separator_colon_page_object' has no ```text after block" in rules, rules
+    assert "15 pairs found for 16 case id lines" in rules, rules
+
+
+def test_guide_after_block_before_its_before_block_fails(guide_copy: Path, tmp_path: Path) -> None:
+    text = guide_copy.read_text(encoding="utf-8")
+    start = text.index("**`rule5b_title_id_separator_colon_page_object`**:")
+    before = text.index("```text before", start)
+    after = text.index("```text after", start)
+    end = text.index("```\n", after) + 4
+    guide_copy.write_text(text[:before] + text[after:end] + "\n" + text[before:after].rstrip("\n") + "\n"
+                          + text[end:], encoding="utf-8")
+
+    rules = [f.rule for f in guide_findings(guide_copy, tmp_path)]
+    assert "a ```text after block before its ```text before block" in rules, rules
+
+
+@pytest.fixture
+def errors_copy(tmp_path: Path) -> Path:
+    dest = tmp_path / ERRORS_PAGE
+    dest.parent.mkdir(parents=True)
+    shutil.copyfile(REAL_ERRORS_PAGE, dest)
+    return dest
+
+
+def _errors_row(page: Path, code: str) -> str:
+    return next(line for line in page.read_text(encoding="utf-8").splitlines()
+                if line.startswith(f"| `{code}` |"))
+
+
+def test_second_row_for_a_code_fails(errors_copy: Path, tmp_path: Path) -> None:
+    row = _errors_row(errors_copy, "FIELD_LOSS")
+    _mutate(errors_copy.parent, errors_copy.name, row + "\n", row + "\n" + row + "\n")
+
+    findings = check_error_codes(errors_copy, tmp_path, ALL_CODES)
+    assert [(f.file, f.rule) for f in findings] == [
+        (ERRORS_PAGE, "code FIELD_LOSS has a second row under § Codes")], findings
+    assert findings[0].line == _line_of(errors_copy, row, occurrence=2)
+
+
+def test_row_whose_first_column_is_no_code_fails(errors_copy: Path, tmp_path: Path) -> None:
+    row = _errors_row(errors_copy, "FIELD_LOSS")
+    extra = row.replace("`FIELD_LOSS`", "`field-loss-detail`")
+    _mutate(errors_copy.parent, errors_copy.name, row + "\n", row + "\n" + extra + "\n")
+
+    findings = check_error_codes(errors_copy, tmp_path, ALL_CODES)
+    assert [(f.file, f.rule) for f in findings] == [
+        (ERRORS_PAGE, "a row under § Codes whose first column is not one code alone in backticks")], findings
+    assert findings[0].line == _line_of(errors_copy, extra)
+
+
+def test_row_with_an_empty_first_column_fails(errors_copy: Path, tmp_path: Path) -> None:
+    row = _errors_row(errors_copy, "FIELD_LOSS")
+    extra = row.replace("`FIELD_LOSS`", "")
+    _mutate(errors_copy.parent, errors_copy.name, row + "\n", row + "\n" + extra + "\n")
+
+    findings = check_error_codes(errors_copy, tmp_path, ALL_CODES)
+    assert [(f.file, f.line, f.rule) for f in findings] == [
+        (ERRORS_PAGE, _line_of(errors_copy, extra),
+         "a row under § Codes whose first column is not one code alone in backticks")], findings
+
+
+def _line_of(page: Path, line: str, occurrence: int = 1) -> int:
+    numbers = [n for n, text in enumerate(page.read_text(encoding="utf-8").splitlines(), 1) if text == line]
+    return numbers[occurrence - 1]
+
+
+def test_error_codes_match_the_registry() -> None:
+    assert check_error_codes(REAL_ERRORS_PAGE, REPO_ROOT, ALL_CODES) == []
+
+
+def test_code_missing_from_the_errors_page_fails() -> None:
+    findings = check_error_codes(REAL_ERRORS_PAGE, REPO_ROOT, [*ALL_CODES, "NEW_REGISTRY_CODE"])
+    assert [(f.file, f.rule) for f in findings] == [
+        (ERRORS_PAGE, "code NEW_REGISTRY_CODE of ALL_CODES has no row under § Codes")], findings
+
+
+def test_extra_code_on_the_errors_page_fails() -> None:
+    findings = check_error_codes(REAL_ERRORS_PAGE, REPO_ROOT,
+                                 [code for code in ALL_CODES if code != "FIELD_LOSS"])
+    assert [(f.file, f.rule) for f in findings] == [
+        (ERRORS_PAGE, "code FIELD_LOSS under § Codes is not in ALL_CODES")], findings
+    assert findings[0].line is not None and "`FIELD_LOSS`" in (
+        REAL_ERRORS_PAGE.read_text(encoding="utf-8").splitlines()[findings[0].line - 1])
+
+
+def test_main_runs_the_guide_and_code_checks_after_the_corpus(
+        capsys: pytest.CaptureFixture[str]) -> None:
+    def fetcher(url: str) -> str:
+        raise OSError("no network")
+
+    assert main([], fetcher=fetcher) == 1
+    out = capsys.readouterr().out
+    assert "docs/examples corpus: OK" in out
+    assert f"{AUTHORING_GUIDE}: 1 violation(s)" in out and "cannot fetch" in out
+    assert f"{ERRORS_PAGE}: OK" in out

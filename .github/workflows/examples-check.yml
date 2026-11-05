@@ -24,6 +24,7 @@ on:
       - "docs/guides/**"
       - "docs/reference/**"
       - "tests/examples/**"
+      - "tests/docs/**"
       - ".github/workflows/examples-check.yml"
   pull_request:
     types: [ opened, synchronize, reopened ]
@@ -32,6 +33,7 @@ on:
       - "docs/guides/**"
       - "docs/reference/**"
       - "tests/examples/**"
+      - "tests/docs/**"
       - ".github/workflows/examples-check.yml"
   workflow_dispatch:
 
@@ -60,7 +62,10 @@ jobs:
       - name: Install pinned check requirements
         run: pip install -r tests/examples/requirements-examples-check.txt
 
-      - name: Validate the examples corpus
+      # The corpus, then the authoring guide's before/after pairs against living-doc-utilities'
+      # normalisation cases at the installed version's tag (fetched), and docs/reference/errors.md
+      # against its code registry.
+      - name: Validate the examples corpus, the authoring guide's pairs and the error codes
         run: python tests/examples/examples_check.py
 
       - name: Self-test the validator
@@ -71,3 +76,6 @@ jobs:
 
       - name: Self-test the snapshot normalizer
         run: python -m pytest tests/examples/test_normalize_snapshot.py -q
+
+      - name: Self-test the retired-names check
+        run: python -m pytest tests/docs -q

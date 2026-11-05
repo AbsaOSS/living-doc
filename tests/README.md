@@ -3,8 +3,9 @@
 ## Purpose
 
 This page is for contributors who run, debug or extend the checks here: the static check of
-`docs/examples/`, and the two stages that mine with the pinned `living-doc-collector-gh` and run the
-pinned `living-doc-toolkit` over what it mined.
+`docs/examples/` and of two pages against `living-doc-utilities`, the two stages that mine with the pinned
+`living-doc-collector-gh` and run the pinned `living-doc-toolkit` over what it mined, and the
+retired-names check over this repository and the pinned components.
 
 Read before: [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots)
 and [§ The collector stage over the testbed](../CONTRIBUTING.md#the-collector-stage-over-the-testbed).
@@ -25,12 +26,16 @@ Next: [Negative testbed cases](testbed/negative-cases.md).
 
 | Stage | Workflow · job | Reads | Asserts |
 |---|---|---|---|
-| static | `examples-check.yml` · `examples-check` | `docs/examples/`, without a collector | the corpus's grammar and cross-references |
+| static | `examples-check.yml` · `examples-check` | `docs/examples/`, without a collector; the authoring guide and `docs/reference/errors.md` | the corpus's grammar and cross-references; each before/after pair of the guide is its `living-doc-utilities` normalisation case at the installed version's tag, fetched; the page's codes are the installed registry's |
 | snapshot | `real-collector.yml` · `real-collector-snapshot` | `docs/examples/`, mined, then through the toolkit | the corpus's first-stage content, the toolkit's output, then no diff against `docs/examples/_expected/` |
 | testbed | `real-collector.yml` · `testbed-collector-stage` | the testbed's `core`, mined, then through the toolkit | invariants over both, then exactly one warning per derived case |
+| retired names | `retired-names.yml` · `retired-names`, every PR and push to `master` | the tracked files of this repository and of `collector-gh`, `toolkit` and `generator-markdown` at their pins | no retired artifact, field or command name outside `tests/`, changelogs, `collector-gh`'s `doc_issues/` and the allow-list |
 
 - The snapshot and testbed stages share one collector and one toolkit, each in a venv of its own.
 - Static rules: the module docstring of [`examples/examples_check.py`](examples/examples_check.py).
+- Retired names, and what the check skips: the module docstring of
+  [`docs/retired_names_check.py`](docs/retired_names_check.py). Run it locally with a clone of each
+  component at its pin: `python tests/docs/retired_names_check.py --strict <collector-gh> <toolkit> <generator-markdown>`.
 - Snapshot procedure (regenerate, commit, bump the pin):
   [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots).
 - From [The testbed stage](#the-testbed-stage) on, this page covers the testbed stage only.
@@ -103,18 +108,22 @@ Case steps: [Negative testbed cases](testbed/negative-cases.md).
 
 ## Layout
 
-One folder per subject: `collector/` (the pinned components, shared by both stages), `examples/` (tests
-`docs/examples/`), `testbed/` (tests the testbed).
+One folder per subject: `collector/` (the pinned components, shared by both stages), `docs/` (retired
+names across the repositories), `examples/` (tests `docs/examples/`, and the two pages checked with it),
+`testbed/` (tests the testbed).
 
 | File | Stage | Holds |
 |---|---|---|
 | [`collector/collector-gh.sh`](collector/collector-gh.sh) | snapshot, testbed | the pinned collector, its venv and its run; both runners source it |
 | [`collector/toolkit.sh`](collector/toolkit.sh) | snapshot, testbed | the pinned toolkit, its venv and its runs; both runners source it |
-| [`collector/collector-pins.env`](collector/collector-pins.env) | snapshot, testbed | the pins, `COLLECTOR_GH_REF` and `TOOLKIT_REF` |
-| [`examples/examples_check.py`](examples/examples_check.py) | static | the corpus checker |
+| [`collector/collector-pins.env`](collector/collector-pins.env) | snapshot, testbed, retired names | the pins, `COLLECTOR_GH_REF`, `TOOLKIT_REF` and `GENERATOR_MARKDOWN_REF` |
+| [`docs/retired_names_check.py`](docs/retired_names_check.py) | retired names | the check and its list of retired names |
+| [`docs/retired-names-allow.txt`](docs/retired-names-allow.txt) | retired names | the files of this repository whose hits are not uses, each with its reason |
+| [`docs/test_retired_names_check.py`](docs/test_retired_names_check.py) | — | the check's tests; run by `examples-check.yml`, which has `pytest` |
+| [`examples/examples_check.py`](examples/examples_check.py) | static | the corpus checker, and the authoring guide's pairs and the error codes against `living-doc-utilities` |
 | [`examples/test_examples_check.py`](examples/test_examples_check.py) | static | the corpus checker's tests |
 | [`examples/requirements-examples-check.txt`](examples/requirements-examples-check.txt) | static | the corpus checker's pinned requirements, `living-doc-utilities` among them |
-| [`examples/check_utilities_pins.py`](examples/check_utilities_pins.py) | snapshot | the `living-doc-utilities` pin report, collector, toolkit and corpus checker; the CI job's first step |
+| [`examples/check_utilities_pins.py`](examples/check_utilities_pins.py) | snapshot | the `living-doc-utilities` pin report, collector, toolkit, `generator-markdown` and corpus checker; the CI job's first step |
 | [`examples/test_check_utilities_pins.py`](examples/test_check_utilities_pins.py) | — | the pin report's tests; run by `examples-check.yml`, which has `pytest` |
 | [`examples/test_normalize_snapshot.py`](examples/test_normalize_snapshot.py) | — | the snapshot normalizer's tests; run by `examples-check.yml` |
 | [`examples/regen-collector-snapshots.sh`](examples/regen-collector-snapshots.sh) | snapshot | the runner; writes `docs/examples/_expected/` or a directory to diff against it |
