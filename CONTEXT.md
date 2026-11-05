@@ -19,7 +19,7 @@ Not here: the collectors, toolkit, generators and utilities. Each lives in its o
 | Path | Holds | Context |
 |---|---|---|
 | `docs/` | people docs, the format canon, the example corpus and its snapshots, integration gate and milestone reports | [docs/CONTEXT.md](docs/CONTEXT.md) |
-| `tests/` | the corpus checker (with the authoring guide's pairs and the error codes), the two collector stages, the retired-names check, the local integration runner `tests/integration/local-integration.sh` | [tests/CONTEXT.md](tests/CONTEXT.md) |
+| `tests/` | the corpus checker (with the authoring guide's pairs and the error codes), the two collector stages, the retired-names check, the page check, the local integration runner `tests/integration/local-integration.sh` | [tests/CONTEXT.md](tests/CONTEXT.md) |
 | `agentic/` | the shipped AI authoring layer: skills, one agent, evals, eval scripts | [agentic/CONTEXT.md](agentic/CONTEXT.md) |
 | `.github/` | CI workflows, PR and issue templates | [.github/CONTEXT.md](.github/CONTEXT.md) |
 | `.claude/` | this repository's own dev agents and skills: the agd kit (listed in `.agd.lock`) plus the project agent `agents/eval-runner.md` | none |
@@ -71,7 +71,7 @@ The local integration runner, `bash tests/integration/local-integration.sh [--ch
 
 - Every PR stays inside the frame in `docs/introduction/principles.md`, or names the row it bends and adds the exception there in the same PR.
 - Same-PR obligations: a format change in a canon page updates `docs/examples/`, and a Project Profile or `seed.yaml` change in `agentic/skills/shared/references/agentic-formats.md` updates `docs/examples/project-profile/`; a canon change regenerates the agentic copies; a collector or toolkit pin bump regenerates `docs/examples/_expected/` and keeps the testbed stage green; a move of the checker's `living-doc-utilities` version brings the before/after pairs in `docs/guides/authoring-documentation.md` and the codes in `docs/reference/errors.md` in line with it, which `tests/examples/examples_check.py` checks ([CONTRIBUTING.md § Regenerating the collector snapshots](CONTRIBUTING.md#regenerating-the-collector-snapshots)).
-- Docs link, they don't copy. Lychee checks every link and fragment in every `*.md`.
+- Docs link, they don't copy. Lychee checks every link and fragment in every `*.md`. Every page follows [CONTRIBUTING.md § Writing documentation](CONTRIBUTING.md#writing-documentation), which `tests/docs/test_page_structure.py` checks.
 - Nothing from `specs/` is committed or cited: it is local planning.
 - PR, branch, title and review rules: `AGENTS.md` § This project.
 

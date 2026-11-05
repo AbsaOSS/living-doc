@@ -1,24 +1,15 @@
 # living-doc-collector-ad
 
-**Repo:** [github.com/AbsaOSS/living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad)
-**Role:** Collector
-**Type:** Python tool
-
 ## Purpose
 
-Extracts project metadata from Azure DevOps and emits it as machine-readable JSON for the rest of the Living Documentation pipeline. The `work-items` mode is implemented; `boards`, `pipelines`, `test_plans`, and `release_notes` are planned modes, specced but not yet built — Azure DevOps scope for v1 is re-evaluated after the v1 pre-release.
-## Inputs / Outputs
+This page is the card of `living-doc-collector-ad`, the Azure DevOps collector: its role, what it reads and writes,
+and where its pages are.
 
-- **Input:** an Azure DevOps organization/project (via PAT/API access)
-- **Output:** JSON describing work items
-
-For the exact, current list of inputs/outputs, see the [project README](https://github.com/AbsaOSS/living-doc-collector-ad).
-
-## Where it fits
-
-First stage of the pipeline — its JSON output feeds [living-doc-toolkit](toolkit.md), which normalizes it into the canonical dataset generators consume. See [Architecture](../introduction/architecture.md).
-
-## Used in
-
-- [Collecting from Azure DevOps](../guides/azure-devops-collection.md)
-- [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md)
+- **Status:** planned as a documentation source; not in the `v0.1.0` pipeline
+  ([Collecting from Azure DevOps](../guides/azure-devops-collection.md)).
+- **Role:** collector, a GitHub Action: the first stage for a project whose documentation lives in Azure DevOps.
+- **Reads:** an Azure DevOps organization's work items through its API, with an access token: the `work-items`
+  mode. Boards, pipelines, test plans and release notes are planned modes, specced but not built.
+- **Writes:** JSON describing the work items: `doc-entities.json` once [living-doc-toolkit](toolkit.md) reads it
+  ([Data flows — Planned](../reference/data-flows.md#planned)).
+- **Pages:** [README](https://github.com/AbsaOSS/living-doc-collector-ad), its current inputs and outputs.

@@ -26,8 +26,6 @@ Read before: [Authoring documentation](https://github.com/AbsaOSS/living-doc/blo
 - [GitHub issue-body layout](#github-issue-body-layout)
 - [Azure DevOps work items](#azure-devops-work-items)
 
----
-
 ## Repository adoption scope
 
 A repository does not have to adopt all three entity types. Pick the depth that matches how much
@@ -364,8 +362,8 @@ attributes yet, add a one-line `stub-reason:`. None of this needs
 scan-style detail (scan dates, gap lists, open-issue references) is simply: it has no home in the
 file — leave it out.
 
-**With the `agentic-toolkit` skills.** The
-[`living-doc-bdd-copilot`](https://github.com/AbsaOSS/living-doc/blob/master/docs/projects/agentic-toolkit.md) skills are large maintenance helpers here
+**With the agentic layer's skills.** The
+[`living-doc-bdd-copilot`](https://github.com/AbsaOSS/living-doc/blob/master/docs/projects/agentic.md) skills are large maintenance helpers here
 and produce the identical header format — nothing about a scanned header differs from a hand-written
 one. `living-doc-pageobject-scan` writes and refreshes the header and locators from a live scan of
 the running app; `data-cy-instrument` adds the missing `data-cy` attributes a `stub-reason:` surface

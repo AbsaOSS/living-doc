@@ -65,7 +65,7 @@ flowchart LR
 Default paths are relative to the step's working directory. Where each step takes its path:
 [`collector-gh` output layout](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md#output-layout),
 [`toolkit` inputs](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/docs/action.md#inputs),
-[`generator-markdown` usage](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/README.md#usage).
+[`generator-markdown` files](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/docs/action.md#files).
 
 | File | Default path | Written by | Read by |
 |---|---|---|---|
@@ -143,7 +143,7 @@ entry add the Functionalities and Features
 Every input of each step:
 [`collector-gh`](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md#inputs),
 [`toolkit`](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/docs/action.md#inputs),
-[`generator-markdown`](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/README.md#usage).
+[`generator-markdown`](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/docs/action.md#inputs).
 
 ## Planned
 
