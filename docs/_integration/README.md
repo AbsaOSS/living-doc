@@ -119,9 +119,10 @@ label is which repository is written down only in each folder's `env.local`.
 A run over an internal repository runs on a machine that can reach it. Nothing about the repository's content leaves
 that machine, only its shape.
 
-The rendered documents may be committed because a link check over one testbed run's six documents passed
-(`lychee --include-fragments`, 0 errors), so they pass `link-check.yml` once committed. A run whose documents fail the
-link check, or `retired-names.yml`, commits its JSON only, as the gates did, and its report says why.
+The rendered documents may be committed because a local link check over one testbed run's six documents passed
+(`lychee --include-fragments`, 0 errors). The first milestone pull request that commits them confirms it in
+`link-check.yml`. A run whose documents fail the link check, or `retired-names.yml`, commits its JSON only, as the
+gates did, and its report says why.
 
 ## Before the first run
 
@@ -324,8 +325,10 @@ bash tests/integration/local-integration.sh
 
 The runner prints every resolved ref first (`living-doc`, each component, the target), then runs the collector once,
 and the toolkit and the generator in the inner and then the release view, into the folders of
-[Layout](#layout). It writes the `.env.local` of its own clones only. The first step that fails stops the run with a
-non-zero exit and names its log. Last, it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
+[Layout](#layout). It writes the `.env.local` of its own clones only. It first clears the output root's earlier
+outputs (`collector-gh/`, `inner/`, `release/`, `pin-report.txt`), so the root holds one run's files even when the run
+stops midway; the committed `env.local` stays. The first step that fails stops the run with a non-zero exit and names
+its log, in the terminal and at the end of the runner's own `local-integration.log`. Last, it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
 ran (`tests/examples/check_utilities_pins.py --strict`); a skew there fails the run too.
 
 A run with an empty `OUT_DIR` writes to `out/<run-id>/`, the run id a UTC timestamp such as `20261105T120000Z`: a trial
@@ -368,7 +371,7 @@ gates see it.
 
 ## Compare two runs
 
-A re-run writes into the same `collector-gh/` folder, and also overwrites `toolkit/`; a milestone re-run overwrites
+A re-run writes into the same `collector-gh/` folder, and also overwrites `toolkit/`; a milestone re-run clears
 each view's folders too. To keep the earlier run, rename its folder first, for example
 `mv internal/absa-1 internal/absa-1.2026-10-15`. Later gates and milestones use the same labels
 (`G2/internal/absa-1`, `MS1/internal/absa-1`), so a target's runs line up.

@@ -13,16 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for tests/integration/local-integration.sh: the configurations it refuses before any clone.
+"""Tests for tests/integration/local-integration.sh: the configurations it refuses before any clone, and the chain.
 
-Run: ``python -m pytest tests/integration -q`` (needs pytest and bash). Each case copies the runner and the pins into
-``tmp_path``, writes a configuration there, and runs the runner with a ``git`` first on ``PATH`` that answers every
-``ls-remote`` with "no such tag" and fails any other command. Nothing goes online, and a clone would show in its log.
+Run: ``python -m pytest tests/integration -q`` (needs pytest and bash). Each case copies the runner, the pins and the
+pin report into ``tmp_path``, writes a configuration there, and runs the runner with a fake ``git`` first on ``PATH``.
+For the refusals, that ``git`` answers every ``ls-remote`` with "no such tag" and fails any other command, so a clone
+would show in its log. For the chain, its ``clone`` makes a folder holding a stand-in ``local-integration.sh``, which
+records each call and its ``.env.local``, writes the files the real script writes, and fails where ``FAIL_AT`` says.
+Nothing goes online.
 """
 
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -34,6 +38,9 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
 RUNNER = HERE / "local-integration.sh"
 PINS = REPO_ROOT / "tests" / "collector" / "collector-pins.env"
+PIN_REPORT = REPO_ROOT / "tests" / "examples" / "check_utilities_pins.py"
+CHECKER_REQUIREMENTS = REPO_ROOT / "tests" / "examples" / "requirements-examples-check.txt"
+TESTBED_STAGE = REPO_ROOT / "tests" / "testbed" / "run-testbed-stage.sh"
 BASH = shutil.which("bash")
 
 pytestmark = pytest.mark.skipif(BASH is None, reason="needs bash")
@@ -58,33 +65,144 @@ echo "git $1: not available in this test" >&2
 exit 1
 """
 
+# The chain's `git`: a clone is a folder holding a stand-in component script; `ls-remote` knows one tag, `{tag}`.
+CHAIN_GIT = """#!/bin/sh
+echo "$*" >> "{calls}"
+while :; do
+  case "$1" in
+    -C | -c) shift 2 ;;
+    *) break ;;
+  esac
+done
+command="$1"
+shift
+last=""
+for last in "$@"; do :; done
+case "$command" in
+  ls-remote) [ "$last" = "refs/tags/{tag}" ] && exit 0; exit 2 ;;
+  clone)
+    mkdir -p "$last/.git"
+    cp "{stub}" "$last/local-integration.sh"
+    chmod +x "$last/local-integration.sh"
+    cp "{requirements}" "$last/requirements.txt"
+    exit 0 ;;
+  fetch | checkout | status) exit 0 ;;
+  rev-parse) echo {sha}; exit 0 ;;
+esac
+echo "git $command: not available in this test" >&2
+exit 1
+"""
+
+# A component's `local-integration.sh`, standing in: records the call and its `.env.local` under `{record}`, writes
+# the files the real one writes under its OUT_DIR, and fails its run where FAIL_AT names `<clone>:<OUT_DIR's name>`.
+STUB_COMPONENT = """#!/bin/sh
+component=$(basename "$(pwd)")
+out=$(sed -n 's/^OUT_DIR=//p' .env.local)
+step="$component:$(basename "$out")"
+echo "$component ${{1:-run}} $(basename "$out")" >> "{record}/calls.txt"
+cp .env.local "{record}/$component.$(basename "$out").env"
+[ "${{1:-}}" = --check ] && exit 0
+if [ "${{FAIL_AT:-}}" = "$step" ]; then echo "stub: $step fails"; exit 3; fi
+case "$component" in
+  living-doc-collector-gh)
+    mkdir -p "$out/collector-gh/doc-source" "$out/collector-gh/ui-tests"
+    echo "{{}}" > "$out/collector-gh/doc-source/doc-source.json"
+    echo "{{}}" > "$out/collector-gh/ui-tests/ui-tests.json" ;;
+  living-doc-toolkit)
+    for file in normalize-docs/generator-ready normalize-tests/ui-test-catalog coverage-matrix/coverage-matrix; do
+      mkdir -p "$out/toolkit/${{file%/*}}"
+      echo "{{}}" > "$out/toolkit/$file.json"
+    done ;;
+  living-doc-generator-markdown)
+    rm -rf "$out/generator-markdown"
+    mkdir -p "$out/generator-markdown"
+    for document in technical-project ui-test-catalog coverage-matrix; do
+      echo "# $document" > "$out/generator-markdown/$document.md"
+    done ;;
+esac
+echo "stub: $step done"
+"""
+
+SHA = "0123456789abcdef0123456789abcdef01234567"
+TAG = "v9.9.9"
+COMPONENTS = ("living-doc-collector-gh", "living-doc-toolkit", "living-doc-generator-markdown")
+DOCUMENTS = ("technical-project", "ui-test-catalog", "coverage-matrix")
+
 
 def python_setting() -> str:
     """This interpreter, in the form bash runs on every platform."""
     return Path(sys.executable).as_posix()
 
 
-def run(tmp_path: Path, config: str) -> tuple[subprocess.CompletedProcess[str], list[str]]:
-    """Run a copy of the runner over ``config``; its result, and every git command it started."""
-    runner = tmp_path / "tests" / "integration" / RUNNER.name
-    runner.parent.mkdir(parents=True)
-    shutil.copy(RUNNER, runner)
-    (tmp_path / "tests" / "collector").mkdir(parents=True)
-    shutil.copy(PINS, tmp_path / "tests" / "collector" / PINS.name)
-    (runner.parent / ".env.local").write_text(config, encoding="utf-8")
-
+def install(tmp_path: Path, config: str, fake_git: str) -> None:
+    """A copy of the runner, the pins and the pin report in ``tmp_path``, with ``config`` and ``fake_git``."""
+    for source, folder in ((RUNNER, "integration"), (PINS, "collector"), (PIN_REPORT, "examples"),
+                           (CHECKER_REQUIREMENTS, "examples")):
+        (tmp_path / "tests" / folder).mkdir(parents=True, exist_ok=True)
+        shutil.copy(source, tmp_path / "tests" / folder / source.name)
+    (tmp_path / "tests" / "integration" / ".env.local").write_text(config, encoding="utf-8")
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    calls = tmp_path / "git-calls.txt"
-    fake_git = bin_dir / "git"
-    fake_git.write_text(FAKE_GIT.format(calls=calls.as_posix()), encoding="utf-8", newline="\n")
-    fake_git.chmod(0o755)
-    env = {**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}"}
+    (bin_dir / "git").write_text(fake_git, encoding="utf-8", newline="\n")
+    (bin_dir / "git").chmod(0o755)
 
-    result = subprocess.run([BASH, str(runner)], cwd=tmp_path, env=env, capture_output=True, text=True,
-                            timeout=60, check=False)
-    git_calls = calls.read_text(encoding="utf-8").splitlines() if calls.exists() else []
-    return result, git_calls
+
+def invoke(tmp_path: Path, **env: str) -> tuple[subprocess.CompletedProcess[str], list[str]]:
+    """Run the installed runner with ``env`` added; its result, and every git command it started."""
+    calls = tmp_path / "git-calls.txt"
+    calls.unlink(missing_ok=True)
+    path = f"{tmp_path / 'bin'}{os.pathsep}{os.environ.get('PATH', '')}"
+    result = subprocess.run([BASH, str(tmp_path / "tests" / "integration" / RUNNER.name)], cwd=tmp_path,
+                            env={**os.environ, "PATH": path, **env}, capture_output=True, text=True, timeout=120,
+                            check=False)
+    return result, calls.read_text(encoding="utf-8").splitlines() if calls.exists() else []
+
+
+def run(tmp_path: Path, config: str) -> tuple[subprocess.CompletedProcess[str], list[str]]:
+    """Run a copy of the runner over ``config`` with the refusing ``git``."""
+    install(tmp_path, config, FAKE_GIT.format(calls=(tmp_path / "git-calls.txt").as_posix()))
+    return invoke(tmp_path)
+
+
+def install_chain(tmp_path: Path, config: str) -> Path:
+    """The runner over ``config`` with the chain's ``git`` and stand-ins; the folder the stand-ins record in."""
+    record = tmp_path / "record"
+    record.mkdir()
+    stub = tmp_path / "stub-local-integration.sh"
+    stub.write_text(STUB_COMPONENT.format(record=record.as_posix()), encoding="utf-8", newline="\n")
+    install(tmp_path, config, CHAIN_GIT.format(calls=(tmp_path / "git-calls.txt").as_posix(), tag=TAG,
+                                               stub=stub.as_posix(), requirements=CHECKER_REQUIREMENTS.as_posix(),
+                                               sha=SHA))
+    return record
+
+
+def settings(path: Path) -> dict[str, str]:
+    """The KEY=value lines of an `.env.local` the runner wrote."""
+    return dict(line.split("=", 1) for line in path.read_text(encoding="utf-8").splitlines()
+                if line and not line.startswith("#"))
+
+
+def settings_of_the_testbed_stage() -> dict[str, str]:
+    """The collector settings tests/testbed/run-testbed-stage.sh gives the testbed's `core`."""
+    found = dict(re.findall(r'^([A-Z_]+)="([^"]*)"$', TESTBED_STAGE.read_text(encoding="utf-8"), re.MULTILINE))
+    core = found["CORE"]
+    return {
+        "PROJECT_ID": found["PROJECT_ID"],
+        "ORGANIZATION_NAME": found["TESTBED_ORG"],
+        "REPOSITORY_NAME": found["TESTBED_REPO"],
+        "DOC_SOURCE_US_PATHS": found["US_PATHS"].replace("$CORE", core),
+        "DOC_SOURCE_FUNC_PATHS": found["FUNC_PATHS"].replace("$CORE", core),
+        "DOC_SOURCE_PAGES_PATHS": found["PAGES_PATHS"].replace("$CORE", core),
+        "UI_TESTS_PATHS": found["SCENARIO_PATHS"].replace("$CORE", core),
+    }
+
+
+# The stand-ins' calls of a whole run, `<clone> <--check or run> <OUT_DIR's name>`: each step's --check, then its run.
+FULL_CHAIN = [f"{clone} {mode} {folder}"
+              for clone, folder in (("living-doc-collector-gh", "run"),
+                                    ("living-doc-toolkit", "inner"), ("living-doc-generator-markdown", "inner"),
+                                    ("living-doc-toolkit", "release"), ("living-doc-generator-markdown", "release"))
+              for mode in ("--check", "run")]
 
 
 def assert_refused(tmp_path: Path, result: subprocess.CompletedProcess[str], git_calls: list[str],
@@ -155,3 +273,85 @@ def test_the_testbed_refuses_a_project_key(tmp_path: Path) -> None:
 
     assert_refused(tmp_path, result, git_calls, "PROJECT_ID is set", "TARGET=testbed")
     assert git_calls == []
+
+
+def read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def test_a_testbed_run_chains_the_components_in_both_views_into_one_root(tmp_path: Path) -> None:
+    record = install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+
+    result, git_calls = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert read(record / "calls.txt").splitlines() == FULL_CHAIN
+    header = result.stdout.split("\n== collector-gh", 1)[0]
+    for label in ("run id:", "living-doc:", "collector-gh:", "toolkit:", "generator-markdown:", "target:"):
+        assert f"\n{label}" in header, header
+    assert f"testbed-core: AbsaOSS/living-doc-testbed {SHA} (master)" in header
+    for repository in (*COMPONENTS, "living-doc-testbed"):
+        assert any(call.startswith(f"clone --quiet --filter=blob:none https://github.com/AbsaOSS/{repository} ")
+                   for call in git_calls), git_calls
+
+    collector = settings(record / "living-doc-collector-gh.run.env")
+    assert {key: collector[key] for key in settings_of_the_testbed_stage()} == settings_of_the_testbed_stage()
+    assert collector["TARGET_CHECKOUT"].endswith("/out/testbed")
+    assert collector["OUT_DIR"].endswith("/run")
+    root = tmp_path / "run"
+    for view in ("inner", "release"):
+        toolkit = settings(record / f"living-doc-toolkit.{view}.env")
+        assert toolkit["DOC_INPUT"].endswith("/run/collector-gh/doc-source/doc-source.json")
+        assert toolkit["TESTS_INPUT"].endswith("/run/collector-gh/ui-tests/ui-tests.json")
+        assert toolkit["VIEW"] == view
+        assert toolkit["OUT_DIR"].endswith(f"/run/{view}")
+        generator = settings(record / f"living-doc-generator-markdown.{view}.env")
+        toolkit_out = f"/run/{view}/toolkit"
+        assert generator["TECHNICAL_PROJECT_INPUT"].endswith(f"{toolkit_out}/normalize-docs/generator-ready.json")
+        assert generator["UI_TEST_CATALOG_INPUT"].endswith(f"{toolkit_out}/normalize-tests/ui-test-catalog.json")
+        assert generator["COVERAGE_MATRIX_INPUT"].endswith(f"{toolkit_out}/coverage-matrix/coverage-matrix.json")
+        assert generator["OUT_DIR"].endswith(f"/run/{view}")
+        for document in DOCUMENTS:
+            assert (root / view / "generator-markdown" / f"{document}.md").is_file()
+        assert f"stub: living-doc-toolkit:{view} done" in read(root / view / "toolkit" / "local-integration.log")
+        assert f"stub: living-doc-generator-markdown:{view} done" in read(root / view / "local-integration.log")
+    assert "stub: living-doc-collector-gh:run done" in read(root / "collector-gh" / "local-integration.log")
+    assert "OK: every component pins living-doc-utilities" in read(root / "pin-report.txt")
+    assert read(root / "local-integration.log").startswith("== tests/integration/local-integration.sh\nrun id:")
+
+
+def test_an_existing_tag_is_accepted_as_a_ref(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nCOLLECTOR_GH_REF={TAG}\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+
+    result, git_calls = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert f"(COLLECTOR_GH_REF={TAG})" in result.stdout
+    assert any(call.endswith(f"checkout --quiet --force --detach {TAG}") for call in git_calls), git_calls
+
+
+def test_a_failing_step_stops_the_chain_and_the_runners_log_names_it(tmp_path: Path) -> None:
+    record = install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+
+    result, _ = invoke(tmp_path, FAIL_AT="living-doc-toolkit:release")
+
+    assert result.returncode != 0
+    assert read(record / "calls.txt").splitlines() == FULL_CHAIN[:FULL_CHAIN.index("living-doc-toolkit run release") + 1]
+    assert not (tmp_path / "run" / "pin-report.txt").exists()
+    assert "toolkit, release view failed" in result.stderr
+    assert "toolkit, release view failed" in read(tmp_path / "run" / "local-integration.log").splitlines()[-1]
+
+
+def test_a_rerun_into_the_same_root_leaves_nothing_of_the_earlier_run(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    first, _ = invoke(tmp_path)
+    assert first.returncode == 0, first.stderr
+    (tmp_path / "run" / "env.local").write_text("TARGET=testbed\n", encoding="utf-8")
+
+    second, _ = invoke(tmp_path, FAIL_AT="living-doc-toolkit:release")
+
+    assert second.returncode != 0
+    assert not (tmp_path / "run" / "pin-report.txt").exists()
+    assert not (tmp_path / "run" / "release" / "generator-markdown").exists()
+    assert (tmp_path / "run" / "inner" / "generator-markdown" / "technical-project.md").is_file()
+    assert read(tmp_path / "run" / "env.local") == "TARGET=testbed\n"

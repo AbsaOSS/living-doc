@@ -36,6 +36,9 @@
 #   <OUT_DIR>/<view>/generator-markdown/<document type>.md, .run-report.json
 #   <OUT_DIR>/pin-report.txt                           tests/examples/check_utilities_pins.py --strict over the clones
 #
+# A run first clears the root's earlier outputs (collector-gh/, inner/, release/, pin-report.txt), so the root holds
+# one run's files even when the run stops midway; anything else there, such as a milestone's env.local, stays.
+#
 # No token. Runs in bash 3.2 or later: Linux, macOS, or Git Bash on Windows.
 
 set -euo pipefail
@@ -59,7 +62,12 @@ PROJECT_KEYS="PROJECT_ID TARGET_CHECKOUT ORGANIZATION_NAME REPOSITORY_NAME DOC_S
 DOC_SOURCE_PAGES_PATHS UI_TESTS_PATHS GITHUB_SERVER_URL"
 PROJECT_REQUIRED="PROJECT_ID TARGET_CHECKOUT ORGANIZATION_NAME REPOSITORY_NAME DOC_SOURCE_US_PATHS UI_TESTS_PATHS"
 
-die() { printf '%s: %s\n' "$ME" "$*" >&2; exit 1; }
+# A run's failure also ends the output root's own log (LOG, set once the run starts writing), so the log says why.
+die() {
+  printf '%s: %s\n' "$ME" "$*" >&2
+  [ -z "${LOG:-}" ] || printf '%s: %s\n' "$ME" "$*" >> "$LOG"
+  exit 1
+}
 is_key() { local key; for key in $KEYS; do [ "$key" = "$1" ] && return 0; done; return 1; }
 
 usage() {
@@ -257,6 +265,9 @@ say() {
 }
 if [ "$CHECK_ONLY" = false ]; then
   mkdir -p "$OUT"
+  # The root holds this run's files and nothing older: a run that stops midway would otherwise leave an earlier run's
+  # later outputs beside its own. Only what the runner writes is cleared; a milestone's committed env.local stays.
+  rm -rf "$OUT/collector-gh" "$OUT/inner" "$OUT/release" "$OUT/pin-report.txt"
   LOG="$OUT/local-integration.log"
   : > "$LOG"
 fi
