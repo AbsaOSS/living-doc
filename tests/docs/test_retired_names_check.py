@@ -97,6 +97,14 @@ def test_each_name_is_matched_as_written(tmp_path: Path, living_doc: Path, name:
     assert f"src/render.py:1  {name}" in capsys.readouterr().out
 
 
+def test_retired_name_in_a_tracked_path_fails(tmp_path: Path, living_doc: Path,
+                                              capsys: pytest.CaptureFixture[str]) -> None:
+    toolkit = checkout(tmp_path, "AbsaOSS/living-doc-toolkit", {"examples/doc-issues.json": "{}\n"})
+
+    assert run(tmp_path, living_doc, toolkit) == 1
+    assert "AbsaOSS/living-doc-toolkit  examples/doc-issues.json  doc-issues.json" in capsys.readouterr().out
+
+
 def test_tests_changelogs_and_collector_gh_doc_issues_are_skipped(tmp_path: Path,
                                                                  living_doc: Path) -> None:
     collector = checkout(tmp_path, "AbsaOSS/living-doc-collector-gh", {

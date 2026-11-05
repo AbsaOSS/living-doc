@@ -17,7 +17,8 @@
 """Report every retired artifact, field or command name in living-doc and the pinned components.
 
 Reads the tracked files of each checkout (``git ls-files``: untracked notes, virtual environments and
-gitignored planning are never read) and matches every name in ``RETIRED_NAMES`` as a fixed string.
+gitignored planning are never read) and matches every name in ``RETIRED_NAMES`` as a fixed string,
+in each file's path and on each line of its text.
 Skipped:
 
 - every ``tests/`` directory and every ``CHANGELOG*`` file, which quote retired names on purpose;
@@ -83,8 +84,12 @@ class Checkout:
 @dataclass(frozen=True)
 class Hit:
     path: str
-    line: int
+    line: int | None    # None: the name is in the path itself
     name: str
+
+    def __str__(self) -> str:
+        where = self.path if self.line is None else f"{self.path}:{self.line}"
+        return f"{where}  {self.name}"
 
 
 @dataclass(frozen=True)
@@ -119,11 +124,14 @@ def skipped(checkout: Checkout, path: str) -> bool:
 
 
 def hits(checkout: Checkout) -> list[Hit]:
-    """Each retired name on each line of the checkout's tracked text files, outside the skipped paths."""
+    """Each retired name in a tracked path, or on a line of a tracked text file, outside the skipped paths."""
     found: list[Hit] = []
     for path in _git(checkout.path, "ls-files", "-z").split("\0"):
+        if not path or skipped(checkout, path):
+            continue
+        found += [Hit(path, None, name) for name in RETIRED_NAMES if name in path]
         file = checkout.path / path
-        if not path or skipped(checkout, path) or not file.is_file():
+        if not file.is_file():
             continue        # a file deleted from the work tree, or a submodule
         data = file.read_bytes()
         if b"\0" in data:
@@ -153,8 +161,7 @@ def findings(checkouts: list[Checkout], entries: list[Entry], allow_list: str) -
     for checkout in checkouts:
         allowed = {entry.path for entry in entries} if checkout.name == THIS_REPOSITORY else set()
         found = hits(checkout)
-        out += [f"{checkout.repository}  {hit.path}:{hit.line}  {hit.name}"
-                for hit in found if hit.path not in allowed]
+        out += [f"{checkout.repository}  {hit}" for hit in found if hit.path not in allowed]
         if checkout.name == THIS_REPOSITORY:
             used = {hit.path for hit in found}
             for entry in entries:

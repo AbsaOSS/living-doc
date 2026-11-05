@@ -63,13 +63,14 @@ run them, ``main`` runs them after the corpus:
    block) is its case of ``normalisation_cases.yaml`` at the installed version: ``before`` is the case's
    ``input``, ``after`` its ``expected`` (the YAML block's trailing newline aside), and ``normalize``
    with the case's format and entity type turns ``before`` into ``after``. An unknown case id, a block
-   without its id line, an id line without both blocks, and a pair count that differs from the id-line
-   count are findings. The page's link to the file and its "at ``v<version>``" name the installed
+   without its id line, an ``after`` block before its ``before`` block, an id line without both blocks,
+   and a pair count that differs from the id-line count are findings. The page's link to the file and its "at ``v<version>``" name the installed
    version. The wheel does not ship the file, so it is fetched from GitHub at the tag
    ``v<version>``; a failed fetch is a finding.
 9. **Error codes** — the codes in the first column of ``docs/reference/errors.md`` § Codes are
-   exactly ``living_doc_utilities.contracts.codes.ALL_CODES``: each missing and each extra code is a
-   finding.
+   exactly ``living_doc_utilities.contracts.codes.ALL_CODES``: each missing and each extra code, a
+   second row for a code, and a row whose first column is not one code alone in backticks are
+   findings.
 
 Canonical references:
   docs/reference/authoring-formats.md  (the GitHub issue-body layout among them)
@@ -1281,6 +1282,8 @@ def _guide_pairs(lines: list[str], start: int, end: int,
             side, block = fence.group("side"), "\n".join(lines[i + 1:close_at])
             if open_pair is None or open_pair[side] is not None:
                 fail(i + 1, f"a ```text {side} block without its case id line")
+            elif side == "after" and open_pair["before"] is None:
+                fail(i + 1, "a ```text after block before its ```text before block")
             else:
                 open_pair[side] = block
             i = close_at
@@ -1361,14 +1364,25 @@ def check_error_codes(page: Path, root: Path, codes: Iterable[str]) -> list[Find
     section = _section(lines, CODES_SECTION)
     if section is None:
         return [Finding(file, None, f"no '{CODES_SECTION}' section", CODES_HINT)]
+    findings: list[Finding] = []
     listed: dict[str, int] = {}
     for index in range(*section):
+        first = lines[index].split("|")[1].strip() if lines[index].startswith("|") else None
+        if first is None or first == "Code" or set(first) <= set("-: "):
+            continue        # not a table line, the header row, or the separator
         row = CODE_ROW_RE.match(lines[index])
-        if row:
-            listed.setdefault(row.group("code"), index + 1)
+        if row is None:
+            findings.append(Finding(file, index + 1, "a row under § Codes whose first column is not one code "
+                                                     "alone in backticks", CODES_HINT))
+        elif row.group("code") in listed:
+            findings.append(Finding(file, index + 1, f"code {row.group('code')} has a second row under § Codes",
+                                    CODES_HINT))
+        else:
+            listed[row.group("code")] = index + 1
     registry = list(codes)
-    findings = [Finding(file, section[0], f"code {code} of ALL_CODES has no row under § Codes", CODES_HINT)
-                for code in registry if code not in listed]
+    # A missing code has no row of its own: the finding points at the `## Codes` heading.
+    findings += [Finding(file, section[0], f"code {code} of ALL_CODES has no row under § Codes", CODES_HINT)
+                 for code in registry if code not in listed]
     findings += [Finding(file, line, f"code {code} under § Codes is not in ALL_CODES", CODES_HINT)
                  for code, line in listed.items() if code not in registry]
     return findings

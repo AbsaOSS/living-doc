@@ -1195,6 +1195,58 @@ def test_guide_id_line_without_both_blocks_fails(guide_copy: Path, tmp_path: Pat
     assert "15 pairs found for 16 case id lines" in rules, rules
 
 
+def test_guide_after_block_before_its_before_block_fails(guide_copy: Path, tmp_path: Path) -> None:
+    text = guide_copy.read_text(encoding="utf-8")
+    start = text.index("**`rule5b_title_id_separator_colon_page_object`**:")
+    before = text.index("```text before", start)
+    after = text.index("```text after", start)
+    end = text.index("```\n", after) + 4
+    guide_copy.write_text(text[:before] + text[after:end] + "\n" + text[before:after].rstrip("\n") + "\n"
+                          + text[end:], encoding="utf-8")
+
+    rules = [f.rule for f in guide_findings(guide_copy, tmp_path)]
+    assert "a ```text after block before its ```text before block" in rules, rules
+
+
+@pytest.fixture
+def errors_copy(tmp_path: Path) -> Path:
+    dest = tmp_path / ERRORS_PAGE
+    dest.parent.mkdir(parents=True)
+    shutil.copyfile(REAL_ERRORS_PAGE, dest)
+    return dest
+
+
+def _errors_row(page: Path, code: str) -> str:
+    return next(line for line in page.read_text(encoding="utf-8").splitlines()
+                if line.startswith(f"| `{code}` |"))
+
+
+def test_second_row_for_a_code_fails(errors_copy: Path, tmp_path: Path) -> None:
+    row = _errors_row(errors_copy, "FIELD_LOSS")
+    _mutate(errors_copy.parent, errors_copy.name, row + "\n", row + "\n" + row + "\n")
+
+    findings = check_error_codes(errors_copy, tmp_path, ALL_CODES)
+    assert [(f.file, f.rule) for f in findings] == [
+        (ERRORS_PAGE, "code FIELD_LOSS has a second row under § Codes")], findings
+    assert findings[0].line == _line_of(errors_copy, row, occurrence=2)
+
+
+def test_row_whose_first_column_is_no_code_fails(errors_copy: Path, tmp_path: Path) -> None:
+    row = _errors_row(errors_copy, "FIELD_LOSS")
+    extra = row.replace("`FIELD_LOSS`", "`field-loss-detail`")
+    _mutate(errors_copy.parent, errors_copy.name, row + "\n", row + "\n" + extra + "\n")
+
+    findings = check_error_codes(errors_copy, tmp_path, ALL_CODES)
+    assert [(f.file, f.rule) for f in findings] == [
+        (ERRORS_PAGE, "a row under § Codes whose first column is not one code alone in backticks")], findings
+    assert findings[0].line == _line_of(errors_copy, extra)
+
+
+def _line_of(page: Path, line: str, occurrence: int = 1) -> int:
+    numbers = [n for n, text in enumerate(page.read_text(encoding="utf-8").splitlines(), 1) if text == line]
+    return numbers[occurrence - 1]
+
+
 def test_error_codes_match_the_registry() -> None:
     assert check_error_codes(REAL_ERRORS_PAGE, REPO_ROOT, ALL_CODES) == []
 
