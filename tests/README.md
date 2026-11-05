@@ -110,7 +110,12 @@ Case steps: [Negative testbed cases](testbed/negative-cases.md).
 
 One folder per subject: `collector/` (the pinned components, shared by both stages), `docs/` (retired
 names across the repositories), `examples/` (tests `docs/examples/`, and the two pages checked with it),
-`testbed/` (tests the testbed).
+`integration/` (the local integration runner), `testbed/` (tests the testbed).
+
+`integration/local-integration.sh` runs the whole source-code chain on an operator's machine for a milestone run:
+`collector-gh`, then `toolkit` and `generator-markdown` in the inner and the release view, each component cloned at
+its pin or at a named tag or SHA. No workflow runs it; CI runs only its offline tests. How to run it and record the
+run: [Integration runs](../docs/_integration/README.md#run-a-milestone-target).
 
 | File | Stage | Holds |
 |---|---|---|
@@ -130,6 +135,9 @@ names across the repositories), `examples/` (tests `docs/examples/`, and the two
 | [`examples/check_collector_stage.py`](examples/check_collector_stage.py) | snapshot | the corpus's first-stage content |
 | [`examples/check_toolkit_stage.py`](examples/check_toolkit_stage.py) | snapshot | what the toolkit writes from the corpus, and the failure on two documentation files |
 | [`examples/normalize_snapshot.py`](examples/normalize_snapshot.py) | snapshot | replaces volatile values with placeholders before the diff |
+| [`integration/local-integration.sh`](integration/local-integration.sh) | — | the local integration runner: clones the components and the testbed under `out/`, runs the chain into one output root, ends with the pin report; run by hand, never by a workflow |
+| [`integration/.env.local.example`](integration/.env.local.example) | — | the runner's settings, each with a comment; copied to the git-ignored `integration/.env.local` |
+| [`integration/test_local_integration.py`](integration/test_local_integration.py) | — | the runner's refusals before any clone, offline; run by `examples-check.yml` |
 | [`testbed/run-testbed-stage.sh`](testbed/run-testbed-stage.sh) | testbed | the runner, and the testbed's collector paths and `project-id` |
 | [`testbed/check_testbed_toolkit_stage.py`](testbed/check_testbed_toolkit_stage.py) | testbed | the invariants over what the toolkit writes from `core` |
 | [`testbed/testbed_cases.py`](testbed/testbed_cases.py) | testbed | the derived problem cases, one function each |

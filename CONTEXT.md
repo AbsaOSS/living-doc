@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Entry point of the Living Documentation ecosystem. Holds the concept, architecture and format docs for people, the canonical example corpus the collectors mine, the checks that run the pinned `living-doc-collector-gh` and `living-doc-toolkit` over it, and the optional AI authoring layer `agentic/`.
+Entry point of the Living Documentation ecosystem. Holds the concept, architecture and format docs for people, the canonical example corpus the collectors mine, the checks that run the pinned `living-doc-collector-gh` and `living-doc-toolkit` over it, the local integration runner that runs the whole source-code chain on an operator's machine for a milestone, and the optional AI authoring layer `agentic/`.
 
 Not here: the collectors, toolkit, generators and utilities. Each lives in its own `AbsaOSS/living-doc-*` repository ([README.md § Projects](README.md#projects)).
 
@@ -18,8 +18,8 @@ Not here: the collectors, toolkit, generators and utilities. Each lives in its o
 
 | Path | Holds | Context |
 |---|---|---|
-| `docs/` | people docs, the format canon, the example corpus and its snapshots, integration gate reports | [docs/CONTEXT.md](docs/CONTEXT.md) |
-| `tests/` | the corpus checker (with the authoring guide's pairs and the error codes), the two collector stages, the retired-names check | [tests/CONTEXT.md](tests/CONTEXT.md) |
+| `docs/` | people docs, the format canon, the example corpus and its snapshots, integration gate and milestone reports | [docs/CONTEXT.md](docs/CONTEXT.md) |
+| `tests/` | the corpus checker (with the authoring guide's pairs and the error codes), the two collector stages, the retired-names check, the local integration runner `tests/integration/local-integration.sh` | [tests/CONTEXT.md](tests/CONTEXT.md) |
 | `agentic/` | the shipped AI authoring layer: skills, one agent, evals, eval scripts | [agentic/CONTEXT.md](agentic/CONTEXT.md) |
 | `.github/` | CI workflows, PR and issue templates | [.github/CONTEXT.md](.github/CONTEXT.md) |
 | `.claude/` | this repository's own dev agents and skills: the agd kit (listed in `.agd.lock`) plus the project agent `agents/eval-runner.md` | none |
@@ -64,6 +64,8 @@ The canon pages in `docs/reference/` define the format; the corpus shows it; the
 ## Running it
 
 Commands: `AGENTS.md` § This project. The collector stages need `git` and github.com access, no token; they build one venv per component in `.snapshot-venvs/` (gitignored).
+
+The local integration runner, `bash tests/integration/local-integration.sh [--check]`, is run by an operator for a milestone, never by CI or an agent's check: it needs github.com, PyPI and minutes. Its configuration is `tests/integration/.env.local` (git-ignored; copy `tests/integration/.env.local.example`). It clones into `out/` (git-ignored) and writes to `out/<run-id>/` unless `OUT_DIR` names a milestone folder under `docs/_integration/` ([docs/_integration/README.md § Run a milestone target](docs/_integration/README.md#run-a-milestone-target)).
 
 ## Conventions
 
