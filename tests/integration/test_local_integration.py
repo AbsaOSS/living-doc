@@ -66,7 +66,7 @@ exit 1
 """
 
 # The chain's `git`: a clone is a folder holding a stand-in component script, its origin kept in `.git/origin-url`;
-# `ls-remote` knows one tag, `{tag}`.
+# `ls-remote` knows one tag, `{tag}`; `status` lists a file named `untracked.feature` unless untracked files are off.
 CHAIN_GIT = """#!/bin/sh
 echo "$*" >> "{calls}"
 dir=.
@@ -93,7 +93,11 @@ case "$command" in
     cp "{requirements}" "$last/requirements.txt"
     exit 0 ;;
   remote) cat "$dir/.git/origin-url"; exit 0 ;;
-  fetch | checkout | clean | status) exit 0 ;;
+  status)
+    case " $* " in *" --untracked-files=no "*) exit 0 ;; esac
+    [ -f "$dir/untracked.feature" ] && echo "?? untracked.feature"
+    exit 0 ;;
+  fetch | checkout | clean) exit 0 ;;
   rev-parse) echo {sha}; exit 0 ;;
 esac
 echo "git $command: not available in this test" >&2
@@ -360,8 +364,23 @@ def test_a_rerun_into_the_same_root_leaves_nothing_of_the_earlier_run(tmp_path: 
     assert second.returncode != 0
     assert not (tmp_path / "run" / "pin-report.txt").exists()
     assert not (tmp_path / "run" / "release" / "generator-markdown").exists()
+    assert not (tmp_path / "run" / "release" / "toolkit" / "normalize-docs").exists()
     assert (tmp_path / "run" / "inner" / "generator-markdown" / "technical-project.md").is_file()
     assert read(tmp_path / "run" / "env.local") == "TARGET=testbed\n"
+
+
+def test_a_run_clears_only_the_paths_the_chain_writes(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    kept = [tmp_path / "run" / folder / "notes.txt"
+            for folder in ("collector-gh", "inner", "release", "inner/toolkit", "release/toolkit")]
+    for path in kept:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("not the runner's\n", encoding="utf-8")
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert [path for path in kept if not path.exists()] == []
 
 
 def test_a_project_run_forwards_its_checkout_and_every_collector_setting(tmp_path: Path) -> None:
@@ -409,3 +428,29 @@ def test_every_clone_is_cleaned_after_checkout_and_the_testbed_of_ignored_files_
     for clone, flags in (("testbed", "-ffdx"), *((f"components/{c}", "-ffd") for c in COMPONENTS)):
         checkout = next(i for i, call in enumerate(git_calls) if f"/out/{clone} -c " in call and " checkout " in call)
         assert git_calls[checkout + 1].endswith(f"/out/{clone} clean -q {flags}"), git_calls[checkout:checkout + 2]
+
+
+@pytest.mark.parametrize("target, out_dir, inside", [
+    ("TARGET=testbed\n", "out/testbed", "the runner's testbed clone"),
+    ("TARGET=testbed\n", "out/components/living-doc-toolkit/output", "the runner's component clones"),
+    (lines(PROJECT), "../some-checkout", "TARGET_CHECKOUT"),
+    (lines(PROJECT), "../some-checkout/docs", "TARGET_CHECKOUT"),
+])
+def test_an_output_root_inside_a_checkout_the_run_reads_or_a_clone_is_refused(
+        tmp_path: Path, target: str, out_dir: str, inside: str) -> None:
+    result, git_calls = run(tmp_path, f"{target}OUT_DIR={out_dir}\nPYTHON={python_setting()}\n")
+
+    assert_refused(tmp_path, result, git_calls, "OUT_DIR", f"is inside {inside}")
+
+
+def test_an_untracked_file_in_the_target_marks_its_commit(tmp_path: Path) -> None:
+    install_chain(tmp_path, lines({**PROJECT, "TARGET_CHECKOUT": "project-checkout", "OUT_DIR": "run",
+                                   "PYTHON": python_setting()}))
+    (tmp_path / "project-checkout" / ".git").mkdir(parents=True)
+    (tmp_path / "project-checkout" / "untracked.feature").write_text("Feature: not committed\n", encoding="utf-8")
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert f"\ntarget:              absa-1: {SHA} (uncommitted changes) (" in result.stdout
+    assert f"\nliving-doc:          {SHA}\n" in result.stdout

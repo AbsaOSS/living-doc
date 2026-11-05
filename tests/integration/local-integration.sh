@@ -36,8 +36,9 @@
 #   <OUT_DIR>/<view>/generator-markdown/<document type>.md, .run-report.json
 #   <OUT_DIR>/pin-report.txt                           tests/examples/check_utilities_pins.py --strict over the clones
 #
-# A run first clears the root's earlier outputs (collector-gh/, inner/, release/, pin-report.txt), so the root holds
-# one run's files even when the run stops midway; anything else there, such as a milestone's env.local, stays.
+# A run first clears the paths the chain writes in the root, so the root holds one run's files even when the run stops
+# midway; anything else there, such as a milestone's env.local, stays. The root may not lie inside the target's checkout
+# or the runner's clones.
 #
 # No token. Runs in bash 3.2 or later: Linux, macOS, or Git Bash on Windows.
 
@@ -197,6 +198,26 @@ RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="$(resolve "${CFG_OUT_DIR:-$WORK/$RUN_ID}")"
 [ ! -e "$OUT" ] || [ -d "$OUT" ] || die "OUT_DIR is not a directory: $OUT"
 
+# A path's physical form, for comparing paths: symlinks resolved for the part that exists, the rest as written.
+physical() {  # physical PATH
+  local path="$1" rest=""
+  while [ ! -d "$path" ]; do
+    rest="/$(basename "$path")$rest"
+    path="$(dirname "$path")"
+  done
+  printf '%s%s\n' "$(cd "$path" && pwd -P)" "$rest"
+}
+# The output root lies outside every tree the run reads or the runner owns: inside one, the chain would write into the
+# checkout it mines, or the next `git clean` of a clone would delete the output.
+outside() {  # outside TREE NAME
+  case "$(physical "$OUT")/" in
+    "$(physical "$1")"/*) die "OUT_DIR $OUT is inside $2 ($1); set an output root outside it" ;;
+  esac
+}
+outside "$REPO_ROOT/$WORK/testbed" "the runner's testbed clone"
+outside "$REPO_ROOT/$WORK/components" "the runner's component clones"
+[ "$CFG_TARGET" != project ] || outside "$(resolve "$CFG_TARGET_CHECKOUT")" "TARGET_CHECKOUT"
+
 # --- Clones --------------------------------------------------------------------------------------------------
 # A blob-less clone of AbsaOSS/<repository> in DIR, made once and fetched on every later run, then checked out at the
 # ref. The clone is the runner's own. A folder there whose origin is another repository is cloned again, never run
@@ -222,10 +243,13 @@ checkout_at() {  # checkout_at REPOSITORY REF DIR CLEAN
   git -C "$dir" clean -q "$clean" || die "could not clean $dir"
 }
 
-commit_of() {  # commit_of DIR: its HEAD, marked when tracked files differ from it
+# commit_of DIR [UNTRACKED]: its HEAD, marked when its files differ from it. UNTRACKED is git status's
+# --untracked-files: `no` (the default, as the component scripts check) for living-doc and the clones; `normal` for the
+# target, whose untracked files the collector mines like any other.
+commit_of() {
   local sha
   sha="$(git -C "$1" rev-parse HEAD 2>/dev/null)" || { echo "unknown (not a git checkout)"; return 0; }
-  if [ -n "$(git -C "$1" status --porcelain --untracked-files=no 2>/dev/null)" ]; then
+  if [ -n "$(git -C "$1" status --porcelain --untracked-files="${2:-no}" 2>/dev/null)" ]; then
     sha="$sha (uncommitted changes)"
   fi
   printf '%s\n' "$sha"
@@ -248,13 +272,13 @@ if [ "$CFG_TARGET" = testbed ]; then
   CFG_DOC_SOURCE_FUNC_PATHS="projects/core/tests/e2e/features/liv_doc_func"
   CFG_DOC_SOURCE_PAGES_PATHS="projects/core/tests/e2e/pages"
   CFG_UI_TESTS_PATHS="projects/core/tests/e2e/features"
-  TARGET_LINE="testbed-core: AbsaOSS/living-doc-testbed $(commit_of "$TESTBED") (${CFG_TESTBED_REF:-master})"
+  TARGET_LINE="testbed-core: AbsaOSS/living-doc-testbed $(commit_of "$TESTBED" normal) (${CFG_TESTBED_REF:-master})"
 else
   CFG_TARGET_CHECKOUT="$(resolve "$CFG_TARGET_CHECKOUT")"
   [ -d "$CFG_TARGET_CHECKOUT" ] || die "TARGET_CHECKOUT not found: $CFG_TARGET_CHECKOUT"
   git -C "$CFG_TARGET_CHECKOUT" rev-parse --verify --quiet HEAD >/dev/null \
     || die "TARGET_CHECKOUT is not a git checkout: $CFG_TARGET_CHECKOUT"
-  TARGET_LINE="$CFG_PROJECT_ID: $(commit_of "$CFG_TARGET_CHECKOUT") ($CFG_TARGET_CHECKOUT)"
+  TARGET_LINE="$CFG_PROJECT_ID: $(commit_of "$CFG_TARGET_CHECKOUT" normal) ($CFG_TARGET_CHECKOUT)"
 fi
 
 checkout_at living-doc-collector-gh "$COLLECTOR_GH_REF" "$COLLECTOR" -ffd
@@ -272,8 +296,15 @@ say() {
 if [ "$CHECK_ONLY" = false ]; then
   mkdir -p "$OUT"
   # The root holds this run's files and nothing older: a run that stops midway would otherwise leave an earlier run's
-  # later outputs beside its own. Only what the runner writes is cleared; a milestone's committed env.local stays.
-  rm -rf "$OUT/collector-gh" "$OUT/inner" "$OUT/release" "$OUT/pin-report.txt"
+  # later outputs beside its own. Only the paths the chain writes are cleared; anything else there, such as a
+  # milestone's committed env.local, stays.
+  rm -rf "$OUT/collector-gh/doc-source" "$OUT/collector-gh/ui-tests" "$OUT/collector-gh/local-integration.log" \
+    "$OUT/pin-report.txt"
+  for view in $VIEWS; do
+    rm -rf "$OUT/$view/toolkit/normalize-docs" "$OUT/$view/toolkit/normalize-tests" \
+      "$OUT/$view/toolkit/coverage-matrix" "$OUT/$view/toolkit/local-integration.log" \
+      "$OUT/$view/generator-markdown" "$OUT/$view/local-integration.log"
+  done
   LOG="$OUT/local-integration.log"
   : > "$LOG"
 fi

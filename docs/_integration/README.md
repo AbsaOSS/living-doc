@@ -326,9 +326,11 @@ bash tests/integration/local-integration.sh
 
 The runner prints every resolved ref first (`living-doc`, each component, the target), then runs the collector once,
 and the toolkit and the generator in the inner and then the release view, into the folders of
-[Layout](#layout). It writes the `.env.local` of its own clones only. It first clears the output root's earlier
-outputs (`collector-gh/`, `inner/`, `release/`, `pin-report.txt`), so the root holds one run's files even when the run
-stops midway; the committed `env.local` stays. The first step that fails stops the run with a non-zero exit and names
+[Layout](#layout). It writes the `.env.local` of its own clones only. It first clears the paths the chain writes in the
+output root (`collector-gh/doc-source/`, `collector-gh/ui-tests/`, each view's toolkit outputs and
+`generator-markdown/`, the logs and `pin-report.txt`), so the root holds one run's files even when the run stops
+midway; anything else there, such as the committed `env.local`, stays. An `OUT_DIR` inside the target's checkout or
+the runner's clones in `out/` is refused. The first step that fails stops the run with a non-zero exit and names
 its log, in the terminal and at the end of the runner's own `local-integration.log`. Last, it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
 ran (`tests/examples/check_utilities_pins.py --strict`); a skew there fails the run too.
 
@@ -344,7 +346,7 @@ the rules in [What may be committed](#what-may-be-committed):
 
 | Report section | From the run |
 |---|---|
-| 2. Targets | the runner's `target:` line in `local-integration.log` at the output root ("uncommitted changes" on any commit means the run does not count) |
+| 2. Targets | the runner's `target:` line in `local-integration.log` at the output root ("uncommitted changes" on any commit means the run does not count; on the target, an untracked file counts too, as the collector mines it) |
 | 3. Component refs | the runner's `living-doc:`, `collector-gh:`, `toolkit:`, `generator-markdown:` and `python:` lines; each component log's `living-doc-utilities:` line; `pin-report.txt` as it is |
 | 4. Per artifact | the collector's and each view's toolkit log, as in [Run one target](#run-one-target), step 5 |
 | 4. Per document | each view's generator log, per document: `input:`, `view:`, the `counts:` block and `not_loaded` in the `render_manifest:` block |
