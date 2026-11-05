@@ -1,76 +1,39 @@
 # Tutorial: Azure DevOps Work Items → Markdown
 
-> **Forward-looking.** `living-doc-generator-markdown` is early stage, and `toolkit`'s adapter for
-> `collector-ad` output is still being built. Treat the collect
-> and normalize steps below as the intended shape; check each project's README before running this
-> for real.
+## Purpose
 
-Goal: turn Azure DevOps work items into Markdown files, refreshed nightly.
+This page is the tutorial Azure DevOps work items → Markdown will be once Azure DevOps as a documentation source
+lands.
 
-## 1. Add the workflow
+## Contents
 
-`.github/workflows/living-doc-ado.yml`:
+- [Status](#status)
+- [What it will produce](#what-it-will-produce)
+- [Documentation from Azure DevOps, tests from GitHub](#documentation-from-azure-devops-tests-from-github)
+- [Related](#related)
 
-```yaml
-name: Living Documentation (ADO)
+## Status
 
-on:
-  schedule:
-    - cron: '0 4 * * *'
-  workflow_dispatch:
+**Planned:** Azure DevOps work items as a documentation source are not in the `v0.1.0` pipeline, so this page carries no workflow; their layout is fixed already: [GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout). Today, use [GitHub Source Code → Markdown](gh-source-to-markdown.md).
 
-jobs:
-  generate-docs:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
+## What it will produce
 
-      - name: Collect from Azure DevOps
-        uses: AbsaOSS/living-doc-collector-ad@v1
-        with:
-          organization: my-ado-org
-          project: my-project
-          pat: ${{ secrets.ADO_PAT }}
+Markdown files from Azure DevOps work items, refreshed on a schedule:
 
-      # NORMALIZE — required: generators consume toolkit's canonical dataset, not raw collector output
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Normalize (toolkit)
-        run: |
-          pip install living-doc-toolkit
-          living-doc normalize-docs --input doc-entities.json --output generator-ready.json
+1. `living-doc-collector-ad` will mine the work items into `doc-entities.json`
+   ([Data flows — Planned](../reference/data-flows.md#planned)).
+2. `toolkit` will normalize that into the file a generator reads.
+3. `generator-markdown` will render the technical project, `technical-project.md` with its run report, and the
+   workflow will commit any changes.
 
-      - name: Generate Markdown
-        uses: AbsaOSS/living-doc-generator-markdown@v1
-        with:
-          source-path: generator-ready.json
-          output-path: docs/generated
+## Documentation from Azure DevOps, tests from GitHub
 
-      - name: Commit output
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add docs/generated
-          git commit -m "docs: refresh generated documentation" || echo "no changes"
-          git push
-```
-
-## 2. What happens on each run
-
-1. `collector-ad` mines work items into `doc-entities.json`.
-2. `toolkit` normalizes that into the canonical dataset generators consume.
-3. `generator-markdown` renders it as `.md` files under `docs/generated`.
-4. The workflow commits any changes.
-
-## 3. Combining with GitHub data
-
-If the same documentation set needs both Azure DevOps and GitHub sources, run both collectors and let the single `toolkit` normalize step merge their output before the generator — see [Architecture](../introduction/architecture.md).
+A project takes its documentation from one source only. Azure DevOps will be that source, and the test catalog may
+still come from GitHub: `collector-gh`'s `ui-tests` mode mines the `.feature` files of any repository of the same
+project ([Tests from another system](../guides/choosing-a-documentation-source.md#tests-from-another-system)). Two
+documentation sources are never merged ([one documentation source per pipeline](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/pipeline-rules.md#one-project-one-pipeline-one-documentation-source)).
 
 ## Related
 
 - [Collecting from Azure DevOps](../guides/azure-devops-collection.md)
-- [Choosing a Generator](../guides/choosing-a-generator.md)
+- [Build a pipeline](../guides/build-a-pipeline.md)

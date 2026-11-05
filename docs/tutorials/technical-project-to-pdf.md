@@ -1,69 +1,37 @@
 # Tutorial: Technical Project → PDF
 
-> **Planned.** GitHub issues as a documentation source are planned, not yet available: the workflow below shows the intended shape. Today, use [GitHub Source Code → PDF](gh-source-to-pdf.md). The issue-body format is already fixed: [GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout).
+## Purpose
 
-Goal: produce a PDF report — a technical project, a UI test catalog, or a coverage matrix — from collected issue/work-item data, suitable for sharing or archiving as a deliverable.
+This page is the tutorial GitHub issues → PDF will be once GitHub issues as a documentation source and PDF output
+land.
 
-## 1. Add the workflow
+## Contents
 
-`.github/workflows/living-doc-pdf.yml`:
+- [Status](#status)
+- [What it will produce](#what-it-will-produce)
+- [Related](#related)
 
-```yaml
-name: Living Documentation (PDF)
+## Status
 
-on:
-  workflow_dispatch:
+**Planned:** GitHub issues as a documentation source and PDF output are not in the `v0.1.0` pipeline, so this page carries no workflow; the issue layout is fixed already: [GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout). Today, use [GitHub Source Code → Markdown](gh-source-to-markdown.md).
 
-jobs:
-  generate-pdf:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+## What it will produce
 
-      - name: Collect from GitHub
-        uses: AbsaOSS/living-doc-collector-gh@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
+A PDF report — a technical project, a UI test catalog or a coverage matrix — from collected issue data, to share
+or archive as a deliverable:
 
-      # NORMALIZE — required: generator-pdf consumes toolkit's canonical dataset, not raw collector output
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Normalize (toolkit)
-        run: |
-          pip install living-doc-toolkit
-          living-doc normalize-docs --input doc-entities.json --output generator-ready.json
+1. `collector-gh`'s `doc-issues` mode will mine the issues into `doc-entities.json`
+   ([Data flows — Planned](../reference/data-flows.md#planned)).
+2. `toolkit` will normalize that into the file a generator reads.
+3. `living-doc-generator-pdf` will render it with the template set its document type selects (`technical-project`,
+   `ui-test-catalog` or `coverage-matrix`), and the workflow will upload the PDF as a workflow artifact
+   ([generator-pdf](../projects/generator-pdf.md)).
 
-      - name: Generate PDF
-        uses: AbsaOSS/living-doc-generator-pdf@v1
-        with:
-          source-path: generator-ready.json
-          document-type: technical-project
-          output-path: reports/technical-project.pdf
-
-      - name: Upload report
-        uses: actions/upload-artifact@v4
-        with:
-          name: technical-project-pdf
-          path: reports/technical-project.pdf
-```
-
-This example triggers manually (`workflow_dispatch`) since PDF reports are typically point-in-time deliverables rather than continuously refreshed docs — switch to a `schedule` trigger if you want it regenerated automatically.
-
-## 2. What happens on each run
-
-1. `collector-gh` mines issues into `doc-entities.json`.
-2. `toolkit` normalizes that into the canonical dataset.
-3. `generator-pdf` renders it to a PDF with the `technical-project` template set (`document-type` also accepts `ui-test-catalog` and `coverage-matrix`).
-4. The PDF is uploaded as a workflow artifact — attach a publish/notify step if it needs to reach a wider audience.
-
-## 3. Other report types
-
-Swap the `document-type` input to `ui-test-catalog` or `coverage-matrix` instead — see the [project README](https://github.com/AbsaOSS/living-doc-generator-pdf) for the current set of built-in templates and how to customize one with `template-path`.
+A PDF is typically a point-in-time deliverable, so such a workflow runs by hand rather than on every push. The
+template set, and how to customize a template: the
+[project README](https://github.com/AbsaOSS/living-doc-generator-pdf).
 
 ## Related
 
 - [Collecting from GitHub](../guides/github-collection.md)
-- [Choosing a Generator](../guides/choosing-a-generator.md)
+- [Build a pipeline — Choose a generator](../guides/build-a-pipeline.md#choose-a-generator)

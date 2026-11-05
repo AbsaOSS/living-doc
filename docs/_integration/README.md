@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This page is for the operator who runs a gate's or a milestone's local integration runs and records them. A gate is a
+This page is how to run a gate's or a milestone's local integration runs and record them. A gate is a
 checkpoint the pipeline must pass before the next stage is built on it; a milestone is one the whole chain must pass.
 Each runs local integration scripts over the public testbed's `core` and, optionally, over internal repositories on a
 machine that can reach them.

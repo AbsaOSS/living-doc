@@ -1,13 +1,29 @@
 # Living Documentation Document Types
 
+## Purpose
+
+This page is how to choose a document: what each of the three document types answers, what it is built from and
+what it needs.
+
 The pipeline produces **three kinds of document**. Each is a distinct dataset with its own
-prerequisites, and each can be rendered as **Markdown** or **PDF** by pointing a generator at it.
+prerequisites, and each is rendered as **Markdown** by pointing a generator at it; PDF output is planned.
+
+Read before: [Build a pipeline](build-a-pipeline.md) · Next: [Rendering rules](../reference/rendering-rules.md)
 
 - For the entities these are built from (User Story, Feature, Functionality, AC), see [Glossary](../reference/glossary.md).
 - For the file formats a collector mines, see [Authoring formats](../reference/authoring-formats.md).
 - For what each view shows and how coverage is counted, see [Rendering rules](../reference/rendering-rules.md).
 - For a minimal, copyable input corpus feeding all three document types, see [`docs/examples/`](../examples/README.md).
-- To choose Markdown vs PDF, see [Choosing a Generator](choosing-a-generator.md).
+- To choose Markdown vs PDF, see [Build a pipeline — Choose a generator](build-a-pipeline.md#choose-a-generator).
+
+## Contents
+
+- [At a glance](#at-a-glance)
+- [Technical project](#technical-project)
+- [Test catalog](#test-catalog)
+- [Coverage matrix](#coverage-matrix)
+- [Prerequisite matrix](#prerequisite-matrix)
+- [Related](#related)
 
 ## At a glance
 
@@ -46,6 +62,8 @@ See the [relationship diagram](../reference/glossary.md#relationship-diagram) fo
 | GitHub issues labelled as US / Feature / Functionality | `collector-gh` `doc-issues` | Planned |
 | Azure DevOps work items | `collector-ad` `work-items` | Planned |
 
+GitHub issues and Azure DevOps work items as documentation sources are planned; their layout is fixed already: [GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout).
+
 **Prerequisites** — a collector source, nothing else. This is the base document; the other two build
 on it.
 
@@ -59,15 +77,8 @@ planning and traceability, and **release**, a delivery record shared outside the
 drops, and what was not loaded from the input, is in [Rendering rules](../reference/rendering-rules.md#views).
 
 The view is a filter over the same mined data — no separate authoring. The `toolkit`'s `normalize-docs`
-command applies it when it writes the generator input, and selects it with `--view inner|release`
-(default `inner`), e.g.
-
-```
-living-doc normalize-docs --input doc-source.json --output generator-ready.json --view release
-```
-
-See [`living-doc-toolkit`'s README](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/README.md)
-for the command and its GitHub Action.
+command applies it when it writes the generator input; the `toolkit` step's `view` input selects it, `inner` by
+default ([Data flows — Views](../reference/data-flows.md#views)).
 
 The applied view is recorded in the generator input's `document` block: `document.view` holds the
 view, and `document.selection_summary` counts the entities and acceptance criteria the filter kept and
@@ -158,7 +169,7 @@ output.
 
 ## Related
 
-- [Choosing a Generator](choosing-a-generator.md) — Markdown vs PDF for any of these
-- [Getting Started](getting-started.md) — assemble the pipeline
+- [Build a pipeline — Choose a generator](build-a-pipeline.md#choose-a-generator) — Markdown, or PDF once it lands, for any of these
+- [Build a pipeline](build-a-pipeline.md) — assemble the pipeline
 - [Living Documentation in 5 Minutes](../introduction/quickstart.md) — the fast path
 - [`docs/examples/`](../examples/README.md) — reference input files for each document type

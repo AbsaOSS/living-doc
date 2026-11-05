@@ -20,9 +20,9 @@ on:
   push:
     branches: [ "master" ]
     paths:
-      - "docs/examples/**"
-      - "docs/guides/**"
-      - "docs/reference/**"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "docs/**"
       - "tests/examples/**"
       - "tests/docs/**"
       - "tests/integration/**"
@@ -30,9 +30,9 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
     paths:
-      - "docs/examples/**"
-      - "docs/guides/**"
-      - "docs/reference/**"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "docs/**"
       - "tests/examples/**"
       - "tests/docs/**"
       - "tests/integration/**"
@@ -79,7 +79,9 @@ jobs:
       - name: Self-test the snapshot normalizer
         run: python -m pytest tests/examples/test_normalize_snapshot.py -q
 
-      - name: Self-test the retired-names check
+      # The page rules of CONTRIBUTING.md § Writing documentation over every page, and the retired-names
+      # check's self-test.
+      - name: Check the pages, and self-test the retired-names check
         run: python -m pytest tests/docs -q
 
       # The runner's refusals that need no network; no workflow runs the chain itself.

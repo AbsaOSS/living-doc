@@ -1,75 +1,33 @@
 # Tutorial: GitHub Issues → Markdown
 
-> **Planned.** GitHub issues as a documentation source are planned, not yet available: the workflow below shows the intended shape. Today, use [GitHub Source Code → Markdown](gh-source-to-markdown.md). The issue-body format is already fixed: [GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout).
+## Purpose
 
-> `living-doc-generator-markdown` is early stage; treat the generator step below as illustrative until its action inputs stabilize. Check the [project README](https://github.com/AbsaOSS/living-doc-generator-markdown) before running this for real.
+This page is the tutorial GitHub issues → Markdown will be once GitHub issues as a documentation source land.
 
-Goal: turn a GitHub repository's issues into Markdown files committed back into the repo, refreshed nightly.
+## Contents
 
-## 1. Add the workflow
+- [Status](#status)
+- [What it will produce](#what-it-will-produce)
+- [Related](#related)
 
-`.github/workflows/living-doc.yml`:
+## Status
 
-```yaml
-name: Living Documentation
+**Planned:** GitHub issues as a documentation source are not in the `v0.1.0` pipeline, so this page carries no workflow; their layout is fixed already: [GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout). Today, use [GitHub Source Code → Markdown](gh-source-to-markdown.md).
 
-on:
-  schedule:
-    - cron: '0 4 * * *'
-  workflow_dispatch:
+## What it will produce
 
-jobs:
-  generate-docs:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
+The same documents as from source code, from a GitHub repository's issues, committed back into the repository:
 
-      - name: Collect from GitHub
-        uses: AbsaOSS/living-doc-collector-gh@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
+1. `collector-gh`'s `doc-issues` mode will mine the issues and their labels into `doc-entities.json`
+   ([Data flows — Planned](../reference/data-flows.md#planned)).
+2. `toolkit` will normalize that into the file a generator reads.
+3. `generator-markdown` will render the technical project, `technical-project.md` with its run report, matching the
+   current state of your issue tracker.
 
-      # NORMALIZE — required: generators consume toolkit's canonical dataset, not raw collector output
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Normalize (toolkit)
-        run: |
-          pip install living-doc-toolkit
-          living-doc normalize-docs --input doc-entities.json --output generator-ready.json
-
-      - name: Generate Markdown
-        uses: AbsaOSS/living-doc-generator-markdown@v1
-        with:
-          source-path: generator-ready.json
-          output-path: docs/generated
-
-      - name: Commit output
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add docs/generated
-          git commit -m "docs: refresh generated documentation" || echo "no changes"
-          git push
-```
-
-## 2. What happens on each run
-
-1. `collector-gh` mines issues and labels from the current repository into `doc-entities.json`.
-2. `toolkit` normalizes that into the canonical dataset generators consume.
-3. `generator-markdown` renders it as `.md` files under `docs/generated`.
-4. The workflow commits any changes.
-
-## 3. Verify
-
-After the first run, check that `docs/generated/` contains one Markdown file (or section) per issue category your labels define, and that content matches the current state of your issue tracker.
+The steps around the collector will be those of [GitHub Source Code → Markdown](gh-source-to-markdown.md).
 
 ## Related
 
 - [Collecting from GitHub](../guides/github-collection.md)
-- [Choosing a Generator](../guides/choosing-a-generator.md)
+- [Choosing a documentation source](../guides/choosing-a-documentation-source.md)
 - [Architecture](../introduction/architecture.md)

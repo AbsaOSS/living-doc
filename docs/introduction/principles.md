@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The fixed frame of the Living Documentation ecosystem: what each part is for, what it must not do,
+This page is the fixed frame of the Living Documentation ecosystem: what each part is for, what it must not do,
 and the one place where the frame deliberately bends. Every change to any `living-doc-*` repository
 is checked against this page — a pull request either stays inside the frame or names the exception
 it adds (see [Checking a change against the frame](#checking-a-change-against-the-frame)).

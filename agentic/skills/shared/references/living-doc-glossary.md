@@ -17,14 +17,7 @@ Read before: [Authoring formats](https://github.com/AbsaOSS/living-doc/blob/mast
 ## Contents
 
 - [Core entities](#core-entities)
-  - [User Story (US)](#user-story-us)
-  - [Feature](#feature)
-  - [Functionality (FUNC)](#functionality-func)
-  - [Acceptance Criterion (AC)](#acceptance-criterion-ac)
-  - [ID uniqueness](#id-uniqueness)
 - [Relationship diagram](#relationship-diagram)
-
----
 
 ## Core entities
 
@@ -360,10 +353,8 @@ wrong AC, producing a coverage matrix that is wrong in a way no downstream tool 
 prefix or namespace IDs per source to dodge a collision — a collision inside one project means that
 project has two entities claiming one ID, and that is the thing to fix.
 
-This mirrors the *coverage-matrix* prerequisites in [Living Doc Document Types](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-document-types.md#coverage-matrix)
-and the `Data Flows & Schemas` spec §8 ("Multiple sources and multiple generators"). The toolkit
-[`coverage_matrix` service README](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/packages/services/coverage_matrix/README.md)
-describes the false-gap failure mode when the two sides of the join do not describe the same system.
+This mirrors the *coverage-matrix* prerequisites in [Living Doc Document Types](https://github.com/AbsaOSS/living-doc/blob/master/docs/guides/living-doc-document-types.md#coverage-matrix).
+The rule is `living-doc-utilities`' [One project, one pipeline, one documentation source](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/pipeline-rules.md#one-project-one-pipeline-one-documentation-source).
 
 ---
 
