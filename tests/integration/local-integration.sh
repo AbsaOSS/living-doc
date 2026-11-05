@@ -220,12 +220,20 @@ outside "$REPO_ROOT/$WORK/components" "the runner's component clones"
 
 # --- Clones --------------------------------------------------------------------------------------------------
 # A blob-less clone of AbsaOSS/<repository> in DIR, made once and fetched on every later run, then checked out at the
-# ref. The clone is the runner's own. A folder there whose origin is another repository is cloned again, never run
-# under this name. After the checkout, a change made in the clone is discarded and an untracked file removed, so a run
-# reads the ref's files only. CLEAN is `git clean`'s flags: `-ffd` keeps the files the clone's `.gitignore` ignores (a
-# component's `.env.local` and `.venv-local-integration/`); `-ffdx` (the testbed) removes those too.
+# ref (a tag, a full SHA, or the testbed's default, origin/master). The clone is the runner's own folder under out/,
+# never another checkout: a link at DIR or at its `.git` is removed (the link, not what it points to) and a folder whose
+# origin is another repository deleted, and either is cloned again; a link below out/ above DIR, such as out/components/
+# pointing at a folder of checkouts, stops the run. After the checkout, a change made in the clone is discarded and an
+# untracked file removed, so a run reads the ref's files only. CLEAN is `git clean`'s flags: `-ffd` keeps the files the
+# clone's `.gitignore` ignores (a component's `.env.local` and `.venv-local-integration/`); `-ffdx` (the testbed)
+# removes those too.
 checkout_at() {  # checkout_at REPOSITORY REF DIR CLEAN
-  local url="$GITHUB/$1" ref="$2" dir="$3" clean="$4" rev
+  local url="$GITHUB/$1" ref="$2" dir="$3" clean="$4"
+  if [ -L "$dir" ] || [ -L "$dir/.git" ]; then
+    rm -rf "$dir"
+  fi
+  [ "$(physical "$dir")" = "$(physical "$REPO_ROOT/$WORK")/${dir#"$REPO_ROOT/$WORK/"}" ] \
+    || die "$dir is reached through a link to $(physical "$dir"); the runner keeps its own clones under $WORK/, so remove the link"
   if [ -d "$dir/.git" ] && [ "$(git -C "$dir" remote get-url origin 2>/dev/null | tr -d '\r')" != "$url" ]; then
     rm -rf "$dir"
   fi
@@ -236,9 +244,7 @@ checkout_at() {  # checkout_at REPOSITORY REF DIR CLEAN
     mkdir -p "$(dirname "$dir")"
     git clone --quiet --filter=blob:none "$url" "$dir" || die "could not clone $url into $dir"
   fi
-  rev="$ref"
-  [ "$ref" != master ] || rev="origin/master"
-  git -C "$dir" -c advice.detachedHead=false checkout --quiet --force --detach "$rev" \
+  git -C "$dir" -c advice.detachedHead=false checkout --quiet --force --detach "$ref" \
     || die "$1: '$ref' is not a commit of $url"
   git -C "$dir" clean -q "$clean" || die "could not clean $dir"
 }
@@ -263,7 +269,7 @@ GENERATOR="$REPO_ROOT/$WORK/components/living-doc-generator-markdown"
 # Story, Functionality and PageObject folders, and the whole test tree for `ui-tests`); change both together.
 if [ "$CFG_TARGET" = testbed ]; then
   TESTBED="$REPO_ROOT/$WORK/testbed"
-  checkout_at living-doc-testbed "${CFG_TESTBED_REF:-master}" "$TESTBED" -ffdx
+  checkout_at living-doc-testbed "${CFG_TESTBED_REF:-origin/master}" "$TESTBED" -ffdx
   CFG_PROJECT_ID="testbed-core"
   CFG_TARGET_CHECKOUT="$TESTBED"
   CFG_ORGANIZATION_NAME="AbsaOSS"

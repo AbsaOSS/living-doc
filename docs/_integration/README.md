@@ -335,6 +335,10 @@ its log, in the terminal and at the end of the runner's own `local-integration.l
 ran (`tests/examples/check_utilities_pins.py --strict`); a skew there fails the run too.
 
 Run one at a time per `living-doc` checkout: every run shares the clones in `out/` and rewrites their `.env.local`.
+`out/` is the runner's: don't link an existing checkout into it to save a clone. A linked clone is replaced by a fresh
+one, and a linked `out/components/` or `out/testbed/` stops the run, so the runner never resets or cleans a checkout of
+yours. Keep no git-ignored file in a target's configured folders either: the collector mines it, and the `target:` line
+cannot show it.
 
 A run with an empty `OUT_DIR` writes to `out/<run-id>/`, the run id a UTC timestamp such as `20261105T120000Z`: a trial
 run that git ignores. A milestone run names its folder in `OUT_DIR`.

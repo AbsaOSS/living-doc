@@ -175,13 +175,14 @@ def run(tmp_path: Path, config: str) -> tuple[subprocess.CompletedProcess[str], 
     return invoke(tmp_path)
 
 
-def install_chain(tmp_path: Path, config: str) -> Path:
-    """The runner over ``config`` with the chain's ``git`` and stand-ins; the folder the stand-ins record in."""
+def install_chain(tmp_path: Path, config: str, tag: str = TAG) -> Path:
+    """The runner over ``config`` with the chain's ``git`` and stand-ins, its remote knowing ``tag``; the folder the
+    stand-ins record in."""
     record = tmp_path / "record"
     record.mkdir()
     stub = tmp_path / "stub-local-integration.sh"
     stub.write_text(STUB_COMPONENT.format(record=record.as_posix()), encoding="utf-8", newline="\n")
-    install(tmp_path, config, CHAIN_GIT.format(calls=(tmp_path / "git-calls.txt").as_posix(), tag=TAG,
+    install(tmp_path, config, CHAIN_GIT.format(calls=(tmp_path / "git-calls.txt").as_posix(), tag=tag,
                                                stub=stub.as_posix(), requirements=CHECKER_REQUIREMENTS.as_posix(),
                                                sha=SHA))
     return record
@@ -301,6 +302,7 @@ def test_a_testbed_run_chains_the_components_in_both_views_into_one_root(tmp_pat
     for label in ("run id:", "living-doc:", "collector-gh:", "toolkit:", "generator-markdown:", "target:"):
         assert f"\n{label}" in header, header
     assert f"testbed-core: AbsaOSS/living-doc-testbed {SHA} (master)" in header
+    assert any("/out/testbed -c " in call and call.endswith(" --detach origin/master") for call in git_calls), git_calls
     for repository in (*COMPONENTS, "living-doc-testbed"):
         assert any(call.startswith(f"clone --quiet --filter=blob:none https://github.com/AbsaOSS/{repository} ")
                    for call in git_calls), git_calls
@@ -454,3 +456,72 @@ def test_an_untracked_file_in_the_target_marks_its_commit(tmp_path: Path) -> Non
     assert result.returncode == 0, result.stderr
     assert f"\ntarget:              absa-1: {SHA} (uncommitted changes) (" in result.stdout
     assert f"\nliving-doc:          {SHA}\n" in result.stdout
+
+
+def test_a_tag_named_master_is_checked_out_as_the_tag(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nTOOLKIT_REF=master\nOUT_DIR=run\nPYTHON={python_setting()}\n",
+                  tag="master")
+
+    result, git_calls = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    toolkit = [call for call in git_calls if "/out/components/living-doc-toolkit -c " in call]
+    assert toolkit and toolkit[-1].endswith(" --detach master"), toolkit
+
+
+def link(path: Path, target: Path) -> None:
+    """A directory symlink at ``path``; the test is skipped where this system cannot make one."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        os.symlink(target, path, target_is_directory=True)
+    except OSError as error:
+        pytest.skip(f"cannot create a symlink here: {error}")
+
+
+def developer_checkout(path: Path, repository: str) -> Path:
+    """A developer's checkout of ``repository`` with uncommitted work, as the chain's ``git`` sees one."""
+    (path / ".git").mkdir(parents=True)
+    (path / ".git" / "origin-url").write_text(f"https://github.com/AbsaOSS/{repository}\n", encoding="utf-8")
+    (path / "work.txt").write_text("uncommitted\n", encoding="utf-8")
+    return path
+
+
+def test_a_clone_folder_linked_to_another_checkout_is_cloned_again_and_the_checkout_left_alone(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    developer = developer_checkout(tmp_path / "developer" / "living-doc-toolkit", "living-doc-toolkit")
+    clone = tmp_path / "out" / "components" / "living-doc-toolkit"
+    link(clone, developer)
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert not clone.is_symlink() and (clone / ".git").is_dir()
+    assert sorted(path.name for path in developer.iterdir()) == [".git", "work.txt"]
+
+
+def test_a_clone_whose_git_folder_is_a_link_is_cloned_again(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    developer = developer_checkout(tmp_path / "developer" / "living-doc-toolkit", "living-doc-toolkit")
+    clone = tmp_path / "out" / "components" / "living-doc-toolkit"
+    clone.mkdir(parents=True)
+    link(clone / ".git", developer / ".git")
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert not (clone / ".git").is_symlink()
+    assert sorted(path.name for path in (developer / ".git").iterdir()) == ["origin-url"]
+
+
+def test_clones_reached_through_a_linked_folder_stop_the_run(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    developer = tmp_path / "developer"
+    developer_checkout(developer / "living-doc-toolkit", "living-doc-toolkit")
+    link(tmp_path / "out" / "components", developer)
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode != 0
+    assert "is reached through a link" in result.stderr
+    assert sorted(path.name for path in developer.iterdir()) == ["living-doc-toolkit"]
+    assert sorted(path.name for path in (developer / "living-doc-toolkit").iterdir()) == [".git", "work.txt"]
