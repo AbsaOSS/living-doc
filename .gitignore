@@ -6,6 +6,12 @@ __pycache__/
 # The per-component venvs tests/collector/collector-gh.sh builds and reuses.
 .snapshot-venvs/
 
+# tests/integration/local-integration.sh: its configuration (the committed .env.local.example stays tracked), its
+# clones of the components and the testbed (out/components/, out/testbed/) and its default output roots
+# (out/<run-id>/).
+tests/integration/.env.local
+/out/
+
 # Local planning workspace — spec drafts, issue drafts, local tools. Never shipped.
 specs/
 

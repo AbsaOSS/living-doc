@@ -18,7 +18,7 @@ Not here: each tool's own docs (its repository) and the agentic layer's guides (
 | `tutorials/` | one per source + output combination |
 | `projects/` | one page per ecosystem project |
 | `examples/` | the canonical minimal input corpus; `_expected/` holds what the pinned collector mines from it and the pinned toolkit writes from that |
-| `_integration/` | gate reports from local integration runs, one folder per gate |
+| `_integration/` | gate and milestone reports from local integration runs, one folder per gate (`G1/`, `G2/`) or milestone (`MS1/`); a milestone runs `tests/integration/local-integration.sh` |
 
 ## Contracts
 
