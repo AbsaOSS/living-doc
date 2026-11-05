@@ -31,8 +31,8 @@ The verdict and the sign-off in § 1 and the verdicts in § 9 are the owner's.
 - **Date:** 2026-11-05
 - **Operator:** miroslavpojer; the chain was run for the operator by an agent session on the operator's machine
 - **Machine type:** Windows 11 Pro, Git Bash (GNU bash 5.2.21), Python 3.14.6 (`PYTHON=python`), testbed only
-- **Verdict:** pending: the owner's, once § 9 is read
-- **Owner sign-off:** pending
+- **Verdict:** passed
+- **Owner sign-off:** passed, 2026-11-05
 
 ### CI evidence
 
@@ -219,9 +219,9 @@ yes or no.
 
 | View | Document | Verdict | What was read (one sentence) |
 |---|---|---|---|
-| inner | `technical-project.md` |  | The 20 entities and their 32 criteria in every state, from `active` to backlog `planned`, each Feature with its derived state, its pages and its source permalink at `36a0ee6`. |
-| inner | `ui-test-catalog.md` |  | The 28 scenarios of 13 feature files, grouped by the Functionality or User Story they link or as unlinked, each with its `@AC:` tags, the criteria and aspects it covers, and its source permalink. |
-| inner | `coverage-matrix.md` |  | The summary, 88.2 % over 24 counted criteria (20 covered, 2 partly, 2 not), the planned-work count of 5 criteria, and the rows of the 15 entities with each criterion's status and scenarios. |
-| release | `technical-project.md` |  | The 16 entities and 24 criteria the release view keeps, with no `planned` or `in_review` criterion, `FEAT-004` left out, and each Functionality left out named on its Feature without a link. |
-| release | `ui-test-catalog.md` |  | The inner catalog byte for byte, headed `View: inner`, as the catalog has no view (§ 4). |
-| release | `coverage-matrix.md` |  | The same summary and the same 15 entities' rows as the inner view, headed `View: release`, without the planned-work section. |
+| inner | `technical-project.md` | yes | The 20 entities and their 32 criteria in every state, from `active` to backlog `planned`, each Feature with its derived state, its pages and its source permalink at `36a0ee6`. |
+| inner | `ui-test-catalog.md` | yes | The 28 scenarios of 13 feature files, grouped by the Functionality or User Story they link or as unlinked, each with its `@AC:` tags, the criteria and aspects it covers, and its source permalink. |
+| inner | `coverage-matrix.md` | yes | The summary, 88.2 % over 24 counted criteria (20 covered, 2 partly, 2 not), the planned-work count of 5 criteria, and the rows of the 15 entities with each criterion's status and scenarios. |
+| release | `technical-project.md` | yes | The 16 entities and 24 criteria the release view keeps, with no `planned` or `in_review` criterion, `FEAT-004` left out, and each Functionality left out named on its Feature without a link. |
+| release | `ui-test-catalog.md` | yes | The inner catalog byte for byte, headed `View: inner`, as the catalog has no view (§ 4). |
+| release | `coverage-matrix.md` | yes | The same summary and the same 15 entities' rows as the inner view, headed `View: release`, without the planned-work section. |
