@@ -109,7 +109,7 @@ label is which repository is written down only in each folder's `env.local`.
 
 | Item | Testbed target | Internal target |
 |---|---|---|
-| `env.local`, `toolkit.env.local`; a milestone's `env.local`, the runner's configuration | committed | stays on the machine |
+| `env.local`, `toolkit.env.local`; a milestone's `env.local`, the copy of the runner's configuration kept with the run (the working copy, `tests/integration/.env.local`, is git-ignored) | committed | stays on the machine |
 | every `local-integration.log`: the runner's, and each component's | stays on the machine | stays on the machine |
 | `collector-gh/**/*.json`, `toolkit/**/*.json`, `<view>/toolkit/**/*.json` | may be committed (public content) | stays on the machine |
 | `pin-report.txt` | may be committed: it names the pins and paths inside `living-doc` only | stays on the machine; it names no target, so the report may quote it whole |
@@ -312,7 +312,8 @@ bash tests/integration/local-integration.sh --check
 ```
 
 It checks Python ≥ 3.10, `git`, the configuration, that each ref is a full SHA or a tag, and the target, then clones or
-updates each component and the testbed in `out/` at the repository's root, prints every resolved ref, writes the
+updates each component and the testbed in `out/` at the repository's root (a clone holds its ref's files only: one of
+another repository is cloned again, and untracked files are removed), prints every resolved ref, writes the
 collector's `.env.local` in its clone and runs the collector's own `--check`. It builds no venv and runs nothing else.
 The toolkit's and the generator's own `--check` need their input files, which only the run writes: in the run, each
 runs right before its component's run.
@@ -330,6 +331,8 @@ outputs (`collector-gh/`, `inner/`, `release/`, `pin-report.txt`), so the root h
 stops midway; the committed `env.local` stays. The first step that fails stops the run with a non-zero exit and names
 its log, in the terminal and at the end of the runner's own `local-integration.log`. Last, it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
 ran (`tests/examples/check_utilities_pins.py --strict`); a skew there fails the run too.
+
+Run one at a time per `living-doc` checkout: every run shares the clones in `out/` and rewrites their `.env.local`.
 
 A run with an empty `OUT_DIR` writes to `out/<run-id>/`, the run id a UTC timestamp such as `20261105T120000Z`: a trial
 run that git ignores. A milestone run names its folder in `OUT_DIR`.

@@ -199,10 +199,15 @@ OUT="$(resolve "${CFG_OUT_DIR:-$WORK/$RUN_ID}")"
 
 # --- Clones --------------------------------------------------------------------------------------------------
 # A blob-less clone of AbsaOSS/<repository> in DIR, made once and fetched on every later run, then checked out at the
-# ref. The clone is the runner's own: a change made in it is discarded. Its untracked `.env.local` and the
-# component's `.venv-local-integration/` stay, ignored by the component's own `.gitignore`.
-checkout_at() {  # checkout_at REPOSITORY REF DIR
-  local url="$GITHUB/$1" ref="$2" dir="$3" rev
+# ref. The clone is the runner's own. A folder there whose origin is another repository is cloned again, never run
+# under this name. After the checkout, a change made in the clone is discarded and an untracked file removed, so a run
+# reads the ref's files only. CLEAN is `git clean`'s flags: `-ffd` keeps the files the clone's `.gitignore` ignores (a
+# component's `.env.local` and `.venv-local-integration/`); `-ffdx` (the testbed) removes those too.
+checkout_at() {  # checkout_at REPOSITORY REF DIR CLEAN
+  local url="$GITHUB/$1" ref="$2" dir="$3" clean="$4" rev
+  if [ -d "$dir/.git" ] && [ "$(git -C "$dir" remote get-url origin 2>/dev/null | tr -d '\r')" != "$url" ]; then
+    rm -rf "$dir"
+  fi
   if [ -d "$dir/.git" ]; then
     git -C "$dir" fetch --quiet --force --tags origin || die "could not fetch $url into $dir"
   else
@@ -214,6 +219,7 @@ checkout_at() {  # checkout_at REPOSITORY REF DIR
   [ "$ref" != master ] || rev="origin/master"
   git -C "$dir" -c advice.detachedHead=false checkout --quiet --force --detach "$rev" \
     || die "$1: '$ref' is not a commit of $url"
+  git -C "$dir" clean -q "$clean" || die "could not clean $dir"
 }
 
 commit_of() {  # commit_of DIR: its HEAD, marked when tracked files differ from it
@@ -233,7 +239,7 @@ GENERATOR="$REPO_ROOT/$WORK/components/living-doc-generator-markdown"
 # Story, Functionality and PageObject folders, and the whole test tree for `ui-tests`); change both together.
 if [ "$CFG_TARGET" = testbed ]; then
   TESTBED="$REPO_ROOT/$WORK/testbed"
-  checkout_at living-doc-testbed "${CFG_TESTBED_REF:-master}" "$TESTBED"
+  checkout_at living-doc-testbed "${CFG_TESTBED_REF:-master}" "$TESTBED" -ffdx
   CFG_PROJECT_ID="testbed-core"
   CFG_TARGET_CHECKOUT="$TESTBED"
   CFG_ORGANIZATION_NAME="AbsaOSS"
@@ -251,9 +257,9 @@ else
   TARGET_LINE="$CFG_PROJECT_ID: $(commit_of "$CFG_TARGET_CHECKOUT") ($CFG_TARGET_CHECKOUT)"
 fi
 
-checkout_at living-doc-collector-gh "$COLLECTOR_GH_REF" "$COLLECTOR"
-checkout_at living-doc-toolkit "$TOOLKIT_REF" "$TOOLKIT"
-checkout_at living-doc-generator-markdown "$GENERATOR_MARKDOWN_REF" "$GENERATOR"
+checkout_at living-doc-collector-gh "$COLLECTOR_GH_REF" "$COLLECTOR" -ffd
+checkout_at living-doc-toolkit "$TOOLKIT_REF" "$TOOLKIT" -ffd
+checkout_at living-doc-generator-markdown "$GENERATOR_MARKDOWN_REF" "$GENERATOR" -ffd
 
 # --- Every resolved ref, before the first component runs ----------------------------------------------------------
 # Printed, and in a run also written to the output root's own log, which `docs/_integration/.gitignore` ignores by

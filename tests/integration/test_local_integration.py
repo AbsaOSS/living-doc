@@ -65,28 +65,35 @@ echo "git $1: not available in this test" >&2
 exit 1
 """
 
-# The chain's `git`: a clone is a folder holding a stand-in component script; `ls-remote` knows one tag, `{tag}`.
+# The chain's `git`: a clone is a folder holding a stand-in component script, its origin kept in `.git/origin-url`;
+# `ls-remote` knows one tag, `{tag}`.
 CHAIN_GIT = """#!/bin/sh
 echo "$*" >> "{calls}"
+dir=.
 while :; do
   case "$1" in
-    -C | -c) shift 2 ;;
+    -C) dir="$2"; shift 2 ;;
+    -c) shift 2 ;;
     *) break ;;
   esac
 done
 command="$1"
 shift
+url=""
+previous=""
 last=""
-for last in "$@"; do :; done
+for last in "$@"; do url="$previous"; previous="$last"; done
 case "$command" in
   ls-remote) [ "$last" = "refs/tags/{tag}" ] && exit 0; exit 2 ;;
   clone)
     mkdir -p "$last/.git"
+    echo "$url" > "$last/.git/origin-url"
     cp "{stub}" "$last/local-integration.sh"
     chmod +x "$last/local-integration.sh"
     cp "{requirements}" "$last/requirements.txt"
     exit 0 ;;
-  fetch | checkout | status) exit 0 ;;
+  remote) cat "$dir/.git/origin-url"; exit 0 ;;
+  fetch | checkout | clean | status) exit 0 ;;
   rev-parse) echo {sha}; exit 0 ;;
 esac
 echo "git $command: not available in this test" >&2
@@ -355,3 +362,50 @@ def test_a_rerun_into_the_same_root_leaves_nothing_of_the_earlier_run(tmp_path: 
     assert not (tmp_path / "run" / "release" / "generator-markdown").exists()
     assert (tmp_path / "run" / "inner" / "generator-markdown" / "technical-project.md").is_file()
     assert read(tmp_path / "run" / "env.local") == "TARGET=testbed\n"
+
+
+def test_a_project_run_forwards_its_checkout_and_every_collector_setting(tmp_path: Path) -> None:
+    project = {**PROJECT, "TARGET_CHECKOUT": "project-checkout", "DOC_SOURCE_FUNC_PATHS": "features/func",
+               "DOC_SOURCE_PAGES_PATHS": "pages", "GITHUB_SERVER_URL": "https://ghe.example.com"}
+    record = install_chain(tmp_path, lines({**project, "OUT_DIR": "run", "PYTHON": python_setting()}))
+    (tmp_path / "project-checkout" / ".git").mkdir(parents=True)
+
+    result, git_calls = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert read(record / "calls.txt").splitlines() == FULL_CHAIN
+    collector = settings(record / "living-doc-collector-gh.run.env")
+    assert collector.pop("TARGET_CHECKOUT").endswith("/project-checkout")
+    assert collector.pop("OUT_DIR").endswith("/run")
+    collector.pop("PYTHON")
+    assert collector == {key: value for key, value in project.items() if key not in ("TARGET", "TARGET_CHECKOUT")}
+    assert f"\ntarget:              absa-1: {SHA} (" in result.stdout
+    assert not any("living-doc-testbed" in call for call in git_calls), git_calls
+
+
+def test_a_reused_clone_of_another_repository_is_cloned_again(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    first, _ = invoke(tmp_path)
+    assert first.returncode == 0, first.stderr
+    toolkit = tmp_path / "out" / "components" / "living-doc-toolkit"
+    (toolkit / ".git" / "origin-url").write_text("https://github.com/someone/living-doc-toolkit\n", encoding="utf-8")
+    (toolkit / "planted.txt").write_text("not the toolkit's\n", encoding="utf-8")
+
+    second, git_calls = invoke(tmp_path)
+
+    assert second.returncode == 0, second.stderr
+    assert not (toolkit / "planted.txt").exists()
+    assert any(call.startswith("clone --quiet --filter=blob:none https://github.com/AbsaOSS/living-doc-toolkit ")
+               for call in git_calls), git_calls
+    assert not any(call.startswith("clone ") and "living-doc-collector-gh" in call for call in git_calls), git_calls
+
+
+def test_every_clone_is_cleaned_after_checkout_and_the_testbed_of_ignored_files_too(tmp_path: Path) -> None:
+    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+
+    result, git_calls = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    for clone, flags in (("testbed", "-ffdx"), *((f"components/{c}", "-ffd") for c in COMPONENTS)):
+        checkout = next(i for i, call in enumerate(git_calls) if f"/out/{clone} -c " in call and " checkout " in call)
+        assert git_calls[checkout + 1].endswith(f"/out/{clone} clean -q {flags}"), git_calls[checkout:checkout + 2]
