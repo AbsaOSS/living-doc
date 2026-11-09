@@ -1,26 +1,15 @@
 # living-doc-generator-pdf
 
-**Repo:** [github.com/AbsaOSS/living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf)
-**Role:** Generator
-**Type:** GitHub Action
-
 ## Purpose
 
-Renders the canonical dataset into professional PDF documents using customizable Jinja2 templates and WeasyPrint, with built-in support for user stories, UI test catalogs, and coverage matrices.
+This page is the card of `living-doc-generator-pdf`, the PDF generator: its role, what it will read and write, and
+where its pages are.
 
-## Inputs / Outputs
-
-- **Input:** the canonical dataset produced by [living-doc-toolkit](toolkit.md) (`source-path`), plus a `document-type` selector (`technical-project` · `ui-test-catalog` · `coverage-matrix`)
-- **Output:** PDF, rendered via a Jinja2 template + WeasyPrint
-
-For the exact action inputs and the current built-in template set, see the [project README](https://github.com/AbsaOSS/living-doc-generator-pdf).
-
-## Where it fits
-
-Final stage of the pipeline — the option to reach for when the deliverable needs to be a shareable/archivable document rather than a browsable site. See [Architecture](../introduction/architecture.md).
-
-## Used in
-
-- [Choosing a Generator](../guides/choosing-a-generator.md)
-- [Technical Project → PDF](../tutorials/technical-project-to-pdf.md)
-- [GitHub Source Code → PDF](../tutorials/gh-source-to-pdf.md)
+- **Status:** planned: PDF output is not in the `v0.1.0` pipeline.
+- **Role:** generator, a GitHub Action: a final stage for a deliverable that must be a shareable or archivable
+  document rather than a browsable page.
+- **Reads:** the files [living-doc-toolkit](toolkit.md) writes, with a document type selecting the template:
+  `technical-project`, `ui-test-catalog` or `coverage-matrix`.
+- **Writes:** a PDF, rendered from customizable Jinja2 templates with WeasyPrint.
+- **Pages:** [README](https://github.com/AbsaOSS/living-doc-generator-pdf), its action inputs and built-in
+  template set.

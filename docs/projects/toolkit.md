@@ -1,30 +1,20 @@
 # living-doc-toolkit
 
-**Repo:** [github.com/AbsaOSS/living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit)
-**Role:** Normalizer
-**Type:** Python CLI services
-
 ## Purpose
 
-Transforms and normalizes collector output into a single canonical dataset that generators consume — acting as the generic builder step between "raw data from one source" and "data ready to render."
+This page is the card of `living-doc-toolkit`, the normalizer: its role, what it reads and writes, and where its
+pages are.
 
-## Why it exists
-
-Collectors from different sources (GitHub, Azure DevOps) don't naturally agree on shape or coverage. The toolkit reconciles them into one canonical dataset so a generator doesn't need source-specific logic.
-
-## Inputs / Outputs
-
-- **Input:** JSON output from one or more collectors
-- **Output:** canonical dataset, ready for a generator
-- **Commands:** `normalize-docs` (`doc-source.json` → `generator-ready.json`, with `--view inner|release`), `normalize-tests` (`ui-tests.json` → `ui-test-catalog.json`) and `coverage-matrix` (`doc-source.json` + `ui-tests.json` → `coverage-matrix.json`), as a CLI or as the repository's GitHub Action
-
-For the exact CLI usage and current data contract, see the [project README](https://github.com/AbsaOSS/living-doc-toolkit).
-
-## Where it fits
-
-Middle stage of the pipeline. See [Architecture](../introduction/architecture.md).
-
-## Used in
-
-- [Getting Started](../guides/getting-started.md)
-- [Azure DevOps Work Items → Markdown](../tutorials/ado-workitems-to-markdown.md) (when combining sources)
+- **Role:** normalizer, a GitHub Action and a Python CLI: the middle stage. It carries every transformation between
+  a collector's file and a generator's: normalisation, validation, the view filter and cross-referencing, so a
+  generator needs no source-specific logic.
+- **Commands**, one step each:
+  - `normalize-docs`: `doc-source.json` → `generator-ready.json`, in the inner or the release view;
+  - `normalize-tests`: `ui-tests.json` → `ui-test-catalog.json`;
+  - `coverage-matrix`: `doc-source.json` and `ui-tests.json` → `coverage-matrix.json`.
+- **Reads:** the files [living-doc-collector-gh](collector-gh.md) writes: one documentation file, from the
+  project's one documentation source, and its tests file.
+- **Writes:** the three files [living-doc-generator-markdown](generator-markdown.md) renders
+  ([Data flows — Commands](../reference/data-flows.md#commands)).
+- **Pages:** [README](https://github.com/AbsaOSS/living-doc-toolkit) and its
+  [action reference](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/docs/action.md).

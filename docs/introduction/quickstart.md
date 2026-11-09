@@ -1,9 +1,25 @@
 # Living Documentation in 5 Minutes
 
+## Purpose
+
+This page is the five-minute path: what a pipeline does, what to prepare for the document you want, and where to
+build it.
+
 Living Documentation generates your project docs **from what your repository already holds** —
 header blocks in your source code and Gherkin `.feature` files — so they never go stale. GitHub
-issues and Azure DevOps work items as sources are planned. Brand new to the idea? Read
-[What is Living Documentation?](what-is-living-documentation.md) first. Otherwise, follow along.
+issues and Azure DevOps work items as sources are planned.
+
+Read before: [What is Living Documentation?](what-is-living-documentation.md) · Next: [Build a pipeline](../guides/build-a-pipeline.md)
+
+## Contents
+
+- [The whole idea](#the-whole-idea)
+- [Step 1 — Decide what you want to produce](#step-1--decide-what-you-want-to-produce)
+- [Step 2 — Pick your two ends](#step-2--pick-your-two-ends)
+- [Step 3 — Add one workflow file](#step-3--add-one-workflow-file)
+- [Step 4 — Run it](#step-4--run-it)
+- [Step 5 — Check the result](#step-5--check-the-result)
+- [Go deeper](#go-deeper)
 
 ## The whole idea
 
@@ -11,13 +27,13 @@ Three stages, always in this order:
 
 ```mermaid
 flowchart LR
-    S[Your repository<br/>source code / .feature files] --> C[collect] --> N[normalize] --> G[generate] --> D[Docs<br/>Markdown or PDF]
+    S[Your repository<br/>source code / .feature files] --> C[collect] --> N[normalize] --> G[generate] --> D[Docs<br/>Markdown]
 ```
 
 - **collect** — a *collector* pulls the header blocks and scenarios out of your source code as JSON
   (issues / work items are planned).
 - **normalize** — the *toolkit* turns that JSON into one canonical shape (needed even with a single source).
-- **generate** — a *generator* renders the canonical data as Markdown or PDF.
+- **generate** — a *generator* renders the canonical data as Markdown (PDF is planned).
 
 Every stage is a separate GitHub Action. A pipeline is just those actions chained in one workflow
 file. Full detail: [Architecture](architecture.md).
@@ -32,9 +48,8 @@ This decides what you have to prepare for the collector to mine:
 | **Test catalog** — the behaviours your tests cover | Gherkin `.feature` files in the repo |
 | **Coverage matrix** — which acceptance criteria have tests | Both of the above, for the same project |
 
-Full detail: [Living Documentation Document Types](../guides/living-doc-document-types.md). The rest
-of this guide builds a **technical project → Markdown** pipeline; swap the generator (or add a step)
-for the others.
+Full detail: [Living Documentation Document Types](../guides/living-doc-document-types.md). One pipeline
+can render all three.
 
 ## Step 2 — Pick your two ends
 
@@ -45,93 +60,42 @@ for the others.
 
 | You want | Generator |
 |---|---|
-| Markdown committed next to your code | [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) *(early stage)* |
-| A shareable / archivable PDF report | [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) |
+| Markdown committed next to your code | [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) |
+| A shareable / archivable PDF report *(planned)* | [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) |
 
-Undecided? → [Choosing a Generator](../guides/choosing-a-generator.md).
+Which source a project may use, and why only one: [Choosing a documentation source](../guides/choosing-a-documentation-source.md).
+Undecided on the output? → [Build a pipeline § Choose a generator](../guides/build-a-pipeline.md#choose-a-generator).
 
 ## Step 3 — Add one workflow file
 
-The example below is **GitHub source code → Markdown**, refreshed nightly. Save it as
-`.github/workflows/living-doc.yml`:
+The whole pipeline is one workflow file: collect from your source code, normalize, render each document, and
+commit the result. Copy it from [GitHub Source Code → Markdown](../tutorials/gh-source-to-markdown.md), the
+tutorial with the complete file. [Build a pipeline](../guides/build-a-pipeline.md) explains each step, and links
+each action's own page for its inputs.
 
-```yaml
-name: Living Documentation
-
-on:
-  schedule:
-    - cron: '0 4 * * *'      # nightly refresh
-  workflow_dispatch:          # ...plus a manual "Run workflow" button
-
-jobs:
-  generate-docs:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      # 1. COLLECT — mine source code into doc-source.json
-      - name: Collect from source
-        uses: AbsaOSS/living-doc-collector-gh@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          modes: doc-source
-
-      # 2. NORMALIZE — doc-source.json -> canonical dataset (required, even for one source)
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Normalize (toolkit)
-        run: |
-          pip install living-doc-toolkit
-          living-doc normalize-docs --input doc-source.json --output generator-ready.json
-
-      # 3. GENERATE — canonical dataset -> Markdown files
-      - name: Generate Markdown
-        uses: AbsaOSS/living-doc-generator-markdown@v1
-        with:
-          source-path: generator-ready.json
-          output-path: docs/generated
-
-      # 4. COMMIT the refreshed docs
-      - name: Publish
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add docs/generated
-          git commit -m "docs: update living documentation" || echo "no changes"
-          git push
-```
-
-> **Heads-up:** `generator-markdown` is early stage and its action inputs may still change; for a
-> stable output today, generate a PDF instead ([GitHub Source Code → PDF](../tutorials/gh-source-to-pdf.md)).
-> Each project's README is the authoritative source for its current inputs.
-
-To use a different source or output, change **only the collect and generate steps** — the worked
-examples below give you a copy-paste starting point for each combination.
+The file renders all three documents; drop the steps of one you don't need.
 
 ## Step 4 — Run it
 
 Commit the file, then in your repo: **Actions → Living Documentation → Run workflow**. (Or just wait
-for the nightly run.)
+for the next push.)
 
 ## Step 5 — Check the result
 
-Open `docs/generated/`. You should see Markdown that matches your source code *right now*. Every run
-overwrites it with the current state; that is the whole point.
+Open the folder the workflow commits to. You should see one Markdown document per document type, each beside its
+run report, matching your source code *right now*. Every run overwrites them with the current state; that is the
+whole point.
 
 ## Go deeper
 
 | To… | Read |
 |---|---|
 | Choose which document type(s) to produce, and what each needs | [Living Documentation Document Types](../guides/living-doc-document-types.md) |
-| Build a pipeline properly, stage by stage | [Getting Started](../guides/getting-started.md) |
-| Copy a working example for your exact source + output | [Getting Started § worked examples](../guides/getting-started.md#worked-examples) · [tutorials](../tutorials/) |
+| Choose the one documentation source your project mines | [Choosing a documentation source](../guides/choosing-a-documentation-source.md) |
+| Build a pipeline properly, stage by stage | [Build a pipeline](../guides/build-a-pipeline.md) |
+| Copy a working example for your exact source + output | [Build a pipeline § Tutorials](../guides/build-a-pipeline.md#tutorials) |
 | Understand what each collector mines | [Collecting from GitHub](../guides/github-collection.md) · [Collecting from Azure DevOps](../guides/azure-devops-collection.md) |
-| Write User Stories / Features / Functionalities in the format collectors read | [Glossary](../reference/glossary.md) · [Authoring formats](../reference/authoring-formats.md) |
-| Let an AI agent help author that content (optional) | [agentic-toolkit](../projects/agentic-toolkit.md) |
+| Write User Stories / Features / Functionalities in the format collectors read | [Authoring documentation](../guides/authoring-documentation.md) · [Glossary](../reference/glossary.md) · [Authoring formats](../reference/authoring-formats.md) |
+| Let an AI agent help author that content (optional) | [Agentic layer](../projects/agentic.md) |
 | See how the stages connect | [Architecture](architecture.md) |
-| Browse every repo in the ecosystem | [Projects](../projects/) · [repo README](../../README.md#ecosystem) |
+| Browse every repo in the ecosystem | [Projects](../../README.md#projects) |

@@ -1,5 +1,10 @@
 # Example Input Files for Mining
 
+## Purpose
+
+This page is the guide to the example corpus: what each input file shows, what the pinned collector and toolkit
+mine from it, its conventions and the sync obligation.
+
 A canonical, minimal corpus of the **input** files the living-doc pipeline mines — the things a
 collector reads, not the documents a generator produces. For the formats these files follow, see
 [Authoring formats](../reference/authoring-formats.md) and
@@ -13,6 +18,13 @@ dependency on it — so that, taken together, the `.feature` files plus the enti
 uncovered, and `AC:FUNC-001-03` has a scenario for one of its three values, so the matrix shows all
 three verdicts — `covered`, `not_covered` and `partially_covered` (the matrix is snapshotted; see
 [What the corpus mines to](#what-the-corpus-mines-to-_expected)).
+
+## Contents
+
+- [Files](#files)
+- [What the corpus mines to (`_expected/`)](#what-the-corpus-mines-to-_expected)
+- [Conventions used by this corpus](#conventions-used-by-this-corpus)
+- [Sync obligation](#sync-obligation)
 
 ## Files
 

@@ -1,88 +1,81 @@
 # Living Documentation
 
-**Living Documentation** is an approach to keeping project documentation continuously up to date by generating it directly from the systems teams already use — GitHub, Azure DevOps — instead of maintaining it by hand. 
+## Purpose
 
-This repository is the entry point for the whole topic: it explains the concept, the architecture, and links out to every tool in the ecosystem.
+Living Documentation generates a project's documentation from what its repository already holds: User Story,
+Feature and Functionality headers in source code, and Gherkin `.feature` files. The documentation is regenerated on
+every run, so it never drifts from the work. This repository is the ecosystem's entry: the concept, the shape of the
+system, the format canon, and one card per repository.
 
-## Start here
+This documentation describes `v0.1.0`. For another tag, see that release's notes.
 
-- [Living Documentation in 5 Minutes](docs/introduction/quickstart.md) — copy one workflow file and go
-- [What is Living Documentation?](docs/introduction/what-is-living-documentation.md) — the concept and why it exists
-- [Architecture](docs/introduction/architecture.md) — how collectors, the toolkit, and generators fit together
-- [Principles](docs/introduction/principles.md) — what each part is for, what it must not do, and the deliberate exceptions
-- [Getting Started](docs/guides/getting-started.md) — set up your first pipeline
+## Contents
 
-## Guides
+- [Where to start](#where-to-start)
+- [The idea](#the-idea)
+- [Reference](#reference)
+- [Projects](#projects)
+- [Contributing](#contributing)
+- [License](#license)
 
-- [Living Documentation Document Types](docs/guides/living-doc-document-types.md)
-- [Authoring documentation](docs/guides/authoring-documentation.md)
-- [Collecting from GitHub](docs/guides/github-collection.md)
-- [Collecting from Azure DevOps](docs/guides/azure-devops-collection.md)
-- [Choosing a Generator](docs/guides/choosing-a-generator.md)
+## Where to start
 
-## Tutorials
+**I want documentation out of my repository.**
 
-One per **source + output** combination — see [Getting Started & Worked examples](docs/guides/getting-started.md#worked-examples) for the full matrix.
+1. [Living Documentation in 5 Minutes](docs/introduction/quickstart.md): is this for me, and what do I prepare?
+2. [Choosing a documentation source](docs/guides/choosing-a-documentation-source.md): what the pipeline mines.
+3. [Build a pipeline](docs/guides/build-a-pipeline.md): collect, normalize, generate, and the tutorial to copy.
 
-- [GitHub Issues → Markdown](docs/tutorials/gh-issues-to-markdown.md) *(planned)*
-- [GitHub Source Code → Markdown](docs/tutorials/gh-source-to-markdown.md)
-- [Azure DevOps Work Items → Markdown](docs/tutorials/ado-workitems-to-markdown.md) *(planned)*
-- [Technical Project → PDF](docs/tutorials/technical-project-to-pdf.md) *(from GitHub issues, planned)*
-- [GitHub Source Code → PDF](docs/tutorials/gh-source-to-pdf.md)
+**I write the User Stories.**
 
-## Ecosystem
+1. [Authoring documentation](docs/guides/authoring-documentation.md): write it like this.
+2. [Authoring formats](docs/reference/authoring-formats.md) and [Glossary](docs/reference/glossary.md): the exact
+   layouts and the entity model.
+3. [Example corpus](docs/examples/README.md): a worked mini project to copy.
 
-The pipeline has four stages: content is **authored**, a **collector** mines it into a common JSON shape, the **toolkit** normalizes it into a canonical dataset, and a **generator** renders that dataset into a documentation format.
+**I build on these contracts, or change this repository.**
 
-### Authoring
+1. [Projects](#projects): which repository does what.
+2. [Contracts](docs/reference/contracts.md): the six contracts, and which component writes and reads each.
+3. [CONTRIBUTING.md](CONTRIBUTING.md): branches, pull requests, the page rules and the checks.
 
-Content can be authored by hand or AI-accelerated — the pipeline itself always runs AI-free downstream of authoring. User Stories, Features, and Functionalities specifically can be authored two ways: directly in source code (preferred), or as issues/work items in GitHub or Azure DevOps (planned).
+## The idea
 
-### What gets mined
+An author writes each User Story, Feature and Functionality once, as a header in source code, by hand or with the
+optional AI layer. A **collector** mines the headers and the test scenarios, the **toolkit** normalizes them into one
+canonical shape, and a **generator** renders a document from it. Each stage is a GitHub Action, and the pipeline
+runs AI-free. GitHub issues and Azure DevOps work items as sources, and PDF output, are planned.
 
-| Source | Objects | Status |
+- The concept and the problem it solves: [What is Living Documentation?](docs/introduction/what-is-living-documentation.md)
+- The stages and how one run flows: [Architecture](docs/introduction/architecture.md)
+- What each part does and must not do: [Principles](docs/introduction/principles.md)
+- The three documents a pipeline renders: [Document types](docs/guides/living-doc-document-types.md)
+
+## Reference
+
+- [Glossary](docs/reference/glossary.md): the entity model, the IDs and the acceptance-criterion grammar.
+- [Authoring formats](docs/reference/authoring-formats.md): the exact header layouts an author writes.
+- [Rendering rules](docs/reference/rendering-rules.md): what each view of a document shows, and how coverage is counted.
+- [Data flows](docs/reference/data-flows.md): which component writes and which reads each file.
+- [Contracts](docs/reference/contracts.md): the six contracts between the components.
+- [Error codes](docs/reference/errors.md): every error and warning code, what it means and what to do.
+
+## Projects
+
+| Repository | Role | Card |
 |---|---|---|
-| GitHub | Issues (User Stories, Features, Functionalities), labels | Planned |
-| Source code | User Stories, Features, Functionalities, Gherkin test scenarios | Available |
-| Azure DevOps | Work items | Planned |
-| Azure DevOps | Boards, pipelines, test plans, release notes | Planned |
-
-### Document types
-
-What the pipeline produces. Each can be rendered as Markdown or PDF.
-
-| Document type | Built from | Requires |
-|---|---|---|
-| **Technical project** — User Stories, Features, Functionalities | Mined from source code; issues are planned (never hand-edited output) | A collector source |
-| **Test catalog** — the behaviours covered by Gherkin scenarios | Mined from `.feature` files | Gherkin feature files in the repo |
-| **Coverage matrix** — which acceptance criteria have tests | Cross-referencing the two above | Technical project **and** test catalog, for the same project |
-
-The **technical project** has two views: *inner* (everything, as-is) and *release* (`planned` and `in_review` entities and ACs filtered out; `deprecated` kept). Full structure, purpose, and the prerequisite matrix: [Living Documentation Document Types](docs/guides/living-doc-document-types.md).
-
-### What you get
-
-| Output | Best for | Status |
-|---|---|---|
-| Plain Markdown | Docs committed alongside code | Early stage |
-| PDF | Point-in-time deliverables — user stories, UI test catalogs, coverage matrices | Available |
-
-### Projects
-
-| Project | Role | Purpose |
-|---|---|---|
-| [agentic/](agentic/) *(in this repository)* | Authoring acceleration (optional) | The `living-doc-bdd-copilot` agent and its skill family *accelerate* authoring User Story/Feature/Functionality entities and Gherkin `.feature` files in the format `living-doc-collector-gh` mines — not required, since the whole pipeline runs AI-free and the same content can be hand-written. |
-| [living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) | Collector | Mines a GitHub repository into JSON: living-doc header blocks in source code and Gherkin UI-test scenarios. *(a documentation-issues mode, plus GitHub Projects state, is planned)* |
-| [living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) | Collector | Mines an Azure DevOps organization's work items into JSON. *(boards, pipelines, test plans, and release notes modes are planned, not yet built)* |
-| [living-doc-utilities](https://github.com/AbsaOSS/living-doc-utilities) | Shared library | Core data models, transformation, and serialization logic shared by collectors, the toolkit, and generators. |
-| [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) | Toolkit | Normalizes collector output into a canonical dataset consumed by generators: `normalize-docs`, `normalize-tests` and `coverage-matrix`. |
-| [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) | Generator | Renders the canonical dataset as plain Markdown. *(early stage)* |
-| [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) | Generator | Renders structured JSON (user stories, test catalogs, coverage matrices) as PDF via Jinja2 + WeasyPrint. |
-
-See [docs/projects](docs/projects/) for a dedicated page per project. The table above describes the intended pipeline.
+| [`agentic/`](agentic/README.md), in this repository | Authoring acceleration, optional | [agentic](docs/projects/agentic.md) |
+| [living-doc-collector-gh](https://github.com/AbsaOSS/living-doc-collector-gh) | Collector: GitHub | [collector-gh](docs/projects/collector-gh.md) |
+| [living-doc-collector-ad](https://github.com/AbsaOSS/living-doc-collector-ad) | Collector: Azure DevOps, planned | [collector-ad](docs/projects/collector-ad.md) |
+| [living-doc-utilities](https://github.com/AbsaOSS/living-doc-utilities) | Shared library: contracts and parsers | [utilities](docs/projects/utilities.md) |
+| [living-doc-toolkit](https://github.com/AbsaOSS/living-doc-toolkit) | Normalizer | [toolkit](docs/projects/toolkit.md) |
+| [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) | Generator: Markdown | [generator-markdown](docs/projects/generator-markdown.md) |
+| [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) | Generator: PDF, planned | [generator-pdf](docs/projects/generator-pdf.md) |
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, PR conventions, and how to report issues.
+Report a bug or propose a feature in [GitHub Issues](https://github.com/AbsaOSS/living-doc/issues). Branches, pull
+requests, the page rules and the checks: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

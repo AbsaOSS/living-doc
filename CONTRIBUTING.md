@@ -1,11 +1,30 @@
 # How to Contribute?
 
-## **Identifying and Reporting Bugs**
+## Purpose
+
+This page is how to contribute to this repository: reporting bugs and proposing features, branches and pull
+requests, the rules every page follows, the checks over the corpus and the testbed, and the agentic layer.
+
+## Contents
+
+- [Identifying and Reporting Bugs](#identifying-and-reporting-bugs)
+- [Proposing New Features](#proposing-new-features)
+- [Branch Naming](#branch-naming)
+- [PR Naming](#pr-naming)
+- [PR Description](#pr-description)
+- [Writing documentation](#writing-documentation)
+- [Regenerating the collector snapshots](#regenerating-the-collector-snapshots)
+- [The collector stage over the testbed](#the-collector-stage-over-the-testbed)
+- [The agentic layer](#the-agentic-layer)
+- [Target Branches](#target-branches)
+- [Community and Communication](#community-and-communication)
+
+## Identifying and Reporting Bugs
 
 * **Ensure the bug has not already been reported** by searching our **[GitHub Issues](https://github.com/AbsaOSS/living-doc/issues)**.
 * If you cannot find an open issue describing the problem, use the **Bug Report** GitHub issue template to open a new one.
 
-## **Proposing New Features**
+## Proposing New Features
 
 * **Check if the feature has already been requested** by searching through our **[GitHub Issues](https://github.com/AbsaOSS/living-doc/issues)**.
 * If the feature request doesn't exist, feel free to create a new one, using the **Feature Request** GitHub issue template.
@@ -34,10 +53,73 @@ Examples:
 
 ## PR Description
 
-PR body has to also include these sections: `## Overview`, `## Release Notes`, `## Related`.
+PR body has to also include these sections: `## Overview`, `## Release Notes`, `## Framework`, `## Related`.
 - **Overview** – what changed and why.
 - **Release Notes** – short, user-facing summary for the changelog.
+- **Framework** – tick one box: the change stays inside the frame of [Principles](docs/introduction/principles.md#the-frame), or names the row it bends and adds the exception there.
 - **Related** – link the issue with a closing keyword, e.g. `Closes #123` or `Fixes AB#12345`.
+
+## Writing documentation
+
+**Provisional.** These are the rules every page of this repository follows; this section is their only copy here.
+`tests/docs/test_page_structure.py` checks the ones marked *(checked)*, in `examples-check.yml`, on every change to
+`README.md`, `CONTRIBUTING.md` or `docs/**`.
+
+**Levels.** A page's folder gives its level; the levels run from the concept down to the definition, so no hub page
+is needed.
+
+| Level | Pages | Rule |
+|---|---|---|
+| L0 | `README.md` | what this is, where to start |
+| L1 | `docs/introduction/` | the concept and the shape of the system |
+| L2 | `docs/guides/`, and `docs/examples/README.md`, the corpus guide | how to do one thing; may show YAML and inputs; links every reference fact |
+| L3 | `docs/tutorials/` | one copy-pasteable pipeline, complete |
+| L4 | `docs/reference/` | the only level that defines a fact |
+| L5 | `docs/projects/` | one card per repository, at most 25 lines: role, files in and out, README link; no input table |
+| D | `CONTRIBUTING.md`, `docs/_integration/README.md` | contributing to and running this repository |
+
+Not pages: every `CONTEXT.md`, `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.github/`, `.local_context/`, `agentic/` (its
+own rules, in [`agentic/CONTRIBUTING.md`](agentic/CONTRIBUTING.md)), `tests/`, the mined inputs under
+`docs/examples/gh-issues/`, and each run folder under `docs/_integration/`.
+
+**Flow rules.**
+
+1. Every page opens with `## Purpose`, then `## Contents` *(checked)*.
+2. `README.md` and `docs/introduction/` stay conceptual: no field name, input table, YAML block *(checked)* or
+   version number. `README.md`'s one version names the release the documentation describes.
+3. A reference fact is linked, never restated.
+4. Nothing planned is described as available: a page that presents a planned part says so in one line.
+5. Every page is within three links of `README.md` *(checked)*.
+6. No page carries a `path::symbol` anchor *(checked)*.
+
+**Page anatomy.**
+
+1. `# Title`.
+2. `## Purpose`: one to three sentences on what the page is for ("This page is …", "This page defines …"), not who
+   reads it. Where the page sits on a reading path, `Read before:` and `Next:` links follow. `README.md` says what
+   Living Documentation does and where this repository sits instead.
+3. `## Contents`: one `- [title](#chapter)` line for each other `##` chapter, and nothing else *(checked)*.
+4. Then only the parts the page needs:
+
+| Part | Form |
+|---|---|
+| Principle | at most five short sentences: the core idea |
+| Fact or decision list | one line per item |
+| Option list | every available option with a one-line meaning; complete |
+| Example | at most 20 lines in a guide; complete in a tutorial |
+| Prose | only in Purpose, Principle and one-line list lead-ins; a block is at most four lines |
+| Language | sentences of at most 20 words; active voice; one term per idea, the glossary's |
+
+Two kinds of page are exempt:
+
+- A **project card** is its `# Title` and `## Purpose` only, with no other chapter and no table, in at most 25
+  lines *(checked)*.
+- A **redirect** keeps a moved or merged page's path: its `# Title`, a blank line and one
+  ``Moved to [`<path>`](<link>).`` line *(checked)*. No page links it *(checked)*; it is there for links from other
+  repositories, so it is exempt from the three-link rule.
+
+A new page goes into `PAGES`, `CARDS` or `REDIRECTS` in `tests/docs/pages.py`; the check fails on a tracked page
+that is on no list.
 
 ## Regenerating the collector snapshots
 
@@ -107,6 +189,8 @@ tests/testbed/run-testbed-stage.sh
 
 How it works, how to read a failure: [`tests/README.md`](tests/README.md).
 Negative cases, how to add one: [`tests/testbed/negative-cases.md`](tests/testbed/negative-cases.md).
+A gate or a milestone runs the whole chain on an operator's machine instead:
+[Integration runs](docs/_integration/README.md).
 
 ## The agentic layer
 
@@ -121,8 +205,8 @@ see [`agentic/CONTRIBUTING.md`](agentic/CONTRIBUTING.md).
 
 PRs have to target `main`, `master`, `support/*`, or `release/*`.
 
-### Community and Communication
+## Community and Communication
 
 If you have any questions or need help, don't hesitate to reach out through our GitHub discussion section!
 
-#### Thanks!
+Thanks!

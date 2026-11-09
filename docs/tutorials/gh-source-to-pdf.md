@@ -1,86 +1,37 @@
 # Tutorial: GitHub Source Code → PDF
 
-> This pipeline uses `collector-gh`'s `doc-source` and `ui-tests` modes (Available). Check the
-> [project README](https://github.com/AbsaOSS/living-doc-collector-gh) for the current inputs.
+## Purpose
 
-Goal: produce a **PDF** — a technical project, a UI test catalog, or a coverage matrix — from the
-living-documentation header blocks and Gherkin `.feature` files in your source tree.
+This page is the tutorial GitHub source code → PDF will be once PDF output lands.
 
-Same inputs as [GitHub Source → Markdown](gh-source-to-markdown.md); only the generator step differs.
+## Contents
 
-## 1. Prepare the inputs
+- [Status](#status)
+- [What it will produce](#what-it-will-produce)
+- [Related](#related)
 
-The [coverage matrix](../guides/living-doc-document-types.md#coverage-matrix) needs **both** a
-technical project and a test catalog for the same repo — so the header blocks and the `.feature`
-files must use consistent AC IDs. A technical project or test catalog PDF on its own needs only its
-own inputs.
+## Status
 
-## 2. Add the workflow
+**Planned:** PDF output is not in the `v0.1.0` pipeline, so this page carries no workflow ([generator-pdf](../projects/generator-pdf.md)). Today, use [GitHub Source Code → Markdown](gh-source-to-markdown.md).
 
-`.github/workflows/living-doc-source-pdf.yml`:
+## What it will produce
 
-```yaml
-name: Living Documentation (source, PDF)
+A **PDF** — a technical project, a UI test catalog or a coverage matrix — from the living-documentation header
+blocks and Gherkin `.feature` files in your source tree:
 
-on:
-  workflow_dispatch:
+1. The collect and normalize steps will be those of [GitHub Source Code → Markdown](gh-source-to-markdown.md),
+   with the same inputs; only the generator step differs.
+2. `living-doc-generator-pdf` will read a `toolkit` file, never raw collector output such as `ui-tests.json`, and
+   render the template set its document type selects (`technical-project`, `ui-test-catalog` or `coverage-matrix`).
+3. The workflow will upload the PDF as a workflow artifact; a publish or notify step can take it further.
 
-jobs:
-  generate-pdf:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      # 1. COLLECT from source code — doc-source + ui-tests modes
-      #    (exact input names TBD — see collector-gh SPEC.md / README)
-      - name: Collect from source
-        uses: AbsaOSS/living-doc-collector-gh@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          modes: doc-source,ui-tests
-
-      # 2. NORMALIZE
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Normalize (toolkit)
-        run: |
-          pip install living-doc-toolkit
-          living-doc normalize-docs --input doc-source.json --output generator-ready.json
-
-      # 3. GENERATE PDF — pick the document-type for the document you want
-      - name: Generate PDF
-        uses: AbsaOSS/living-doc-generator-pdf@v1
-        with:
-          source-path: generator-ready.json
-          document-type: technical-project   # or: ui-test-catalog | coverage-matrix
-          output-path: reports/living-doc.pdf
-
-      # 4. UPLOAD
-      - name: Upload report
-        uses: actions/upload-artifact@v4
-        with:
-          name: living-doc-pdf
-          path: reports/living-doc.pdf
-```
-
-## 3. What happens on each run
-
-1. `collector-gh` parses the header blocks and `.feature` files into `doc-source.json` / `ui-tests.json`.
-2. `toolkit` normalizes that into the canonical dataset (for a coverage matrix, `living-doc coverage-matrix` joins the two).
-3. `generator-pdf` renders the chosen template to a PDF.
-4. The PDF is uploaded as a workflow artifact — add a publish/notify step if it needs a wider audience.
-
-## 4. Other report types
-
-Swap `document-type:` to `ui-test-catalog` or `coverage-matrix` — see the
-[project README](https://github.com/AbsaOSS/living-doc-generator-pdf) for the current template set,
-and [Living Documentation Document Types](../guides/living-doc-document-types.md) for what each one
-contains and needs.
+The [coverage matrix](../guides/living-doc-document-types.md#coverage-matrix) needs **both** a technical project and
+a test catalog for the same project, so the header blocks and the `.feature` files must use consistent AC IDs. A
+technical project or test catalog on its own needs only its own inputs.
 
 ## Related
 
 - [Technical Project → PDF](technical-project-to-pdf.md) — the same output from issues instead of code *(planned)*
 - [GitHub Source → Markdown](gh-source-to-markdown.md) — same inputs, Markdown output
-- [Choosing a Generator](../guides/choosing-a-generator.md)
+- [Build a pipeline — Choose a generator](../guides/build-a-pipeline.md#choose-a-generator)
+- [Living Documentation Document Types](../guides/living-doc-document-types.md) — what each document contains and needs
