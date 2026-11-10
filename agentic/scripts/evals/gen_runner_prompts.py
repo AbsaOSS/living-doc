@@ -21,10 +21,14 @@ STAGED = {
 }
 
 def skill_file(target, arm):
-    root = REPO if arm == "with_skill" else BASE
+    # A baseline commit from before the layer moved under agentic/.claude/ and agentic/.github/
+    # still has the old layout, so its arm reads the path that exists there.
+    layer = (REPO if arm == "with_skill" else BASE) / "agentic"
     if target == "living-doc-bdd-copilot":
-        return root / "agentic/agents/living-doc-bdd-copilot.agent.md"
-    return root / "agentic/skills" / target / "SKILL.md"
+        new, old = layer / ".github/agents" / f"{target}.agent.md", layer / "agents" / f"{target}.agent.md"
+    else:
+        new, old = layer / ".claude/skills" / target / "SKILL.md", layer / "skills" / target / "SKILL.md"
+    return old if old.is_file() and not new.is_file() else new
 
 count = 0
 index = []
@@ -49,7 +53,7 @@ for tdir in sorted(IT.iterdir()):
 
 STEP 1. Read this {kind} file in full and follow it as your operating instructions for this task:
   {sf}
-Read any file it references *outside* an `evals/` directory if you need it (its scripts, `agentic/skills/shared/`, docs). Resolve relative references against `{sf.parents[2] if kind=='skill' else sf.parent.parent}`.
+Read any file it references *outside* an `evals/` directory if you need it (its scripts, the shared skill, docs). Resolve relative references against `{sf.parent}`.
 
 STEP 2. Answer this user request, acting as that {kind}:
 ---
@@ -64,6 +68,7 @@ HARD RULES
 - Everything on disk is READ-ONLY except the one output file above.
 - No git commands of any kind.
 - Do not consult the other arm's copy of this {kind}, and do not look in `{BASE}` unless the path in STEP 1 is already there.
+- Invoke no skill through a Skill tool. The file in STEP 1 is your only instruction set: a session in this repository can load the layer's current skills from `agentic/.claude/skills/`, and calling one would measure it instead of this arm's {kind}.
 - Answer as the {kind} instructs, including when it tells you to refuse, to route elsewhere, or to ask for input you do not have. An honest "I cannot, because X" that follows the {kind} is a correct answer; do not invent ids, file contents, error codes or script output to look complete. Never claim you ran a script you did not run.
 - Keep the answer self-contained: no "see above", no reference to this prompt.
 

@@ -19,7 +19,7 @@ license: Apache-2.0
 
 # Living Doc — Update
 
-> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
+> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
 
 ## Identify the entity and change type
 
@@ -51,7 +51,7 @@ When adding a new AC to an existing User Story:
 
 1. Load the existing User Story entity
 2. Assign the next sequential AC ID in the canonical `AC:<parent-id>-<nn>` format
-   (for example `AC:US-042-04`) - see [living-doc-glossary](../shared/references/living-doc-glossary.md#acceptance-criterion-ac)
+   (for example `AC:US-042-04`) - see [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md#acceptance-criterion-ac)
 3. Elicit the new AC using the same completeness checklist as `living-doc-create-user-story` and
    capture it in `description`, `given`, `when`, `then` form:
    - Happy path covered?
@@ -62,7 +62,7 @@ When adding a new AC to an existing User Story:
 5. Flag linked scenarios for `gherkin-living-doc-sync` so feature files can pick up the new or changed AC text and tags.
 6. Emit a change summary showing the new AC ID and its Given / When / Then content.
 
-Do not stop at workflow narration or ask for a fixture file before demonstrating the update shape. For add-AC requests, output the concrete change summary block immediately using the supplied entity ID and the new AC content. Fill it only with what the user supplied: the next AC number when no catalog or entity is available, an error or status code they did not name, a linked test file — each stays a visible placeholder (`AC:US-042-<next>`) or a code labelled as a proposal, never a concrete-looking value. An AC that must hold for several values declares them once (`- Aspect: <v1>, <v2>` or one named keyword) — see [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
+Do not stop at workflow narration or ask for a fixture file before demonstrating the update shape. For add-AC requests, output the concrete change summary block immediately using the supplied entity ID and the new AC content. Fill it only with what the user supplied: the next AC number when no catalog or entity is available, an error or status code they did not name, a linked test file — each stays a visible placeholder (`AC:US-042-<next>`) or a code labelled as a proposal, never a concrete-looking value. An AC that must hold for several values declares them once (`- Aspect: <v1>, <v2>` or one named keyword) — see [AC variants](../living-doc-shared/references/living-doc-bdd-schemas.md#ac-variants).
 
 When modifying an existing AC **keep the AC ID stable** — changing the ID breaks traceability
 to linked tests. Only update the `description`, `given`, `when`, `then`, or
@@ -108,7 +108,7 @@ After promoting a User Story to `active`, trigger `living-doc-scenario-creator` 
 ## Indentation is significant
 
 A header is read part by part, and indentation decides where each part ends. Full rule:
-[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+[Indentation](../living-doc-shared/references/living-doc-bdd-schemas.md#indentation). What bites while
 writing one:
 
 - **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and
@@ -211,9 +211,9 @@ it already calls gets documented as a Feature of its own. The job is to leave ea
 the one place the canon puts it:
 
 - A system with **no canonical anchor** is an `external_dependencies` entry on the calling Feature,
-  by name — see [living-doc-glossary — Feature](../shared/references/living-doc-glossary.md#feature).
+  by name — see [living-doc-glossary — Feature](../living-doc-shared/references/living-doc-glossary.md#feature).
 - An **`API` Feature** is a `feature_dependencies` entry on the **Functionality that makes the call** —
-  see [living-doc-glossary — Functionality](../shared/references/living-doc-glossary.md#functionality-func).
+  see [living-doc-glossary — Functionality](../living-doc-shared/references/living-doc-glossary.md#functionality-func).
 
 A Feature's own `feature_dependencies` is **derived** from its Functionalities and never authored.
 Never write the field onto a Feature — not to mirror a Functionality, and not as a place to park an

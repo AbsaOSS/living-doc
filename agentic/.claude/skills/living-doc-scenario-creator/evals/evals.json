@@ -230,7 +230,7 @@
       "id": 18,
       "category": "regression",
       "prompt": "The coverage report is run for US-010. AC:US-010-02 has a scenario tagged '@AC:US-10-02' (missing leading zero in the US number). Is it counted as covered?",
-      "expected_output": "Yes — AC:US-010-02 IS counted as covered. coverage_report.py passes every @AC: tag through canonicalize_ac_id() in shared/lib/ac_tag.py, which zero-pads the numeric parent, so 'US-10-02' canonicalises to 'US-010-02' and matches the AC. No warning is emitted, and scan_ac_links.py does not flag the tag either, because the shared tag grammar accepts an unpadded parent. The answer should still recommend renaming the tag and its '# AC:' comment to the zero-padded form, for consistency with the canon's spelling.",
+      "expected_output": "Yes — AC:US-010-02 IS counted as covered. coverage_report.py passes every @AC: tag through canonicalize_ac_id() in living-doc-shared/lib/ac_tag.py, which zero-pads the numeric parent, so 'US-10-02' canonicalises to 'US-010-02' and matches the AC. No warning is emitted, and scan_ac_links.py does not flag the tag either, because the shared tag grammar accepts an unpadded parent. The answer should still recommend renaming the tag and its '# AC:' comment to the zero-padded form, for consistency with the canon's spelling.",
       "files": [],
       "expectations": [
         "States the tag IS counted as covered",

@@ -36,8 +36,8 @@ for s in "${SKILLS[@]}"; do
   if [ -f "$OUT/$s.done" ]; then echo "SKIP $s (already done)"; continue; fi
   echo "=== START $s $(date +%H:%M:%S) ==="
   "$PY" "$REPO/agentic/scripts/evals/run_eval_compat.py" "$SC" \
-    --eval-set "$REPO/agentic/skills/$s/evals/trigger-eval.json" \
-    --skill-path "$REPO/agentic/skills/$s" \
+    --eval-set "$REPO/agentic/.claude/skills/$s/evals/trigger-eval.json" \
+    --skill-path "$REPO/agentic/.claude/skills/$s" \
     --model "$MODEL" \
     --runs-per-query 3 --num-workers 1 --timeout 120 --verbose \
     > "$OUT/$s.json" 2> "$OUT/$s.log"

@@ -13,7 +13,7 @@ __test__ = False  # pytest: ignore this helper script
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared" / "lib"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "living-doc-shared" / "lib"))
 from ac_tag import iter_ac_tags  # noqa: E402 — path must be set up first
 
 from coverage_report import ac_coverage_state, get_ac_tags_above  # noqa: E402

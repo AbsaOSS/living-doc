@@ -5,7 +5,7 @@
 This page defines the living-doc entity model: the four entities, their IDs and status vocabulary, the
 acceptance-criterion grammar, ID uniqueness and how the entities relate. Every `living-doc-*` repository
 works on this model, and so does the agentic layer in [`agentic/`](../../agentic/README.md), whose own
-formats and skill matrix are in [agentic-formats.md](../../agentic/skills/shared/references/agentic-formats.md).
+formats and skill matrix are in [agentic-formats.md](../../agentic/.claude/skills/living-doc-shared/references/agentic-formats.md).
 The layer reads a copy generated from this page, and a rule changed here changes its example in
 [`docs/examples/`](../examples/README.md) in the [same PR](../examples/README.md#sync-obligation).
 

@@ -9,7 +9,7 @@ them by hand without missing some. This reports every such key and, with --fix, 
 ones whose correction is unambiguous.
 
 What it reports, from Authoring formats' "Common mistakes" table
-(skills/shared/references/living-doc-bdd-schemas.md#common-mistakes):
+(skills/living-doc-shared/references/living-doc-bdd-schemas.md#common-mistakes):
 
   removable — --fix deletes the line, nothing is lost
     status:            any value. A surface has no status. `status: STUB` / `status: candidate`

@@ -19,8 +19,8 @@ license: Apache-2.0
 
 # Living Doc — Create Functionality
 
-> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
-> **BDD schemas:** Functionality feature file template and func_type values — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md)).
+> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
+> **BDD schemas:** Functionality feature file template and func_type values — see [living-doc-bdd-schemas](../living-doc-shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md)).
 
 ## Step 1 — Elicit the behavior
 
@@ -28,7 +28,7 @@ Before asking, **scan the conversation context** for a behavior phrase and paren
 
 Ask only for what is missing: *What is the atomic behavior to document?*
 
-Express the behavior as a **verb phrase** — one atomic responsibility. The Functionality `name` is that phrase prefixed with the parent Feature's name: `<Feature name> - <verb phrase>`, joined by a plain hyphen (never an en or em dash). This is the canon form — see [living-doc-glossary — Functionality](../shared/references/living-doc-glossary.md#functionality-func) — and it is what appears in the feature-file title line and the issue title. The Feature ID itself still goes only in `parent_feature`.
+Express the behavior as a **verb phrase** — one atomic responsibility. The Functionality `name` is that phrase prefixed with the parent Feature's name: `<Feature name> - <verb phrase>`, joined by a plain hyphen (never an en or em dash). This is the canon form — see [living-doc-glossary — Functionality](../living-doc-shared/references/living-doc-glossary.md#functionality-func) — and it is what appears in the feature-file title line and the issue title. The Feature ID itself still goes only in `parent_feature`.
 
 ```
 ✅  "Checkout Page - Validate cart contains at least one in-stock item"
@@ -47,13 +47,13 @@ Until the parent Feature is known (Step 2), work with the verb phrase alone; add
 
 Ask: *Which Feature (system surface) owns this behavior?* only if it is not already obvious from the prompt.
 
-A Functionality belongs to exactly one parent Feature, recorded in `parent_feature` — the toolkit JSON name for the canon's `# parent:` header key (see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md#3-functionality-in-a-gherkin-feature-file)). If the user clearly names the surface or domain (for example checkout, basket, login, pricing), infer a provisional `parent_feature` by asking for the catalog to look up the numeric ID. If the catalog is not available, note that the Feature must be created formally via `living-doc-create-feature` first (which will assign a numeric ID). Do **not** invent a slug-based Feature ID; all Feature IDs are numeric and catalog-assigned. An unknown parent ID does **not** stop the draft: use the `FEAT-PENDING` placeholder (Step 5) and still emit the entity.
+A Functionality belongs to exactly one parent Feature, recorded in `parent_feature` — the toolkit JSON name for the canon's `# parent:` header key (see [living-doc-bdd-schemas](../living-doc-shared/references/living-doc-bdd-schemas.md#3-functionality-in-a-gherkin-feature-file)). If the user clearly names the surface or domain (for example checkout, basket, login, pricing), infer a provisional `parent_feature` by asking for the catalog to look up the numeric ID. If the catalog is not available, note that the Feature must be created formally via `living-doc-create-feature` first (which will assign a numeric ID). Do **not** invent a slug-based Feature ID; all Feature IDs are numeric and catalog-assigned. An unknown parent ID does **not** stop the draft: use the `FEAT-PENDING` placeholder (Step 5) and still emit the entity.
 
 ### Features this behaviour calls
 
 Ask: *Does this behaviour call another documented Feature — an API endpoint or an annotated event contract?*
 
-Record each one as a `FEAT-<nnn>` id in `feature_dependencies`. The field is authored **here**, on the Functionality that makes the call, and derived upward to the parent Feature — never written on the Feature itself. Which targets are allowed is defined once, in [living-doc-glossary — Functionality](../shared/references/living-doc-glossary.md#functionality-func); read the rules there rather than a copy here.
+Record each one as a `FEAT-<nnn>` id in `feature_dependencies`. The field is authored **here**, on the Functionality that makes the call, and derived upward to the parent Feature — never written on the Feature itself. Which targets are allowed is defined once, in [living-doc-glossary — Functionality](../living-doc-shared/references/living-doc-glossary.md#functionality-func); read the rules there rather than a copy here.
 
 A system the behaviour calls that is **not** a documented Feature is not a target. It stays a free-form `external_dependencies` name on the parent Feature, which `living-doc-create-feature` owns. If nothing is called, emit `"feature_dependencies": []`.
 
@@ -66,7 +66,7 @@ Functionality ACs describe atomic inputs to outputs. They are:
 
 Write **3-7 ACs** for one coherent behavior. If a Functionality needs around **12 ACs**, treat that as a strong sign it is not atomic and split it into 2-3 focused Functionalities.
 
-An AC that must hold for several values (fields, rules, roles) declares them once instead of repeating itself: one bullet, either `- Aspect: <v1>, <v2>` or one named keyword `- <name>: <v1>, <v2>` matching a `{name}` in the AC text — never both. Scenarios then cover it value by value. Full rule: [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
+An AC that must hold for several values (fields, rules, roles) declares them once instead of repeating itself: one bullet, either `- Aspect: <v1>, <v2>` or one named keyword `- <name>: <v1>, <v2>` matching a `{name}` in the AC text — never both. Scenarios then cover it value by value. Full rule: [AC variants](../living-doc-shared/references/living-doc-bdd-schemas.md#ac-variants).
 
 **Completeness checklist — adapt each prompt to the domain before finalizing:**
 
@@ -88,7 +88,7 @@ decides which PageObject locator the behaviour anchors to, and it drives the one
 scoping rules — so getting it wrong changes how the behaviour must be split, not just how it reads.
 
 The seven allowed values, what each documents, and its PageObject anchor are tabulated once, in
-[living-doc-bdd-schemas — `func_type` values](../shared/references/living-doc-bdd-schemas.md#3-functionality-in-a-gherkin-feature-file);
+[living-doc-bdd-schemas — `func_type` values](../living-doc-shared/references/living-doc-bdd-schemas.md#3-functionality-in-a-gherkin-feature-file);
 the scoping rules follow it in the same section. Read the table there — it is not repeated here;
 the table below only maps a cause to a value.
 
@@ -194,7 +194,7 @@ Rules:
 - `name` is `<Feature name> - <verb phrase>`: the parent Feature's name, a plain hyphen, then the atomic verb phrase.
 - Each acceptance criterion is an object with `id` and `description`. The `id` is
   `AC:<Functionality id>-<nn>`, numbered from `01` in order — the same ID the AC carries in the
-  feature-file header or issue body (see [living-doc-glossary — Acceptance Criterion](../shared/references/living-doc-glossary.md#acceptance-criterion-ac)).
+  feature-file header or issue body (see [living-doc-glossary — Acceptance Criterion](../living-doc-shared/references/living-doc-glossary.md#acceptance-criterion-ac)).
   Never emit an AC as a bare string: it has no ID, so nothing can link a test or a scenario to it.
   When a placeholder ID (`FUNC-<kebab-name>`, `FUNC-PENDING`) is replaced, renumber the AC IDs and
   the `test_coverage` references with it.
@@ -347,7 +347,7 @@ redirect to `living-doc-create-user-story`.
 ## Indentation is significant
 
 A header is read part by part, and indentation decides where each part ends. Full rule:
-[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+[Indentation](../living-doc-shared/references/living-doc-bdd-schemas.md#indentation). What bites while
 writing one:
 
 - **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and

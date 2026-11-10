@@ -18,7 +18,7 @@ license: Apache-2.0
 
 # Living Doc — Gap Finder
 
-> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
+> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
 
 > **Script paths are relative to this skill's own directory**, not to your working directory — a skill installs as a self-contained directory with its `scripts/` inside it. Commands are written as `python …`, which assumes an activated virtual environment; on a system where only `python3` exists, activate a venv first or substitute `python3`.
 
@@ -116,7 +116,7 @@ For each gap type:
 Coverage is counted **per declared variant value**. An AC that declares values with
 `- Aspect:` or a named keyword is covered only once every value has a scenario; a bare
 `@AC:<id>` tag covers the whole AC, every value at once. See
-[AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
+[AC variants](../living-doc-shared/references/living-doc-bdd-schemas.md#ac-variants).
 
 ```
 For each AC in (UserStory.ACs + Functionality.ACs)

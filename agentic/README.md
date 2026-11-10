@@ -21,23 +21,24 @@ Two separate things, installed two different ways: the **skills** come from the 
 | run a skill's bundled scripts | Python 3.10+ with `PyYAML` and `jsonschema`, in an **activated virtual environment** — the commands in each skill are written as `python` |
 | use `living-doc-pageobject-scan`, or the agent's crawl, re-scan and healing modes | an MCP Playwright server connected in your editor; those modes stop without it |
 
-### Skills — 13 installs, because `shared` counts
+### Skills — 13 installs, because `living-doc-shared` counts
 
 Skills install one at a time. See what the CLI finds here before you start:
 
 ```bash
-npx skills add https://github.com/AbsaOSS/living-doc --list
+npx skills add https://github.com/AbsaOSS/living-doc/tree/master/agentic --list
 ```
 
-**`shared` is not optional.** All twelve skills read the canon reference documents next to it, and
-six of them bundle scripts that import its library and exit with an error without it. `npx skills
-add` copies only the selected skill's folder and `shared`'s into your project, which is why the
-canon copies travel with the skill — this repository's `docs/` does not exist there.
+**`living-doc-shared` is not optional.** All twelve skills read the canon reference documents next
+to it, and six of them bundle scripts that import its library and exit with an error without it.
+`npx skills add` copies only the selected skill's folder and `living-doc-shared`'s into your
+project, which is why the canon copies travel with the skill — this repository's `docs/` does not
+exist there.
 
 ```bash
-R=https://github.com/AbsaOSS/living-doc
+R=https://github.com/AbsaOSS/living-doc/tree/master/agentic
 
-npx skills add $R -g --skill shared                        # required by all twelve below
+npx skills add $R -g --skill living-doc-shared             # required by all twelve below
 
 npx skills add $R -g --skill living-doc-create-user-story
 npx skills add $R -g --skill living-doc-create-feature
@@ -53,7 +54,7 @@ npx skills add $R -g --skill bdd-maintain
 npx skills add $R -g --skill data-cy-instrument
 ```
 
-Install only the ones you need — they work individually, as long as `shared` is there. `-g`
+Install only the ones you need — they work individually, as long as `living-doc-shared` is there. `-g`
 installs for your user, so every project sees them; drop it to install into the current project
 only.
 
@@ -65,7 +66,7 @@ reaches it. Copy it into the `.github/agents/` directory of the repository you w
 ```bash
 mkdir -p .github/agents
 curl -o .github/agents/living-doc-bdd-copilot.agent.md \
-  https://raw.githubusercontent.com/AbsaOSS/living-doc/master/agentic/agents/living-doc-bdd-copilot.agent.md
+  https://raw.githubusercontent.com/AbsaOSS/living-doc/master/agentic/.github/agents/living-doc-bdd-copilot.agent.md
 ```
 
 > Whether the skills CLI can also install an agent has not been verified — it is documented for
@@ -78,18 +79,18 @@ first real task.
 
 ### If something is missing
 
-- A script printing `shared library not found` means the `shared` skill was not installed, or not
-  installed beside the skill that is calling it.
+- A script printing `shared library not found` means the `living-doc-shared` skill was not
+  installed, or not installed beside the skill that is calling it.
 - A script failing on `No module named 'yaml'` or `jsonschema` means the interpreter running it is
   not the virtual environment from the prerequisites.
 - `@living-doc-bdd-copilot` not responding to an `@`-mention means the agent file is not in
   `.github/agents/` of the repository you have open. It is never auto-triggered; only skills are.
 
-> **Why no path is needed.** The CLI looks for skills in a repository's `skills/` directory
-> first and falls back to a recursive search when it finds none there. This repository has no
-> top-level `skills/`, so the fallback finds the skills under `agentic/skills/` and `--skill
-> <name>` selects by name. **Do not add a top-level `skills/` directory** to this repository: it
-> would satisfy the primary search and hide this layer's skills from the CLI.
+> **Why the URL ends in `agentic`.** The CLI looks for skills in a few standard folders at the
+> source's root, `skills/` and `.claude/skills/` among them, and searches deeper only when those
+> hold none. This repository's root `.claude/skills/` holds its own development skills, so the URL
+> names the `agentic` folder, whose `.claude/skills/` holds this layer's, and `--skill <name>`
+> selects by name.
 
 ## Skills
 
@@ -107,11 +108,11 @@ first real task.
 | `bdd-maintain` | Lifecycle cleanup of BDD artifacts: removal, dead code, healing | [guide](docs/guides/bdd-maintain.md) |
 | `gherkin-step` | Implements clean, reusable Gherkin step definitions | [guide](docs/guides/gherkin-step.md) |
 | `data-cy-instrument` | Resolves missing `data-cy` attributes and syncs PageObjects | [guide](docs/guides/data-cy-instrument.md) |
-| `shared` | Not a task skill: the shared library and reference documents | — |
+| `living-doc-shared` | Not a task skill: the shared library and reference documents | — |
 
 ## Agent
 
-`agents/living-doc-bdd-copilot.agent.md` drives the whole lifecycle and dispatches to the skills
+`.github/agents/living-doc-bdd-copilot.agent.md` drives the whole lifecycle and dispatches to the skills
 above. Invoke it by `@`-mention; it is not auto-triggered.
 [Guide](docs/guides/living-doc-bdd-copilot.md) · [evals](agents/evals/living-doc-bdd-copilot/)
 
@@ -122,7 +123,7 @@ this repository? If no, it goes to `.claude/agents/`, with no guide and no eval 
 
 ## Reference documents
 
-`skills/shared/references/` holds what every skill reads:
+`.claude/skills/living-doc-shared/references/` holds what every skill reads:
 
 | File | Source |
 |---|---|
@@ -134,7 +135,7 @@ this repository? If no, it goes to `.claude/agents/`, with no guide and no eval 
 The two generated copies are rewritten from this repository's `docs/` at the same commit by
 [`scripts/sync-canon-copies.sh`](scripts/sync-canon-copies.sh), and CI fails if a committed copy
 differs. **Do not edit them by hand.** They exist because `npx skills add` copies only a skill's
-folder and `shared`'s into a user's project, where this repository's `docs/` does not exist — so a
+folder and `living-doc-shared`'s into a user's project, where this repository's `docs/` does not exist — so a
 skill reads the copy next to it, and the copy cannot drift from the canon it was generated from.
 
 ## Testing and contributing

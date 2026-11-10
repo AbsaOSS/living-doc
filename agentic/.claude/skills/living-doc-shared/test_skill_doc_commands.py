@@ -8,10 +8,11 @@ eval run across seven of the twelve skills:
 
   * `python scripts/x.py` reads as relative to the author's working directory, where no
     `scripts/` exists — the real file sits inside the skill's own directory.
-  * `python skills/<other>/scripts/x.py` and `python agentic/skills/<other>/scripts/x.py` are
-    paths that only exist in this repository's checkout. A skill installs as a self-contained
+  * `python skills/<other>/scripts/x.py`, `python .claude/skills/<other>/scripts/x.py` and
+    `python agentic/.claude/skills/<other>/scripts/x.py` are paths that only exist in this
+    repository's checkout. A skill installs as a self-contained
     directory alongside its siblings (`npx skills add … --skill <name>`, see agentic/README.md),
-    so neither prefix survives installation.
+    so none of these prefixes survives installation.
 
 The form that holds in both layouts is the one this test enforces: a skill's own script as
 `scripts/x.py`, another installed skill's as `../<skill-name>/scripts/x.py`. Both resolve
@@ -30,7 +31,7 @@ SKILLS_DIR = Path(__file__).resolve().parent.parent
 OWN = re.compile(r"(?<![\w./-])scripts/([a-z0-9_]+\.py)")
 SIBLING = re.compile(r"\.\./([a-z0-9-]+)/scripts/([a-z0-9_]+\.py)")
 # Prefixes that resolve only inside this checkout, or nowhere at all.
-REPO_BOUND = re.compile(r"(?<![\w./-])(?:agentic/)?skills/[a-z0-9-]+/scripts/[a-z0-9_]+\.py")
+REPO_BOUND = re.compile(r"(?<![\w./-])(?:agentic/)?(?:\.claude/)?skills/[a-z0-9-]+/scripts/[a-z0-9_]+\.py")
 
 
 def _skill_docs():
@@ -40,7 +41,7 @@ def _skill_docs():
 
 
 def test_no_repo_bound_script_paths():
-    """A `skills/…` or `agentic/skills/…` path breaks as soon as the skill is installed."""
+    """A `skills/…`, `.claude/skills/…` or `agentic/.claude/skills/…` path breaks once installed."""
     offenders = []
     for doc in _skill_docs():
         for line_no, line in enumerate(doc.read_text().splitlines(), 1):
@@ -117,7 +118,7 @@ def test_no_flag_documented_that_the_script_rejects():
         if flags:
             return flags
         for mod in re.findall(r"from\s+([a-z0-9_]+)\s+import\s+[\w,\s]*cli_main", text):
-            delegate = SKILLS_DIR / "shared" / "lib" / f"{mod}.py"
+            delegate = SKILLS_DIR / "living-doc-shared" / "lib" / f"{mod}.py"
             if delegate.is_file():
                 d = set(re.findall(r"add_argument\(\s*[\"'](--[a-z0-9-]+)", delegate.read_text()))
                 if d:

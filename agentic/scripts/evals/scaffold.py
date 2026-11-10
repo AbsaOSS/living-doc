@@ -17,7 +17,7 @@ Usage:
     scaffold.py <target> <workspace> <iteration> [eval_file]
 
 `eval_file` is only needed when the set does not live at
-`agentic/skills/<target>/evals/evals.json` — the agent's is at
+`agentic/.claude/skills/<target>/evals/evals.json` — the agent's is at
 `agentic/agents/evals/<agent>/evals.json`.
 """
 
@@ -37,7 +37,7 @@ def slug(text: str, words: int = 6) -> str:
 
 
 def main(target: str, workspace: str, iteration: int, eval_file: str | None = None) -> int:
-    src = Path(eval_file) if eval_file else REPO / "agentic/skills" / target / "evals/evals.json"
+    src = Path(eval_file) if eval_file else REPO / "agentic/.claude/skills" / target / "evals/evals.json"
     if not src.is_file():
         print(f"error: no eval file at {src}", file=sys.stderr)
         return 1

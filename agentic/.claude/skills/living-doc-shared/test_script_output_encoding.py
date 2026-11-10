@@ -26,7 +26,7 @@ LEGACY_PIPE = {**os.environ, "PYTHONIOENCODING": "cp1252", "PYTHONUTF8": "0"}
 
 
 def _scripts():
-    for path in sorted(SKILLS_DIR.glob("*/scripts/*.py")) + sorted((SKILLS_DIR / "shared" / "lib").glob("*.py")):
+    for path in sorted(SKILLS_DIR.glob("*/scripts/*.py")) + sorted((SKILLS_DIR / "living-doc-shared" / "lib").glob("*.py")):
         if not path.name.startswith("test_"):
             yield path
 

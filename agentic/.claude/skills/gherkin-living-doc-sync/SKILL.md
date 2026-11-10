@@ -18,8 +18,8 @@ license: Apache-2.0
 
 # Gherkin ↔ Living Doc Sync
 
-> **Glossary:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
-> **BDD schemas:** US and Functionality feature file headers, `# Acceptance Criteria:` block format — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md)).
+> **Glossary:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
+> **BDD schemas:** US and Functionality feature file headers, `# Acceptance Criteria:` block format — see [living-doc-bdd-schemas](../living-doc-shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md)).
 
 Sync runs in three directions: (1) feature file to living doc, (2) living doc AC to feature file,
 (3) step text to PageObject method signature.
@@ -103,7 +103,7 @@ Scenario: Reset link is sent by email
 ```
 
 - `# AC:` comment: human-readable context - ID, version, state, description, optional aspect.
-- `@AC:` Cucumber tag: `@AC:<id>[/<param>:<value>]` - machine-readable link, with **at most one** `/<param>:<value>` segment. A scenario covers one value, so one scenario is tagged per value; a tag carrying two parameters is `MALFORMED_AC`. `<param>` is the AC's own variant name - `aspect`, or its keyword - in lowercase kebab-case. A `<value>` the AC does not declare is `STALE_AC_REF`: report it with the declared values, and either correct the tag to one of them or add the value to the AC's declaration first (through `living-doc-update`) - never leave the tag pointing at an undeclared value. See [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants).
+- `@AC:` Cucumber tag: `@AC:<id>[/<param>:<value>]` - machine-readable link, with **at most one** `/<param>:<value>` segment. A scenario covers one value, so one scenario is tagged per value; a tag carrying two parameters is `MALFORMED_AC`. `<param>` is the AC's own variant name - `aspect`, or its keyword - in lowercase kebab-case. A `<value>` the AC does not declare is `STALE_AC_REF`: report it with the declared values, and either correct the tag to one of them or add the value to the AC's declaration first (through `living-doc-update`) - never leave the tag pointing at an undeclared value. See [AC variants](../living-doc-shared/references/living-doc-bdd-schemas.md#ac-variants).
 - The `@AC:` tag(s) must appear on the lines immediately above `Scenario:` or `Scenario Outline:`. Additional tags (e.g. `@Regression`, `@skip`) may appear in the same block.
 - Full AC details (version, state, description) live in the file's `# Acceptance Criteria:` header block.
 
@@ -257,7 +257,7 @@ description, and aspect if relevant) - not just the `@AC:` tag.
 ## Indentation is significant
 
 A header is read part by part, and indentation decides where each part ends. Full rule:
-[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+[Indentation](../living-doc-shared/references/living-doc-bdd-schemas.md#indentation). What bites while
 writing one:
 
 - **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and

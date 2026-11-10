@@ -82,7 +82,7 @@ def _owners() -> list[tuple[str, Path]]:
     """Every skill with an evals folder, plus the agent, in report order."""
     owners = [
         (d.name, d / "evals")
-        for d in sorted((LAYER / "skills").iterdir())
+        for d in sorted((LAYER / ".claude" / "skills").iterdir())
         if (d / "evals").is_dir()
     ]
     for d in sorted((LAYER / "agents" / "evals").iterdir()):

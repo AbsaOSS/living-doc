@@ -10,7 +10,7 @@ coverage_report.py accepted FEAT and slug-parent tags (@AC:FEAT-checkout-page-01
 that scan_ac_links.py rejected as malformed, so the same tag was "covered" in one
 tool and "malformed" in the other.
 
-Canonical grammar (skills/shared/references/living-doc-glossary.md):
+Canonical grammar (skills/living-doc-shared/references/living-doc-glossary.md):
   AC:<PARENT>-<nn>, where <PARENT> is US-<n> or FUNC-<nnn> — numeric only, no slugs,
   no FEAT (Features own Functionalities, not ACs directly). <nn> is a two-digit
   sequence number, not required to be pre-zero-padded.

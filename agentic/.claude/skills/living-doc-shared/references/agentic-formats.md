@@ -10,11 +10,11 @@ are not part of the living-doc canon and nothing in the living-doc pipeline read
 this repository's `docs/` by `agentic/scripts/sync-canon-copies.sh`. The entity model those two
 describe is the canon; the formats below are the layer's own.
 
-It lives in `shared/references/` so that a skill installed on its own gets it:
+It lives in `living-doc-shared/references/` so that a skill installed on its own gets it:
 
 ```bash
-npx skills add https://github.com/AbsaOSS/living-doc -g --skill <skill>
-npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared
+npx skills add https://github.com/AbsaOSS/living-doc/tree/master/agentic -g --skill <skill>
+npx skills add https://github.com/AbsaOSS/living-doc/tree/master/agentic -g --skill living-doc-shared
 ```
 
 ## Contents

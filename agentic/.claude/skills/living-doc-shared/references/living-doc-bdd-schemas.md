@@ -9,7 +9,7 @@ This page defines the headers an author writes: the `.feature` User Story and Fu
 PageObject Feature header and the rules they share, then the layouts of two planned sources. Anyone can write a
 header by hand; the optional agentic layer in [`agentic/`](https://github.com/AbsaOSS/living-doc/blob/master/agentic/README.md) writes the same format, and
 keeps its own Project Profile, `seed.yaml` and `manifest.json` formats in
-[agentic-formats.md](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/agentic-formats.md). The layer reads a copy generated
+[agentic-formats.md](https://github.com/AbsaOSS/living-doc/blob/master/agentic/.claude/skills/living-doc-shared/references/agentic-formats.md). The layer reads a copy generated
 from this page, and a rule changed here changes its example in [`docs/examples/`](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md) in the
 [same PR](https://github.com/AbsaOSS/living-doc/blob/master/docs/examples/README.md#sync-obligation).
 
@@ -375,7 +375,7 @@ accelerators, not a requirement.
 The PageObject **header block and class JSDoc are living-doc contracts** — they encode identity and traceability. They are not a changelog, scan diary, or issue tracker.
 
 When the scan workflow *is* in use, scan-derived detail has a home outside the header — the table
-below says where, and [agentic-formats.md](https://github.com/AbsaOSS/living-doc/blob/master/agentic/skills/shared/references/agentic-formats.md#manifestjson-exploration-manifest)
+below says where, and [agentic-formats.md](https://github.com/AbsaOSS/living-doc/blob/master/agentic/.claude/skills/living-doc-shared/references/agentic-formats.md#manifestjson-exploration-manifest)
 defines `manifest.json`. (Without the scan workflow, none of these rows apply: the data simply is not
 produced, and the header stays clean by default.)
 

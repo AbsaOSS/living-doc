@@ -75,7 +75,7 @@ run them, ``main`` runs them after the corpus:
 Canonical references:
   docs/reference/authoring-formats.md  (the GitHub issue-body layout among them)
   docs/reference/glossary.md
-  agentic/skills/shared/references/agentic-formats.md  (Project Profile)
+  agentic/.claude/skills/living-doc-shared/references/agentic-formats.md  (Project Profile)
 
 The script depends on the standard library, PyYAML, the authoring layer of ``living-doc-utilities``
 (``normalize``, ``ac_grammar``, ``framing``, ``identity``) and its code registry

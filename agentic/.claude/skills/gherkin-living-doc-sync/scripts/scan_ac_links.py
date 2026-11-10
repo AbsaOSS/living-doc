@@ -23,9 +23,9 @@ Slug-based Feature IDs (e.g., FEAT-checkout-page) are not permitted in AC tag re
 see living_doc_id.py for the corresponding catalog-level constraint.
 
 Tag grammar and tag-line-walking are shared with coverage_report.py via
-skills/shared/lib/ac_tag.py so the two tools cannot disagree on what a valid @AC: tag is.
+skills/living-doc-shared/lib/ac_tag.py so the two tools cannot disagree on what a valid @AC: tag is.
 
-Glossary reference: skills/shared/references/living-doc-glossary.md
+Glossary reference: skills/living-doc-shared/references/living-doc-glossary.md
 """
 
 import re
@@ -33,16 +33,16 @@ import sys
 from pathlib import Path
 
 # Resolve the shared library path relative to this script
-_lib_path = Path(__file__).parent.parent.parent / "shared" / "lib"
+_lib_path = Path(__file__).parent.parent.parent / "living-doc-shared" / "lib"
 sys.path.insert(0, str(_lib_path))
 
 try:
     from ac_tag import TAG_LINE, get_tag_lines_above, match_ac_tag
 except ImportError:
     print(
-        f"Error: shared library not found at {_lib_path} — this skill depends on skills/shared/.\n"
+        f"Error: shared library not found at {_lib_path} — this skill depends on skills/living-doc-shared/.\n"
         "If you installed this skill standalone, also install the shared library skill:\n"
-        "  npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared\n"
+        "  npx skills add https://github.com/AbsaOSS/living-doc/tree/master/agentic -g --skill living-doc-shared\n"
         "(or use a full repo clone instead of a single-skill install).",
         file=sys.stderr,
     )

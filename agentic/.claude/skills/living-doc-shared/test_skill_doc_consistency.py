@@ -134,7 +134,9 @@ def test_entity_ids_never_change():
     ]
     assert not missing, "skill does not state that an entity's ID never changes: " + ", ".join(missing)
     offenders = []
-    for doc in sorted(SKILLS_DIR.glob("*/SKILL.md")) + sorted(SKILLS_DIR.parent.glob("agents/*.agent.md")):
+    agents = sorted((SKILLS_DIR.parent.parent / ".github" / "agents").glob("*.agent.md"))
+    assert agents, "no agent found under .github/agents/ beside .claude/skills/"
+    for doc in sorted(SKILLS_DIR.glob("*/SKILL.md")) + agents:
         for line_no, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1):
             if ID_CHANGE.search(line):
                 offenders.append(f"{doc.parent.name}/{doc.name}:{line_no}")

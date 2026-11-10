@@ -2,7 +2,7 @@
 """
 next_id.py — Wrapper for living_doc_id library (shared)
 
-Forwards CLI invocations to skills/shared/lib/living_doc_id.cli_main().
+Forwards CLI invocations to skills/living-doc-shared/lib/living_doc_id.cli_main().
 
 Usage:
     python next_id.py --type US   --catalog catalog.json   → US-005
@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 # Resolve the shared library path relative to this script
-lib_path = Path(__file__).parent.parent.parent / "shared" / "lib"
+lib_path = Path(__file__).parent.parent.parent / "living-doc-shared" / "lib"
 sys.path.insert(0, str(lib_path))
 
 try:
@@ -23,9 +23,9 @@ try:
 except ImportError:
     print(
         "Error: shared library not found at "
-        f"{lib_path} — this skill depends on skills/shared/.\n"
+        f"{lib_path} — this skill depends on skills/living-doc-shared/.\n"
         "If you installed this skill standalone, also install the shared library skill:\n"
-        "  npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared\n"
+        "  npx skills add https://github.com/AbsaOSS/living-doc/tree/master/agentic -g --skill living-doc-shared\n"
         "(or use a full repo clone instead of a single-skill install).",
         file=sys.stderr,
     )

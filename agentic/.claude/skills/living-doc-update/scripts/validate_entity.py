@@ -24,16 +24,16 @@ import sys
 from pathlib import Path
 
 # Resolve the shared library path relative to this script
-_lib_path = Path(__file__).parent.parent.parent / "shared" / "lib"
+_lib_path = Path(__file__).parent.parent.parent / "living-doc-shared" / "lib"
 sys.path.insert(0, str(_lib_path))
 
 try:
     from ac_tag import AC_ID_PATTERN, VARIANT_NAME
 except ImportError:
     print(
-        f"Error: shared library not found at {_lib_path} — this skill depends on skills/shared/.\n"
+        f"Error: shared library not found at {_lib_path} — this skill depends on skills/living-doc-shared/.\n"
         "If you installed this skill standalone, also install the shared library skill:\n"
-        "  npx skills add https://github.com/AbsaOSS/living-doc -g --skill shared\n"
+        "  npx skills add https://github.com/AbsaOSS/living-doc/tree/master/agentic -g --skill living-doc-shared\n"
         "(or use a full repo clone instead of a single-skill install).",
         file=sys.stderr,
     )
@@ -62,7 +62,7 @@ ID_PATTERNS: dict[str, re.Pattern] = {
     "Functionality": re.compile(r"^FUNC-\d+$"),
 }
 
-# AC_ID_PATTERN is imported from the shared lib (skills/shared/lib/ac_tag.py) so this
+# AC_ID_PATTERN is imported from the shared lib (skills/living-doc-shared/lib/ac_tag.py) so this
 # validator, scan_ac_links.py, and coverage_report.py cannot disagree on the AC-ID
 # grammar again — AC:<US|FUNC>-<n>-<nn>, two-digit suffix, no FEAT parent, no slugs.
 
@@ -80,7 +80,7 @@ REQUIRED_FIELDS: dict[str, list[str]] = {
 # The seven categories of behaviour a Functionality can document. Canon: living-doc's
 # "Functionality in a Gherkin Feature File" marks `# func_type:` required, and the values table
 # there is the single definition of what each one means and which PageObject locator it anchors
-# to — see skills/shared/references/living-doc-bdd-schemas.md. Never widened locally: a value
+# to — see skills/living-doc-shared/references/living-doc-bdd-schemas.md. Never widened locally: a value
 # outside this set cannot be authored into a feature-file header.
 VALID_FUNC_TYPES = {
     "component_state",

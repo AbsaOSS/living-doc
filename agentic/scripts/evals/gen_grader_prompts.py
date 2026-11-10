@@ -50,7 +50,7 @@ GRADING RULES (these come from a protocol that was paid for by wrong numbers las
 
 AFTER grading, write a findings file at {tdir}/GRADER-NOTES.md containing:
   - a markdown table: eval_id | assertions | with_skill passed | old_skill passed | one-line note
-  - a section "Suspect assertions" — every assertion you think is wrong rather than the target, each with `file:line` into {tdir.parent.parent.parent}/agentic/skills/{tdir.name}/evals/evals.json (or agentic/agents/evals/<agent>/evals.json for the agent target) and the reason
+  - a section "Suspect assertions" — every assertion you think is wrong rather than the target, each with `file:line` into {tdir.parent.parent.parent}/agentic/.claude/skills/{tdir.name}/evals/evals.json (or agentic/agents/evals/<agent>/evals.json for the agent target) and the reason
   - a section "Candidate target defects" — real problems in the SKILL.md / agent file, each with a `file:line` citation you have actually opened and confirmed. If you cannot confirm it in the file, label it UNVERIFIED and say what would settle it.
   - a section "Non-discriminating evals" — ids and why
   - a section "Arm comparison" — every eval where with_skill scored BELOW old_skill. For each, read the assertion first and say whether it is a genuine regression or an assertion that rewards guessing.

@@ -18,8 +18,8 @@ license: Apache-2.0
 
 # Living Doc — Create Feature
 
-> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
-> **BDD schemas:** PageObject file header schema — see [living-doc-bdd-schemas](../shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md)).
+> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
+> **BDD schemas:** PageObject file header schema — see [living-doc-bdd-schemas](../living-doc-shared/references/living-doc-bdd-schemas.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/authoring-formats.md)).
 
 ## Step 1 — Identify the system surface
 
@@ -50,13 +50,13 @@ Select the surface type — only two exist, and each is paired with a matching t
 | Type | Examples | Eventual test-abstraction anchor |
 |---|---|---|
 | `UI` | A web page, modal, or named screen (e.g. Checkout Page, Login Screen) | A PageObject for the screen — create it together with the Feature (e.g. via `living-doc-pageobject-scan`) if it doesn't exist yet |
-| `API` | A REST/GraphQL endpoint or endpoint group, including a backend service's public contract (e.g. Orders API, Payment Gateway API), or a message-broker topic (e.g. Kafka) documented via an AsyncAPI (or equivalent) specification | An **annotated endpoint method** (OpenAPI annotation, JSDoc, etc.) for request/response, or an **annotated event handler** (AsyncAPI or equivalent schema-registry annotation on the producer/consumer) for event-driven — either serves as the living contract anchor, see [living-doc-glossary](../shared/references/living-doc-glossary.md) |
+| `API` | A REST/GraphQL endpoint or endpoint group, including a backend service's public contract (e.g. Orders API, Payment Gateway API), or a message-broker topic (e.g. Kafka) documented via an AsyncAPI (or equivalent) specification | An **annotated endpoint method** (OpenAPI annotation, JSDoc, etc.) for request/response, or an **annotated event handler** (AsyncAPI or equivalent schema-registry annotation on the producer/consumer) for event-driven — either serves as the living contract anchor, see [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md) |
 
 A surface where the anchor is not even achievable — for example a pure event consumer or async worker whose topic/queue contract carries no AsyncAPI (or equivalent) annotation — is **not** a Feature yet. Document it as an `external_dependencies` entry on the Feature(s) that interact with it until the contract is formally annotated. A UI or API surface whose anchor simply hasn't been built yet is still a valid Feature — create the Feature and its anchor together rather than blocking on sequencing.
 
 Feature names should be **noun phrases** that name the surface. If it could plausibly be a PageObject or service/module class name (for example `PaymentPage`), it is usually a good Feature name.
 
-**One surface test abstraction ≈ one Feature** — a UI screen has a PageObject, an API endpoint group has an annotated endpoint method. See [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)) for details.
+**One surface test abstraction ≈ one Feature** — a UI screen has a PageObject, an API endpoint group has an annotated endpoint method. See [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)) for details.
 
 ## Step 2 — Describe purpose and scope
 
@@ -97,7 +97,7 @@ FUNC entries), leave the array as `[]` and add a warning:
 
 `external_dependencies` is no longer the only place a dependency is recorded. Before writing a name into it, check whether the catalog already documents that system as a Feature:
 - **Not a documented Feature** — no canonical anchor, so nothing in the catalog can carry its contract. Record it here, by name.
-- **Already a documented `API` Feature** — leave it out of `external_dependencies`. The call is a `feature_dependencies` edge, authored on the Functionality that makes the call, not on this Feature (whose value is derived from its Functionalities). Note the target's `FEAT-<nnn>` for `living-doc-create-functionality`, or for `living-doc-update` if the calling Functionality already exists. See [living-doc-glossary — Functionality](../shared/references/living-doc-glossary.md#functionality-func).
+- **Already a documented `API` Feature** — leave it out of `external_dependencies`. The call is a `feature_dependencies` edge, authored on the Functionality that makes the call, not on this Feature (whose value is derived from its Functionalities). Note the target's `FEAT-<nnn>` for `living-doc-create-functionality`, or for `living-doc-update` if the calling Functionality already exists. See [living-doc-glossary — Functionality](../living-doc-shared/references/living-doc-glossary.md#functionality-func).
 
 For starter drafts, prefer **provisional inferred values** over empty strings when the domain is obvious:
 - `owners`: always emit an array, even for one owner: `["team-identity"]`
@@ -225,7 +225,7 @@ If `user_stories` is `[]`, repeat the orphan warning from Step 3 outside the JSO
 ## Indentation is significant
 
 A header is read part by part, and indentation decides where each part ends. Full rule:
-[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+[Indentation](../living-doc-shared/references/living-doc-bdd-schemas.md#indentation). What bites while
 writing one:
 
 - **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and

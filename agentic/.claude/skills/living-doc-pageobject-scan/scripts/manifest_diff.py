@@ -15,7 +15,7 @@ Defaults:
 
 Exit code: 0 if manifest and disk are in sync, 1 if drift is detected.
 
-Glossary reference: skills/shared/references/living-doc-glossary.md
+Glossary reference: skills/living-doc-shared/references/living-doc-glossary.md
 """
 
 import argparse

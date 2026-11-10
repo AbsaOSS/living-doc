@@ -3,7 +3,7 @@
 validate_artifacts.py — BDD artifact validator (profile / seed / manifest)
 
 Validates a Project Profile, Business Seed, or Exploration Manifest against the
-canonical JSON Schemas in skills/shared/references/schemas/. This moves shape enforcement
+canonical JSON Schemas in skills/living-doc-shared/references/schemas/. This moves shape enforcement
 out of the model and into a deterministic check, so re-runs are reproducible.
 
 Usage:
@@ -14,7 +14,7 @@ Usage:
     python validate_artifacts.py manifest  manifest.json --json           # machine-readable output
 
 Schema location is auto-detected relative to this script
-(../../shared/references/schemas/) or overridden with --schema-dir.
+(../../living-doc-shared/references/schemas/) or overridden with --schema-dir.
 
 Extra checks beyond the schema:
   * seed     — rejects inline credential literals (security gate).
@@ -54,7 +54,7 @@ CREDENTIAL_LEAK_RE = re.compile(
 
 
 def _default_schema_dir() -> Path:
-    return (Path(__file__).resolve().parent / ".." / ".." / "shared" / "references" / "schemas").resolve()
+    return (Path(__file__).resolve().parent / ".." / ".." / "living-doc-shared" / "references" / "schemas").resolve()
 
 
 def _load_document(path: Path) -> dict:

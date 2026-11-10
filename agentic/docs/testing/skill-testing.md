@@ -8,9 +8,9 @@
 This document provides a comprehensive methodology for testing, evaluating, and optimizing the skills of the agentic layer in `agentic/`. It covers eval creation, fixture management, iterative improvement, trigger testing, and description optimization.
 
 > **What CI runs and what it does not.** `.github/workflows/agentic-tests.yml` runs the layer's
-> Python script tests (`agentic/skills/**/test_*.py`, on Python 3.10 and 3.14), checks that the
-> canon copies match this commit's `docs/`, and validates each `SKILL.md` folder's format. **It
-> runs no eval.** Every loop below is manual: you run it yourself, and the eval files are its
+> Python script tests (`agentic/.claude/skills/**/test_*.py`, on Python 3.10 and 3.14), checks
+> that the canon copies match this commit's `docs/`, and validates each `SKILL.md` folder's
+> format. **It runs no eval.** Every loop below is manual: you run it yourself, and the eval files are its
 > source material, not a CI suite. Nothing in this repository executes them.
 >
 > See [agentic/CONTRIBUTING.md](../../CONTRIBUTING.md) for the local commands and the checklist
@@ -23,8 +23,8 @@ This document provides a comprehensive methodology for testing, evaluating, and 
 What you need: an agent harness that can load a skill from a folder and run a prompt against it, with and without that skill enabled. The commands below are written for a Copilot CLI or Chat session driving Anthropic's [`skill-creator`](https://github.com/anthropics/skills/tree/main/skills/skill-creator) skill, which is what this layer was developed with; any harness with the same two abilities works, and `skill-creator` is not vendored here.
 
 0. See what already exists: `python agentic/scripts/evals-inventory.py <skill-name>`
-1. Create eval cases in `agentic/skills/<skill-name>/evals/evals.json`
-2. Add fixture files under `agentic/skills/<skill-name>/evals/files/` when prompts depend on local files
+1. Create eval cases in `agentic/.claude/skills/<skill-name>/evals/evals.json`
+2. Add fixture files under `agentic/.claude/skills/<skill-name>/evals/files/` when prompts depend on local files
 3. Start a session from the repository root
 4. Ask it to use the `skill-creator` skill to test the target skill
 5. Review outputs and diffs
@@ -34,7 +34,7 @@ What you need: an agent harness that can load a skill from a folder and run a pr
 
 ## 2. Eval Cases
 
-Store evals in `agentic/skills/<skill-name>/evals/evals.json`:
+Store evals in `agentic/.claude/skills/<skill-name>/evals/evals.json`:
 
 ```json
 {
@@ -54,14 +54,14 @@ Write prompts that look like real user requests, not abstract test descriptions.
 
 ## 3. Fixtures
 
-If the skill operates on files, place sample inputs in `agentic/skills/<skill-name>/evals/files/` and reference those files from the eval entries. Use small, representative fixtures.
+If the skill operates on files, place sample inputs in `agentic/.claude/skills/<skill-name>/evals/files/` and reference those files from the eval entries. Use small, representative fixtures.
 
 ## 4. With/Without Skill Comparisons
 
 Ask for a side-by-side comparison in the Copilot CLI session:
 
 ```
-Use the skill-creator skill to compare outputs for agentic/skills/my-skill with and without the skill enabled.
+Use the skill-creator skill to compare outputs for agentic/.claude/skills/my-skill with and without the skill enabled.
 Compare on: correctness, structure adherence, completeness, and output verbosity.
 Only fix the smallest part of the skill that explains the largest failure cluster. Repeat until all evals pass.
 ```
@@ -90,7 +90,7 @@ When an eval fails, update the smallest possible part of the skill and re-run th
 ## 8. Body vs. Trigger Testing
 
 - **Body testing:** Use `evals/evals.json` to verify that once the skill is active, it behaves correctly.
-- **Trigger testing:** Create `agentic/skills/<skill-name>/evals/trigger-eval.json` to test whether the skill activates for the right queries.
+- **Trigger testing:** Create `agentic/.claude/skills/<skill-name>/evals/trigger-eval.json` to test whether the skill activates for the right queries.
 
 The two files have different shapes. `evals.json` is an object (`skill_name` plus an `evals` array, as in section 2); a trigger eval file is a **bare array** of queries, each with the answer you expect from the matcher:
 
@@ -118,8 +118,8 @@ Include negative cases (`should_trigger: false`) for adjacent-but-out-of-scope r
 Ask Copilot to optimize the description against your trigger eval set:
 
 ```
-Use the skill-creator skill to optimize the description for agentic/skills/my-skill
-using agentic/skills/my-skill/evals/trigger-eval.json.
+Use the skill-creator skill to optimize the description for agentic/.claude/skills/my-skill
+using agentic/.claude/skills/my-skill/evals/trigger-eval.json.
 Keep minimalist (≤ 1024 chars); structured domain nouns/verbs preferred over explicit keyword lists.
 Include a NOT for: boundary clause. Report precision and recall per candidate. Repeat until all evals pass.
 ```
@@ -147,13 +147,13 @@ A good description uses structured domain nouns and a `NOT for:` boundary. An ex
 
 ```
 VS Code Copilot Chat (or gh copilot):
-→ "Use the skill-creator skill to test my skill at agentic/skills/my-skill.
+→ "Use the skill-creator skill to test my skill at agentic/.claude/skills/my-skill.
    Run all evals and report pass rate and baseline delta."
 → inspect results and diffs — classify each change as improvement, regression, or neutral
 → edit SKILL.md or fixtures (smallest change that fixes the largest failure cluster)
-→ "Use the skill-creator skill to rerun the evals for agentic/skills/my-skill."
-→ "Use the skill-creator skill to optimize the description for agentic/skills/my-skill
-   using agentic/skills/my-skill/evals/trigger-eval.json.
+→ "Use the skill-creator skill to rerun the evals for agentic/.claude/skills/my-skill."
+→ "Use the skill-creator skill to optimize the description for agentic/.claude/skills/my-skill
+   using agentic/.claude/skills/my-skill/evals/trigger-eval.json.
    Keep ≤ 1024 chars; include a NOT for: boundary clause. Repeat until all evals pass."
 → repeat until stable
 ```

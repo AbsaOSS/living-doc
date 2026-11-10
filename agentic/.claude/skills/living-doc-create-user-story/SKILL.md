@@ -18,7 +18,7 @@ license: Apache-2.0
 
 # Living Doc — Create User Story
 
-> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
+> **Key concepts:** Feature, Functionality, User Story, AC — see [living-doc-glossary](../living-doc-shared/references/living-doc-glossary.md) ([remote](https://github.com/AbsaOSS/living-doc/blob/master/docs/reference/glossary.md)).
 
 ## Step 1 — Elicit the narrative
 
@@ -85,7 +85,7 @@ Each AC must be:
 - **Correct modal verbs** — use `can` for user-initiated capability; drop the modal for outcome statements ("a confirmation is displayed"); avoid "should", "may", "might" (non-binary)
 - **Named persona** — use the actor from the narrative ("a data steward can approve…") not the generic "the user"
 
-Use `{placeholder}` syntax when a value varies, and list the concrete values immediately below. That list is the AC's **variant declaration**: one bullet per AC, either `- Aspect: <v1>, <v2>` or one named keyword `- <placeholder-name>: <v1>, <v2>` matching the `{placeholder-name}` in the text — never both. The full rule, and how scenarios then cover the AC value by value, is in [AC variants](../shared/references/living-doc-bdd-schemas.md#ac-variants). During elicitation, capture ACs using structured condition / action / outcome language; in the final JSON, convert each accepted AC into a plain-language description.
+Use `{placeholder}` syntax when a value varies, and list the concrete values immediately below. That list is the AC's **variant declaration**: one bullet per AC, either `- Aspect: <v1>, <v2>` or one named keyword `- <placeholder-name>: <v1>, <v2>` matching the `{placeholder-name}` in the text — never both. The full rule, and how scenarios then cover the AC value by value, is in [AC variants](../living-doc-shared/references/living-doc-bdd-schemas.md#ac-variants). During elicitation, capture ACs using structured condition / action / outcome language; in the final JSON, convert each accepted AC into a plain-language description.
 After the narrative and Feature question are covered, explicitly ask the user for: (1) one happy-path Given / When / Then AC, and (2) at least two error or alternative-path Given / When / Then ACs. If they provide only happy-path ACs, warn and add the missing failure-path prompts before finalizing.
 
 When reviewing an existing User Story, classify **only happy-path ACs present** as an **Important** gap. Name the missing cases in domain language and propose 2-3 extra **Given / When / Then** ACs. For password-reset stories, explicitly check for: unregistered email or phone, expired token or code, already-used token or code, wrong code, and retry limits. Do **not** nitpick narrative wording, status, or Feature links unless the user explicitly asks for full schema validation or those fields are the direct problem under review.
@@ -122,7 +122,7 @@ Ask: *Are there any system-level preconditions (required states before any scena
 ## Indentation is significant
 
 A header is read part by part, and indentation decides where each part ends. Full rule:
-[Indentation](../shared/references/living-doc-bdd-schemas.md#indentation). What bites while
+[Indentation](../living-doc-shared/references/living-doc-bdd-schemas.md#indentation). What bites while
 writing one:
 
 - **Every header line carries its marker** — `# ` in a `.feature` header. A line with text and

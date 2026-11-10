@@ -13,7 +13,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared" / "lib"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "living-doc-shared" / "lib"))
 from ac_tag import match_ac_tag  # noqa: E402 — path must be set up first
 
 from scan_ac_links import main, scan_file  # noqa: E402

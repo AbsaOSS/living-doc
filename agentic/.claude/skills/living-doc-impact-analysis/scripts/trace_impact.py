@@ -100,7 +100,7 @@ def _path_tokens(path: str) -> list[str]:
 def is_test_or_mock_path(path: str) -> bool:
     return any(tok.lower() in _TEST_KEYWORDS for tok in _path_tokens(path))
 
-# Canonical AC-ID grammar (skills/shared/references/living-doc-glossary.md):
+# Canonical AC-ID grammar (skills/living-doc-shared/references/living-doc-glossary.md):
 # AC:<PARENT>-<nn>, where <PARENT> is US-<n> or FUNC-<nnn>. Captures the parent ID.
 _AC_ID_PATTERN = re.compile(r"^AC:(US-\d+|FUNC-\d+)-\d{2}$")
 
@@ -241,7 +241,7 @@ def trace_entities(feature_ids: list[str], catalog_data: dict) -> dict:
 
     # Collect ACs and linked scenarios from the matched entities.
     # Canonical AC-ID grammar: AC:<PARENT>-<nn>, where <PARENT> is US-<n> or FUNC-<nnn>
-    # (see skills/shared/references/living-doc-glossary.md). Extract the parent and check
+    # (see skills/living-doc-shared/references/living-doc-glossary.md). Extract the parent and check
     # it against the User Stories / Functionalities actually traced above.
     affected_ids = {e["id"] for e in result["user_stories"]} | {
         e["id"] for e in result["functionalities"]
