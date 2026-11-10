@@ -205,7 +205,7 @@
       "id": 15,
       "category": "output-format",
       "prompt": "Before you report the scan complete, what validation do you run on the artifacts?",
-      "expected_output": "Runs the mandatory closeout validation gate: 'python skills/living-doc-pageobject-scan/scripts/validate_artifacts.py manifest <bdd_artifacts>/manifest.json --canonicalize' and 'validate_artifacts.py seed <bdd_artifacts>/seed.yaml' (and 'validate_artifacts.py profile' if a profile is present). The manifest check rejects non-canonical element/gap keys (e.g. 'data-cy', 'data_cy', 'suggestedDataCy' instead of the normalized 'test_id' / 'suggested_test_id') and an object navigation_context; --canonicalize sorts routes/elements and rewrites with sorted keys. The seed check rejects inline credential literals. The session is not reported complete until every validator exits 0.",
+      "expected_output": "Runs the mandatory closeout validation gate: 'python scripts/validate_artifacts.py manifest <bdd_artifacts>/manifest.json --canonicalize' and 'validate_artifacts.py seed <bdd_artifacts>/seed.yaml' (and 'validate_artifacts.py profile' if a profile is present). The manifest check rejects non-canonical element/gap keys (e.g. 'data-cy', 'data_cy', 'suggestedDataCy' instead of the normalized 'test_id' / 'suggested_test_id') and an object navigation_context; --canonicalize sorts routes/elements and rewrites with sorted keys. The seed check rejects inline credential literals. The session is not reported complete until every validator exits 0.",
       "files": [],
       "expectations": [
         "Runs validate_artifacts.py on the manifest with --canonicalize",

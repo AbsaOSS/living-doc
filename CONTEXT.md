@@ -71,7 +71,7 @@ The local integration runner, `bash tests/integration/local-integration.sh [--ch
 
 - Every PR stays inside the frame in `docs/introduction/principles.md`, or names the row it bends and adds the exception there in the same PR.
 - Same-PR obligations: a format change in a canon page updates `docs/examples/`, and a Project Profile or `seed.yaml` change in `agentic/.claude/skills/living-doc-shared/references/agentic-formats.md` updates `docs/examples/project-profile/`; a canon change regenerates the agentic copies; a collector or toolkit pin bump regenerates `docs/examples/_expected/` and keeps the testbed stage green; a move of the checker's `living-doc-utilities` version brings the before/after pairs in `docs/guides/authoring-documentation.md` and the codes in `docs/reference/errors.md` in line with it, which `tests/examples/examples_check.py` checks ([CONTRIBUTING.md § Regenerating the collector snapshots](CONTRIBUTING.md#regenerating-the-collector-snapshots)).
-- Docs link, they don't copy. Lychee checks every link and fragment in every `*.md` outside hidden folders, and in `agentic/.claude/` and `agentic/.github/`. Every page follows [CONTRIBUTING.md § Writing documentation](CONTRIBUTING.md#writing-documentation), which `tests/docs/test_page_structure.py` checks.
+- Docs link, they don't copy. Lychee checks every link and fragment in every tracked `*.md`, hidden folders included. Every page follows [CONTRIBUTING.md § Writing documentation](CONTRIBUTING.md#writing-documentation), which `tests/docs/test_page_structure.py` checks.
 - Nothing from `specs/` is committed or cited: it is local planning.
 - PR, branch, title and review rules: `AGENTS.md` § This project.
 

@@ -14,7 +14,7 @@ CI workflows, the PR template, issue templates, CODEOWNERS and Dependabot.
 | `retired-names.yml` | push to `master`, PRs (no path filter); manual dispatch | clones `collector-gh`, `toolkit` and `generator-markdown` at their pins in `tests/collector/collector-pins.env`, then `tests/docs/retired_names_check.py --strict` over them and the checkout; Python 3.14 |
 | `real-collector.yml` | push to `master` and PRs touching `docs/examples/**`, `tests/**`; manual dispatch | two jobs on the pinned collector and toolkit: `real-collector-snapshot` and `testbed-collector-stage` ([tests/README.md § The workflow](../tests/README.md#the-workflow)) |
 | `agentic-tests.yml` | push to `master` and PRs touching `agentic/**` (`agentic/.claude/**` and `agentic/.github/**` named too) or the two canon pages it copies | canon-copy check, script tests on 3.10 and 3.14, skill format validation |
-| `link-check.yml` | push to `master`, PRs; lychee runs only when a `*.md` changed | `lychee` over `./**/*.md`, plus `agentic/.claude/` and `agentic/.github/` by name (its `**` skips hidden folders), with `--include-fragments`; this repository's `blob/master` links are remapped to the checkout |
+| `link-check.yml` | push to `master`, PRs; lychee runs only when a `*.md` changed | `lychee --hidden` over `./**/*.md` (without `--hidden` its `**` skips `.claude/`, `.github/` and the agentic layer's two), with `--include-fragments`; this repository's `blob/master` links are remapped to the checkout |
 | `check-pr-requirements.yml` | PRs, except Dependabot's | title, ticket in branch, body sections, closing keyword |
 | `check_pr_release_notes.yml` | PRs to `master` | release notes present |
 | `release_draft.yml` | manual, with a tag name | tag check, release notes, draft release |

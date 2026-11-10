@@ -81,6 +81,10 @@ first real task.
 
 - A script printing `shared library not found` means the `living-doc-shared` skill was not
   installed, or not installed beside the skill that is calling it.
+- An install made before the companion skill was renamed has a `shared` skill folder, which no
+  script reads any more. Install `living-doc-shared` as above, then delete the `shared` folder
+  from your skills folder. The old install URL, the repository root, lists this repository's own
+  development skills instead of the layer's.
 - A script failing on `No module named 'yaml'` or `jsonschema` means the interpreter running it is
   not the virtual environment from the prerequisites.
 - `@living-doc-bdd-copilot` not responding to an `@`-mention means the agent file is not in

@@ -21,8 +21,8 @@ Full living documentation agent. Owns both the catalog layer (requirements, enti
 ## Installation
 
 This agent dispatches to all 12 skills listed under [Skills](#skills) below, several of
-which import from `agentic/.claude/skills/living-doc-shared/lib/` (the canonical AC-ID grammar and entity-ID
-assignment logic — see [agentic/.claude/skills/living-doc-shared/lib/README.md](../../.claude/skills/living-doc-shared/lib/README.md)).
+which import from `living-doc-shared/lib/` (the canonical AC-ID grammar and entity-ID
+assignment logic — see [living-doc-shared/lib/README.md](../../.claude/skills/living-doc-shared/lib/README.md)).
 The install tooling has no dependency resolution — a single-skill install
 (`--skill <name>`) copies only that one folder — so a full install for this agent means
 running every command below, `living-doc-shared` included:
@@ -187,9 +187,9 @@ Do not skip steps or run them out of order. Complete catalog changes (step 1) be
 
 **Manifest loading rule:** Use targeted line ranges for the current route(s). Load full manifest only for RE-SCAN. `seed.yaml`: always load in full. When PageObject generation discovers a route with no linked Feature entity, set `feature_id: FEAT-UNKNOWN`, flag the route as needing a Feature entity, and cross-load `living-doc-create-feature` to create it before continuing.
 
-**living-doc-bdd-schemas:** Load [agentic/.claude/skills/living-doc-shared/references/living-doc-bdd-schemas.md](../../.claude/skills/living-doc-shared/references/living-doc-bdd-schemas.md) only when generating or validating feature file headers or PageObject headers.
+**living-doc-bdd-schemas:** Load [living-doc-shared/references/living-doc-bdd-schemas.md](../../.claude/skills/living-doc-shared/references/living-doc-bdd-schemas.md) only when generating or validating feature file headers or PageObject headers.
 
-**agentic-formats:** Load [agentic/.claude/skills/living-doc-shared/references/agentic-formats.md](../../.claude/skills/living-doc-shared/references/agentic-formats.md) only when generating or validating seed.yaml form_fixtures or manifest.json route entries.
+**agentic-formats:** Load [living-doc-shared/references/agentic-formats.md](../../.claude/skills/living-doc-shared/references/agentic-formats.md) only when generating or validating seed.yaml form_fixtures or manifest.json route entries.
 
 **Indentation is significant** in every header you write or edit — the marker on every line, keys at the key level, a deeper line belonging to the item above it, one `AC:` level, a one-token value on one line, nesting only in a bullet-list field. Load [Indentation](../../.claude/skills/living-doc-shared/references/living-doc-bdd-schemas.md#indentation) before editing a header by hand; each skill's own body carries the short form.
 
@@ -301,27 +301,29 @@ Variant tag: `@AC:US-1-01/aspect:username-input`, or with the AC's named keyword
 
 ## Skills
 
+Each path is relative to the folder the skills are installed in: `.claude/skills/` in the project, or your user's skills folder after `npx skills add … -g`.
+
 ### Catalog skills
 
 | Skill | Intent | Path | When to load |
 |---|---|---|---|
-| `living-doc-create-user-story` | Create US with business-level ACs | `agentic/.claude/skills/living-doc-create-user-story/SKILL.md` | New US or narrative request |
-| `living-doc-create-feature` | Document a system surface | `agentic/.claude/skills/living-doc-create-feature/SKILL.md` | New Feature or inbound surface from EXPLORE mode |
-| `living-doc-create-functionality` | Define an atomic, testable behaviour | `agentic/.claude/skills/living-doc-create-functionality/SKILL.md` | New Functionality or atomic-behaviour AC request |
-| `living-doc-update` | Amend or deprecate entities | `agentic/.claude/skills/living-doc-update/SKILL.md` | Updating, promoting, or deprecating an entity or AC; changing a Feature's dependencies |
-| `living-doc-impact-analysis` | Trace which entities a code change affects | `agentic/.claude/skills/living-doc-impact-analysis/SKILL.md` | PR review or change-trace request |
-| `living-doc-gap-finder` | Find catalog gaps (top-down) and uncovered ACs (bottom-up) | `agentic/.claude/skills/living-doc-gap-finder/SKILL.md` | HEALING mode, gap audit, or scenario gap detection |
+| `living-doc-create-user-story` | Create US with business-level ACs | `living-doc-create-user-story/SKILL.md` | New US or narrative request |
+| `living-doc-create-feature` | Document a system surface | `living-doc-create-feature/SKILL.md` | New Feature or inbound surface from EXPLORE mode |
+| `living-doc-create-functionality` | Define an atomic, testable behaviour | `living-doc-create-functionality/SKILL.md` | New Functionality or atomic-behaviour AC request |
+| `living-doc-update` | Amend or deprecate entities | `living-doc-update/SKILL.md` | Updating, promoting, or deprecating an entity or AC; changing a Feature's dependencies |
+| `living-doc-impact-analysis` | Trace which entities a code change affects | `living-doc-impact-analysis/SKILL.md` | PR review or change-trace request |
+| `living-doc-gap-finder` | Find catalog gaps (top-down) and uncovered ACs (bottom-up) | `living-doc-gap-finder/SKILL.md` | HEALING mode, gap audit, or scenario gap detection |
 
 ### Automation skills
 
 | Skill | Intent | Path | When to load |
 |---|---|---|---|
-| `living-doc-pageobject-scan` | Seed assembly, crawl, PageObject generation, manifest; RE-SCAN and HEALING scopes | `agentic/.claude/skills/living-doc-pageobject-scan/SKILL.md` | EXPLORE, RE-SCAN, or HEALING mode |
-| `data-cy-instrument` | Audit and add missing `data-cy` attributes; sync PageObjects | `agentic/.claude/skills/data-cy-instrument/SKILL.md` | DATA-CY mode |
-| `living-doc-scenario-creator` | Generate full feature files (header + scenarios + step bodies) from ACs | `agentic/.claude/skills/living-doc-scenario-creator/SKILL.md` | SCENARIO-GEN mode |
-| `bdd-maintain` | REMOVE deprecated BDD files; DEAD CODE AUDIT | `agentic/.claude/skills/bdd-maintain/SKILL.md` | REMOVE or DEAD CODE AUDIT mode |
-| `gherkin-step` | Implement step definitions | `agentic/.claude/skills/gherkin-step/SKILL.md` | Step authoring request |
-| `gherkin-living-doc-sync` | Sync feature files with living doc traceability | `agentic/.claude/skills/gherkin-living-doc-sync/SKILL.md` | Traceability sync request |
+| `living-doc-pageobject-scan` | Seed assembly, crawl, PageObject generation, manifest; RE-SCAN and HEALING scopes | `living-doc-pageobject-scan/SKILL.md` | EXPLORE, RE-SCAN, or HEALING mode |
+| `data-cy-instrument` | Audit and add missing `data-cy` attributes; sync PageObjects | `data-cy-instrument/SKILL.md` | DATA-CY mode |
+| `living-doc-scenario-creator` | Generate full feature files (header + scenarios + step bodies) from ACs | `living-doc-scenario-creator/SKILL.md` | SCENARIO-GEN mode |
+| `bdd-maintain` | REMOVE deprecated BDD files; DEAD CODE AUDIT | `bdd-maintain/SKILL.md` | REMOVE or DEAD CODE AUDIT mode |
+| `gherkin-step` | Implement step definitions | `gherkin-step/SKILL.md` | Step authoring request |
+| `gherkin-living-doc-sync` | Sync feature files with living doc traceability | `gherkin-living-doc-sync/SKILL.md` | Traceability sync request |
 
 ---
 
