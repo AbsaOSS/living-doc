@@ -89,7 +89,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -147,7 +147,7 @@ jobs:
       # above. It validates the SKILL.md folder format only — it imposes nothing on the Python a
       # skill's scripts run under.
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.14"
 
