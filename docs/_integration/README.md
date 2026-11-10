@@ -16,9 +16,11 @@ machine that can reach them.
   [`tests/integration/local-integration.sh`](../../tests/integration/local-integration.sh), which clones the three
   components and runs their `local-integration.sh` in a row: `living-doc-collector-gh`, then `living-doc-toolkit` and
   `living-doc-generator-markdown` in each view.
+- The release go/no-go, in `go-no-go/`, decides whether the three components may be tagged. It is one testbed run of
+  the same runner, on the commits the release will tag.
 
-This folder holds each gate's and milestone's report and the data from its runs, so a later run can be compared with
-this one.
+This folder holds each gate's, milestone's and release check's report and the data from its runs, so a later run can
+be compared with this one.
 **This repository is public.** A run over an internal repository keeps its configuration, its log and its artifacts
 on the machine it ran on. Only its row in the report, with a label, counts and codes, may be committed.
 
@@ -38,6 +40,7 @@ The CI counterpart of the testbed run is the testbed stage in [`tests/README.md`
 - [Before the first run](#before-the-first-run)
 - [Run one target](#run-one-target)
 - [Run a milestone target](#run-a-milestone-target)
+- [Release go/no-go](#release-gono-go)
 - [Warnings on an internal target](#warnings-on-an-internal-target)
 - [Compare two runs](#compare-two-runs)
 - [Before you commit](#before-you-commit)
@@ -97,6 +100,11 @@ docs/_integration/
       release/                   the release view: the same files as inner/
     internal/                    ignored as a whole
       <label>/                   env.local and the same files as testbed-core/
+  go-no-go/
+    report.md                    the release go/no-go report, verdict pending until the release run fills it
+    testbed-core/                the runner's output root for the release run
+      env.local                  the runner's configuration, its refs left empty for the operator
+      …                          once the release run wrote them, the same files as MS1/testbed-core/
 ```
 
 The runner's clones of the components and the testbed live in `out/` at the repository's root, which git ignores,
@@ -331,8 +339,21 @@ output root (`collector-gh/doc-source/`, `collector-gh/ui-tests/`, each view's t
 `generator-markdown/`, the logs and `pin-report.txt`), so the root holds one run's files even when the run stops
 midway; anything else there, such as the committed `env.local`, stays. An `OUT_DIR` inside the target's checkout or
 the runner's clones in `out/` is refused. The first step that fails stops the run with a non-zero exit and names
-its log, in the terminal and at the end of the runner's own `local-integration.log`. Last, it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
+its log, in the terminal and at the end of the runner's own `local-integration.log`. Then it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
 ran (`tests/examples/check_utilities_pins.py --strict`); a skew there fails the run too.
+
+A testbed run then checks its own output with CI's testbed checks
+([tests/README.md § What the testbed checks assert](../../tests/README.md#what-the-testbed-checks-assert)). Each
+runs in its component's venv, and the first that fails stops the run:
+
+1. the collector's invariants over `core`: `tests/testbed/check_testbed_stage.py core` over `collector-gh/`;
+2. the toolkit's invariants over both views: `tests/testbed/check_testbed_toolkit_stage.py --runner`;
+3. the six documents and their run reports exist under each view's `generator-markdown/`.
+
+Any warning in an artifact fails check 1 or 2. Each check's output follows a `== check:` line, in the terminal and in
+the runner's log. The run exits 0 only when the chain, the pin report and the three checks pass. Its last line names
+the check that failed, or says the chain and the testbed's invariants passed. A project run is not judged: an
+internal project's warnings belong to its authors ([Warnings on an internal target](#warnings-on-an-internal-target)).
 
 Run one at a time per `living-doc` checkout: every run shares the clones in `out/` and rewrites their `.env.local`.
 `out/` is the runner's: don't link an existing checkout into it to save a clone. A linked clone is replaced by a fresh
@@ -354,10 +375,31 @@ the rules in [What may be committed](#what-may-be-committed):
 | 3. Component refs | the runner's `living-doc:`, `collector-gh:`, `toolkit:`, `generator-markdown:` and `python:` lines; each component log's `living-doc-utilities:` line; `pin-report.txt` as it is |
 | 4. Per artifact | the collector's and each view's toolkit log, as in [Run one target](#run-one-target), step 5 |
 | 4. Per document | each view's generator log, per document: `input:`, `view:`, the `counts:` block and `not_loaded` in the `render_manifest:` block |
+| 4. The checks (a testbed run) | the runner's `== check:` blocks and its last line, in `local-integration.log` at the output root |
 | 5. Warnings by code | each artifact's `warnings:` block, and each document's: the codes with their counts, and the first ten occurrences for the testbed only |
 | 6. Duplicates | `DUPLICATE_ENTITY_ID` and `DUPLICATE_AC_ID` in those blocks |
 | 7. Timings and sizes | each artifact's and each document's `time:` and `size:` lines |
 | 9. The output reads correctly | the six documents, read by the owner |
+
+## Release go/no-go
+
+A release of the source-code chain goes ahead only when one testbed run passes on the exact commits it will tag. A
+component tag is never re-cut, so this run comes before any tag.
+
+- **When:** after the release pin pull requests of `living-doc-collector-gh`, `living-doc-toolkit` and
+  `living-doc-generator-markdown` merge, and before any of them is tagged.
+- **Configuration:** [`go-no-go/testbed-core/env.local`](go-no-go/testbed-core/env.local), copied to
+  `tests/integration/.env.local` once its refs are filled. `TARGET=testbed`, and
+  `OUT_DIR=docs/_integration/go-no-go/testbed-core`. `TESTBED_REF` is the testbed's `master` as a full commit SHA.
+  Each component ref is its candidate's full commit SHA: its `master` once its release pin pull request merged. An
+  empty ref runs the pin, and a tag is cut only after go: neither is a candidate.
+- **The run:** [Run a milestone target](#run-a-milestone-target), steps 2 and 3. The testbed run's checks decide.
+- **Go:** the run exits 0. Each component is then tagged at exactly the commit that passed. The release notes name
+  the testbed commit the run read.
+- **No-go:** the run exits non-zero; its last line names what failed. A defect issue goes to the component at fault.
+  Its fix makes a new candidate, and a new run replaces this one.
+- **The record:** [`go-no-go/report.md`](go-no-go/report.md), filled as in
+  [Run a milestone target](#run-a-milestone-target), step 4, and filed by a pull request of its own.
 
 ## Warnings on an internal target
 
@@ -409,5 +451,5 @@ git -C living-doc status --short --ignored docs/_integration
 ```
 
 Only `README.md`, `.gitignore`, `<gate>/report.md` and `<gate>/testbed-core/` may show as changed, or the same
-under `<milestone>/`. `internal/` and every `local-integration.log` must show as ignored (`!!`). Read the report's internal rows once more: a label, a SHA,
+under `<milestone>/` or `go-no-go/`. `internal/` and every `local-integration.log` must show as ignored (`!!`). Read the report's internal rows once more: a label, a SHA,
 counts and codes, nothing else.

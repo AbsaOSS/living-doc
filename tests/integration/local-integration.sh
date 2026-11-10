@@ -17,8 +17,10 @@
 # Run the GitHub source-code chain for one project on this machine, each component through its own
 # `local-integration.sh`, unchanged: living-doc-collector-gh (`doc-source`, `ui-tests`) once, then per view (`inner`,
 # `release`) living-doc-toolkit's three commands and living-doc-generator-markdown's three documents. Everything goes
-# into one output root; last, the living-doc-utilities pin report over the clones that ran. The configuration is
-# tests/integration/.env.local (copy .env.local.example). See docs/_integration/README.md § Run a milestone target.
+# into one output root; then the living-doc-utilities pin report over the clones that ran. A testbed run then judges
+# its own output with CI's testbed checks, and exits 0 only when the chain, the pin report and every check pass: the
+# release go/no-go. The configuration is tests/integration/.env.local (copy .env.local.example). See
+# docs/_integration/README.md § Run a milestone target and § Release go/no-go.
 #
 #   tests/integration/local-integration.sh            # check, clone, run the chain, report the pins
 #   tests/integration/local-integration.sh --check    # check, clone, run the collector's own --check; nothing else
@@ -394,4 +396,50 @@ say "" "== living-doc-utilities pins"
   --requirements "generator-markdown=$WORK/components/living-doc-generator-markdown/requirements.txt" \
   2>&1 | tr -d '\r' | tee "$OUT/pin-report.txt" || die "the pin report failed; see $OUT/pin-report.txt"
 
-say "" "$ME: the chain passed: the six documents are under $OUT/{inner,release}/generator-markdown"
+# A project's warnings belong to its authors: a project run is not judged.
+if [ "$CFG_TARGET" = project ]; then
+  say "" "$ME: the chain passed: the six documents are under $OUT/{inner,release}/generator-markdown"
+  exit 0
+fi
+
+# --- The verdict over the testbed's output -------------------------------------------------------------------------
+# `core` follows the canon 100 %, so any warning or broken invariant over it is a defect. The run checks its own output
+# with CI's testbed checks in tests/testbed/, each in the venv its component's script built, as the testbed stage runs
+# each in its component's venv. The first check that fails stops the run; its last line names it.
+venv_python() {  # venv_python CLONE: the interpreter of the venv the clone's local-integration.sh built
+  if [ -x "$1/.venv-local-integration/bin/python" ]; then
+    printf '%s\n' "$1/.venv-local-integration/bin/python"
+  elif [ -x "$1/.venv-local-integration/Scripts/python.exe" ]; then
+    printf '%s\n' "$1/.venv-local-integration/Scripts/python.exe"
+  else
+    die "$1 has no .venv-local-integration/, which its local-integration.sh builds on a run"
+  fi
+}
+check() {  # check STEP PYTHON SCRIPT ARG...: one check, its output printed and in LOG
+  local step="$1" python="$2"
+  shift 2
+  say "" "== check: $step"
+  "$python" -E -X utf8 "$@" 2>&1 | tr -d '\r' | tee -a "$LOG" || die "$step failed; its output is above"
+}
+COLLECTOR_PY="$(venv_python "$COLLECTOR")" || exit 1
+TOOLKIT_PY="$(venv_python "$TOOLKIT")" || exit 1
+
+check "the collector's invariants over core" "$COLLECTOR_PY" tests/testbed/check_testbed_stage.py core \
+  "$OUT/collector-gh" "$TESTBED" --us "$CFG_DOC_SOURCE_US_PATHS" --func "$CFG_DOC_SOURCE_FUNC_PATHS" \
+  --pages "$CFG_DOC_SOURCE_PAGES_PATHS" --scenarios "$CFG_UI_TESTS_PATHS"
+check "the toolkit's invariants over both views" "$TOOLKIT_PY" tests/testbed/check_testbed_toolkit_stage.py --runner \
+  "$OUT" "$OUT/collector-gh/doc-source/doc-source.json" "$OUT/collector-gh/ui-tests/ui-tests.json"
+
+say "" "== check: the six documents and their run reports"
+missing=""
+for view in $VIEWS; do
+  for document in technical-project ui-test-catalog coverage-matrix; do
+    for file in "$document.md" "$document.run-report.json"; do
+      [ -f "$OUT/$view/generator-markdown/$file" ] || missing="$missing $view/generator-markdown/$file"
+    done
+  done
+done
+[ -z "$missing" ] || die "the six documents and their run reports failed; missing under $OUT:$missing"
+say "  OK: each view's technical-project, ui-test-catalog and coverage-matrix, each with its run report"
+
+say "" "$ME: the chain and the testbed's invariants passed: the six documents are under $OUT/{inner,release}/generator-markdown"

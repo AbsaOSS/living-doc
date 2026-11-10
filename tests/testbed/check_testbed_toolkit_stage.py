@@ -30,18 +30,24 @@ with ``read_artifact``, which validates it against its contract, and asserts:
   the one ``doc-source``'s declared values and ``ui-tests``' links give: with no declared value, a
   link covers the criterion; with declared values, a linked value is covered, a bare link covers
   every value;
-- ``core`` holds at least one ``partially_covered`` criterion and one record the release view drops,
-  so neither comparison passes on nothing.
+- ``core`` holds at least one ``partially_covered`` criterion in each matrix and one record the
+  release view drops, so neither comparison passes on nothing.
 
-``FIELD_LOSS`` needs no assertion: a transform exits non-zero on it, and
-``tests/testbed/run-testbed-stage.sh`` reads that.
+``FIELD_LOSS`` needs no assertion: a transform exits non-zero on it, and the script that ran the
+toolkit reads that.
 
-Runs in the ``toolkit`` venv that ``tests/collector/toolkit.sh`` builds: it imports nothing but the
-standard library and ``living-doc-utilities``, which that venv holds through the toolkit's own
-``requirements.txt``. ``tests/testbed/run-testbed-stage.sh`` runs it.
+Two layouts. ``tests/testbed/run-testbed-stage.sh`` writes one tree, ``gh-headers/`` and ``tests/``,
+with one matrix and one catalog. ``tests/integration/local-integration.sh`` (``--runner``) writes
+each view's three outputs under ``<view>/toolkit/<command>/`` of its output root; each view's matrix
+gets the matrix assertions, and each view's catalog is checked as an artifact.
+
+Runs in a venv that holds the toolkit's own ``requirements.txt``: the one ``tests/collector/toolkit.sh``
+builds for the testbed stage, or the one the toolkit's ``local-integration.sh`` builds in the local
+integration runner's clone. It imports nothing but the standard library and ``living-doc-utilities``.
 
 Usage:
     python tests/testbed/check_testbed_toolkit_stage.py <toolkit-output-root> <doc-source.json> <ui-tests.json>
+    python tests/testbed/check_testbed_toolkit_stage.py --runner <runner-output-root> <doc-source.json> <ui-tests.json>
 """
 
 from __future__ import annotations
@@ -55,13 +61,31 @@ from living_doc_utilities.contracts.io import read_artifact
 
 COUNTED_STATES = ("active", "deprecated")
 RELEASE_DROPS = ("planned", "in_review")
+VIEWS = ("inner", "release")
+# A toolkit command, the artifact it writes, and that artifact's contract.
+COMMANDS = (("normalize-docs", "generator-ready"), ("coverage-matrix", "coverage-matrix"),
+            ("normalize-tests", "ui-test-catalog"))
 
 
-def _read(path: Path, contract: str, failures: list[str]):
+def layout(root: Path, runner: bool) -> dict[str, tuple[Path, str]]:
+    """Each toolkit artifact under an output root, by the name the checks report it under: its path and contract."""
+    if not runner:
+        headers = root / "gh-headers"
+        return {
+            "generator-ready.inner": (headers / "generator-ready.inner.json", "generator-ready"),
+            "generator-ready.release": (headers / "generator-ready.release.json", "generator-ready"),
+            "coverage-matrix": (headers / "coverage-matrix.json", "coverage-matrix"),
+            "ui-test-catalog": (root / "tests" / "ui-test-catalog.json", "ui-test-catalog"),
+        }
+    return {f"{artifact}.{view}": (root / view / "toolkit" / command / f"{artifact}.json", artifact)
+            for command, artifact in COMMANDS for view in VIEWS}
+
+
+def _read(name: str, path: Path, contract: str, failures: list[str]):
     try:
         return read_artifact(path, contract)
     except (ContractError, OSError, ValueError) as exc:
-        failures.append(f"{path.name}: does not validate against {contract}: {exc}")
+        failures.append(f"{name}: does not validate against {contract}: {exc}")
         return None
 
 
@@ -103,8 +127,8 @@ def _verdict(declared: list[str], linked: set) -> tuple[str, dict[str, str]]:
     return ("partially_covered" if covered else "not_covered"), aspects
 
 
-def check_matrix(matrix, doc_source, ui_tests, failures: list[str]) -> Counter:
-    """Asserts every counted criterion's verdict against the two inputs; returns the statuses."""
+def check_matrix(name: str, matrix, doc_source, ui_tests, failures: list[str]) -> Counter:
+    """Asserts every counted criterion's verdict in the matrix `name` against the two inputs; returns the statuses."""
     links: dict[str, set] = {}
     for scenario in ui_tests.scenarios:
         for link in scenario.acceptance_criteria:
@@ -113,7 +137,7 @@ def check_matrix(matrix, doc_source, ui_tests, failures: list[str]) -> Counter:
                if ac.state in COUNTED_STATES}
     rows = {row.ac_id: row for entity in matrix.entities for row in entity.acceptance_criteria}
     if sorted(rows) != sorted(counted):
-        failures.append(f"coverage-matrix: rows are {sorted(rows)}, the counted criteria are {sorted(counted)}")
+        failures.append(f"{name}: rows are {sorted(rows)}, the counted criteria are {sorted(counted)}")
     statuses: Counter = Counter()
     for ac_id in sorted(set(rows) & set(counted)):
         row = rows[ac_id]
@@ -121,41 +145,47 @@ def check_matrix(matrix, doc_source, ui_tests, failures: list[str]) -> Counter:
         expected = _verdict(counted[ac_id].aspect, links.get(ac_id, set()))
         got = (row.status, {aspect.aspect: aspect.status for aspect in row.aspects})
         if got != expected:
-            failures.append(f"coverage-matrix: AC:{ac_id} is {got}, doc-source and ui-tests give {expected}")
+            failures.append(f"{name}: AC:{ac_id} is {got}, doc-source and ui-tests give {expected}")
     return statuses
 
 
-def main(argv: list[str]) -> int:
-    if len(argv) != 3:
-        print("usage: check_testbed_toolkit_stage.py <toolkit-output-root> <doc-source.json> <ui-tests.json>",
-              file=sys.stderr)
-        return 2
-    root = Path(argv[0])
-    failures: list[str] = []
-    doc_source = _read(Path(argv[1]), "doc-source", failures)
-    ui_tests = _read(Path(argv[2]), "ui-tests", failures)
-    inner = _read(root / "gh-headers" / "generator-ready.inner.json", "generator-ready", failures)
-    release = _read(root / "gh-headers" / "generator-ready.release.json", "generator-ready", failures)
-    matrix = _read(root / "gh-headers" / "coverage-matrix.json", "coverage-matrix", failures)
-    catalog = _read(root / "tests" / "ui-test-catalog.json", "ui-test-catalog", failures)
+USAGE = "usage: check_testbed_toolkit_stage.py [--runner] <output-root> <doc-source.json> <ui-tests.json>"
 
-    for name, result in (("generator-ready.inner", inner), ("generator-ready.release", release),
-                         ("coverage-matrix", matrix), ("ui-test-catalog", catalog)):
+
+def main(argv: list[str]) -> int:
+    runner = argv[:1] == ["--runner"]
+    if runner:
+        argv = argv[1:]
+    if len(argv) != 3:
+        print(USAGE, file=sys.stderr)
+        return 2
+    failures: list[str] = []
+    doc_source = _read("doc-source", Path(argv[1]), "doc-source", failures)
+    ui_tests = _read("ui-tests", Path(argv[2]), "ui-tests", failures)
+    results = {name: _read(name, path, contract, failures)
+               for name, (path, contract) in layout(Path(argv[0]), runner).items()}
+
+    for name, result in results.items():
         if result is not None:
             print(f"  {name}: valid ({result.schema_version}); warnings: {len(result.warnings) or 'none'}")
             failures.extend(f"{name}: warning {warning.code} entity={warning.entity_id or '-'}: {warning.message}"
                             for warning in result.warnings)
 
     dropped = 0
+    inner, release = results["generator-ready.inner"], results["generator-ready.release"]
     if inner is not None and release is not None and doc_source is not None:
         dropped = check_views(inner, release, doc_source, failures)
-    statuses: Counter = Counter()
-    if matrix is not None and doc_source is not None and ui_tests is not None:
-        statuses = check_matrix(matrix, doc_source, ui_tests, failures)
+    statuses: dict[str, Counter] = {}
+    for name, matrix in results.items():
+        if name.startswith("coverage-matrix"):
+            statuses[name] = Counter()
+            if matrix is not None and doc_source is not None and ui_tests is not None:
+                statuses[name] = check_matrix(name, matrix, doc_source, ui_tests, failures)
 
     # A floor, not core's counts, which are read at run time: both sides empty would pass every comparison above.
-    for construct, count in (("partially_covered criterion", statuses["partially_covered"]),
-                             ("record the release view drops", dropped)):
+    floors = [(f"partially_covered criterion in {name}", counter["partially_covered"])
+              for name, counter in statuses.items()]
+    for construct, count in (*floors, ("record the release view drops", dropped)):
         if count == 0:
             failures.append(f"nothing to assert: the artifacts have no {construct}")
 
@@ -165,9 +195,10 @@ def main(argv: list[str]) -> int:
             print(f"  FAIL {failure}")
         return 1
 
-    print(f"  OK: {sum(statuses.values())} counted criteria, each verdict equal to what doc-source and ui-tests give: "
-          f"{statuses['covered']} covered, {statuses['partially_covered']} partially covered, "
-          f"{statuses['not_covered']} not covered")
+    for name, counter in statuses.items():
+        print(f"  OK: {name}: {sum(counter.values())} counted criteria, each verdict equal to what doc-source and "
+              f"ui-tests give: {counter['covered']} covered, {counter['partially_covered']} partially covered, "
+              f"{counter['not_covered']} not covered")
     print(f"      the inner view holds every record of doc-source; the release view drops {dropped}, "
           f"none left in {RELEASE_DROPS}")
     print("      warnings: none")

@@ -43,9 +43,11 @@ and scenarios are skipped, a wrapped id list is joined before it is split, and `
 ``case`` asserts what a derived problem case (``tests/testbed/testbed_cases.py``) must report: one
 warning, of its code, at the line it changed.
 
-Runs in the ``collector-gh`` venv that ``tests/collector/collector-gh.sh`` builds: it imports nothing but the
-standard library and ``living-doc-utilities``, which that venv holds through the collector's own
-``requirements.txt``. ``tests/testbed/run-testbed-stage.sh`` runs both commands.
+Runs in a venv that holds the collector's own ``requirements.txt``: the one ``tests/collector/collector-gh.sh``
+builds, or the one the collector's ``local-integration.sh`` builds in the local integration runner's clone. It
+imports nothing but the standard library and ``living-doc-utilities``. ``tests/testbed/run-testbed-stage.sh`` runs
+both commands; ``tests/integration/local-integration.sh`` runs ``core`` over a testbed run's output root, whose
+``collector-gh/`` is this command's output root.
 
 Usage:
     python tests/testbed/check_testbed_stage.py core <output-root> <testbed-checkout> \\

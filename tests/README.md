@@ -115,8 +115,9 @@ names across the repositories, and the page rules), `examples/` (tests `docs/exa
 
 `integration/local-integration.sh` runs the whole source-code chain on an operator's machine for a milestone run:
 `collector-gh`, then `toolkit` and `generator-markdown` in the inner and the release view, each component cloned at
-its pin or at a named tag or SHA. No workflow runs it; CI runs only its offline tests. How to run it and record the
-run: [Integration runs](../docs/_integration/README.md#run-a-milestone-target).
+its pin or at a named tag or SHA. A testbed run then runs the testbed checks of `testbed/` over its own output, so it
+fails on any warning or broken invariant; it is the release go/no-go. No workflow runs it; CI runs only its offline
+tests. How to run it and record the run: [Integration runs](../docs/_integration/README.md#run-a-milestone-target).
 
 | File | Stage | Holds |
 |---|---|---|
@@ -138,11 +139,11 @@ run: [Integration runs](../docs/_integration/README.md#run-a-milestone-target).
 | [`examples/check_collector_stage.py`](examples/check_collector_stage.py) | snapshot | the corpus's first-stage content |
 | [`examples/check_toolkit_stage.py`](examples/check_toolkit_stage.py) | snapshot | what the toolkit writes from the corpus, and the failure on two documentation files |
 | [`examples/normalize_snapshot.py`](examples/normalize_snapshot.py) | snapshot | replaces volatile values with placeholders before the diff |
-| [`integration/local-integration.sh`](integration/local-integration.sh) | — | the local integration runner: clones the components and the testbed under `out/`, runs the chain into one output root, ends with the pin report; run by hand, never by a workflow |
+| [`integration/local-integration.sh`](integration/local-integration.sh) | — | the local integration runner: clones the components and the testbed under `out/`, runs the chain into one output root, then the pin report; a testbed run then runs the testbed checks over its output and checks the six documents exist; run by hand, never by a workflow |
 | [`integration/.env.local.example`](integration/.env.local.example) | — | the runner's settings, each with a comment; copied to the git-ignored `integration/.env.local` |
-| [`integration/test_local_integration.py`](integration/test_local_integration.py) | — | the runner's refusals before any clone, and the chain over stand-in components (order, each clone's `.env.local`, logs, stopping at a failure, a re-run's clearing and what it keeps, a project target and its untracked files, a reused clone's origin or a link to another checkout, cleaning each clone, a tag named like a branch, an output root inside a checkout or clone), offline; run by `examples-check.yml` |
+| [`integration/test_local_integration.py`](integration/test_local_integration.py) | — | the runner's refusals before any clone, and the chain over stand-in components (order, each clone's `.env.local`, logs, stopping at a failure, a re-run's clearing and what it keeps, a project target and its untracked files, a reused clone's origin or a link to another checkout, cleaning each clone, a tag named like a branch, an output root inside a checkout or clone), and a testbed run's verdict (a warning in an artifact, a broken invariant, a missing document or run report, a project run not judged) over the first milestone's committed outputs, offline; run by `examples-check.yml` |
 | [`testbed/run-testbed-stage.sh`](testbed/run-testbed-stage.sh) | testbed | the runner, and the testbed's collector paths and `project-id` |
-| [`testbed/check_testbed_toolkit_stage.py`](testbed/check_testbed_toolkit_stage.py) | testbed | the invariants over what the toolkit writes from `core` |
+| [`testbed/check_testbed_toolkit_stage.py`](testbed/check_testbed_toolkit_stage.py) | testbed | the invariants over what the toolkit writes from `core`, in the stage's layout or, with `--runner`, the local integration runner's |
 | [`testbed/testbed_cases.py`](testbed/testbed_cases.py) | testbed | the derived problem cases, one function each |
 | [`testbed/check_testbed_stage.py`](testbed/check_testbed_stage.py) | testbed | the invariants over `core`, and the check for one case |
 | [`testbed/negative-cases.md`](testbed/negative-cases.md) | testbed | those cases: each one, how its run is checked, how to add one |
@@ -179,7 +180,9 @@ at `master`.
 ## What the testbed checks assert
 
 Full lists: the module docstrings of [`testbed/check_testbed_stage.py`](testbed/check_testbed_stage.py)
-and [`testbed/check_testbed_toolkit_stage.py`](testbed/check_testbed_toolkit_stage.py).
+and [`testbed/check_testbed_toolkit_stage.py`](testbed/check_testbed_toolkit_stage.py). A testbed run of
+`integration/local-integration.sh` runs the same checks, but no case, over its own output: the toolkit's over both
+views, each with its own matrix and catalog.
 Where each part is checked:
 
 - Every artifact validates against its contract; `sources_failed` is 0 → `check_testbed_stage.py::_read`.
