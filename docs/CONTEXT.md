@@ -18,7 +18,7 @@ Not here: each tool's own docs (its repository) and the agentic layer's guides (
 | `tutorials/` | one per source + output combination: `gh-source-to-markdown.md` runs; the four others are planned and carry no workflow |
 | `projects/` | one card per repository, `agentic.md` for `agentic/`; `agentic-toolkit.md` is a redirect stub |
 | `examples/` | the canonical minimal input corpus; `_expected/` holds what the pinned collector mines from it and the pinned toolkit writes from that |
-| `_integration/` | gate and milestone reports from local integration runs, one folder per gate (`G1/`, `G2/`) or milestone (`MS1/`); a milestone runs `tests/integration/local-integration.sh` |
+| `_integration/` | gate, milestone and release go/no-go reports from local integration runs, one folder per gate (`G1/`, `G2/`), milestone (`MS1/`) or the release check (`go-no-go/`); a milestone and the release check run `tests/integration/local-integration.sh` |
 
 ## Contracts
 

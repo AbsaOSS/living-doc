@@ -13,18 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for tests/integration/local-integration.sh: the configurations it refuses before any clone, and the chain.
+"""Tests for tests/integration/local-integration.sh: the configurations it refuses before any clone, the chain, and a
+testbed run's verdict.
 
-Run: ``python -m pytest tests/integration -q`` (needs pytest and bash). Each case copies the runner, the pins and the
-pin report into ``tmp_path``, writes a configuration there, and runs the runner with a fake ``git`` first on ``PATH``.
-For the refusals, that ``git`` answers every ``ls-remote`` with "no such tag" and fails any other command, so a clone
-would show in its log. For the chain, its ``clone`` makes a folder holding a stand-in ``local-integration.sh``, which
-records each call and its ``.env.local``, writes the files the real script writes, and fails where ``FAIL_AT`` says.
-Nothing goes online.
+Run: ``python -m pytest tests/integration -q`` (needs pytest, bash and ``living-doc-utilities``, which
+``tests/examples/requirements-examples-check.txt`` installs). Each case copies the runner, the pins and the pin report
+into ``tmp_path``, writes a configuration there, and runs the runner with a fake ``git`` first on ``PATH``. For the
+refusals, that ``git`` answers every ``ls-remote`` with "no such tag" and fails any other command, so a clone would
+show in its log. For the chain, its ``clone`` makes a folder holding a stand-in ``local-integration.sh``, which records
+each call and its ``.env.local``, fails where ``FAIL_AT`` says, and otherwise writes what the real script writes: the
+first milestone's committed outputs (``docs/_integration/MS1/testbed-core/``), copied to a fixture folder a case may
+change first, and the venv its run builds, here a link to this interpreter. The verdict's toolkit check is the real
+one. The collector check is a stand-in that records its call and fails when ``BREAK_INVARIANT`` is set: the real one
+reads the testbed's own files, which no test holds, and CI's testbed stage runs it. Nothing goes online.
 """
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
@@ -41,7 +47,11 @@ PINS = REPO_ROOT / "tests" / "collector" / "collector-pins.env"
 PIN_REPORT = REPO_ROOT / "tests" / "examples" / "check_utilities_pins.py"
 CHECKER_REQUIREMENTS = REPO_ROOT / "tests" / "examples" / "requirements-examples-check.txt"
 TESTBED_STAGE = REPO_ROOT / "tests" / "testbed" / "run-testbed-stage.sh"
+TOOLKIT_CHECK = REPO_ROOT / "tests" / "testbed" / "check_testbed_toolkit_stage.py"
+# A real testbed run's output root, warning-free and passing every invariant: what the stand-in components write.
+MS1_OUTPUT = REPO_ROOT / "docs" / "_integration" / "MS1" / "testbed-core"
 BASH = shutil.which("bash")
+ME = "tests/integration/local-integration.sh"
 
 pytestmark = pytest.mark.skipif(BASH is None, reason="needs bash")
 
@@ -105,33 +115,48 @@ exit 1
 """
 
 # A component's `local-integration.sh`, standing in: records the call and its `.env.local` under `{record}`, writes
-# the files the real one writes under its OUT_DIR, and fails its run where FAIL_AT names `<clone>:<OUT_DIR's name>`.
+# the files the real one writes under its OUT_DIR, copied from `{fixture}`, and the venv the real run builds, and fails
+# its run where FAIL_AT names `<clone>:<OUT_DIR's name>`.
 STUB_COMPONENT = """#!/bin/sh
 component=$(basename "$(pwd)")
 out=$(sed -n 's/^OUT_DIR=//p' .env.local)
-step="$component:$(basename "$out")"
-echo "$component ${{1:-run}} $(basename "$out")" >> "{record}/calls.txt"
-cp .env.local "{record}/$component.$(basename "$out").env"
+view=$(basename "$out")
+step="$component:$view"
+echo "$component ${{1:-run}} $view" >> "{record}/calls.txt"
+cp .env.local "{record}/$component.$view.env"
 [ "${{1:-}}" = --check ] && exit 0
 if [ "${{FAIL_AT:-}}" = "$step" ]; then echo "stub: $step fails"; exit 3; fi
 case "$component" in
   living-doc-collector-gh)
-    mkdir -p "$out/collector-gh/doc-source" "$out/collector-gh/ui-tests"
-    echo "{{}}" > "$out/collector-gh/doc-source/doc-source.json"
-    echo "{{}}" > "$out/collector-gh/ui-tests/ui-tests.json" ;;
+    mkdir -p "$out/collector-gh"
+    cp -R "{fixture}/collector-gh/doc-source" "{fixture}/collector-gh/ui-tests" "$out/collector-gh/" ;;
   living-doc-toolkit)
-    for file in normalize-docs/generator-ready normalize-tests/ui-test-catalog coverage-matrix/coverage-matrix; do
-      mkdir -p "$out/toolkit/${{file%/*}}"
-      echo "{{}}" > "$out/toolkit/$file.json"
+    mkdir -p "$out/toolkit"
+    for command in normalize-docs normalize-tests coverage-matrix; do
+      cp -R "{fixture}/$view/toolkit/$command" "$out/toolkit/"
     done ;;
   living-doc-generator-markdown)
     rm -rf "$out/generator-markdown"
-    mkdir -p "$out/generator-markdown"
-    for document in technical-project ui-test-catalog coverage-matrix; do
-      echo "# $document" > "$out/generator-markdown/$document.md"
-    done ;;
+    cp -R "{fixture}/$view/generator-markdown" "$out/generator-markdown" ;;
 esac
+mkdir -p .venv-local-integration/bin
+printf '#!/bin/sh\\nexec "%s" "$@"\\n' "{python}" > .venv-local-integration/bin/python
+chmod +x .venv-local-integration/bin/python
 echo "stub: $step done"
+"""
+
+# tests/testbed/check_testbed_stage.py, standing in: records its arguments, and fails as the real one fails on a
+# broken invariant when BREAK_INVARIANT is set.
+STAND_IN_COLLECTOR_CHECK = """import os
+import sys
+
+with open({calls!r}, "a", encoding="utf-8") as calls:
+    calls.write("\\t".join(sys.argv[1:]) + "\\n")
+if os.environ.get("BREAK_INVARIANT"):
+    print("testbed core: 1 invariant(s) failed")
+    print("  FAIL " + os.environ["BREAK_INVARIANT"])
+    sys.exit(1)
+print("  OK: the stand-in collector check")
 """
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
@@ -176,15 +201,24 @@ def run(tmp_path: Path, config: str) -> tuple[subprocess.CompletedProcess[str], 
 
 
 def install_chain(tmp_path: Path, config: str, tag: str = TAG) -> Path:
-    """The runner over ``config`` with the chain's ``git`` and stand-ins, its remote knowing ``tag``; the folder the
-    stand-ins record in."""
+    """The runner over ``config`` with the chain's ``git`` and stand-ins, its remote knowing ``tag``, and the verdict's
+    two checks; the folder the stand-ins record in. What the stand-in components write is under ``tmp_path/fixture``."""
     record = tmp_path / "record"
     record.mkdir()
+    fixture = tmp_path / "fixture"
+    shutil.copytree(MS1_OUTPUT, fixture, ignore=shutil.ignore_patterns("local-integration.log", "env.local",
+                                                                       "pin-report.txt"))
     stub = tmp_path / "stub-local-integration.sh"
-    stub.write_text(STUB_COMPONENT.format(record=record.as_posix()), encoding="utf-8", newline="\n")
+    stub.write_text(STUB_COMPONENT.format(record=record.as_posix(), fixture=fixture.as_posix(),
+                                          python=python_setting()), encoding="utf-8", newline="\n")
     install(tmp_path, config, CHAIN_GIT.format(calls=(tmp_path / "git-calls.txt").as_posix(), tag=tag,
                                                stub=stub.as_posix(), requirements=CHECKER_REQUIREMENTS.as_posix(),
                                                sha=SHA))
+    checks = tmp_path / "tests" / "testbed"
+    checks.mkdir(parents=True)
+    shutil.copy(TOOLKIT_CHECK, checks / TOOLKIT_CHECK.name)
+    (checks / "check_testbed_stage.py").write_text(
+        STAND_IN_COLLECTOR_CHECK.format(calls=(record / "collector-check.txt").as_posix()), encoding="utf-8")
     return record
 
 
@@ -525,3 +559,113 @@ def test_clones_reached_through_a_linked_folder_stop_the_run(tmp_path: Path) -> 
     assert "is reached through a link" in result.stderr
     assert sorted(path.name for path in developer.iterdir()) == ["living-doc-toolkit"]
     assert sorted(path.name for path in (developer / "living-doc-toolkit").iterdir()) == [".git", "work.txt"]
+
+
+# --- A testbed run's verdict ------------------------------------------------------------------------------------------
+
+
+def a_testbed_run() -> str:
+    return f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n"
+
+
+def plant_warning(artifact: Path) -> None:
+    """One warning in an artifact the stand-ins write, which still validates against its contract."""
+    data = json.loads(artifact.read_text(encoding="utf-8"))
+    data["warnings"].append({"code": "STALE_AC_REF", "message": "planted by the test"})
+    data["metadata"]["stats"]["cardinality"]["warnings_by_code"]["STALE_AC_REF"] = 1
+    artifact.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+
+def assert_failed_check(tmp_path: Path, result: subprocess.CompletedProcess[str], check: str) -> None:
+    """Non-zero once the whole chain and the pin report passed, the last line naming the check, in the terminal and
+    at the end of the runner's log."""
+    assert result.returncode != 0, result.stdout
+    assert (tmp_path / "run" / "pin-report.txt").is_file()
+    last = result.stderr.splitlines()[-1]
+    assert check in last, result.stderr
+    assert read(tmp_path / "run" / "local-integration.log").splitlines()[-1] == last
+
+
+def test_a_testbed_run_passes_when_its_checks_pass_over_the_testbeds_settings_and_both_views(tmp_path: Path) -> None:
+    record = install_chain(tmp_path, a_testbed_run())
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    calls = read(record / "collector-check.txt").splitlines()
+    assert len(calls) == 1, calls
+    command, output, testbed, *folders = calls[0].split("\t")
+    assert (command, output.endswith("/run/collector-gh"), testbed.endswith("/out/testbed")) == ("core", True, True)
+    stage = settings_of_the_testbed_stage()
+    assert folders == ["--us", stage["DOC_SOURCE_US_PATHS"], "--func", stage["DOC_SOURCE_FUNC_PATHS"],
+                       "--pages", stage["DOC_SOURCE_PAGES_PATHS"], "--scenarios", stage["UI_TESTS_PATHS"]]
+    for artifact in ("generator-ready", "coverage-matrix", "ui-test-catalog"):
+        for view in ("inner", "release"):
+            assert f"  {artifact}.{view}: valid" in result.stdout, result.stdout
+    last = result.stdout.splitlines()[-1]
+    assert last.startswith(f"{ME}: the chain and the testbed's invariants passed"), last
+    assert read(tmp_path / "run" / "local-integration.log").splitlines()[-1] == last
+
+
+@pytest.mark.parametrize("artifact", ["inner/toolkit/normalize-docs/generator-ready.json",
+                                      "release/toolkit/coverage-matrix/coverage-matrix.json",
+                                      "release/toolkit/normalize-tests/ui-test-catalog.json"])
+def test_a_warning_in_an_artifact_fails_a_testbed_run(tmp_path: Path, artifact: str) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    plant_warning(tmp_path / "fixture" / artifact)
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
+    assert "warning STALE_AC_REF" in result.stdout
+
+
+def test_a_broken_collector_invariant_fails_a_testbed_run_before_the_next_check(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+
+    result, _ = invoke(tmp_path, BREAK_INVARIANT="doc-source: FUNC-001 yields [], expected one DocumentedFunctionality")
+
+    assert_failed_check(tmp_path, result, "the collector's invariants over core failed")
+    assert "  FAIL doc-source: FUNC-001 yields []" in result.stdout
+    assert "== check: the toolkit's" not in result.stdout
+
+
+def test_a_broken_toolkit_invariant_fails_a_testbed_run(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    # The release view then holds the inner view's records, the planned and in-review ones among them.
+    toolkit = tmp_path / "fixture"
+    shutil.copy(toolkit / "inner" / "toolkit" / "normalize-docs" / "generator-ready.json",
+                toolkit / "release" / "toolkit" / "normalize-docs" / "generator-ready.json")
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
+    assert "  FAIL generator-ready.release: holds" in result.stdout
+
+
+@pytest.mark.parametrize("missing", ["inner/generator-markdown/coverage-matrix.md",
+                                     "release/generator-markdown/technical-project.run-report.json"])
+def test_a_missing_document_or_run_report_fails_a_testbed_run(tmp_path: Path, missing: str) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    (tmp_path / "fixture" / missing).unlink()
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the six documents and their run reports failed")
+    assert result.stderr.splitlines()[-1].endswith(f" {missing}"), result.stderr
+
+
+def test_a_project_run_with_a_warning_is_not_judged(tmp_path: Path) -> None:
+    record = install_chain(tmp_path, lines({**PROJECT, "TARGET_CHECKOUT": "project-checkout", "OUT_DIR": "run",
+                                            "PYTHON": python_setting()}))
+    (tmp_path / "project-checkout" / ".git").mkdir(parents=True)
+    plant_warning(tmp_path / "fixture" / "collector-gh" / "doc-source" / "doc-source.json")
+    plant_warning(tmp_path / "fixture" / "release" / "toolkit" / "coverage-matrix" / "coverage-matrix.json")
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "== check:" not in result.stdout
+    assert not (record / "collector-check.txt").exists()
+    last = result.stdout.splitlines()[-1]
+    assert last.startswith(f"{ME}: the chain passed: the six documents are under "), last
