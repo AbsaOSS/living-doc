@@ -16,11 +16,15 @@
 
 name: "Agentic layer tests"
 
+# agentic/.claude/** and agentic/.github/** are named beside agentic/**: GitHub's filter docs do not
+# say whether `**` enters a folder whose name starts with a dot, and the layer ships from both.
 on:
   push:
     branches: [ "master" ]
     paths:
       - "agentic/**"
+      - "agentic/.claude/**"
+      - "agentic/.github/**"
       - "docs/reference/glossary.md"
       - "docs/reference/authoring-formats.md"
       - ".github/workflows/agentic-tests.yml"
@@ -28,6 +32,8 @@ on:
     types: [ opened, synchronize, reopened ]
     paths:
       - "agentic/**"
+      - "agentic/.claude/**"
+      - "agentic/.github/**"
       - "docs/reference/glossary.md"
       - "docs/reference/authoring-formats.md"
       - ".github/workflows/agentic-tests.yml"
@@ -41,8 +47,8 @@ permissions:
   contents: read
 
 jobs:
-  # The canon copies under agentic/skills/shared/references/ are generated from this same
-  # commit's docs/ by agentic/scripts/sync-canon-copies.sh and none is hand-maintained. Re-run
+  # The canon copies under agentic/.claude/skills/living-doc-shared/references/ are generated from
+  # this same commit's docs/ by agentic/scripts/sync-canon-copies.sh and none is hand-maintained. Re-run
   # the script and fail on any difference: a hand edit to a copy cannot survive this, and neither
   # can a canon change that did not regenerate the copies — which is why the two canon pages are
   # in the paths filter above.
@@ -62,9 +68,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          if ! git diff --exit-code -- agentic/skills/shared/references/; then
+          if ! git diff --exit-code -- agentic/.claude/skills/living-doc-shared/references/; then
             echo
-            echo "A canon copy under agentic/skills/shared/references/ does not match what" >&2
+            echo "A canon copy under agentic/.claude/skills/living-doc-shared/references/ does not match what" >&2
             echo "agentic/scripts/sync-canon-copies.sh generates from this commit's docs/." >&2
             echo "Run: bash agentic/scripts/sync-canon-copies.sh all — then commit the result." >&2
             exit 1
@@ -99,16 +105,16 @@ jobs:
       # These are standalone scripts, not pytest tests: each asserts in plain functions and exits
       # non-zero from its own __main__ block, and each carries `__test__ = False`, so a bare
       # `pytest` collects none of them and would report success. Discover and run each one.
-      - name: Discover and run every test_*.py under agentic/skills
+      - name: Discover and run every test_*.py under agentic/.claude/skills
         env:
           PYTHONIOENCODING: utf-8
         run: |
           set -euo pipefail
 
-          mapfile -t test_files < <(find agentic/skills -type f -name "test_*.py" | sort)
+          mapfile -t test_files < <(find agentic/.claude/skills -type f -name "test_*.py" | sort)
 
           if [ "${#test_files[@]}" -eq 0 ]; then
-            echo "No test_*.py files found under agentic/skills/ — nothing to run." >&2
+            echo "No test_*.py files found under agentic/.claude/skills/ — nothing to run." >&2
             exit 1
           fi
 
@@ -158,10 +164,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          mapfile -t skills < <(find agentic/skills -mindepth 1 -maxdepth 1 -type d | sort)
+          mapfile -t skills < <(find agentic/.claude/skills -mindepth 1 -maxdepth 1 -type d | sort)
 
           if [ "${#skills[@]}" -eq 0 ]; then
-            echo "No skill folders found under agentic/skills/." >&2
+            echo "No skill folders found under agentic/.claude/skills/." >&2
             exit 1
           fi
 

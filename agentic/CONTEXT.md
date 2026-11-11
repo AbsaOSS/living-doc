@@ -6,15 +6,16 @@ Parent: [../CONTEXT.md](../CONTEXT.md)
 
 The optional AI authoring layer this repository ships: skills and the `living-doc-bdd-copilot` agent that help authors write entity headers and the BDD tests bound to them. Users install it into their own projects. Catalog and install: [README.md](README.md). Change rules, tests and PR checklist: [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Not here: this repository's own dev agents, which live in `.claude/agents/`. The test: an agent that is useless to someone who installed the layer and never opens this repository belongs in `.claude/agents/`.
+Not here: this repository's own dev agents, which live in the root `.claude/agents/`. The test: an agent that is useless to someone who installed the layer and never opens this repository belongs in the root `.claude/agents/`.
 
 ## Layout
 
 | Path | Holds |
 |---|---|
-| `skills/<name>/` | `SKILL.md`, `scripts/` with `test_*.py` beside each script, `evals/` (body `evals.json`, `trigger-eval.json`, fixtures) |
-| `skills/shared/` | `lib/` (shared Python), `references/` (canon copies, `agentic-formats.md`, JSON schemas) |
-| `agents/` | the shipped agent and its evals |
+| `.claude/skills/<name>/` | `SKILL.md`, `scripts/` with `test_*.py` beside each script, `evals/` (body `evals.json`, `trigger-eval.json`, fixtures) |
+| `.claude/skills/living-doc-shared/` | `lib/` (shared Python), `references/` (canon copies, `agentic-formats.md`, JSON schemas) |
+| `.github/agents/` | the shipped agent |
+| `agents/evals/` | the agent's evals |
 | `docs/guides/` | one guide per skill and agent |
 | `docs/testing/` | eval protocol, recorded baseline, re-run prompt |
 | `scripts/` | `sync-canon-copies.sh`, `evals-inventory.py`, `evals/` (the deterministic half of an eval run) |
@@ -30,6 +31,9 @@ Not here: this repository's own dev agents, which live in `.claude/agents/`. The
 
 ## Invariants and gotchas
 
-- `skills/shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md` are generated from `docs/reference/glossary.md` and `docs/reference/authoring-formats.md` by `scripts/sync-canon-copies.sh`. Never hand-edit them; CI fails when a committed copy differs. They exist because `npx skills add` copies only a skill's folder and `shared`'s, so the canon in `docs/` isn't there.
+- The layer mirrors a project's root: each skill and the agent sit at the path they get in a user's project, so `.claude/` and `.github/` here are shipped content, not this repository's configuration (that is the root `.claude/`). The skills CLI must be pointed at `agentic/` (`…/tree/master/agentic`): from the repository root it stops at the root `.claude/skills/` and never sees the layer.
+- Claude Code loads `.claude/skills/` here as nested project skills once a session reads or edits a file under `agentic/` (at startup when started in `agentic/`). They are the product under change, not tools for working on this repository, and an eval arm must not invoke them (the runner prompt from `scripts/evals/gen_runner_prompts.py` forbids the Skill tool).
+- An eval baseline commit from before the move to `.claude/skills/` and `.github/agents/` has the old layout (`skills/`, `agents/`); `scripts/evals/gen_runner_prompts.py` reads whichever the baseline worktree holds, so the recorded baseline stays usable.
+- `.claude/skills/living-doc-shared/references/living-doc-glossary.md` and `living-doc-bdd-schemas.md` are generated from `docs/reference/glossary.md` and `docs/reference/authoring-formats.md` by `scripts/sync-canon-copies.sh`. Never hand-edit them; CI fails when a committed copy differs. They exist because `npx skills add` copies only a skill's folder and `living-doc-shared`'s, so the canon in `docs/` isn't there.
 - Nothing in CI runs an eval. Raw eval evidence (`agentic-evals-workspace/`) is gitignored; only the distilled `docs/testing/baseline.md` is tracked.
 - Trigger evals need `--num-workers 1` and must run alone (eval-protocol § 2).

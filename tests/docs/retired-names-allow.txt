@@ -1,9 +1,9 @@
 # living-doc files whose retired-name hits are not uses, read by tests/docs/retired_names_check.py.
 # One entry per line: the file's path from the repository root, then, after a tab or a space, why the
 # hit is not a use. An entry that skips no hit fails the check: remove it once the hit is gone.
-agentic/skills/shared/references/schemas/manifest.schema.json	the JSON Schema keyword "items", not the retired field
-agentic/skills/shared/references/schemas/project-profile.schema.json	the JSON Schema keyword "items", not the retired field
-agentic/skills/shared/references/schemas/seed.schema.json	the JSON Schema keyword "items", not the retired field
+agentic/.claude/skills/living-doc-shared/references/schemas/manifest.schema.json	the JSON Schema keyword "items", not the retired field
+agentic/.claude/skills/living-doc-shared/references/schemas/project-profile.schema.json	the JSON Schema keyword "items", not the retired field
+agentic/.claude/skills/living-doc-shared/references/schemas/seed.schema.json	the JSON Schema keyword "items", not the retired field
 agentic/CONTEXT.md	quotes the retired field to forbid it: skills write no descoped state or future_release
 agentic/CONTRIBUTING.md	quotes the retired field to forbid it: skills write no descoped state or future_release
-agentic/skills/living-doc-update/evals/evals.json	an eval expectation quotes the retired field to forbid it: the reason goes on the AC's Rationale bullet
+agentic/.claude/skills/living-doc-update/evals/evals.json	an eval expectation quotes the retired field to forbid it: the reason goes on the AC's Rationale bullet

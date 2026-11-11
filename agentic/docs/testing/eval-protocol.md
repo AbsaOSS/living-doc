@@ -111,8 +111,8 @@ made of them is not a result.
 
 **Test the mechanical facts mechanically.** Whether a documented command resolves, or a documented
 flag exists, is a fact about the text — not about a model's answer. It belongs in a script test
-(see `agentic/skills/shared/test_skill_doc_commands.py`), where it is deterministic and cannot
-hallucinate. Reserve eval assertions for behaviour.
+(see `agentic/.claude/skills/living-doc-shared/test_skill_doc_commands.py`), where it is
+deterministic and cannot hallucinate. Reserve eval assertions for behaviour.
 
 **Every fix gets a guard.** When a defect is corrected, add the assertion or test that would have
 caught it, in the same change. An uncovered fix regresses silently.

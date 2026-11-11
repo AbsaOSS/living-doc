@@ -39,7 +39,7 @@ flowchart LR
     toolkit --> snap
     collector --> inv["testbed invariants + derived cases"]
     toolkit --> inv
-    canon --> sync["agentic/scripts/sync-canon-copies.sh"] --> skills["agentic/skills<br/>shared/references"]
+    canon --> sync["agentic/scripts/sync-canon-copies.sh"] --> skills["agentic/.claude/skills<br/>living-doc-shared/references"]
 ```
 
 The canon pages in `docs/reference/` define the format; the corpus shows it; the checks prove the corpus follows them and that the real collector and toolkit carry it through as expected. The agentic layer reads generated copies of two canon pages.
@@ -70,8 +70,8 @@ The local integration runner, `bash tests/integration/local-integration.sh [--ch
 ## Conventions
 
 - Every PR stays inside the frame in `docs/introduction/principles.md`, or names the row it bends and adds the exception there in the same PR.
-- Same-PR obligations: a format change in a canon page updates `docs/examples/`, and a Project Profile or `seed.yaml` change in `agentic/skills/shared/references/agentic-formats.md` updates `docs/examples/project-profile/`; a canon change regenerates the agentic copies; a collector or toolkit pin bump regenerates `docs/examples/_expected/` and keeps the testbed stage green; a move of the checker's `living-doc-utilities` version brings the before/after pairs in `docs/guides/authoring-documentation.md` and the codes in `docs/reference/errors.md` in line with it, which `tests/examples/examples_check.py` checks ([CONTRIBUTING.md § Regenerating the collector snapshots](CONTRIBUTING.md#regenerating-the-collector-snapshots)).
-- Docs link, they don't copy. Lychee checks every link and fragment in every `*.md`. Every page follows [CONTRIBUTING.md § Writing documentation](CONTRIBUTING.md#writing-documentation), which `tests/docs/test_page_structure.py` checks.
+- Same-PR obligations: a format change in a canon page updates `docs/examples/`, and a Project Profile or `seed.yaml` change in `agentic/.claude/skills/living-doc-shared/references/agentic-formats.md` updates `docs/examples/project-profile/`; a canon change regenerates the agentic copies; a collector or toolkit pin bump regenerates `docs/examples/_expected/` and keeps the testbed stage green; a move of the checker's `living-doc-utilities` version brings the before/after pairs in `docs/guides/authoring-documentation.md` and the codes in `docs/reference/errors.md` in line with it, which `tests/examples/examples_check.py` checks ([CONTRIBUTING.md § Regenerating the collector snapshots](CONTRIBUTING.md#regenerating-the-collector-snapshots)).
+- Docs link, they don't copy. Lychee checks every link and fragment in every tracked `*.md`, hidden folders included. Every page follows [CONTRIBUTING.md § Writing documentation](CONTRIBUTING.md#writing-documentation), which `tests/docs/test_page_structure.py` checks.
 - Nothing from `specs/` is committed or cited: it is local planning.
 - PR, branch, title and review rules: `AGENTS.md` § This project.
 
@@ -84,6 +84,6 @@ The local integration runner, `bash tests/integration/local-integration.sh [--ch
 ## Invariants and gotchas
 
 - High-risk: the canon pages in `docs/reference/` (glossary, authoring formats, rendering rules), the rule set in `tests/examples/examples_check.py`, the snapshot pipeline (`tests/examples/regen-collector-snapshots.sh`, `normalize_snapshot.py`, `check_collector_stage.py`, `check_toolkit_stage.py`), the shared collector and toolkit runs and testbed stage (`tests/collector/`, `tests/testbed/`), the pins in `tests/collector/collector-pins.env`.
-- Generated, never hand-edited: `docs/examples/_expected/**` and `agentic/skills/shared/references/{living-doc-glossary,living-doc-bdd-schemas}.md`. A diff there means its source changed; regenerate it.
+- Generated, never hand-edited: `docs/examples/_expected/**` and `agentic/.claude/skills/living-doc-shared/references/{living-doc-glossary,living-doc-bdd-schemas}.md`. A diff there means its source changed; regenerate it.
 - The repository is public: `docs/_integration/` commits only redacted rows for internal targets.
 - `agentic/` tests are scripts, not pytest tests: a bare `pytest` there collects nothing and passes.

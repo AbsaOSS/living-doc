@@ -17,7 +17,7 @@ scripts, not pytest tests — each asserts in plain functions and exits non-zero
 
 ```bash
 pip install -r agentic/requirements-agentic-tests.txt
-find agentic/skills -type f -name "test_*.py" | sort | xargs -n1 python
+find agentic/.claude/skills -type f -name "test_*.py" | sort | xargs -n1 python
 ```
 
 > **A bare `pytest` tells you nothing here.** Every one of these files carries
@@ -31,7 +31,7 @@ Validating a skill's folder format needs Python 3.11 or newer, because `skills-r
 
 ```bash
 pip install -r agentic/requirements-skill-lint.txt
-agentskills validate agentic/skills/<name>
+agentskills validate agentic/.claude/skills/<name>
 ```
 
 After changing a canon page under `docs/`, regenerate the copies the skills read:
@@ -86,11 +86,11 @@ relied on by an author who will never read an eval result.
 | A skill's `SKILL.md` body | that skill's body evals |
 | A skill's `description:` | that skill's trigger evals |
 | A script under a skill's `scripts/` | that script's `test_*.py`, then the owning skill's body evals |
-| `shared/lib/ac_tag.py` | `gherkin-living-doc-sync`, `living-doc-scenario-creator`, `living-doc-update` |
-| `shared/lib/living_doc_id.py` | `gherkin-living-doc-sync`, `living-doc-update` and the three `living-doc-create-*` skills |
-| `shared/references/agentic-formats.md` | `living-doc-pageobject-scan` (it owns the Project Profile, `seed.yaml` and `manifest.json` flows) |
+| `living-doc-shared/lib/ac_tag.py` | `gherkin-living-doc-sync`, `living-doc-scenario-creator`, `living-doc-update` |
+| `living-doc-shared/lib/living_doc_id.py` | `gherkin-living-doc-sync`, `living-doc-update` and the three `living-doc-create-*` skills |
+| `living-doc-shared/references/agentic-formats.md` | `living-doc-pageobject-scan` (it owns the Project Profile, `seed.yaml` and `manifest.json` flows) |
 | A canon page under `docs/` | regenerate the copies, then the body evals of every skill whose rules the change touches |
-| `agents/living-doc-bdd-copilot.agent.md` | the agent's body evals — an agent is `@`-mentioned, so it has no trigger evals |
+| `.github/agents/living-doc-bdd-copilot.agent.md` | the agent's body evals — an agent is `@`-mentioned, so it has no trigger evals |
 | A new skill | its full body **and** trigger set, plus a description pass |
 | Anything at all | the whole regression gate above |
 
@@ -122,7 +122,7 @@ For a change to a skill:
 - [ ] Evals exist, or a note in the PR says why they do not apply
 - [ ] The eval run scoped to this change was done, and the PR states the result against
       the baseline — or says why this change needs none
-- [ ] `agentskills validate agentic/skills/<name>` passes
+- [ ] `agentskills validate agentic/.claude/skills/<name>` passes
 - [ ] The skill is listed in the catalog table in [README.md](README.md)
 
 For a change to the agent:
@@ -135,7 +135,7 @@ For any change here:
 
 - [ ] The script tests pass on 3.10 and 3.14
 - [ ] If a canon page changed, the copies are regenerated in the same commit
-- [ ] No hand edit to a generated copy under `skills/shared/references/`
+- [ ] No hand edit to a generated copy under `.claude/skills/living-doc-shared/references/`
 - [ ] The layer writes the release canon: one dash in a structural position, the four AC states
       with `(planned)` for backlog, authored status on User Stories and Functionalities only, no
       Feature status, no `descoped` or `future_release`

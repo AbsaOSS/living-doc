@@ -35,8 +35,8 @@ three verdicts — `covered`, `not_covered` and `partially_covered` (the matrix 
 | [gherkin/liv_doc_func/func-002-reject-breached-password.feature](gherkin/liv_doc_func/func-002-reject-breached-password.feature) | [Authoring formats § Functionality](../reference/authoring-formats.md#3-functionality-in-a-gherkin-feature-file) |
 | [pageobject/LoginPage.ts](pageobject/LoginPage.ts) | [Authoring formats § Feature in a PageObject File](../reference/authoring-formats.md#2-feature-in-a-pageobject-file) |
 | [pageobject/RegistrationPage.ts](pageobject/RegistrationPage.ts) | [Authoring formats § Feature in a PageObject File](../reference/authoring-formats.md#2-feature-in-a-pageobject-file) |
-| [project-profile/.project-profile.yaml](project-profile/.project-profile.yaml) | [Agentic formats § Project Profile](../../agentic/skills/shared/references/agentic-formats.md#project-profile-config-driven-conventions) |
-| [project-profile/seed.yaml](project-profile/seed.yaml) | [Agentic formats § seed.yaml](../../agentic/skills/shared/references/agentic-formats.md#seedyaml-business-seed) |
+| [project-profile/.project-profile.yaml](project-profile/.project-profile.yaml) | [Agentic formats § Project Profile](../../agentic/.claude/skills/living-doc-shared/references/agentic-formats.md#project-profile-config-driven-conventions) |
+| [project-profile/seed.yaml](project-profile/seed.yaml) | [Agentic formats § seed.yaml](../../agentic/.claude/skills/living-doc-shared/references/agentic-formats.md#seedyaml-business-seed) |
 | [gh-issues/us-001-customer-login.md](gh-issues/us-001-customer-login.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
 | [gh-issues/feat-001-login-page.md](gh-issues/feat-001-login-page.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
 | [gh-issues/feat-002-breached-password-check.md](gh-issues/feat-002-breached-password-check.md) | [Authoring formats § GitHub issue-body layout](../reference/authoring-formats.md#github-issue-body-layout) |
@@ -174,7 +174,7 @@ Two rules keep it truthful, both enforced **in the same PR** as the change that 
 1. **Format change.** When a field or rule on [Authoring formats](../reference/authoring-formats.md)
    or [Glossary](../reference/glossary.md) changes, update the matching example here. The same holds
    for the Project Profile and `seed.yaml` formats in
-   [agentic-formats.md](../../agentic/skills/shared/references/agentic-formats.md) and `project-profile/`.
+   [agentic-formats.md](../../agentic/.claude/skills/living-doc-shared/references/agentic-formats.md) and `project-profile/`.
 2. **Implementation change (last check).** When a collector mode that mines these inputs
    (`collector-gh` `doc-source` / `ui-tests` / `doc-issues`) is implemented or changed, re-check this
    corpus **and** the pages above against what the tooling actually mines, and correct any drift.

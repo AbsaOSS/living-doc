@@ -40,4 +40,4 @@ python3 agentic/scripts/evals/compare_baseline.py $W/iteration-1
 ```
 
 `scaffold.py` takes a fourth argument to point at an eval file elsewhere — the agent's set lives at
-`agentic/agents/evals/<agent>/evals.json`, not under `agentic/skills/`.
+`agentic/agents/evals/<agent>/evals.json`, not under `agentic/.claude/skills/`.

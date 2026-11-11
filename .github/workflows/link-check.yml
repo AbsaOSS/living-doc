@@ -79,11 +79,14 @@ jobs:
       # This repository's own blob/master links are checked against this checkout: the generated
       # agentic copies and the skills link the canon absolutely, and a change that adds or moves a
       # page must pass with the links it will have once merged.
+      # Without `--hidden`, lychee's `**` skips every hidden folder: `.claude/`, `.github/`, and the
+      # agentic layer's `agentic/.claude/` and `agentic/.github/`, where its skills and agent ship.
       - name: Check cross-reference and cross-repo links
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8
         with:
           args: >-
             --no-progress
+            --hidden
             --include-fragments
             --max-retries 3
             --retry-wait-time 5

@@ -47,17 +47,19 @@ Since agents are invoked explicitly via `@agent-name` (not by description matchi
 
 ```
 agentic/
+  .github/
+    agents/
+      my-agent.agent.md        ← agent definition
   agents/
-    my-agent.agent.md          ← agent definition
     evals/
       my-agent/
         evals.json             ← body behavior tests
         files/                 ← fixture files referenced by evals
 ```
 
-The layer's own agent sits at `agentic/agents/living-doc-bdd-copilot.agent.md`, apart from this
-repository's development agents in `.claude/agents/`, which are a different thing and not covered
-by this guide.
+The layer's own agent sits at `agentic/.github/agents/living-doc-bdd-copilot.agent.md`, apart
+from this repository's development agents in the root `.claude/agents/`, which are a different
+thing and not covered by this guide.
 
 Store at `agentic/agents/evals/<agent-name>/evals.json`. Same schema as skill evals:
 

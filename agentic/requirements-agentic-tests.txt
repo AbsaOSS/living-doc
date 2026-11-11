@@ -1,5 +1,5 @@
 # Pinned dependencies for the agentic layer's script tests — every
-# agentic/skills/**/test_*.py (see .github/workflows/agentic-tests.yml, job `script-tests`).
+# agentic/.claude/skills/**/test_*.py (see .github/workflows/agentic-tests.yml, job `script-tests`).
 # Must stay installable on Python 3.10, the floor the matrix tests: living-doc-utilities
 # declares `requires-python = ">=3.10"` and a skill's scripts run under whatever interpreter
 # the user's project has.

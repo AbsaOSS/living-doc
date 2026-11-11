@@ -41,7 +41,7 @@ Only two surface types exist — each requires the matching test abstraction to 
 | **UI** | Login, Dashboard, Checkout | A PageObject for the screen (create together with the Feature if it doesn't exist yet, e.g. via `living-doc-pageobject-scan`) |
 | **API** | POST /orders, GET /users/:id, including a backend service's public contract (REST/GraphQL or an annotated message-broker contract) | An annotated endpoint method, or an annotated event handler |
 
-A worker, module, or service with neither anchor achievable is not a Feature yet — record it as an `external_dependencies` entry on the Feature(s) that interact with it. See [living-doc-glossary](../../skills/shared/references/living-doc-glossary.md) for details.
+A worker, module, or service with neither anchor achievable is not a Feature yet — record it as an `external_dependencies` entry on the Feature(s) that interact with it. See [living-doc-glossary](../../.claude/skills/living-doc-shared/references/living-doc-glossary.md) for details.
 
 ---
 

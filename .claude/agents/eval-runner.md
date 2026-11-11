@@ -14,7 +14,7 @@ model: opus
 # eval-runner
 
 > **This is one of this repository's own development agents**, which is why it sits in
-> `.claude/agents/` beside the agd kit agents rather than in `agentic/agents/`. It tests the
+> `.claude/agents/` beside the agd kit agents rather than in `agentic/.github/agents/`. It tests the
 > agentic layer; it is not part of it and is never installed into a user's project. See
 > `agentic/README.md` § Agent for that boundary.
 >
@@ -117,8 +117,8 @@ looks like a measurement is worse than an admitted gap.
 ## Phase 4 — Trigger evals, serially and alone
 
 ```bash
-python3 -m scripts.run_eval --eval-set agentic/skills/<s>/evals/trigger-eval.json \
-  --skill-path agentic/skills/<s> --model <trigger-model> \
+python3 -m scripts.run_eval --eval-set agentic/.claude/skills/<s>/evals/trigger-eval.json \
+  --skill-path agentic/.claude/skills/<s> --model <trigger-model> \
   --runs-per-query 3 --num-workers 1 --timeout 120 --verbose
 ```
 
