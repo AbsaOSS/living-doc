@@ -1,0 +1,7 @@
+living-doc-utilities pins
+  component           pin    read from
+  collector-gh        0.8.1  out/components/living-doc-collector-gh/requirements.txt
+  toolkit             0.8.1  out/components/living-doc-toolkit/requirements.txt
+  generator-markdown  0.8.1  out/components/living-doc-generator-markdown/requirements.txt
+  examples-check      0.8.0  tests/examples/requirements-examples-check.txt
+OK: every component pins living-doc-utilities 0.8.
