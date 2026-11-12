@@ -3,7 +3,8 @@
 ## Purpose
 
 This page is how to contribute to this repository: reporting bugs and proposing features, branches and pull
-requests, the rules every page follows, the checks over the corpus and the testbed, and the agentic layer.
+requests, the rules every page follows, the checks over the corpus and the testbed, and the agentic layer. It also
+holds the rules the ecosystem's repositories share: releases, versions, changes across repositories and conventions.
 
 ## Contents
 
@@ -17,6 +18,9 @@ requests, the rules every page follows, the checks over the corpus and the testb
 - [The collector stage over the testbed](#the-collector-stage-over-the-testbed)
 - [The agentic layer](#the-agentic-layer)
 - [Target Branches](#target-branches)
+- [Releasing the ecosystem](#releasing-the-ecosystem)
+- [Changes across repositories](#changes-across-repositories)
+- [Ecosystem conventions](#ecosystem-conventions)
 - [Community and Communication](#community-and-communication)
 
 ## Identifying and Reporting Bugs
@@ -59,6 +63,14 @@ PR body has to also include these sections: `## Overview`, `## Release Notes`, `
 - **Framework** – tick one box: the change stays inside the frame of [Principles](docs/introduction/principles.md#the-frame), or names the row it bends and adds the exception there.
 - **Related** – link the issue with a closing keyword, e.g. `Closes #123` or `Fixes AB#12345`.
 
+In every repository of the ecosystem, a PR also follows these rules:
+
+- **Canon** – the body names each canon rule the change implements, with its page, for example a rule of
+  [Authoring formats](docs/reference/authoring-formats.md). A disagreement with the canon goes on the issue before
+  it is coded.
+- **Review** – a GitHub Copilot code review comes before the owner's review. Each acceptance criterion is checked
+  against the code or page that delivers it, never against a green test with a matching name.
+
 ## Writing documentation
 
 **Provisional.** These are the rules every page of this repository follows; this section is their only copy here.
@@ -76,7 +88,7 @@ is needed.
 | L3 | `docs/tutorials/` | one copy-pasteable pipeline, complete |
 | L4 | `docs/reference/` | the only level that defines a fact |
 | L5 | `docs/projects/` | one card per repository, at most 25 lines: role, files in and out, README link; no input table |
-| D | `CONTRIBUTING.md`, `docs/_integration/README.md` | contributing to and running this repository |
+| D | `CONTRIBUTING.md`, `docs/_integration/README.md` | contributing to and running this repository; the rules the ecosystem's repositories share |
 
 Not pages: every `CONTEXT.md`, `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.github/`, `.local_context/`, `agentic/` (its
 own rules, in [`agentic/CONTRIBUTING.md`](agentic/CONTRIBUTING.md)), `tests/`, the mined inputs under
@@ -204,6 +216,74 @@ see [`agentic/CONTRIBUTING.md`](agentic/CONTRIBUTING.md).
 ## Target Branches
 
 PRs have to target `main`, `master`, `support/*`, or `release/*`.
+
+## Releasing the ecosystem
+
+Each component releases by its own `DEVELOPER.md` § Release. A release of the ecosystem runs them in this order:
+
+1. `living-doc-utilities` releases by its
+   [§ Release](https://github.com/AbsaOSS/living-doc-utilities/blob/master/DEVELOPER.md#release), if anything
+   merged since its last release.
+2. `living-doc-collector-gh`, `living-doc-toolkit` and `living-doc-generator-markdown` each merge a release PR, step 1
+   of their § Release. It sets the version and re-pins `living-doc-utilities`.
+3. The [release go/no-go](docs/_integration/README.md#release-gono-go) runs over each component's `master` commit and
+   the testbed.
+4. On go, each component is tagged at the commit the run used, by the rest of its § Release:
+   [`living-doc-collector-gh`](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/DEVELOPER.md#release),
+   [`living-doc-toolkit`](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/DEVELOPER.md#release),
+   [`living-doc-generator-markdown`](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/DEVELOPER.md#release).
+5. This repository's pin PR moves `tests/collector/collector-pins.env` and the corpus checker's `living-doc-utilities`
+   pin to the tags. It regenerates the snapshots ([Regenerating the collector snapshots](#regenerating-the-collector-snapshots)).
+6. This repository is tagged by its **Draft Release** workflow; its release notes hold the compatibility table and
+   what is planned next. The table names the `living-doc-utilities` version, each component's tag and commit, and the
+   testbed commit, as in [`v0.1.0`](https://github.com/AbsaOSS/living-doc/releases/tag/v0.1.0).
+7. The milestone run at the tags is filed under `docs/_integration/`
+   ([Run a milestone target](docs/_integration/README.md#run-a-milestone-target)).
+
+These version rules hold for every package. How to pin and bump `living-doc-utilities` in detail is in its
+[§ Versioning](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/api.md#versioning).
+
+- Every package is `0.x`.
+- A contract or public-API change is a `living-doc-utilities` minor, a parser or helper fix a patch.
+- Every consumer pins `living-doc-utilities` exactly.
+- A package version and a contract version are independent: a contract id stays `-v1.0.0` through `0.x`.
+- A minor may break and a patch never does; the release notes list every breaking change with its migration.
+- A `living-doc` release names the set of component tags that work together.
+- `1.0.0` is one event: the contracts freeze and every package goes `1.0.0` together.
+- The owner decides when the product is ready for `1.0.0`.
+
+## Changes across repositories
+
+A change that spans repositories follows these rules:
+
+- Each repository it changes gets an issue of its own.
+- A **Pointer** issue in this repository lists every PR in landing order, and closes once all are merged and verified.
+- Each PR body opens with a `## Cross-repo change — N of M` block: the Pointer issue, the landing order, what is
+  already merged, what this PR covers and what it leaves out.
+- A `living-doc-utilities` minor's release PR lists the re-pin PRs that must follow it. They land before the next
+  milestone run.
+
+## Ecosystem conventions
+
+`living-doc-utilities` and the component repositories are kept alike. `living-doc-generator-markdown` is the
+reference repository, and a new repository copies it:
+
+- `make qa` is the one command run before a PR.
+- The CI workflows, `Makefile` targets, ruff and Black settings and Dependabot configuration follow the reference.
+- Every third-party action is pinned by its commit SHA.
+
+A new composite action copies the venv step of the reference's
+[`action.yml`](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/action.yml). Its reasons are in
+[`DEVELOPER.md` § Action venv](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/DEVELOPER.md#action-venv).
+The template:
+
+- The step takes Python 3.10 or later from `PATH`, and fails with a one-line error otherwise.
+- It keeps its own venv under `$RUNNER_TEMP`, reused only when the same interpreter built it.
+- It first unsets the variables that § Action venv lists.
+- It proves the install by one import through the venv's interpreter.
+- It runs `main.py` with `-E`, and never changes the caller's interpreter or `PATH`.
+- The action has a `verbose-logging` input.
+- `requirements.txt` holds the runtime dependencies only; `requirements-dev.txt` includes it and adds the tools.
 
 ## Community and Communication
 

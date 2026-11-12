@@ -74,6 +74,7 @@ The local integration runner, `bash tests/integration/local-integration.sh [--ch
 - Docs link, they don't copy. Lychee checks every link and fragment in every tracked `*.md`, hidden folders included. Every page follows [CONTRIBUTING.md § Writing documentation](CONTRIBUTING.md#writing-documentation), which `tests/docs/test_page_structure.py` checks.
 - Nothing from `specs/` is committed or cited: it is local planning.
 - PR, branch, title and review rules: `AGENTS.md` § This project.
+- The ecosystem's shared rules, for people, are in `CONTRIBUTING.md`: the release order and version rules in [§ Releasing the ecosystem](CONTRIBUTING.md#releasing-the-ecosystem), issues and PR blocks in [§ Changes across repositories](CONTRIBUTING.md#changes-across-repositories), the reference repository and composite-action template for `living-doc-utilities` and the components (not this repository) in [§ Ecosystem conventions](CONTRIBUTING.md#ecosystem-conventions), and the canon and review rules of every PR in [§ PR Description](CONTRIBUTING.md#pr-description).
 
 ## Key decisions
 
