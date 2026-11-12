@@ -157,8 +157,8 @@ Every input of each step: [`collector-gh`](https://github.com/AbsaOSS/living-doc
 
 After the first run, `docs/living-doc/` holds six files: three documents and their run reports. The technical project
 lists your User Stories, the test catalog your scenarios, and the coverage matrix each criterion's verdict. A run
-that warns or fails names a code: [Error codes](../reference/errors.md). The six documents a real run rendered over
-the testbed, in both views, are in [`docs/_integration/MS1/testbed-core/`](../_integration/MS1/testbed-core/release/generator-markdown/technical-project.md).
+that warns or fails names a code: [Error codes](../reference/errors.md). The six documents these tags rendered over
+the testbed, in both views, are in [`docs/_integration/MS3/testbed-core/`](../_integration/MS3/testbed-core/release/generator-markdown/technical-project.md).
 
 ## Related
 

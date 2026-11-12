@@ -1,0 +1,392 @@
+{
+  "generator": {
+    "name": "living-doc-generator-markdown",
+    "utilities_version": "0.8.1"
+  },
+  "document_type": "coverage-matrix",
+  "document": "coverage-matrix.md",
+  "title": "Coverage matrix",
+  "view": "inner",
+  "input": {
+    "schema_version": "coverage-matrix-v1.0.0",
+    "producer": {
+      "name": "AbsaOSS/living-doc-toolkit",
+      "version": "0.1.0",
+      "utilities_version": "0.8.1"
+    }
+  },
+  "counts": {
+    "entities": 15,
+    "entities_by_type": {
+      "DocumentedUserStory": 3,
+      "DocumentedFunctionality": 12
+    },
+    "acceptance_criteria": 24,
+    "scenarios": 0,
+    "warnings_by_code": {}
+  },
+  "render_manifest": {
+    "view": "inner",
+    "entities": [
+      "US-001",
+      "US-002",
+      "US-003",
+      "FUNC-001",
+      "FUNC-002",
+      "FUNC-003",
+      "FUNC-004",
+      "FUNC-005",
+      "FUNC-006",
+      "FUNC-007",
+      "FUNC-008",
+      "FUNC-009",
+      "FUNC-010",
+      "FUNC-011",
+      "FUNC-012"
+    ],
+    "acceptance_criteria": [
+      "US-001-01",
+      "US-001-02",
+      "US-001-04",
+      "US-002-01",
+      "US-002-02",
+      "US-002-03",
+      "US-003-01",
+      "FUNC-001-01",
+      "FUNC-001-02",
+      "FUNC-002-01",
+      "FUNC-005-01",
+      "FUNC-005-02",
+      "FUNC-005-03",
+      "FUNC-006-01",
+      "FUNC-006-02",
+      "FUNC-007-01",
+      "FUNC-008-01",
+      "FUNC-008-02",
+      "FUNC-008-03",
+      "FUNC-009-01",
+      "FUNC-009-02",
+      "FUNC-010-01",
+      "FUNC-010-02",
+      "FUNC-011-01"
+    ],
+    "aspects": [
+      {
+        "ac_id": "US-002-03",
+        "label": "Aspect",
+        "values": [
+          "adult",
+          "junior"
+        ]
+      },
+      {
+        "ac_id": "FUNC-001-01",
+        "label": "Aspect",
+        "values": [
+          "author",
+          "subject"
+        ]
+      },
+      {
+        "ac_id": "FUNC-005-01",
+        "label": "Aspect",
+        "values": [
+          "name",
+          "date-of-birth",
+          "address"
+        ]
+      },
+      {
+        "ac_id": "FUNC-005-03",
+        "label": "required_detail",
+        "values": [
+          "name",
+          "date-of-birth",
+          "address"
+        ]
+      },
+      {
+        "ac_id": "FUNC-008-03",
+        "label": "sort_order",
+        "values": [
+          "relevance",
+          "newest-first"
+        ]
+      },
+      {
+        "ac_id": "FUNC-010-02",
+        "label": "fine_state",
+        "values": [
+          "paid",
+          "waived",
+          "written-off"
+        ]
+      }
+    ],
+    "badges": [
+      {
+        "id": "US-001",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "US-002",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "US-003",
+        "badges": [
+          "DEPRECATED"
+        ]
+      },
+      {
+        "id": "FUNC-001",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-002",
+        "badges": [
+          "DEPRECATED"
+        ]
+      },
+      {
+        "id": "FUNC-003",
+        "badges": [
+          "IN REVIEW"
+        ]
+      },
+      {
+        "id": "FUNC-004",
+        "badges": [
+          "PLANNED"
+        ]
+      },
+      {
+        "id": "FUNC-005",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-006",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-007",
+        "badges": [
+          "DEPRECATED"
+        ]
+      },
+      {
+        "id": "FUNC-008",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-009",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-010",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-011",
+        "badges": [
+          "ACTIVE"
+        ]
+      },
+      {
+        "id": "FUNC-012",
+        "badges": [
+          "PLANNED"
+        ]
+      },
+      {
+        "id": "US-001-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "US-001-02",
+        "badges": [
+          "NOT COVERED"
+        ]
+      },
+      {
+        "id": "US-001-04",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "US-002-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "US-002-02",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "US-002-03",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "US-003-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-001-01",
+        "badges": [
+          "PARTIALLY COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-001-02",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-002-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-005-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-005-02",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-005-03",
+        "badges": [
+          "PARTIALLY COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-006-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-006-02",
+        "badges": [
+          "NOT COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-007-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-008-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-008-02",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-008-03",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-009-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-009-02",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-010-01",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-010-02",
+        "badges": [
+          "COVERED"
+        ]
+      },
+      {
+        "id": "FUNC-011-01",
+        "badges": [
+          "COVERED"
+        ]
+      }
+    ],
+    "scenarios": [
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-borrows-an-available-book",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-is-offered-a-loan-slip",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/applicant-joins-the-library",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature/desk-staff-register-a-resident",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature/clearing-the-filters-restores-every-result",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature/results-are-ordered-by-recent-loans",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/future-date-of-birth-is-rejected",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature/joining-creates-a-membership",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature/member-prints-a-loan-slip",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/results-are-ordered-by-relevance",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/results-are-ordered-newest-first",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-with-loans-sees-their-loans",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/total-fines-add-up-across-loans",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature/signed-in-member-is-redirected-to-my-loans",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/adult-applicant-gets-an-adult-card",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/junior-applicant-gets-a-junior-card",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature/filtering-by-author-keeps-only-that-authors-books",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-name-is-rejected",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-date-of-birth-is-rejected",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/empty-address-is-rejected",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/filling-in-the-name-clears-its-error",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature/filling-in-the-date-of-birth-clears-its-error",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/relevance-order-continues-on-the-next-page",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/newest-first-order-continues-on-the-next-page",
+      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/a-settled-fine-is-left-out-of-the-total"
+    ],
+    "not_loaded": []
+  }
+}
