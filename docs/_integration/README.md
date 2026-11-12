@@ -18,6 +18,8 @@ machine that can reach them.
   `living-doc-generator-markdown` in each view.
 - The release go/no-go, in `go-no-go/`, decides whether the three components may be tagged. It is one testbed run of
   the same runner, on the commits the release will tag.
+- The release milestone, in `MS3/`, runs the same runner over the testbed with every component at the tag
+  `living-doc` `v0.1.0` lists, and compares its output with the go/no-go's.
 
 This folder holds each gate's, milestone's and release check's report and the data from its runs, so a later run can
 be compared with this one.
@@ -105,6 +107,11 @@ docs/_integration/
     testbed-core/                the runner's output root for the release run
       env.local                  the runner's configuration, its refs left empty for the operator
       …                          once the release run wrote them, the same files as MS1/testbed-core/
+  MS3/
+    report.md                    the release milestone report, started from MS1's
+    testbed-core/                the runner's output root, every component at its released tag
+      env.local                  the runner's configuration, committed
+      …                          the same files as MS1/testbed-core/
 ```
 
 The runner's clones of the components and the testbed live in `out/` at the repository's root, which git ignores,
@@ -280,7 +287,8 @@ The configuration is `tests/integration/.env.local`, which git ignores. Its keys
 [`tests/integration/.env.local.example`](../../tests/integration/.env.local.example). A relative path resolves against
 the `living-doc` checkout.
 
-- **The testbed.** Its configuration is committed: [`MS1/testbed-core/env.local`](MS1/testbed-core/env.local).
+- **The testbed.** Its configuration is committed: [`MS1/testbed-core/env.local`](MS1/testbed-core/env.local), and,
+  with every component at its released tag, [`MS3/testbed-core/env.local`](MS3/testbed-core/env.local).
   `TARGET=testbed` makes the runner clone `living-doc-testbed` at `master` and configure `core` as the CI testbed stage
   does; no internal access is needed.
 
@@ -427,10 +435,16 @@ each view's folders too. To keep the earlier run, rename its folder first, for e
 `mv internal/absa-1 internal/absa-1.2026-10-15`. Later gates and milestones use the same labels
 (`G2/internal/absa-1`, `MS1/internal/absa-1`), so a target's runs line up.
 
-A gate compares its collector artifacts with the previous gate's `testbed-core/`. A milestone compares its collector
-artifacts and its inner view's toolkit outputs with the toolkit's baseline, `G2/testbed-core/`: G2 ran the inner view
-only, so the release view's outputs and the documents are first recorded by the first milestone. To compare two
-artifacts of the same target, replace the values that change with every run (timestamps, run
+A gate compares its collector artifacts with the previous gate's `testbed-core/`. A milestone or the release go/no-go
+compares its run with the last committed run of the chain before it:
+
+- the first milestone, its collector artifacts and its inner view's toolkit outputs with the toolkit's baseline,
+  `G2/testbed-core/`: G2 ran the inner view only, so the release view's outputs and the documents are first recorded
+  by the first milestone;
+- the release go/no-go, its eight artifacts and six documents with `MS1/testbed-core/`;
+- the release milestone, the same with `go-no-go/testbed-core/`, which ran the same component commits.
+
+To compare two artifacts of the same target, replace the values that change with every run (timestamps, run
 metadata, the commit in each permalink) and diff the rest:
 
 ```shell
@@ -441,8 +455,10 @@ diff -u old.json new.json
 ```
 
 A difference is then a change in what was mined or in the producer's version, nothing else. For counts only, set the
-two logs' `stats.cardinality` and `warnings:` blocks side by side. For a toolkit output, the inner view's, compare
-`<new>/inner/toolkit/…` with `G2/testbed-core/toolkit/…` the same way.
+two logs' `stats.cardinality` and `warnings:` blocks side by side. Compare a toolkit output the same way:
+`<new>/inner/toolkit/…` with `G2/testbed-core/toolkit/…`, or `<new>/<view>/toolkit/…` with the same view's in an
+earlier milestone or go/no-go run. Compare the documents and their run reports byte for byte: they hold no
+timestamp, so a difference is a change in what was rendered or in a version.
 
 ## Before you commit
 
