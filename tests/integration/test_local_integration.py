@@ -17,8 +17,9 @@
 testbed run's verdict.
 
 Run: ``python -m pytest tests/integration -q`` (needs pytest, bash and ``living-doc-utilities``, which
-``tests/examples/requirements-examples-check.txt`` installs). Each case copies the runner, the pins and the pin report
-into ``tmp_path``, writes a configuration there, and runs the runner with a fake ``git`` first on ``PATH``. For the
+``tests/examples/requirements-examples-check.txt`` installs). Each case copies the runner and the pin report into
+``tmp_path``, writes a pins file of full SHAs (``TEST_PINS``, so no case depends on the real pins or on which tags a
+remote has) and a configuration there, and runs the runner with a fake ``git`` first on ``PATH``. For the
 refusals, that ``git`` answers every ``ls-remote`` with "no such tag" and fails any other command, so a clone would
 show in its log. For the chain, its ``clone`` makes a folder holding a stand-in ``local-integration.sh``, which records
 each call and its ``.env.local``, fails where ``FAIL_AT`` says, and otherwise writes what the real script writes: the
@@ -161,6 +162,10 @@ print("  OK: the stand-in collector check")
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
 TAG = "v9.9.9"
+# What a run falls back to when its configuration names no ref: full SHAs, which the runner accepts without a remote.
+TEST_PINS = ("COLLECTOR_GH_REF=1111111111111111111111111111111111111111\n"
+             "TOOLKIT_REF=2222222222222222222222222222222222222222\n"
+             "GENERATOR_MARKDOWN_REF=3333333333333333333333333333333333333333\n")
 COMPONENTS = ("living-doc-collector-gh", "living-doc-toolkit", "living-doc-generator-markdown")
 DOCUMENTS = ("technical-project", "ui-test-catalog", "coverage-matrix")
 
@@ -171,11 +176,12 @@ def python_setting() -> str:
 
 
 def install(tmp_path: Path, config: str, fake_git: str) -> None:
-    """A copy of the runner, the pins and the pin report in ``tmp_path``, with ``config`` and ``fake_git``."""
-    for source, folder in ((RUNNER, "integration"), (PINS, "collector"), (PIN_REPORT, "examples"),
-                           (CHECKER_REQUIREMENTS, "examples")):
+    """A copy of the runner and the pin report in ``tmp_path``, ``TEST_PINS`` as its pins, ``config`` and ``fake_git``."""
+    for source, folder in ((RUNNER, "integration"), (PIN_REPORT, "examples"), (CHECKER_REQUIREMENTS, "examples")):
         (tmp_path / "tests" / folder).mkdir(parents=True, exist_ok=True)
         shutil.copy(source, tmp_path / "tests" / folder / source.name)
+    (tmp_path / "tests" / "collector").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "tests" / "collector" / PINS.name).write_text(TEST_PINS, encoding="utf-8", newline="\n")
     (tmp_path / "tests" / "integration" / ".env.local").write_text(config, encoding="utf-8")
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()

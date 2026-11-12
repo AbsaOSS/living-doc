@@ -145,7 +145,7 @@
     "producer": {
       "build": null,
       "name": "AbsaOSS/living-doc-toolkit",
-      "utilities_version": "0.8.0",
+      "utilities_version": "0.8.1",
       "version": "0.1.0"
     },
     "run": {
@@ -174,8 +174,8 @@
         "producer": {
           "build": null,
           "name": "AbsaOSS/living-doc-collector-gh",
-          "utilities_version": "0.8.0",
-          "version": "0.1.1"
+          "utilities_version": "0.8.1",
+          "version": "0.2.0"
         },
         "run": {
           "actor": null,
@@ -571,8 +571,8 @@
         "producer": {
           "build": null,
           "name": "AbsaOSS/living-doc-collector-gh",
-          "utilities_version": "0.8.0",
-          "version": "0.1.1"
+          "utilities_version": "0.8.1",
+          "version": "0.2.0"
         },
         "run": {
           "actor": null,

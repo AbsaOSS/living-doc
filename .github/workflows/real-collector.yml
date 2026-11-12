@@ -16,8 +16,8 @@
 # Runs the REAL living-doc-collector-gh (`doc-source` + `ui-tests`) over docs/examples/, then the REAL
 # living-doc-toolkit (`normalize-docs`, `coverage-matrix`, `normalize-tests`) over what it mined, each in a venv of its
 # own built from its runtime requirements.txt at the ref pinned in tests/collector/collector-pins.env, and:
-#   1. reports the living-doc-utilities pin of each component (tests/examples/check_utilities_pins.py) - a minor skew
-#      is a warning here; gates run the report with --strict,
+#   1. reports the living-doc-utilities pin of each component (tests/examples/check_utilities_pins.py --strict) - a
+#      minor skew fails the job,
 #   2. validates each artifact against its contract and asserts its content (tests/examples/check_collector_stage.py,
 #      tests/examples/check_toolkit_stage.py),
 #   3. snapshot-tests the normalized JSON against docs/examples/_expected/{collector-gh,toolkit}/.
@@ -85,7 +85,7 @@ jobs:
           python-version: "3.14"
 
       - name: Report the living-doc-utilities pins
-        run: python tests/examples/check_utilities_pins.py
+        run: python tests/examples/check_utilities_pins.py --strict
 
       - name: Run the pinned collector-gh and toolkit over the corpus, validate and assert
         run: tests/examples/regen-collector-snapshots.sh "${{ runner.temp }}/actual"
