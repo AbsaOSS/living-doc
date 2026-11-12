@@ -25,6 +25,7 @@ import pytest
 import yaml
 
 from pages import (
+    ANCHOR_PAGES,
     CARD_MAX_LINES,
     CARDS,
     CONCEPT_PAGES,
@@ -451,10 +452,15 @@ def test_a_reference_definition_nothing_uses_does_not_reach():
 # --- No anchors, no YAML on a conceptual page ----------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("page", (*PAGES, *CARDS))
+@pytest.mark.parametrize("page", tuple(page for page in (*PAGES, *CARDS) if page not in ANCHOR_PAGES))
 def test_page_carries_no_anchor(page):
-    """No page carries a `path::symbol` anchor."""
+    """No page carries a `path::symbol` anchor, except a page whose anchors are search keys."""
     assert check_no_anchor(page, read_page(page)) == []
+
+
+def test_every_page_allowed_anchors_is_a_page():
+    """An exemption names a listed page, so it cannot outlive the page."""
+    assert set(ANCHOR_PAGES) <= set(PAGES)
 
 
 def test_planted_anchor_is_reported_and_one_in_a_code_block_is_not():

@@ -19,6 +19,8 @@ Not here: each tool's own docs (its repository) and the agentic layer's guides (
 | `projects/` | one card per repository, `agentic.md` for `agentic/`; `agentic-toolkit.md` is a redirect stub |
 | `examples/` | the canonical minimal input corpus; `_expected/` holds what the pinned collector mines from it and the pinned toolkit writes from that |
 | `_integration/` | gate, milestone and release go/no-go reports from local integration runs, one folder per gate (`G1/`, `G2/`), milestone (`MS1/`, `MS3/`) or the release check (`go-no-go/`); a milestone and the release check run `tests/integration/local-integration.sh` |
+| `_archive/` | `decisions.md`: the decisions behind the current design and those binding planned work, one row each with its reason and the page holding its rule; append-only (a replacing decision gets a new row naming the one it replaces), not canon, numbers keep their original value |
+| `_backlog/` | `debt-overview.md`: one row per open tech-debt or epic issue of the seven repositories, four cells (link, topics, anchors, wake tag) and no issue data; its § Rules govern it, and `tests/docs/debt_overview_check.py` holds it to GitHub |
 
 ## Contracts
 
@@ -28,6 +30,7 @@ Not here: each tool's own docs (its repository) and the agentic layer's guides (
 - `authoring-formats` and `glossary` have generated copies in `agentic/.claude/skills/living-doc-shared/references/` (`agentic/scripts/sync-canon-copies.sh`); a change to either triggers `agentic-tests.yml`.
 - Any change under `docs/`, or to `README.md` or `CONTRIBUTING.md`, triggers `examples-check.yml`, which validates `examples/`, the pairs in `guides/authoring-documentation.md` and the codes in `reference/errors.md` with `tests/examples/examples_check.py`, and checks every page against the page rules with `tests/docs/test_page_structure.py`.
 - Every change triggers `retired-names.yml`: no retired artifact, field or command name in any file here (`tests/docs/retired_names_check.py` holds the names).
+- A change to `_backlog/debt-overview.md` triggers `debt-overview.yml`, which also runs weekly: `tests/docs/debt_overview_check.py` fails on an open tech-debt or epic issue without a row, a row whose issue is closed, unlabelled or missing, a tag on neither list, a duplicate or a malformed row. A row leaves only after its issue closes, so a PR that fixes a debt leaves its row; the weekly run opens or comments on one Documentation Task issue. The page is the one page allowed `path::symbol` (`ANCHOR_PAGES` in `tests/docs/pages.py`).
 
 ## Conventions
 

@@ -5,6 +5,7 @@
 This page is how to contribute to this repository: reporting bugs and proposing features, branches and pull
 requests, the rules every page follows, the checks over the corpus and the testbed, and the agentic layer. It also
 holds the rules the ecosystem's repositories share: releases, versions, changes across repositories and conventions.
+Why the ecosystem is designed as it is: the [decision archive](docs/_archive/decisions.md).
 
 ## Contents
 
@@ -32,6 +33,8 @@ holds the rules the ecosystem's repositories share: releases, versions, changes 
 
 * **Check if the feature has already been requested** by searching through our **[GitHub Issues](https://github.com/AbsaOSS/living-doc/issues)**.
 * If the feature request doesn't exist, feel free to create a new one, using the **Feature Request** GitHub issue template.
+* The planned epics and the known technical debt of the ecosystem's repositories are listed, by search keys, in the
+  [debt overview](docs/_backlog/debt-overview.md).
 
 ## Branch Naming
 
@@ -88,7 +91,7 @@ is needed.
 | L3 | `docs/tutorials/` | one copy-pasteable pipeline, complete |
 | L4 | `docs/reference/` | the only level that defines a fact |
 | L5 | `docs/projects/` | one card per repository, at most 25 lines: role, files in and out, README link; no input table |
-| D | `CONTRIBUTING.md`, `docs/_integration/README.md` | contributing to and running this repository; the rules the ecosystem's repositories share |
+| D | `CONTRIBUTING.md`, `docs/_integration/README.md`, `docs/_archive/`, `docs/_backlog/` | contributing to and running this repository; the rules the ecosystem's repositories share; the decisions behind the design and the open debt |
 
 Not pages: every `CONTEXT.md`, `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.github/`, `.local_context/`, `agentic/` (its
 own rules, in [`agentic/CONTRIBUTING.md`](agentic/CONTRIBUTING.md)), `tests/`, the mined inputs under
@@ -102,7 +105,8 @@ own rules, in [`agentic/CONTRIBUTING.md`](agentic/CONTRIBUTING.md)), `tests/`, t
 3. A reference fact is linked, never restated.
 4. Nothing planned is described as available: a page that presents a planned part says so in one line.
 5. Every page is within three links of `README.md` *(checked)*.
-6. No page carries a `path::symbol` anchor *(checked)*.
+6. No page carries a `path::symbol` anchor *(checked)*, except the [debt overview](docs/_backlog/debt-overview.md),
+   whose anchors are search keys.
 
 **Page anatomy.**
 
