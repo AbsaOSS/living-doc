@@ -158,7 +158,7 @@ ref and commit the regenerated snapshots in the same PR. `generator-markdown` fe
 alone regenerates nothing. `python tests/examples/check_utilities_pins.py` prints the
 `living-doc-utilities` version pinned by the collector, the toolkit, `generator-markdown` and the corpus
 checker (`tests/examples/requirements-examples-check.txt`) and warns on a minor-version skew; `--strict`
-makes that a failure.
+makes that a failure, and the snapshot job in `real-collector.yml` runs it so.
 
 [Authoring documentation § What the pipeline also accepts](docs/guides/authoring-documentation.md#what-the-pipeline-also-accepts)
 shows each corrected variant as a before/after pair copied from `living-doc-utilities`'

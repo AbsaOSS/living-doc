@@ -28,7 +28,7 @@ Next: [Negative testbed cases](testbed/negative-cases.md).
 |---|---|---|---|
 | static | `examples-check.yml` · `examples-check` | `docs/examples/`, without a collector; the authoring guide and `docs/reference/errors.md` | the corpus's grammar and cross-references; each before/after pair of the guide is its `living-doc-utilities` normalisation case at the installed version's tag, fetched; the page's codes are the installed registry's |
 | pages | `examples-check.yml` · `examples-check`, on a change to `README.md`, `CONTRIBUTING.md` or `docs/**` | every page of this repository | the page rules of [CONTRIBUTING.md § Writing documentation](../CONTRIBUTING.md#writing-documentation): Purpose then Contents, the `Contents` links, the cards and redirects (no page links a redirect), no YAML on a conceptual page, no anchor, every page within three links of `README.md`, every page under a path filter of `examples-check.yml` |
-| snapshot | `real-collector.yml` · `real-collector-snapshot` | `docs/examples/`, mined, then through the toolkit | the corpus's first-stage content, the toolkit's output, then no diff against `docs/examples/_expected/` |
+| snapshot | `real-collector.yml` · `real-collector-snapshot` | the components' and the corpus checker's `living-doc-utilities` pins; `docs/examples/`, mined, then through the toolkit | one `living-doc-utilities` minor across the pins; the corpus's first-stage content, the toolkit's output, then no diff against `docs/examples/_expected/` |
 | testbed | `real-collector.yml` · `testbed-collector-stage` | the testbed's `core`, mined, then through the toolkit | invariants over both, then exactly one warning per derived case |
 | retired names | `retired-names.yml` · `retired-names`, every PR and push to `master` | the tracked files of this repository and of `collector-gh`, `toolkit` and `generator-markdown` at their pins | no retired artifact, field or command name outside `tests/`, changelogs, `collector-gh`'s `doc_issues/` and the allow-list |
 
@@ -132,7 +132,7 @@ tests. How to run it and record the run: [Integration runs](../docs/_integration
 | [`examples/examples_check.py`](examples/examples_check.py) | static | the corpus checker, and the authoring guide's pairs and the error codes against `living-doc-utilities` |
 | [`examples/test_examples_check.py`](examples/test_examples_check.py) | static | the corpus checker's tests |
 | [`examples/requirements-examples-check.txt`](examples/requirements-examples-check.txt) | static | the corpus checker's pinned requirements, `living-doc-utilities` among them |
-| [`examples/check_utilities_pins.py`](examples/check_utilities_pins.py) | snapshot | the `living-doc-utilities` pin report, collector, toolkit, `generator-markdown` and corpus checker; the CI job's first step |
+| [`examples/check_utilities_pins.py`](examples/check_utilities_pins.py) | snapshot | the `living-doc-utilities` pin report, collector, toolkit, `generator-markdown` and corpus checker; the CI job's first step, with `--strict` |
 | [`examples/test_check_utilities_pins.py`](examples/test_check_utilities_pins.py) | — | the pin report's tests; run by `examples-check.yml`, which has `pytest` |
 | [`examples/test_normalize_snapshot.py`](examples/test_normalize_snapshot.py) | — | the snapshot normalizer's tests; run by `examples-check.yml` |
 | [`examples/regen-collector-snapshots.sh`](examples/regen-collector-snapshots.sh) | snapshot | the runner; writes `docs/examples/_expected/` or a directory to diff against it |
