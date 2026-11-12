@@ -60,7 +60,12 @@ PAGES: tuple[str, ...] = (
     "docs/reference/errors.md",
     "docs/examples/README.md",
     "docs/_integration/README.md",
+    "docs/_archive/decisions.md",
+    "docs/_backlog/debt-overview.md",
 )
+
+# The pages whose anchors are search keys, not a description of code, so they may carry `path::symbol`.
+ANCHOR_PAGES: tuple[str, ...] = ("docs/_backlog/debt-overview.md",)
 
 # The project cards: `## Purpose`, no `## Contents`, at most CARD_MAX_LINES lines.
 CARDS: tuple[str, ...] = (

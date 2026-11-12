@@ -4,8 +4,8 @@
 
 This page is for contributors who run, debug or extend the checks here: the static check of
 `docs/examples/` and of two pages against `living-doc-utilities`, the two stages that mine with the pinned
-`living-doc-collector-gh` and run the pinned `living-doc-toolkit` over what it mined, and the
-retired-names check over this repository and the pinned components.
+`living-doc-collector-gh` and run the pinned `living-doc-toolkit` over what it mined, the
+retired-names check over this repository and the pinned components, and the debt overview's drift check.
 
 Read before: [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots)
 and [§ The collector stage over the testbed](../CONTRIBUTING.md#the-collector-stage-over-the-testbed).
@@ -27,16 +27,20 @@ Next: [Negative testbed cases](testbed/negative-cases.md).
 | Stage | Workflow · job | Reads | Asserts |
 |---|---|---|---|
 | static | `examples-check.yml` · `examples-check` | `docs/examples/`, without a collector; the authoring guide and `docs/reference/errors.md` | the corpus's grammar and cross-references; each before/after pair of the guide is its `living-doc-utilities` normalisation case at the installed version's tag, fetched; the page's codes are the installed registry's |
-| pages | `examples-check.yml` · `examples-check`, on a change to `README.md`, `CONTRIBUTING.md` or `docs/**` | every page of this repository | the page rules of [CONTRIBUTING.md § Writing documentation](../CONTRIBUTING.md#writing-documentation): Purpose then Contents, the `Contents` links, the cards and redirects (no page links a redirect), no YAML on a conceptual page, no anchor, every page within three links of `README.md`, every page under a path filter of `examples-check.yml` |
+| pages | `examples-check.yml` · `examples-check`, on a change to `README.md`, `CONTRIBUTING.md` or `docs/**` | every page of this repository | the page rules of [CONTRIBUTING.md § Writing documentation](../CONTRIBUTING.md#writing-documentation): Purpose then Contents, the `Contents` links, the cards and redirects (no page links a redirect), no YAML on a conceptual page, no anchor but on the debt overview, every page within three links of `README.md`, every page under a path filter of `examples-check.yml` |
 | snapshot | `real-collector.yml` · `real-collector-snapshot` | the components' and the corpus checker's `living-doc-utilities` pins; `docs/examples/`, mined, then through the toolkit | one `living-doc-utilities` minor across the pins; the corpus's first-stage content, the toolkit's output, then no diff against `docs/examples/_expected/` |
 | testbed | `real-collector.yml` · `testbed-collector-stage` | the testbed's `core`, mined, then through the toolkit | invariants over both, then exactly one warning per derived case |
 | retired names | `retired-names.yml` · `retired-names`, every PR and push to `master` | the tracked files of this repository and of `collector-gh`, `toolkit` and `generator-markdown` at their pins | no retired artifact, field or command name outside `tests/`, changelogs, `collector-gh`'s `doc_issues/` and the allow-list |
+| debt overview | `debt-overview.yml` · `check`, on a change to the page or its check, by hand and weekly | `docs/_backlog/debt-overview.md`; the open tech-debt and epic issues of the seven repositories, through the GitHub API | one row per open issue, no row for a closed, unlabelled or missing one, every tag on its list, no duplicate or malformed row |
 
 - The snapshot and testbed stages share one collector and one toolkit, each in a venv of its own.
 - Static rules: the module docstring of [`examples/examples_check.py`](examples/examples_check.py).
 - Retired names, and what the check skips: the module docstring of
   [`docs/retired_names_check.py`](docs/retired_names_check.py). Run it locally with a clone of each
   component at its pin: `python tests/docs/retired_names_check.py --strict <collector-gh> <toolkit> <generator-markdown>`.
+- Debt overview drift, its findings and exit codes: the module docstring of
+  [`docs/debt_overview_check.py`](docs/debt_overview_check.py). Run it locally:
+  `GH_TOKEN=$(gh auth token) python tests/docs/debt_overview_check.py`.
 - Snapshot procedure (regenerate, commit, bump the pin):
   [CONTRIBUTING.md § Regenerating the collector snapshots](../CONTRIBUTING.md#regenerating-the-collector-snapshots).
 - From [The testbed stage](#the-testbed-stage) on, this page covers the testbed stage only.
@@ -127,7 +131,9 @@ tests. How to run it and record the run: [Integration runs](../docs/_integration
 | [`docs/retired_names_check.py`](docs/retired_names_check.py) | retired names | the check and its list of retired names |
 | [`docs/retired-names-allow.txt`](docs/retired-names-allow.txt) | retired names | the files of this repository whose hits are not uses, each with its reason |
 | [`docs/test_retired_names_check.py`](docs/test_retired_names_check.py) | — | the check's tests; run by `examples-check.yml`, which has `pytest` |
-| [`docs/pages.py`](docs/pages.py) | pages | the page, card and redirect lists, and the hand-written Markdown parser the page checks use |
+| [`docs/debt_overview_check.py`](docs/debt_overview_check.py) | debt overview | the drift check, and the seven repositories and four labels it reads |
+| [`docs/test_debt_overview_check.py`](docs/test_debt_overview_check.py) | — | the drift check's tests, offline; run by `examples-check.yml`, which has `pytest` |
+| [`docs/pages.py`](docs/pages.py) | pages | the page, card and redirect lists, the page allowed `path::symbol`, and the hand-written Markdown parser the page checks use |
 | [`docs/test_page_structure.py`](docs/test_page_structure.py) | pages | the page rules over every page, each with a planted violation |
 | [`examples/examples_check.py`](examples/examples_check.py) | static | the corpus checker, and the authoring guide's pairs and the error codes against `living-doc-utilities` |
 | [`examples/test_examples_check.py`](examples/test_examples_check.py) | static | the corpus checker's tests |

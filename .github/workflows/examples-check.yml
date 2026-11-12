@@ -79,9 +79,9 @@ jobs:
       - name: Self-test the snapshot normalizer
         run: python -m pytest tests/examples/test_normalize_snapshot.py -q
 
-      # The page rules of CONTRIBUTING.md § Writing documentation over every page, and the retired-names
-      # check's self-test.
-      - name: Check the pages, and self-test the retired-names check
+      # The page rules of CONTRIBUTING.md § Writing documentation over every page, and the self-tests of the
+      # retired-names check and the debt overview's drift check.
+      - name: Check the pages, and self-test the retired-names and debt overview checks
         run: python -m pytest tests/docs -q
 
       # The runner's refusals that need no network; no workflow runs the chain itself.

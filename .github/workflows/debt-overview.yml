@@ -1,0 +1,122 @@
+#
+# Copyright 2026 ABSA Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Compares docs/_backlog/debt-overview.md with the open tech-debt and epic issues of the seven repositories
+# (tests/docs/debt_overview_check.py), on a PR that changes the page or the check, by hand and weekly. A weekly run
+# that finds drift opens one Documentation Task issue listing the findings, or comments on the one already open;
+# nothing is committed. A run that cannot read the page or GitHub (exit 2) fails and files nothing. The weekly schedule
+# is this check's own (owner decision); real-collector.yml stays without one. The check's own tests, among them the
+# offline parse of the page through tests/docs/pages.py, run in examples-check.yml, which has pytest; pages.py is
+# therefore not in this filter, so a page-rule change is not blocked by drift it did not cause.
+
+name: "Debt overview"
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    paths:
+      - "docs/_backlog/debt-overview.md"
+      - "tests/docs/debt_overview_check.py"
+      - ".github/workflows/debt-overview.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
+
+# Only a PR's newer push cancels a run: a manual run must never cancel the weekly one before its report.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: The debt overview matches the open issues
+    runs-on: ubuntu-latest
+    outputs:
+      findings: ${{ steps.check.outputs.findings }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      # The findings go to the step's outputs before the job fails, so the report job can read them.
+      - name: Compare the page with the open issues
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          python tests/docs/debt_overview_check.py > "$RUNNER_TEMP/findings.txt"
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/findings.txt"
+          {
+            echo "status=$status"
+            echo "findings<<FINDINGS_END"
+            cat "$RUNNER_TEMP/findings.txt"
+            echo "FINDINGS_END"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Fail on drift, or when the page or GitHub cannot be read
+        if: steps.check.outputs.status != '0'
+        env:
+          STATUS: ${{ steps.check.outputs.status }}
+        run: |
+          echo "::error::debt_overview_check.py exited $STATUS (1: drift, listed above; 2: the page or GitHub cannot be read)."
+          exit 1
+
+  report:
+    name: Open or update the drift issue
+    needs: check
+    if: always() && github.event_name == 'schedule' && needs.check.outputs.findings != ''
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open the Documentation Task issue, or comment on the open one
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          FINDINGS: ${{ needs.check.outputs.findings }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          title="Bring the debt overview in line with the open issues"
+          findings=$(printf '```text\n%s\n```\n' "$FINDINGS")
+          number=$(gh issue list --state open --label type:documentation --limit 200 --json number,title \
+            --jq "map(select(.title == \"$title\")) | .[0].number // empty")
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body "$(printf 'The weekly drift check still finds drift ([run](%s)):\n\n%s' \
+              "$RUN_URL" "$findings")"
+          else
+            gh issue create --title "$title" --label type:documentation --body "$(printf '%s\n' \
+              '### Summary' '' \
+              'The weekly drift check found that `docs/_backlog/debt-overview.md` no longer matches the open tech-debt and epic issues.' '' \
+              '### Current State (If Updating)' '' \
+              "$findings" '' \
+              '### Proposed Changes' '' \
+              'Add, remove or correct the rows the findings name, by the page'"'"'s § Rules, then run `python tests/docs/debt_overview_check.py`.' '' \
+              '### Dependencies / References' '' \
+              "The run: $RUN_URL")"
+          fi
