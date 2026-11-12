@@ -1,0 +1,186 @@
+#
+# Copyright 2026 ABSA Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# One-off, for AbsaOSS/living-doc#106: the pull request that adds this file deletes it again once its run is green.
+#
+# Runs the workflow users copy, docs/tutorials/gh-source-to-markdown.md § 2, once, with the three actions called by
+# the tags the tutorial names, over the `core` project of AbsaOSS/living-doc-testbed at the commit the release
+# milestone read (docs/_integration/MS3/testbed-core/env.local). The testbed plays "your repository". Each change to
+# the tutorial's steps is one the tutorial itself names, and the comments mark it:
+#   - the checkout reads the testbed, and the collect step names it instead of `${{ github.repository_owner }}` and
+#     `${{ github.event.repository.name }}`, which here are living-doc's;
+#   - the collect step's paths are the testbed's folders under projects/core/tests/e2e/ (§ 1: "change the paths in
+#     the collect step"), the ones tests/integration/local-integration.sh configures;
+#   - `project-id` is `testbed-core`, the milestone's (§ 2: "Change `your-project`");
+#   - the commit step is left out, so the token is read-only.
+# The tutorial's steps keep their tags, against .github/CONTEXT.md's SHA-pin rule, because the tags are what this run
+# checks; the steps after them are pinned.
+#
+# It fails unless the three documents and their run reports exist, uploads them, and prints how each differs from
+# the release milestone's release-view documents, docs/_integration/MS3/testbed-core/release/generator-markdown/.
+# A difference is printed, not failed: the pull request reports it.
+
+name: "Tutorial workflow by tag"
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tutorial-by-tag:
+    name: The tutorial's workflow by tag over the testbed's core
+    runs-on: ubuntu-latest
+    steps:
+      # --- The tutorial's steps -------------------------------------------------------------------------------------
+      - uses: actions/checkout@v7
+        with:
+          # The testbed, at the commit the release milestone read.
+          repository: AbsaOSS/living-doc-testbed
+          ref: 36a0ee65ad11df7588cd74a505ea1ace1ef7abc9
+          persist-credentials: false
+
+      # toolkit and generator-markdown need Python 3.10 or later on the runner
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      # 1. COLLECT the headers (doc-source) and the scenarios (ui-tests) into output/collector-gh/
+      - name: Collect from source
+        uses: AbsaOSS/living-doc-collector-gh@v0.2.0
+        with:
+          # The milestone's project id.
+          project-id: testbed-core
+          doc-source: true
+          # The testbed's name and its folders under projects/core/tests/e2e/.
+          doc-source-repositories: |
+            [{"organization-name": "AbsaOSS",
+              "repository-name": "living-doc-testbed",
+              "us-paths": ["${{ github.workspace }}/projects/core/tests/e2e/features/liv_doc_us"],
+              "func-paths": ["${{ github.workspace }}/projects/core/tests/e2e/features/liv_doc_func"],
+              "pages-paths": ["${{ github.workspace }}/projects/core/tests/e2e/pages"]}]
+          ui-tests: true
+          ui-tests-repositories: |
+            [{"organization-name": "AbsaOSS",
+              "repository-name": "living-doc-testbed",
+              "paths": ["${{ github.workspace }}/projects/core/tests/e2e/features"]}]
+
+      # 2. NORMALIZE: one toolkit step per document, into output/toolkit/
+      - name: Normalize the documentation
+        uses: AbsaOSS/living-doc-toolkit@v0.1.0
+        with:
+          command: normalize-docs
+          input: output/collector-gh/doc-source/doc-source.json
+          output: output/toolkit/generator-ready.json
+          view: release
+      - name: Normalize the tests
+        uses: AbsaOSS/living-doc-toolkit@v0.1.0
+        with:
+          command: normalize-tests
+          input: output/collector-gh/ui-tests/ui-tests.json
+          output: output/toolkit/ui-test-catalog.json
+      - name: Join them into a coverage matrix
+        uses: AbsaOSS/living-doc-toolkit@v0.1.0
+        with:
+          command: coverage-matrix
+          input: output/collector-gh/doc-source/doc-source.json
+          tests-input: output/collector-gh/ui-tests/ui-tests.json
+          output: output/toolkit/coverage-matrix.json
+          view: release
+
+      # 3. GENERATE one Markdown document per step, each with its run report, into docs/living-doc/
+      - name: Render the technical project
+        uses: AbsaOSS/living-doc-generator-markdown@v0.1.0
+        with:
+          document-type: technical-project
+          source-path: output/toolkit/generator-ready.json
+          output-path: docs/living-doc
+      - name: Render the test catalog
+        uses: AbsaOSS/living-doc-generator-markdown@v0.1.0
+        with:
+          document-type: ui-test-catalog
+          source-path: output/toolkit/ui-test-catalog.json
+          output-path: docs/living-doc
+      - name: Render the coverage matrix
+        uses: AbsaOSS/living-doc-generator-markdown@v0.1.0
+        with:
+          document-type: coverage-matrix
+          source-path: output/toolkit/coverage-matrix.json
+          output-path: docs/living-doc
+
+      # 4. The commit step is left out: the token is read-only.
+
+      # --- The checks -----------------------------------------------------------------------------------------------
+      - name: Check the three documents and their run reports
+        run: |
+          set -euo pipefail
+          missing=0
+          for doc in technical-project ui-test-catalog coverage-matrix; do
+            for file in "docs/living-doc/$doc.md" "docs/living-doc/$doc.run-report.json"; do
+              if [ -s "$file" ]; then
+                echo "written: $file"
+              else
+                echo "::error file=$file::not written, or empty"
+                missing=1
+              fi
+            done
+          done
+          ls -l docs/living-doc
+          exit "$missing"
+
+      - name: Upload the documents and their run reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tutorial-by-tag-living-doc
+          path: docs/living-doc/
+
+      # Checked out after the tutorial's steps, so the collector never sees it beside the testbed.
+      - name: Checkout living-doc for the release milestone's documents
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: living-doc
+          persist-credentials: false
+
+      - name: Compare with the release milestone's release-view documents
+        run: |
+          set -uo pipefail
+          expected=living-doc/docs/_integration/MS3/testbed-core/release/generator-markdown
+          {
+            echo "### Compared with \`docs/_integration/MS3/testbed-core/release/generator-markdown/\`"
+            echo ""
+            echo "| File | Result |"
+            echo "|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+          broken=0
+          for doc in technical-project ui-test-catalog coverage-matrix; do
+            for name in "$doc.md" "$doc.run-report.json"; do
+              echo "== $name"
+              diff -u "$expected/$name" "docs/living-doc/$name"
+              case $? in
+                0) echo "identical"; result="identical" ;;
+                1) result="differs (diff in the step's log)" ;;
+                # 2: a file could not be read, so the comparison itself is broken, not the documents.
+                *) echo "::error file=$expected/$name::cannot compare"; result="not compared"; broken=1 ;;
+              esac
+              echo "| \`$name\` | $result |" >> "$GITHUB_STEP_SUMMARY"
+            done
+          done
+          exit "$broken"
