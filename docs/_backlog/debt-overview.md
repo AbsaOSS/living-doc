@@ -72,6 +72,7 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 - `when:canon-change`: with the next change to the canon in `docs/reference/`.
 - `when:eval-run`: at the next eval run of the agentic layer.
 - `when:issues-source`: when GitHub Issues as a documentation source is built.
+- `when:ado-source`: when Azure DevOps as a documentation source is built.
 - `when:input-checks`: when the authored-input checks are built.
 
 ## Open debt
@@ -105,6 +106,7 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 | [living-doc#134](https://github.com/AbsaOSS/living-doc/issues/134) | `security` `ci` | `aquasec-night-scan.yml` `AQUA_GROUP_ID` `AQUA_REPOSITORY_ID` `url_policy` | `when:security-review` |
 | [living-doc#135](https://github.com/AbsaOSS/living-doc/issues/135) | `ci` | `check-pr-requirements.yml` `test.yml` `dependabot.yml` `Makefile` | `when:new-repo` |
 | [living-doc#136](https://github.com/AbsaOSS/living-doc/issues/136) | `release` | `docs/CONTEXT.md` `collector-pins.env` `-v1.0.0` | `when:release` |
+| [living-doc#144](https://github.com/AbsaOSS/living-doc/issues/144) | `epic` `rendering` `release` | `@skip` `SKIPPED_SCENARIO` `narrative` `coverage-matrix` `ui-test-catalog` | — |
 | [living-doc-collector-gh#162](https://github.com/AbsaOSS/living-doc-collector-gh/issues/162) | `gh-issues` | `SUPPORTED_ISSUE_LABELS` `doc_issues/collector.py` `DocumentedUserStory` | `when:issues-source` |
 | [living-doc-collector-gh#163](https://github.com/AbsaOSS/living-doc-collector-gh/issues/163) | `ci` `action` | `.github/workflows/link-check.yml` `github.action_path` `GITHUB_ACTION_PATH` `check-pr-requirements` `CONTRIBUTING.md` | `when:next-pr` |
 | [living-doc-collector-gh#164](https://github.com/AbsaOSS/living-doc-collector-gh/issues/164) | `diagnostics` | `SOURCE_UNAVAILABLE` `EMPTY_SOURCE` `utils/artifact.py` `source_context` `allow-partial` | `when:allow-partial` |
@@ -123,13 +125,12 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 | [living-doc-utilities#222](https://github.com/AbsaOSS/living-doc-utilities/issues/222) | `parser` `gh-issues` | `issue_body.py::_read_bullets` `MISINDENTED_LINE` `AUTHORING_WARNING` `authoring-formats.md` | `when:issues-source` |
 | [living-doc-utilities#223](https://github.com/AbsaOSS/living-doc-utilities/issues/223) | `parser` `gh-issues` | `parse_issue_body` `framing.py::frame_issue_body` `accounting.py::unplaced_lines` `MALFORMED_AC` `html_to_markdown` | `when:issues-source` |
 | [living-doc-utilities#224](https://github.com/AbsaOSS/living-doc-utilities/issues/224) | `parser` `input-checks` | `living-doc-check` `[project.scripts]` `AUTHORING_ERROR` `REQUIRED_FEATURE_KEYS` | `when:input-checks` |
-| [living-doc-utilities#225](https://github.com/AbsaOSS/living-doc-utilities/issues/225) | `contract` | `NEVER_CARRIED_PATHS` `producer.build` `full_sample` `doc_entities.py` | `when:contract-minor` |
+| [living-doc-utilities#225](https://github.com/AbsaOSS/living-doc-utilities/issues/225) | `contract` | `NEVER_CARRIED_PATHS` `producer.build` `full_sample` `doc_entities.py` | `when:v1` |
 | [living-doc-utilities#226](https://github.com/AbsaOSS/living-doc-utilities/issues/226) | `contract` | `-v1.0.0` `schema_version` `read_artifact` | `when:v1` |
-| [living-doc-utilities#227](https://github.com/AbsaOSS/living-doc-utilities/issues/227) | `dependencies` | `pyproject.toml` `optional-dependencies` `github/rate_limiter.py` `github/decorators.py` `nh3` | `when:utilities-release` |
+| [living-doc-utilities#227](https://github.com/AbsaOSS/living-doc-utilities/issues/227) | `dependencies` | `pyproject.toml` `optional-dependencies` `github/rate_limiter.py` `github/decorators.py` `nh3` | `when:issues-source` |
 | [living-doc-utilities#228](https://github.com/AbsaOSS/living-doc-utilities/issues/228) | `contract` | `EntityCoverage` `coverage_matrix.py` `coverage-matrix` | `when:reported` |
-| [living-doc-utilities#229](https://github.com/AbsaOSS/living-doc-utilities/issues/229) | `contract` `parser` | `AcLink` `STALE_AC_REF` `ui-tests.json` `coverage-matrix` | `when:contract-minor` |
+| [living-doc-utilities#229](https://github.com/AbsaOSS/living-doc-utilities/issues/229) | `contract` `parser` | `AcLink` `STALE_AC_REF` `ui-tests.json` `coverage-matrix` | `when:input-checks` |
 | [living-doc-utilities#230](https://github.com/AbsaOSS/living-doc-utilities/issues/230) | `ci` | `.github/workflows/link-check.yml` `workflow_dispatch` `docs_changed` | `when:next-pr` |
-| [living-doc-utilities#231](https://github.com/AbsaOSS/living-doc-utilities/issues/231) | `parser` | `authoring/normalize.py` `_rewrite_scenario_file` `inline_ac_description` `_report_rewrites` | `when:utilities-release` |
 | [living-doc-utilities#232](https://github.com/AbsaOSS/living-doc-utilities/issues/232) | `contract` `testing` | `component-checks.md` `metadata.stats` `source_inputs` `sources_failed` `FIELD_LOSS` | `when:pilot` |
-| [living-doc-utilities#233](https://github.com/AbsaOSS/living-doc-utilities/issues/233) | `contract` `docs` | `artifact-rules.md` `component-checks.md` `LineageEntry` `check_field_loss` `selected_stats` `FIELD_LOSS` | `when:contract-minor` |
-| [living-doc-utilities#234](https://github.com/AbsaOSS/living-doc-utilities/issues/234) | `contract` | `SourceRef` `scenario_id` `native_id` `normalize-tests` `ui_tests/collector.py` | `when:contract-minor` |
+| [living-doc-utilities#233](https://github.com/AbsaOSS/living-doc-utilities/issues/233) | `contract` `docs` | `artifact-rules.md` `component-checks.md` `LineageEntry` `check_field_loss` `selected_stats` `FIELD_LOSS` | `when:v1` |
+| [living-doc-utilities#234](https://github.com/AbsaOSS/living-doc-utilities/issues/234) | `contract` | `SourceRef` `scenario_id` `native_id` `normalize-tests` `ui_tests/collector.py` | `when:ado-source` |
