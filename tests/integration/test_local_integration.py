@@ -206,9 +206,10 @@ def run(tmp_path: Path, config: str) -> tuple[subprocess.CompletedProcess[str], 
     return invoke(tmp_path)
 
 
-def install_chain(tmp_path: Path, config: str, tag: str = TAG) -> Path:
-    """The runner over ``config`` with the chain's ``git`` and stand-ins, its remote knowing ``tag``, and the verdict's
-    two checks; the folder the stand-ins record in. What the stand-in components write is under ``tmp_path/fixture``."""
+def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Path = CHECKER_REQUIREMENTS) -> Path:
+    """The runner over ``config`` with the chain's ``git`` and stand-ins, its remote knowing ``tag``, each clone's
+    ``requirements.txt`` a copy of ``requirements``, and the verdict's two checks; the folder the stand-ins record in.
+    What the stand-in components write is under ``tmp_path/fixture``."""
     record = tmp_path / "record"
     record.mkdir()
     fixture = tmp_path / "fixture"
@@ -218,7 +219,7 @@ def install_chain(tmp_path: Path, config: str, tag: str = TAG) -> Path:
     stub.write_text(STUB_COMPONENT.format(record=record.as_posix(), fixture=fixture.as_posix(),
                                           python=python_setting()), encoding="utf-8", newline="\n")
     install(tmp_path, config, CHAIN_GIT.format(calls=(tmp_path / "git-calls.txt").as_posix(), tag=tag,
-                                               stub=stub.as_posix(), requirements=CHECKER_REQUIREMENTS.as_posix(),
+                                               stub=stub.as_posix(), requirements=requirements.as_posix(),
                                                sha=SHA))
     checks = tmp_path / "tests" / "testbed"
     checks.mkdir(parents=True)
@@ -293,6 +294,13 @@ def test_a_ref_that_is_neither_a_full_sha_nor_a_tag_is_refused(tmp_path: Path, k
 
     assert_refused(tmp_path, result, git_calls, f"{key} '{ref}'", "neither a full 40-hex commit SHA nor a tag")
     assert any(f"refs/tags/{ref}" in call for call in git_calls), git_calls
+
+
+def test_a_pin_report_setting_other_than_strict_or_warn_is_refused(tmp_path: Path) -> None:
+    result, git_calls = run(tmp_path, "TARGET=testbed\nPIN_REPORT=off\n")
+
+    assert_refused(tmp_path, result, git_calls, "PIN_REPORT 'off'", "not strict or warn")
+    assert git_calls == []
 
 
 def test_a_missing_target_is_refused(tmp_path: Path) -> None:
@@ -659,6 +667,42 @@ def test_a_missing_document_or_run_report_fails_a_testbed_run(tmp_path: Path, mi
 
     assert_failed_check(tmp_path, result, "the six documents and their run reports failed")
     assert result.stderr.splitlines()[-1].endswith(f" {missing}"), result.stderr
+
+
+def candidate_requirements(tmp_path: Path) -> Path:
+    """A component's requirements that pin a release candidate of living-doc-utilities."""
+    path = tmp_path / "candidate-requirements.txt"
+    path.write_text("living-doc-utilities==0.9.0rc1\n", encoding="utf-8")
+    return path
+
+
+def test_a_release_candidate_pin_fails_a_testbed_run_before_its_checks(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run(), requirements=candidate_requirements(tmp_path))
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode != 0
+    assert "pin report:          strict" in result.stdout
+    assert "the pin report failed" in result.stderr.splitlines()[-1], result.stderr
+    assert ("error: toolkit pins the release candidate living-doc-utilities 0.9.0rc1; a gate needs a final version"
+            in read(tmp_path / "run" / "pin-report.txt"))
+    assert "== check:" not in result.stdout
+
+
+def test_pin_report_warn_lets_a_testbed_run_with_a_release_candidate_pin_reach_its_checks(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run() + "PIN_REPORT=warn\n", requirements=candidate_requirements(tmp_path))
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "pin report:          warn (PIN_REPORT=warn): no gate run" in result.stdout
+    assert ("warning: toolkit pins the release candidate living-doc-utilities 0.9.0rc1; a gate needs a final version"
+            in read(tmp_path / "run" / "pin-report.txt"))
+    assert "== check: the toolkit's invariants over both views" in result.stdout
+    last = result.stdout.splitlines()[-1]
+    assert last.startswith(f"{ME}: the chain and the testbed's invariants passed, and the pin report only warned "
+                           "(PIN_REPORT=warn), so this is no gate run: "), last
+    assert read(tmp_path / "run" / "local-integration.log").splitlines()[-1] == last
 
 
 def test_a_project_run_with_a_warning_is_not_judged(tmp_path: Path) -> None:
