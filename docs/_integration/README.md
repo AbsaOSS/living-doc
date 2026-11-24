@@ -348,7 +348,9 @@ output root (`collector-gh/doc-source/`, `collector-gh/ui-tests/`, each view's t
 midway; anything else there, such as the committed `env.local`, stays. An `OUT_DIR` inside the target's checkout or
 the runner's clones in `out/` is refused. The first step that fails stops the run with a non-zero exit and names
 its log, in the terminal and at the end of the runner's own `local-integration.log`. Then it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
-ran (`tests/examples/check_utilities_pins.py --strict`); a skew there fails the run too.
+ran (`tests/examples/check_utilities_pins.py --strict`); a skew or a release candidate pin there fails the run too.
+Between gates, `PIN_REPORT=warn` makes those findings warnings, so a run over components that pin a release
+candidate reaches the testbed's checks. Its header and last line say it is no gate run.
 
 A testbed run then checks its own output with CI's testbed checks
 ([tests/README.md § What the testbed checks assert](../../tests/README.md#what-the-testbed-checks-assert)). Each
@@ -400,7 +402,8 @@ component tag is never re-cut, so this run comes before any tag.
   `tests/integration/.env.local` once its refs are filled. `TARGET=testbed`, and
   `OUT_DIR=docs/_integration/go-no-go/testbed-core`. `TESTBED_REF` is the testbed's `master` as a full commit SHA.
   Each component ref is its candidate's full commit SHA: its `master` once its release pin pull request merged. An
-  empty ref runs the pin, and a tag is cut only after go: neither is a candidate.
+  empty ref runs the pin, and a tag is cut only after go: neither is a candidate. `PIN_REPORT` stays empty, so the
+  pin report is strict.
 - **The run:** [Run a milestone target](#run-a-milestone-target), steps 2 and 3. The testbed run's checks decide.
 - **Go:** the run exits 0. Each component is then tagged at exactly the commit that passed. The release notes name
   the testbed commit the run read.

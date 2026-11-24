@@ -23,6 +23,9 @@ component -> pin table, then:
 
 - a warning when two pins differ in their ``major.minor``, when a component pins no
   ``living-doc-utilities`` at all, or when a pin is not an exact ``==`` version;
+- a warning when a pin is a release candidate, ``==X.Y.ZrcN`` or ``==X.Y.Z-RCn``, read as ``X.Y.ZrcN``: a
+  consumer may pin one between release gates, and every gate needs a final version. Its minor takes part in the
+  skew check, so ``0.9.0rc1`` next to ``0.9.0`` is no skew. Any other pre-release is not an exact version;
 - with ``--strict``, the same findings fail the run (exit 1) - for gates and milestones.
 
 It reports and nothing more: whether the artifacts validate is the snapshot job's own check.
@@ -66,7 +69,8 @@ LOCAL = {
 # `name[extras] <op> <version> ; <marker>` - one requirement line, comments already stripped.
 _REQUIREMENT_RE = re.compile(r"^(?P<name>[A-Za-z0-9][A-Za-z0-9._-]*)\s*(?:\[[^\]]*\])?\s*"
                              r"(?P<spec>[^;]*)")
-_EXACT_RE = re.compile(r"^==\s*(?P<version>\d+(?:\.\d+)*)$")
+# An exact version, or a release candidate of one: `rcN` as PyPI spells it, or `-RCn`, in any case.
+_EXACT_RE = re.compile(r"^==\s*(?P<release>\d+(?:\.\d+)*)(?:-?[rR][cC](?P<candidate>\d+))?$")
 _FETCH_TIMEOUT_SECONDS = 30
 
 
@@ -80,14 +84,26 @@ class Pin:
     source: str             # where the requirements were read from
     spec: Optional[str]     # the version specifier, e.g. '==0.6.0'; None when nothing is pinned
 
+    def _exact(self) -> Optional[re.Match[str]]:
+        return _EXACT_RE.match(self.spec or "")
+
     @property
     def version(self) -> Optional[str]:
-        m = _EXACT_RE.match(self.spec or "")
-        return m.group("version") if m else None
+        """The pinned version, a release candidate as ``X.Y.ZrcN``; None when the pin is not exact."""
+        m = self._exact()
+        if not m:
+            return None
+        return m.group("release") + (f"rc{int(m.group('candidate'))}" if m.group("candidate") else "")
+
+    @property
+    def candidate(self) -> bool:
+        m = self._exact()
+        return bool(m and m.group("candidate"))
 
     @property
     def minor(self) -> Optional[str]:
-        return ".".join(self.version.split(".")[:2]) if self.version else None
+        m = self._exact()
+        return ".".join(m.group("release").split(".")[:2]) if m else None
 
 
 def _canonical(name: str) -> str:
@@ -161,13 +177,16 @@ def collect(pins_file: Path, overrides: dict[str, Path],
 
 
 def findings(pins: list[Pin]) -> list[str]:
-    """What the table does not agree on: a missing or inexact pin, or a minor-version skew."""
+    """What the table does not agree on: a missing or inexact pin, a release candidate, or a minor-version skew."""
     out: list[str] = []
     for pin in pins:
         if pin.spec is None:
             out.append(f"{pin.component} pins no {PACKAGE}")
         elif pin.version is None:
             out.append(f"{pin.component} pins {PACKAGE}{pin.spec}, not one exact '==' version")
+        elif pin.candidate:
+            out.append(f"{pin.component} pins the release candidate {PACKAGE} {pin.version}; "
+                       "a gate needs a final version")
     minors = {pin.minor for pin in pins if pin.minor is not None}
     if len(minors) > 1:
         pinned = ", ".join(f"{pin.component} {pin.version}" for pin in pins if pin.version)

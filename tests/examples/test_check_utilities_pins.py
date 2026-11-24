@@ -26,7 +26,7 @@ from pathlib import Path
 
 import pytest
 
-from check_utilities_pins import main, utilities_spec
+from check_utilities_pins import Pin, main, utilities_spec
 
 COLLECTOR_REQUIREMENTS = """\
 # Runtime dependencies only.
@@ -51,9 +51,10 @@ Jinja2==3.1.6
 @pytest.fixture
 def requirements(tmp_path: Path):
     """Write the four requirements files and return the ``--requirements`` arguments for them."""
-    def write(collector: str, examples_check: str, generator: str = GENERATOR_REQUIREMENTS) -> list[str]:
+    def write(collector: str, examples_check: str, generator: str = GENERATOR_REQUIREMENTS,
+              toolkit: str = TOOLKIT_REQUIREMENTS) -> list[str]:
         (tmp_path / "collector.txt").write_text(collector, encoding="utf-8")
-        (tmp_path / "toolkit.txt").write_text(TOOLKIT_REQUIREMENTS, encoding="utf-8")
+        (tmp_path / "toolkit.txt").write_text(toolkit, encoding="utf-8")
         (tmp_path / "generator.txt").write_text(generator, encoding="utf-8")
         (tmp_path / "examples.txt").write_text(examples_check, encoding="utf-8")
         return ["--requirements", f"collector-gh={tmp_path / 'collector.txt'}",
@@ -128,6 +129,67 @@ def test_inexact_pin_warns(requirements, capsys: pytest.CaptureFixture[str]) -> 
     assert main(args) == 0
     assert ("warning: collector-gh pins living-doc-utilities>=0.6, not one exact '==' version"
             in capsys.readouterr().out)
+
+
+@pytest.mark.parametrize(("spec", "version"), [
+    ("==0.9.0rc1", "0.9.0rc1"),
+    ("==0.9.0-RC1", "0.9.0rc1"),
+    ("==0.9.0RC2", "0.9.0rc2"),
+    ("==0.9.0-rc12", "0.9.0rc12"),
+])
+def test_a_release_candidate_pin_reads_as_the_candidate(spec: str, version: str) -> None:
+    pin = Pin("toolkit", "toolkit.txt", spec)
+
+    assert (pin.version, pin.minor, pin.candidate) == (version, "0.9", True)
+
+
+def test_a_final_pin_is_no_release_candidate() -> None:
+    assert Pin("toolkit", "toolkit.txt", "==0.9.0").candidate is False
+
+
+def test_a_release_candidate_pin_warns_and_fails_with_strict(requirements,
+                                                             capsys: pytest.CaptureFixture[str]) -> None:
+    final = "living-doc-utilities==0.9.0\n"
+    args = requirements(final, final, generator=final, toolkit="living-doc-utilities==0.9.0rc1\n")
+
+    assert main(args) == 0
+    out = capsys.readouterr().out
+    assert any(line.split()[:2] == ["toolkit", "0.9.0rc1"] for line in out.splitlines()), out
+    finding = "toolkit pins the release candidate living-doc-utilities 0.9.0rc1; a gate needs a final version"
+    assert f"warning: {finding}" in out
+    # A candidate of 0.9.0 next to 0.9.0 is no skew.
+    assert "minor-version mismatch" not in out
+    assert main(["--strict", *args]) == 1
+    assert f"error: {finding}" in capsys.readouterr().out
+
+
+def test_release_candidates_next_to_final_pins_report_each_candidate_and_the_skew(
+        requirements, capsys: pytest.CaptureFixture[str]) -> None:
+    final = "living-doc-utilities==0.8.1\n"
+    args = requirements(final, final, generator="living-doc-utilities==0.9.0-RC1\n",
+                        toolkit="living-doc-utilities==0.9.0rc1\n")
+
+    assert main(args) == 0
+    out = capsys.readouterr().out
+    for component in ("toolkit", "generator-markdown"):
+        assert any(line.split()[:2] == [component, "0.9.0rc1"] for line in out.splitlines()), out
+        assert (f"warning: {component} pins the release candidate living-doc-utilities 0.9.0rc1; "
+                "a gate needs a final version") in out
+    assert ("warning: living-doc-utilities minor-version mismatch: collector-gh 0.8.1, toolkit 0.9.0rc1, "
+            "generator-markdown 0.9.0rc1, examples-check 0.8.1") in out
+    assert "not one exact '==' version" not in out
+
+
+@pytest.mark.parametrize("spec", ["==0.9.0a1", "==0.9.0b2", "==0.9.0.dev1", "==0.9.0rc", ">=0.9.0rc1"])
+def test_another_pre_release_or_a_range_is_not_one_exact_version(requirements, spec: str,
+                                                                 capsys: pytest.CaptureFixture[str]) -> None:
+    final = "living-doc-utilities==0.9.0\n"
+    args = requirements(final, final, toolkit=f"living-doc-utilities{spec}\n")
+
+    assert main(args) == 0
+    out = capsys.readouterr().out
+    assert f"warning: toolkit pins living-doc-utilities{spec}, not one exact '==' version" in out
+    assert "release candidate" not in out
 
 
 def test_ci_run_annotates_the_warning(requirements, capsys: pytest.CaptureFixture[str],

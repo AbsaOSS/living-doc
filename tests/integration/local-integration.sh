@@ -36,7 +36,8 @@
 #   <OUT_DIR>/<view>/toolkit/{normalize-docs,normalize-tests,coverage-matrix}/…
 #   <OUT_DIR>/<view>/local-integration.log             the generator's log, beside the folder it clears as a whole
 #   <OUT_DIR>/<view>/generator-markdown/<document type>.md, .run-report.json
-#   <OUT_DIR>/pin-report.txt                           tests/examples/check_utilities_pins.py --strict over the clones
+#   <OUT_DIR>/pin-report.txt                           tests/examples/check_utilities_pins.py --strict over the clones;
+#                                                      PIN_REPORT=warn drops --strict for a run between gates
 #
 # A run first clears the paths the chain writes in the root, so the root holds one run's files even when the run stops
 # midway; anything else there, such as a milestone's env.local, stays. The root may not lie inside the target's checkout
@@ -59,7 +60,7 @@ VIEWS="inner release"
 # Every setting the configuration may hold; a line with any other key stops the run, reported by its number only.
 KEYS="TARGET TESTBED_REF COLLECTOR_GH_REF TOOLKIT_REF GENERATOR_MARKDOWN_REF PROJECT_ID TARGET_CHECKOUT
 ORGANIZATION_NAME REPOSITORY_NAME DOC_SOURCE_US_PATHS DOC_SOURCE_FUNC_PATHS DOC_SOURCE_PAGES_PATHS UI_TESTS_PATHS
-GITHUB_SERVER_URL OUT_DIR PYTHON"
+GITHUB_SERVER_URL OUT_DIR PYTHON PIN_REPORT"
 # The collector's target keys: TARGET=project takes them from the configuration, TARGET=testbed sets them itself.
 PROJECT_KEYS="PROJECT_ID TARGET_CHECKOUT ORGANIZATION_NAME REPOSITORY_NAME DOC_SOURCE_US_PATHS DOC_SOURCE_FUNC_PATHS
 DOC_SOURCE_PAGES_PATHS UI_TESTS_PATHS GITHUB_SERVER_URL"
@@ -138,6 +139,18 @@ case "$CFG_TARGET" in
     [ -z "$CFG_TESTBED_REF" ] || die "TESTBED_REF is set in $ENV_FILE, but TARGET=project reads TARGET_CHECKOUT; empty it"
     ;;
   *) die "TARGET '$CFG_TARGET' in $ENV_FILE is not testbed or project" ;;
+esac
+
+# Every gate and milestone runs the pin report with --strict. Between gates, a component may pin a release candidate of
+# living-doc-utilities, which --strict fails; `warn` lets such a run reach the testbed's checks, and is no gate run.
+case "$CFG_PIN_REPORT" in
+  "" | strict) PIN_STRICT="--strict"; PIN_REPORT_LINE="strict"; PIN_NOTE="" ;;
+  warn)
+    PIN_STRICT=""
+    PIN_REPORT_LINE="warn (PIN_REPORT=warn): no gate run"
+    PIN_NOTE=", and the pin report only warned (PIN_REPORT=warn), so this is no gate run"
+    ;;
+  *) die "PIN_REPORT '$CFG_PIN_REPORT' in $ENV_FILE is not strict or warn" ;;
 esac
 
 # A configured path: `~/` is the home directory, and a relative one resolves against this repository's root.
@@ -324,7 +337,8 @@ say "== $ME" \
   "generator-markdown:  $(commit_of "$GENERATOR") ($(source_of GENERATOR_MARKDOWN_REF))" \
   "target:              $TARGET_LINE" \
   "python:              $PY_VERSION ($PY)" \
-  "output:              $OUT"
+  "output:              $OUT" \
+  "pin report:          $PIN_REPORT_LINE"
 
 # --- The components' configurations ------------------------------------------------------------------------------
 # Each is written into the runner's clone only, as data the component reads; every path is absolute.
@@ -390,7 +404,7 @@ done
 # --- The living-doc-utilities pins of the clones that ran ----------------------------------------------------------
 # Paths relative to this repository's root, so the report names no machine path.
 say "" "== living-doc-utilities pins"
-"$PY" tests/examples/check_utilities_pins.py --strict \
+"$PY" tests/examples/check_utilities_pins.py ${PIN_STRICT:+"$PIN_STRICT"} \
   --requirements "collector-gh=$WORK/components/living-doc-collector-gh/requirements.txt" \
   --requirements "toolkit=$WORK/components/living-doc-toolkit/requirements.txt" \
   --requirements "generator-markdown=$WORK/components/living-doc-generator-markdown/requirements.txt" \
@@ -442,4 +456,4 @@ done
 [ -z "$missing" ] || die "the six documents and their run reports failed; missing under $OUT:$missing"
 say "  OK: each view's technical-project, ui-test-catalog and coverage-matrix, each with its run report"
 
-say "" "$ME: the chain and the testbed's invariants passed: the six documents are under $OUT/{inner,release}/generator-markdown"
+say "" "$ME: the chain and the testbed's invariants passed$PIN_NOTE: the six documents are under $OUT/{inner,release}/generator-markdown"
