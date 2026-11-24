@@ -679,7 +679,8 @@ def candidate_requirements(tmp_path: Path) -> Path:
 def test_a_release_candidate_pin_fails_a_testbed_run_before_its_checks(tmp_path: Path) -> None:
     install_chain(tmp_path, a_testbed_run(), requirements=candidate_requirements(tmp_path))
 
-    result, _ = invoke(tmp_path)
+    # Inside Actions the pin report prints workflow annotations; the plain form is asserted here.
+    result, _ = invoke(tmp_path, GITHUB_ACTIONS="")
 
     assert result.returncode != 0
     assert "pin report:          strict" in result.stdout
@@ -692,7 +693,7 @@ def test_a_release_candidate_pin_fails_a_testbed_run_before_its_checks(tmp_path:
 def test_pin_report_warn_lets_a_testbed_run_with_a_release_candidate_pin_reach_its_checks(tmp_path: Path) -> None:
     install_chain(tmp_path, a_testbed_run() + "PIN_REPORT=warn\n", requirements=candidate_requirements(tmp_path))
 
-    result, _ = invoke(tmp_path)
+    result, _ = invoke(tmp_path, GITHUB_ACTIONS="")
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert "pin report:          warn (PIN_REPORT=warn): no gate run" in result.stdout
