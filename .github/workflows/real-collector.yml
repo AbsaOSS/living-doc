@@ -32,8 +32,8 @@
 # A second job, `testbed-collector-stage`, runs the same pinned collector and toolkit in the same venvs over the `core`
 # project of AbsaOSS/living-doc-testbed, read at its current master (never pinned), and asserts invariants instead of
 # snapshots (tests/testbed/run-testbed-stage.sh -> tests/testbed/check_testbed_stage.py,
-# tests/testbed/check_testbed_toolkit_stage.py): every artifact valid, no warning but a test written ahead's in the
-# coverage matrix (tests/README.md § The testbed stage), every AC tag resolved, the
+# tests/testbed/check_testbed_toolkit_stage.py): every artifact valid, no warning but a test written ahead's or a
+# skipped scenario's in the coverage matrix (tests/README.md § The testbed stage), every AC tag resolved, the
 # cross-reference pages, the folders outside living doc, the keyword ACs, the release view's records, every counted
 # criterion's verdict. Every count is derived from the checkout at run time. It then runs each derived problem case
 # (tests/testbed/testbed_cases.py), collector only, over a copy of `core` and asserts the one warning the case must

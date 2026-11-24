@@ -24,8 +24,8 @@ refusals, that ``git`` answers every ``ls-remote`` with "no such tag" and fails 
 show in its log. For the chain, its ``clone`` makes a folder holding a stand-in ``local-integration.sh``, which records
 each call and its ``.env.local``, fails where ``FAIL_AT`` says, and otherwise writes what the real script writes: the
 first milestone's committed outputs (``docs/_integration/MS1/testbed-core/``), copied to a fixture folder a case may
-change first, and the venv its run builds, here a link to this interpreter. The verdict's toolkit check is the real
-one. The collector check is a stand-in that records its call and fails when ``BREAK_INVARIANT`` is set: the real one
+change first, with one scenario tagged ``@skip`` as today's ``core`` has (``skip_scenario``), and the venv its run
+builds, here a link to this interpreter. The verdict's toolkit check is the real one. The collector check is a stand-in that records its call and fails when ``BREAK_INVARIANT`` is set: the real one
 reads the testbed's own files, which no test holds, and CI's testbed stage runs it. Nothing goes online.
 """
 
@@ -206,15 +206,19 @@ def run(tmp_path: Path, config: str) -> tuple[subprocess.CompletedProcess[str], 
     return invoke(tmp_path)
 
 
-def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Path = CHECKER_REQUIREMENTS) -> Path:
+def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Path = CHECKER_REQUIREMENTS,
+                  skipped: bool = True) -> Path:
     """The runner over ``config`` with the chain's ``git`` and stand-ins, its remote knowing ``tag``, each clone's
     ``requirements.txt`` a copy of ``requirements``, and the verdict's two checks; the folder the stand-ins record in.
-    What the stand-in components write is under ``tmp_path/fixture``."""
+    What the stand-in components write is under ``tmp_path/fixture``: MS1's outputs, with ``SKIPPED_AC``'s only
+    scenario skipped (``skip_scenario``) unless ``skipped`` is false."""
     record = tmp_path / "record"
     record.mkdir()
     fixture = tmp_path / "fixture"
     shutil.copytree(MS1_OUTPUT, fixture, ignore=shutil.ignore_patterns("local-integration.log", "env.local",
                                                                        "pin-report.txt"))
+    if skipped:
+        skip_scenario(fixture)
     stub = tmp_path / "stub-local-integration.sh"
     stub.write_text(STUB_COMPONENT.format(record=record.as_posix(), fixture=fixture.as_posix(),
                                           python=python_setting()), encoding="utf-8", newline="\n")
@@ -227,6 +231,44 @@ def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Pat
     (checks / "check_testbed_stage.py").write_text(
         STAND_IN_COLLECTOR_CHECK.format(calls=(record / "collector-check.txt").as_posix()), encoding="utf-8")
     return record
+
+
+# MS1's `core` has no skipped scenario, and today's `core` does: the testbed's `@skip` on FUNC-009-03's only scenario.
+# The fixture skips a criterion's only scenario the same way, one with no declared values that links nothing else.
+SKIPPED_AC = "FUNC-009-02"
+SKIPPED_SCENARIO_ID = ("AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/"
+                       "func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state")
+
+
+def skip_scenario(fixture: Path) -> None:
+    """Tags ``SKIPPED_SCENARIO_ID`` ``@skip`` in the fixture's ``ui-tests``, and writes each view's matrix as the toolkit
+    does under living-doc-utilities 0.9.0's coverage rule: ``SKIPPED_AC`` not covered, its summaries recomputed, and
+    the link's ``SKIPPED_SCENARIO`` warning."""
+    from living_doc_utilities.contracts.coverage_matrix import AcCoverage, CoverageSummary
+
+    def summary(rows: list[dict]) -> dict:
+        return CoverageSummary.from_rows([AcCoverage.model_validate(row) for row in rows]).model_dump(mode="json")
+
+    ui_tests = fixture / "collector-gh" / "ui-tests" / "ui-tests.json"
+    data = json.loads(ui_tests.read_text(encoding="utf-8"))
+    scenario = next(scenario for scenario in data["scenarios"] if scenario["scenario_id"] == SKIPPED_SCENARIO_ID)
+    assert [link["id"] for link in scenario["acceptance_criteria"]] == [SKIPPED_AC], scenario
+    scenario["tags"].append("@skip")
+    ui_tests.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    for view in ("inner", "release"):
+        matrix = fixture / view / "toolkit" / "coverage-matrix" / "coverage-matrix.json"
+        data = json.loads(matrix.read_text(encoding="utf-8"))
+        for entity in data["entities"]:
+            for row in entity["acceptance_criteria"]:
+                if row["ac_id"] == SKIPPED_AC:
+                    row.update(status="not_covered", scenario_ids=[])
+            entity["summary"] = summary(entity["acceptance_criteria"])
+        data["summary"] = summary([row for entity in data["entities"] for row in entity["acceptance_criteria"]])
+        data["warnings"].append({"code": "SKIPPED_SCENARIO", "message": "planted by the test",
+                                 "context": f"scenario_id={SKIPPED_SCENARIO_ID!r}",
+                                 "entity_id": SKIPPED_AC.rsplit("-", 1)[0], "ac_id": SKIPPED_AC})
+        data["metadata"]["stats"]["cardinality"]["warnings_by_code"]["SKIPPED_SCENARIO"] = 1
+        matrix.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def settings(path: Path) -> dict[str, str]:
@@ -655,6 +697,56 @@ def test_a_broken_toolkit_invariant_fails_a_testbed_run(tmp_path: Path) -> None:
 
     assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
     assert "  FAIL generator-ready.release: holds" in result.stdout
+
+
+def test_a_skipped_scenario_covers_nothing_and_its_warning_passes_a_testbed_run(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "  coverage-matrix.inner: valid (coverage-matrix-v1.0.0); warnings: 1" in result.stdout
+    assert f"      skipped: {SKIPPED_AC}, whose only scenarios are tagged @skip, covered by none" in result.stdout
+    assert "      warnings: 1 in each matrix," in result.stdout
+    assert f"        SKIPPED_SCENARIO for AC:{SKIPPED_AC} (scenario_id={SKIPPED_SCENARIO_ID!r})" in result.stdout
+
+
+def test_a_toolkit_that_counts_a_skipped_scenario_fails_a_testbed_run(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    # A toolkit before living-doc-utilities 0.9.0 counts it: MS1's matrices, the criterion covered and no warning.
+    for view in ("inner", "release"):
+        relative = Path(view) / "toolkit" / "coverage-matrix" / "coverage-matrix.json"
+        shutil.copy(MS1_OUTPUT / relative, tmp_path / "fixture" / relative)
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
+    assert (f"  FAIL coverage-matrix.release: AC:{SKIPPED_AC} is ('covered', {{}}), doc-source and ui-tests give "
+            "('not_covered', {})") in result.stdout
+
+
+def test_a_skipped_scenario_warning_on_a_running_scenario_fails_a_testbed_run(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    matrix = tmp_path / "fixture" / "inner" / "toolkit" / "coverage-matrix" / "coverage-matrix.json"
+    data = json.loads(matrix.read_text(encoding="utf-8"))
+    running = SKIPPED_SCENARIO_ID.rsplit("/", 1)[0] + "/member-with-loans-sees-their-loans"
+    data["warnings"][-1].update(ac_id="FUNC-009-01", context=f"scenario_id={running!r}")
+    matrix.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
+    assert "  FAIL coverage-matrix.inner: warning SKIPPED_SCENARIO entity=FUNC-009: planted by the test" in result.stdout
+
+
+def test_a_testbed_run_over_a_core_that_skips_no_scenario_fails(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run(), skipped=False)
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
+    assert ("  FAIL nothing to assert: the artifacts have no criterion whose only scenarios are skipped"
+            in result.stdout)
 
 
 @pytest.mark.parametrize("missing", ["inner/generator-markdown/coverage-matrix.md",

@@ -360,10 +360,12 @@ runs in its component's venv, and the first that fails stops the run:
 2. the toolkit's invariants over both views: `tests/testbed/check_testbed_toolkit_stage.py --runner`;
 3. the six documents and their run reports exist under each view's `generator-markdown/`.
 
-Any warning in an artifact fails check 1 or 2, but [a test written ahead's](../../tests/README.md#the-testbed-stage).
-Each check's output follows a `== check:` line, in the terminal and in the runner's log. The run exits 0 only when the chain, the pin report and the three checks pass. Its last line names
-the check that failed, or says the chain and the testbed's invariants passed. A project run is not judged: an
-internal project's warnings belong to its authors ([Warnings on an internal target](#warnings-on-an-internal-target)).
+Any warning in an artifact fails check 1 or 2, but
+[a test written ahead's or a skipped scenario's](../../tests/README.md#the-testbed-stage). Each check's output follows a
+`== check:` line, in the terminal and in the runner's log. The run exits 0 only when the chain, the pin report and the
+three checks pass. Its last line names the check that failed, or says the chain and the testbed's invariants passed. A
+project run is not judged: an internal project's warnings belong to its authors
+([Warnings on an internal target](#warnings-on-an-internal-target)).
 
 Run one at a time per `living-doc` checkout: every run shares the clones in `out/` and rewrites their `.env.local`.
 `out/` is the runner's: don't link an existing checkout into it to save a clone. A linked clone is replaced by a fresh
@@ -415,8 +417,8 @@ component tag is never re-cut, so this run comes before any tag.
 ## Warnings on an internal target
 
 The testbed follows the canon 100 %, so any warning over it is a defect, and the gate accepts none but
-[a test written ahead's](../../tests/README.md#the-testbed-stage). An internal repository may deviate from the canon,
-so its warnings do not decide the gate. Its run never blocks the gate. Classify
+[a test written ahead's or a skipped scenario's](../../tests/README.md#the-testbed-stage). An internal repository may
+deviate from the canon, so its warnings do not decide the gate. Its run never blocks the gate. Classify
 each code in the report:
 
 - **authoring**: the file itself deviates from the canon. Record the code and its count; nothing to fix here.

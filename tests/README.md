@@ -120,8 +120,8 @@ names across the repositories, and the page rules), `examples/` (tests `docs/exa
 `integration/local-integration.sh` runs the whole source-code chain on an operator's machine for a milestone run:
 `collector-gh`, then `toolkit` and `generator-markdown` in the inner and the release view, each component cloned at
 its pin or at a named tag or SHA. A testbed run then runs the testbed checks of `testbed/` over its own output, so it
-fails on a broken invariant or on any warning but [a test written ahead's](#the-testbed-stage); it is the release
-go/no-go. No workflow runs it; CI runs only its offline
+fails on a broken invariant or on any warning but [a test written ahead's or a skipped scenario's](#the-testbed-stage);
+it is the release go/no-go. No workflow runs it; CI runs only its offline
 tests. How to run it and record the run: [Integration runs](../docs/_integration/README.md#run-a-milestone-target).
 
 | File | Stage | Holds |
@@ -162,10 +162,12 @@ tests. How to run it and record the run: [Integration runs](../docs/_integration
 Reads the `core` project of [`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed)
 at `master`.
 
-- `core` follows the canon 100 %: any warning over it is a defect, but one. A scenario that links a `planned` or
+- `core` follows the canon 100 %: any warning over it is a defect, but two. A scenario that links a `planned` or
   `in_review` criterion is a test written ahead, and each coverage matrix reports it as `PLANNED_AC_HAS_TESTS` or
-  `IN_REVIEW_AC_HAS_TESTS` ([Coverage](../docs/reference/rendering-rules.md#coverage)). The toolkit check derives
-  these from `doc-source` and `ui-tests` and expects each once per scenario and criterion.
+  `IN_REVIEW_AC_HAS_TESTS` ([Coverage](../docs/reference/rendering-rules.md#coverage)). A scenario tagged `@skip`
+  covers nothing, and each coverage matrix reports its link to an `active` or `deprecated` criterion as
+  `SKIPPED_SCENARIO`. The toolkit check derives these from `doc-source` and `ui-tests` and expects each once per
+  scenario and criterion.
 - Nothing about `core`'s content is written here; every count comes from the checkout at run time.
 - Problems the pipeline must report are [negative cases](testbed/negative-cases.md).
 - The stage only reads the testbed, and fails if the checkout changes.
@@ -206,9 +208,11 @@ Where each part is checked:
 - `core` holds at least one of each construct, so no check passes on nothing → `check_testbed_stage.py::check_core`.
 - A case run's one warning → `check_testbed_stage.py::check_case`.
 - Over what the toolkit writes: every artifact valid and no warning → `check_testbed_toolkit_stage.py::main`, but in
-  each matrix exactly the warnings of the tests written ahead → `check_testbed_toolkit_stage.py::check_matrix_warnings`;
-  each view's records against `doc-source` → `check_testbed_toolkit_stage.py::check_views`; every counted criterion's
-  verdict against `doc-source` and `ui-tests` → `check_testbed_toolkit_stage.py::check_matrix`. `FIELD_LOSS` is the
+  each matrix exactly the warnings of the tests written ahead and the skipped scenarios
+  → `check_testbed_toolkit_stage.py::check_matrix_warnings`; each view's records against `doc-source`
+  → `check_testbed_toolkit_stage.py::check_views`; every counted criterion's verdict against `doc-source` and
+  `ui-tests`, no skipped scenario covering → `check_testbed_toolkit_stage.py::check_matrix`; `core` holds a criterion
+  whose only scenarios are skipped → `check_testbed_toolkit_stage.py::skipped_only`. `FIELD_LOSS` is the
   transform's own non-zero exit.
 
 ## Run the testbed stage

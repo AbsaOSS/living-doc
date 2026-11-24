@@ -16,27 +16,30 @@
 #
 """The toolkit stage's invariants over the testbed's ``core``, read at its ``master``.
 
-``core`` follows the canon 100 %, so any warning over it is a defect, but one: a scenario that
-links a criterion still ``planned`` or ``in_review`` is a test written ahead, and the rendering
-rules name its warning. ``core`` is read at ``master``, so its content is never written down here:
-every value this checker compares comes from the artifacts at run time. It re-reads each artifact
-the toolkit wrote, and the two the collector wrote, with ``read_artifact``, which validates it
-against its contract, and asserts:
+``core`` follows the canon 100 %, so any warning over it is a defect, but two: a scenario that
+links a criterion still ``planned`` or ``in_review`` is a test written ahead, whose warning the
+rendering rules name, and a scenario tagged ``@skip`` covers nothing, which ``SKIPPED_SCENARIO``
+names. ``core`` is read at ``master``, so its content is never written down here: every value this
+checker compares comes from the artifacts at run time. It re-reads each artifact the toolkit wrote,
+and the two the collector wrote, with ``read_artifact``, which validates it against its contract,
+and asserts:
 
 - each coverage matrix carries, for each scenario in ``ui-tests`` and each criterion it links that
   ``doc-source`` holds as ``planned`` or ``in_review``, one ``PLANNED_AC_HAS_TESTS`` or
-  ``IN_REVIEW_AC_HAS_TESTS`` on that criterion and scenario, and no other warning; no other
-  toolkit artifact carries a warning;
+  ``IN_REVIEW_AC_HAS_TESTS`` on that criterion and scenario, and for each scenario tagged ``@skip``
+  and each ``active`` or ``deprecated`` criterion it links, one ``SKIPPED_SCENARIO``, and no other
+  warning; no other toolkit artifact carries a warning;
 - the inner ``generator-ready`` view holds every entity and criterion of ``doc-source``, each with
   its state;
 - the release view holds exactly the records of ``doc-source`` that are not ``planned`` or
   ``in_review``, each with its state;
 - the matrix has one row per ``active`` or ``deprecated`` criterion, and each row's verdict equals
-  the one ``doc-source``'s declared values and ``ui-tests``' links give: with no declared value, a
-  link covers the criterion; with declared values, a linked value is covered, a bare link covers
-  every value;
-- ``core`` holds at least one ``partially_covered`` criterion in each matrix and one record the
-  release view drops, so neither comparison passes on nothing.
+  the one ``doc-source``'s declared values and ``ui-tests``' links give: a scenario tagged ``@skip``
+  covers nothing; with no declared value, a link covers the criterion; with declared values, a linked
+  value is covered, a bare link covers every value;
+- ``core`` holds at least one ``partially_covered`` criterion in each matrix, one record the release
+  view drops, and one counted criterion whose only scenarios are tagged ``@skip``, so no comparison
+  passes on nothing.
 
 ``FIELD_LOSS`` needs no assertion: a transform exits non-zero on it, and the script that ran the
 toolkit reads that.
@@ -68,9 +71,12 @@ COUNTED_STATES = ("active", "deprecated")
 RELEASE_DROPS = ("planned", "in_review")
 # The warning a coverage matrix reports for a link to a criterion in one of these states, which gets no row: one per
 # scenario and criterion of a User Story or Functionality, its `context` naming the scenario (the toolkit's
-# `coverage_matrix/builder.py::_link_warnings`, the context from `_warning`). A matrix carries no other warning over
-# `core`.
+# `coverage_matrix/builder.py::_link_warnings`, the context from `_warning`).
 UNCOUNTED_LINK_WARNINGS = {"planned": "PLANNED_AC_HAS_TESTS", "in_review": "IN_REVIEW_AC_HAS_TESTS"}
+# A scenario tagged exactly this covers nothing: living-doc-utilities 0.9.0's coverage rule. Its link to a counted
+# criterion gets this warning instead, in the same shape. A matrix carries no other warning over `core`.
+SKIP_TAG = "@skip"
+SKIPPED_SCENARIO = "SKIPPED_SCENARIO"
 VIEWS = ("inner", "release")
 # A toolkit command, the artifact it writes, and that artifact's contract.
 COMMANDS = (("normalize-docs", "generator-ready"), ("coverage-matrix", "coverage-matrix"),
@@ -137,14 +143,29 @@ def _verdict(declared: list[str], linked: set) -> tuple[str, dict[str, str]]:
     return ("partially_covered" if covered else "not_covered"), aspects
 
 
+def _counted(doc_source) -> dict:
+    return {ac.id: ac for entity in _entities(doc_source) for ac in entity.acceptance_criteria
+            if ac.state in COUNTED_STATES}
+
+
+def skipped_only(doc_source, ui_tests) -> list[str]:
+    """The counted criteria whose only scenarios are tagged `@skip`, sorted."""
+    skipped: set[str] = set()
+    running: set[str] = set()
+    for scenario in ui_tests.scenarios:
+        (skipped if SKIP_TAG in scenario.tags else running).update(link.id for link in scenario.acceptance_criteria)
+    return sorted((skipped - running) & set(_counted(doc_source)))
+
+
 def check_matrix(name: str, matrix, doc_source, ui_tests, failures: list[str]) -> Counter:
     """Asserts every counted criterion's verdict in the matrix `name` against the two inputs; returns the statuses."""
     links: dict[str, set] = {}
     for scenario in ui_tests.scenarios:
+        if SKIP_TAG in scenario.tags:
+            continue
         for link in scenario.acceptance_criteria:
             links.setdefault(link.id, set()).add(link.aspect)
-    counted = {ac.id: ac for entity in _entities(doc_source) for ac in entity.acceptance_criteria
-               if ac.state in COUNTED_STATES}
+    counted = _counted(doc_source)
     rows = {row.ac_id: row for entity in matrix.entities for row in entity.acceptance_criteria}
     if sorted(rows) != sorted(counted):
         failures.append(f"{name}: rows are {sorted(rows)}, the counted criteria are {sorted(counted)}")
@@ -161,14 +182,18 @@ def check_matrix(name: str, matrix, doc_source, ui_tests, failures: list[str]) -
 
 def expected_warnings(doc_source, ui_tests) -> Counter:
     """Each warning a coverage matrix must carry, as (code, criterion, context): one per scenario and each criterion it
-    links that the matrix gives no row, by the criterion's state in `doc-source`. The matrix reads the criteria of the
-    User Stories and Functionalities only, as this does."""
+    links that the matrix gives no row, by the criterion's state in `doc-source`, and otherwise one per scenario tagged
+    `@skip` and each counted criterion it links, as the toolkit decides them in that order. The matrix reads the
+    criteria of the User Stories and Functionalities only, as this does."""
     states = {ac.id: ac.state for entity in [*doc_source.user_stories, *doc_source.functionalities]
               for ac in entity.acceptance_criteria}
     expected = set()
     for scenario in ui_tests.scenarios:
         for link in scenario.acceptance_criteria:
-            code = UNCOUNTED_LINK_WARNINGS.get(states.get(link.id))
+            state = states.get(link.id)
+            code = UNCOUNTED_LINK_WARNINGS.get(state)
+            if code is None and state in COUNTED_STATES and SKIP_TAG in scenario.tags:
+                code = SKIPPED_SCENARIO
             if code is not None:
                 expected.add((code, link.id, f"scenario_id={scenario.scenario_id!r}"))
     return Counter(expected)
@@ -182,8 +207,10 @@ def check_matrix_warnings(name: str, matrix, expected: Counter, failures: list[s
         if got[key] == expected[key]:
             continue
         if expected[key]:
+            reason = (f"the scenario is tagged {SKIP_TAG}" if code == SKIPPED_SCENARIO
+                      else "the scenario links a criterion the matrix does not count")
             failures.append(f"{name}: {code} for AC:{ac_id} ({context}) reported {got[key]} time(s), expected once: "
-                            f"the scenario links a criterion the matrix does not count")
+                            f"{reason}")
         elif code in UNCOUNTED_LINK_WARNINGS.values():
             failures.append(f"{name}: {code} for AC:{ac_id} ({context}), which no link in ui-tests to a criterion in "
                             f"that state warrants")
@@ -230,10 +257,12 @@ def main(argv: list[str]) -> int:
             if matrix is not None and doc_source is not None and ui_tests is not None:
                 statuses[name] = check_matrix(name, matrix, doc_source, ui_tests, failures)
 
+    only_skipped = skipped_only(doc_source, ui_tests) if doc_source is not None and ui_tests is not None else []
     # A floor, not core's counts, which are read at run time: both sides empty would pass every comparison above.
     floors = [(f"partially_covered criterion in {name}", counter["partially_covered"])
               for name, counter in statuses.items()]
-    for construct, count in (*floors, ("record the release view drops", dropped)):
+    for construct, count in (*floors, ("record the release view drops", dropped),
+                             ("criterion whose only scenarios are skipped", len(only_skipped))):
         if count == 0:
             failures.append(f"nothing to assert: the artifacts have no {construct}")
 
@@ -249,11 +278,10 @@ def main(argv: list[str]) -> int:
               f"{counter['not_covered']} not covered")
     print(f"      the inner view holds every record of doc-source; the release view drops {dropped}, "
           f"none left in {RELEASE_DROPS}")
-    if not expected:
-        print("      warnings: none")
-        return 0
-    print(f"      warnings: {len(expected)} in each matrix, one per scenario and criterion in "
-          f"{tuple(UNCOUNTED_LINK_WARNINGS)} it links, and none elsewhere:")
+    print(f"      skipped: {', '.join(only_skipped)}, whose only scenarios are tagged {SKIP_TAG}, covered by none")
+    print(f"      warnings: {len(expected)} in each matrix, one per scenario and criterion it links that is in "
+          f"{tuple(UNCOUNTED_LINK_WARNINGS)}, or counted and linked by a scenario tagged {SKIP_TAG}, and none "
+          "elsewhere:")
     for code, ac_id, context in sorted(expected):
         print(f"        {code} for AC:{ac_id} ({context})")
     return 0

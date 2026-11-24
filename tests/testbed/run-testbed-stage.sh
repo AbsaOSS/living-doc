@@ -17,11 +17,11 @@
 # Run the pinned living-doc-collector-gh (`doc-source` + `ui-tests`) over the `core` project of
 # AbsaOSS/living-doc-testbed, read at its current master, and assert invariants on what it produces
 # (tests/testbed/check_testbed_stage.py): `core` follows the canon 100 %, so any warning is a defect but a test written
-# ahead's, which the toolkit check expects (tests/README.md § The testbed stage). Every count
-# comes from the checkout at run time; nothing about `core`'s content is written down here. Then run the pinned
-# living-doc-toolkit over that output and assert its invariants (tests/testbed/check_testbed_toolkit_stage.py), and run
-# each derived problem case (tests/testbed/testbed_cases.py), collector only, over a copy of `core` and assert the one
-# warning it must raise.
+# ahead's or a scenario tagged `@skip`'s, which the toolkit check expects (tests/README.md § The testbed stage).
+# Every count comes from the checkout at run time; nothing about `core`'s content is written down here. Then run the
+# pinned living-doc-toolkit over that output and assert its invariants (tests/testbed/check_testbed_toolkit_stage.py),
+# and run each derived problem case (tests/testbed/testbed_cases.py), collector only, over a copy of `core` and assert
+# the one warning it must raise.
 #
 #   tests/testbed/run-testbed-stage.sh                      # shallow-clones the testbed's master
 #   tests/testbed/run-testbed-stage.sh <testbed-checkout>   # reads a checkout already made (CI: actions/checkout)

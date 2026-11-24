@@ -17,12 +17,12 @@
 """The collector stage's invariants over the testbed's ``core``, read at its ``master``.
 
 ``core`` follows the canon 100 %, so any warning over it is a defect. A scenario that links a
-``planned`` or ``in_review`` criterion is a test written ahead, which the collector reports nothing
-for: the toolkit's coverage matrix warns about it, and ``check_testbed_toolkit_stage.py`` expects
-that warning. ``core`` is read at ``master``, so its content is never written down here: every
-count and every id this checker compares comes from the checkout at run time. ``core`` asserts, on
-the artifacts ``living-doc-collector-gh`` wrote (each re-read with ``read_artifact``, which
-validates it against its contract):
+``planned`` or ``in_review`` criterion is a test written ahead, and a scenario tagged ``@skip``
+covers nothing; the collector reports nothing for either: the toolkit's coverage matrix warns about
+each, and ``check_testbed_toolkit_stage.py`` expects that warning. ``core`` is read at ``master``,
+so its content is never written down here: every count and every id this checker compares comes
+from the checkout at run time. ``core`` asserts, on the artifacts ``living-doc-collector-gh`` wrote
+(each re-read with ``read_artifact``, which validates it against its contract):
 
 - every artifact validates, ``sources_failed`` is 0 and there is no warning at all;
 - every living-doc ``.feature`` file and every PageObject with a full header is one entity of its
