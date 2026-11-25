@@ -72,7 +72,8 @@ In every repository of the ecosystem, a PR also follows these rules:
 
 - **Canon** – the body names each canon rule the change implements, with its page, for example a rule of
   [Authoring formats](docs/reference/authoring-formats.md). A disagreement with the canon goes on the issue before
-  it is coded.
+  it is coded. The review checks the issue's canon criterion
+  ([§ Planning ecosystem work](#planning-ecosystem-work)) against the diff.
 - **Review** – a GitHub Copilot code review comes before the owner's review. Each acceptance criterion is checked
   against the code or page that delivers it, never against a green test with a matching name.
 
@@ -238,6 +239,17 @@ Work that reaches several of the ecosystem's repositories is planned and built i
 4. **What must work.** Every issue shows a concrete example, an input and what must come out or happen, and has
    numbered acceptance criteria, each checkable against the code or a page. A design question stays open on its issue
    until it is decided there, from real examples.
+
+   One criterion of every issue, spikes included, is the **canon criterion**:
+   - **An issue:** it names the canon pages and frame rows the change must agree with. Or it names each canon
+     statement the change alters and where that update lands: in the same change, or in a linked issue in this
+     repository that lands with it.
+   - **A spike:** its answer names each canon statement its decisions change, and every issue it files carries that
+     change in its own canon criterion.
+   - **The canon:** this repository's `docs/reference/` pages, the
+     [document types guide](docs/guides/living-doc-document-types.md), the frame in
+     [Principles](docs/introduction/principles.md#the-frame), and the contracts and rules `living-doc-utilities` owns.
+   - Why: a drift is then decided on the issue, before the work, instead of found in review.
 5. **Bottom-up, one repository at a time.** The repositories go in this order:
    1. `living-doc-utilities` first, because every component pins it;
    2. `living-doc-collector-gh`, `living-doc-toolkit` and `living-doc-generator-markdown`;

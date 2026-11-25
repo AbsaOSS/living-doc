@@ -38,6 +38,15 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    id: canon-check
+    attributes:
+      label: Canon Check
+      description: The acceptance criterion that checks the fix against the canon (CONTRIBUTING.md § Planning ecosystem work).
+      placeholder: "**Canon:** the fix restores what <canon page or frame row> states, or updates <canon statement> in <this change or a linked living-doc issue>."
+    validations:
+      required: true
+
   - type: dropdown
     id: severity
     attributes:

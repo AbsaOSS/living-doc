@@ -36,6 +36,15 @@ body:
     validations:
       required: false
 
+  - type: textarea
+    id: canon-check
+    attributes:
+      label: Canon Check
+      description: The acceptance criterion that checks the change against the canon (CONTRIBUTING.md § Planning ecosystem work).
+      placeholder: "**Canon:** the change agrees with <canon pages and frame rows>, or updates <canon statement> in <this change or a linked living-doc issue>."
+    validations:
+      required: true
+
   - type: input
     id: deadline
     attributes:

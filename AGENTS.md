@@ -78,6 +78,7 @@ Plan and order work that reaches several repositories by [CONTRIBUTING.md § Pla
 - Spikes first: file implementation issues only from their answers.
 - One issue per deliverable that belongs together, in one repository; several per repository are fine.
 - Every issue you draft has a "What must work" example (an input and what must come out) and numbered acceptance criteria.
+- Every issue you draft, spikes included, has a canon criterion: the canon pages and frame rows the change must agree with, or each canon statement it changes and where that update lands; for a spike, the canon statements its answer changes.
 - Order bottom-up, one repository at a time: utilities, collector-gh, toolkit, generator-markdown, testbed, `living-doc`. A check that guards a lower repository lands before it.
 - `living-doc-utilities` ends its part with a release candidate, set by its last issue's last criterion; the components pin it while they build.
 

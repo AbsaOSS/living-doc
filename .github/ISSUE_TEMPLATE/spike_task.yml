@@ -37,6 +37,17 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Numbered outcomes of the spike. The last one is the canon criterion (CONTRIBUTING.md § Planning ecosystem work).
+      placeholder: |
+        1. Every question above has an answer, decided from real examples.
+        2. **Canon:** the answer names each canon page or frame row its decisions change, and every issue it files carries that change in its own canon criterion.
+    validations:
+      required: true
+
   - type: checkboxes
     id: tasks
     attributes:

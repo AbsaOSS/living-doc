@@ -47,10 +47,11 @@ body:
     id: acceptance
     attributes:
       label: Acceptance Criteria
-      description: Numbered outcomes, each checkable against a page.
+      description: Numbered outcomes, each checkable against a page. The last one is the canon criterion (CONTRIBUTING.md § Planning ecosystem work).
       placeholder: |
         1. The page states...
         2. Every link in it resolves...
+        3. **Canon:** the page agrees with <canon pages and frame rows>, or is the canon page it changes, kept in line with <the pages that depend on it>.
     validations:
       required: true
 
