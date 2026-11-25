@@ -17,6 +17,15 @@ body:
       required: true
 
   - type: textarea
+    id: what-must-work
+    attributes:
+      label: What Must Work
+      description: A concrete example - what a reader must be able to do or find once the change is in.
+      placeholder: A reader who follows the tutorial gets `technical-project-inner.md` from one workflow run.
+    validations:
+      required: true
+
+  - type: textarea
     id: current-state
     attributes:
       label: Current State (If Updating)
@@ -31,6 +40,17 @@ body:
       label: Proposed Changes
       description: Key additions, removals, or restructures.
       placeholder: Add section on X; remove deprecated Y.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Numbered outcomes, each checkable against a page.
+      placeholder: |
+        1. The page states...
+        2. Every link in it resolves...
     validations:
       required: true
 

@@ -4,7 +4,8 @@
 
 This page is how to contribute to this repository: reporting bugs and proposing features, branches and pull
 requests, the rules every page follows, the checks over the corpus and the testbed, and the agentic layer. It also
-holds the rules the ecosystem's repositories share: releases, versions, changes across repositories and conventions.
+holds the rules the ecosystem's repositories share: planning, releases, versions, changes across repositories and
+conventions.
 Why the ecosystem is designed as it is: the [decision archive](docs/_archive/decisions.md).
 
 ## Contents
@@ -19,6 +20,7 @@ Why the ecosystem is designed as it is: the [decision archive](docs/_archive/dec
 - [The collector stage over the testbed](#the-collector-stage-over-the-testbed)
 - [The agentic layer](#the-agentic-layer)
 - [Target Branches](#target-branches)
+- [Planning ecosystem work](#planning-ecosystem-work)
 - [Releasing the ecosystem](#releasing-the-ecosystem)
 - [Changes across repositories](#changes-across-repositories)
 - [Ecosystem conventions](#ecosystem-conventions)
@@ -221,6 +223,41 @@ see [`agentic/CONTRIBUTING.md`](agentic/CONTRIBUTING.md).
 ## Target Branches
 
 PRs have to target `main`, `master`, `support/*`, or `release/*`.
+
+## Planning ecosystem work
+
+Work that reaches several of the ecosystem's repositories is planned and built in this order:
+
+1. **A goal.** An epic in this repository states one goal: the results someone can observe, and when it is done, for
+   example "the milestone run at the release tags passes".
+2. **Spikes first.** Every question the goal leaves open becomes a spike. The spikes are answered before any
+   implementation issue is filed, so the order is settled once and doesn't break later.
+3. **A top-down split.** The goal becomes what each repository must deliver, and that becomes issues:
+   - An issue has a small scope: what belongs together, in one repository, mergeable on its own.
+   - A repository may get several issues.
+4. **What must work.** Every issue shows a concrete example, an input and what must come out or happen, and has
+   numbered acceptance criteria, each checkable against the code or a page. A design question stays open on its issue
+   until it is decided there, from real examples.
+5. **Bottom-up, one repository at a time.** The repositories go in this order:
+   1. `living-doc-utilities` first, because every component pins it;
+   2. `living-doc-collector-gh`, `living-doc-toolkit` and `living-doc-generator-markdown`;
+   3. `living-doc-testbed`;
+   4. this repository.
+
+   One repository's issues are finished before the next one up starts. The exception is a check in a higher
+   repository that guards a lower one: it lands before what it guards. This repository's testbed checks, for example,
+   read the testbed at `master`.
+6. **Release candidates.**
+   - `living-doc-utilities` ends its part with a release candidate. The components pin it while they build on it
+     ([§ Versioning](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/api.md#versioning)).
+   - Setting the candidate's version is the last acceptance criterion of the repository's last issue, not an issue of
+     its own.
+   - A component cuts a candidate only when another component depends on its code, or when someone must use it before
+     its release.
+7. **Release.** The final versions follow, bottom-up, by [Releasing the ecosystem](#releasing-the-ecosystem).
+
+The epic lists its issues in this order, grouped by repository, both in its Subtasks list and as its sub-issues. A
+merged issue is ticked off, and the plan keeps no other history.
 
 ## Releasing the ecosystem
 

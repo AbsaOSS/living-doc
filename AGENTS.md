@@ -71,6 +71,16 @@ Files and parts marked "From agentic-defaults" are replaced when the kit updates
 
 - Before changing code in any of the seven repositories, search `docs/_backlog/debt-overview.md` for the paths, symbols and codes the change touches. On a hit, read the issue and say in the PR whether the change fixes it, makes it worse or leaves it.
 
+### Planning
+
+Plan and order work that reaches several repositories by [CONTRIBUTING.md § Planning ecosystem work](CONTRIBUTING.md#planning-ecosystem-work):
+
+- Spikes first: file implementation issues only from their answers.
+- One issue per deliverable that belongs together, in one repository; several per repository are fine.
+- Every issue you draft has a "What must work" example (an input and what must come out) and numbered acceptance criteria.
+- Order bottom-up, one repository at a time: utilities, collector-gh, toolkit, generator-markdown, testbed, `living-doc`. A check that guards a lower repository lands before it.
+- `living-doc-utilities` ends its part with a release candidate, set by its last issue's last criterion; the components pin it while they build.
+
 ### Pull requests
 
 These replace the generic title and description shapes in the `commits-and-prs` skill. `check-pr-requirements.yml` and `check_pr_release_notes.yml` enforce them; [CONTRIBUTING.md](CONTRIBUTING.md) is the version for people.

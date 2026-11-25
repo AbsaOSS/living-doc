@@ -27,6 +27,7 @@ CI workflows, the PR template, issue templates, CODEOWNERS and Dependabot.
 - Pin every `uses:` to a full commit SHA with a trailing version comment; never relax a pin to a tag. Some steps still use tags (for example `actions/setup-python@v7`); pin any step you add.
 - A path filter is a contract: one that misses a file the job reads silently skips the check. When a job starts reading a new path, add it to the filter.
 - The PR rules in `check-pr-requirements.yml` (`title-formats: issue-number`, `branch-require-ticket`, `description-required-sections`) match `CONTRIBUTING.md` and the PR template; change them together. Dependabot's pull requests skip the job; the comment on its `if:` says why and how.
+- The Feature and Documentation issue forms require "What Must Work", and the Documentation form also requires "Acceptance Criteria": [CONTRIBUTING.md § Planning ecosystem work](../CONTRIBUTING.md#planning-ecosystem-work) asks both of every issue.
 - No lint, type-check or coverage job; don't propose one.
 
 ## Invariants and gotchas

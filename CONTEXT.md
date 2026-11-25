@@ -75,7 +75,8 @@ The local integration runner, `bash tests/integration/local-integration.sh [--ch
 - Nothing from `specs/` is committed or cited: it is local planning.
 - Before changing code in any of the seven repositories, search [docs/_backlog/debt-overview.md](docs/_backlog/debt-overview.md) for the paths, symbols and codes the change touches. On a hit, read the issue and say in the PR whether the change fixes it, makes it worse or leaves it. Why the design is as it is: [docs/_archive/decisions.md](docs/_archive/decisions.md).
 - PR, branch, title and review rules: `AGENTS.md` § This project.
-- The ecosystem's shared rules, for people, are in `CONTRIBUTING.md`: the release order and version rules in [§ Releasing the ecosystem](CONTRIBUTING.md#releasing-the-ecosystem), issues and PR blocks in [§ Changes across repositories](CONTRIBUTING.md#changes-across-repositories), the reference repository and composite-action template for `living-doc-utilities` and the components (not this repository) in [§ Ecosystem conventions](CONTRIBUTING.md#ecosystem-conventions), and the canon and review rules of every PR in [§ PR Description](CONTRIBUTING.md#pr-description).
+- The ecosystem's shared rules, for people, are in `CONTRIBUTING.md`: how work across repositories is planned and
+  ordered in [§ Planning ecosystem work](CONTRIBUTING.md#planning-ecosystem-work), the release order and version rules in [§ Releasing the ecosystem](CONTRIBUTING.md#releasing-the-ecosystem), issues and PR blocks in [§ Changes across repositories](CONTRIBUTING.md#changes-across-repositories), the reference repository and composite-action template for `living-doc-utilities` and the components (not this repository) in [§ Ecosystem conventions](CONTRIBUTING.md#ecosystem-conventions), and the canon and review rules of every PR in [§ PR Description](CONTRIBUTING.md#pr-description).
 
 ## Key decisions
 
