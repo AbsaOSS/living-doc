@@ -28,6 +28,7 @@ CI workflows, the PR template, issue templates, CODEOWNERS and Dependabot.
 - A path filter is a contract: one that misses a file the job reads silently skips the check. When a job starts reading a new path, add it to the filter.
 - The PR rules in `check-pr-requirements.yml` (`title-formats: issue-number`, `branch-require-ticket`, `description-required-sections`) match `CONTRIBUTING.md` and the PR template; change them together. Dependabot's pull requests skip the job; the comment on its `if:` says why and how.
 - The Feature and Documentation issue forms require "What Must Work", and the Documentation form also requires "Acceptance Criteria": [CONTRIBUTING.md § Planning ecosystem work](../CONTRIBUTING.md#planning-ecosystem-work) asks both of every issue.
+- Every task form asks for the canon criterion the same section requires: the Feature and Documentation forms as their last acceptance criterion, the Spike form in its required "Acceptance Criteria", and the Operative, Technical Debt, Bug and DevOps forms in a required "Canon Check".
 - No lint, type-check or coverage job; don't propose one.
 
 ## Invariants and gotchas

@@ -40,11 +40,11 @@ body:
     id: acceptance
     attributes:
       label: Acceptance Criteria
-      description: Clear, testable outcomes. Use bullet points.
+      description: Numbered, testable outcomes. The last one is the canon criterion (CONTRIBUTING.md § Planning ecosystem work).
       placeholder: |
         1. User can...
         2. API returns...
-        3. Performance within...
+        3. **Canon:** the change agrees with <canon pages and frame rows>, or updates <canon statement> in <this change or a linked living-doc issue>.
     validations:
       required: true
 
