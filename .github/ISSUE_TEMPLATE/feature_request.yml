@@ -17,6 +17,17 @@ body:
       required: true
 
   - type: textarea
+    id: what-must-work
+    attributes:
+      label: What Must Work
+      description: A concrete example - the input or situation, and what must come out or happen.
+      placeholder: |
+        A pull request changes `AC:FUNC-008-02 (v1.0.0 - active)` to `AC:FUNC-008-02 (v1.0.0 active)`.
+        The check fails with `func-008-sort-results.feature:16: MALFORMED_AC ...`.
+    validations:
+      required: true
+
+  - type: textarea
     id: problem
     attributes:
       label: Problem / Opportunity
