@@ -3,7 +3,7 @@
 ## Purpose
 
 This page is one complete workflow: GitHub source code to the technical project, the test catalog and the coverage
-matrix in Markdown, refreshed on every push.
+matrix in Markdown, refreshed on every push or attached to each release.
 
 Use this when living documentation is authored [directly in code](../reference/authoring-formats.md) — today's
 documentation source; issues are planned ([Choosing a documentation source](../guides/choosing-a-documentation-source.md)).
@@ -16,6 +16,7 @@ Read before: [Build a pipeline](../guides/build-a-pipeline.md) · Next: [Documen
 - [2. Add the workflow](#2-add-the-workflow)
 - [3. What happens on each run](#3-what-happens-on-each-run)
 - [4. Verify](#4-verify)
+- [5. Attach the documents to a release](#5-attach-the-documents-to-a-release)
 - [Related](#related)
 
 ## 1. Prepare the inputs
@@ -159,6 +160,48 @@ After the first run, `docs/living-doc/` holds six files: three documents and the
 lists your User Stories, the test catalog your scenarios, and the coverage matrix each criterion's verdict. A run
 that warns or fails names a code: [Error codes](../reference/errors.md). The six documents these tags rendered over
 the testbed, in both views, are in [`docs/_integration/MS3/testbed-core/`](../_integration/MS3/testbed-core/release/generator-markdown/technical-project.md).
+
+## 5. Attach the documents to a release
+
+A second workflow, `.github/workflows/living-doc-release.yml`, is § 2's with a new `name:` and `on:`, no
+`concurrency:` block, and step 4 replaced.
+
+```yaml
+name: Living Documentation release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  living-doc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # The checkout, the Python setup and steps 1–3 (COLLECT, NORMALIZE, GENERATE) exactly as in § 2
+
+      # 4. ATTACH each document and its run report to the release
+      - name: Attach the documents to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" docs/living-doc/* --repo "$GITHUB_REPOSITORY" --clobber
+```
+
+On each published release:
+
+- The checkout is the release's tag, so the documents show the code as released.
+- Step 4 attaches the six files to the release as assets; `--clobber` replaces them when the run is re-run.
+- Nothing is committed: the checkout is a tag, not a branch, so there is no branch to push to.
+- The workflow has no `concurrency:` block: in § 2's `living-doc` group, a push would cancel a release run.
+- `published` also fires for a pre-release; `types: [released]` leaves pre-releases out.
+- A release published with the job's token starts no run; publish it by hand or with another token.
+- The workflow must be in the tagged commit: a release of an older commit starts no run.
+- An immutable release takes no assets once published, so step 4 fails where immutable releases are on.
+- To name the release in a title, set a render step's `document-title`, for example
+  `Technical project ${{ github.event.release.tag_name }}`
+  ([`generator-markdown` inputs](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/docs/action.md#inputs)).
 
 ## Related
 
