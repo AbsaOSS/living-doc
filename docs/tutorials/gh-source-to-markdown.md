@@ -3,7 +3,8 @@
 ## Purpose
 
 This page is one complete workflow: GitHub source code to the technical project, the test catalog and the coverage
-matrix in Markdown, refreshed on every push or attached to each release.
+matrix in Markdown, refreshed on every push or attached to each release. A pull-request check fails a header the
+collector would drop or misread, before the merge.
 
 Use this when living documentation is authored [directly in code](../reference/authoring-formats.md) — today's
 documentation source; issues are planned ([Choosing a documentation source](../guides/choosing-a-documentation-source.md)).
@@ -17,6 +18,7 @@ Read before: [Build a pipeline](../guides/build-a-pipeline.md) · Next: [Documen
 - [3. What happens on each run](#3-what-happens-on-each-run)
 - [4. Verify](#4-verify)
 - [5. Attach the documents to a release](#5-attach-the-documents-to-a-release)
+- [6. Check a pull request before the merge](#6-check-a-pull-request-before-the-merge)
 - [Related](#related)
 
 ## 1. Prepare the inputs
@@ -202,6 +204,113 @@ On each published release:
 - To name the release in a title, set a render step's `document-title`, for example
   `Technical project ${{ github.event.release.tag_name }}`
   ([`generator-markdown` inputs](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/docs/action.md#inputs)).
+
+## 6. Check a pull request before the merge
+
+A third workflow, `.github/workflows/living-doc-check.yml`, checks the living-doc files a pull request changes. It
+runs `collector-gh`'s `doc-check` mode, which reports each finding on its line and fails on the policy's codes
+([Documentation Check mode](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/doc_check/README.md)).
+
+```yaml
+name: Living Documentation check
+
+on:
+  pull_request:
+    # the folders the collect step of § 2 reads
+    paths:
+      - features/liv_doc_us/**
+      - features/liv_doc_func/**
+      - pages/**
+
+jobs:
+  living-doc-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0                   # the base commit, for the diff
+
+      # 1. LIST the paths the pull request changes, one per line
+      - name: List the changed paths
+        id: changed
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          { echo 'paths<<EOF'; git -c core.quotePath=false diff --name-only "$BASE...HEAD"; echo 'EOF'; } >> "$GITHUB_OUTPUT"
+
+      # 2. CHECK the changed living-doc files, with the doc-source-repositories of § 2
+      - name: Check the changed living-doc files
+        uses: AbsaOSS/living-doc-collector-gh@v0.3.0
+        with:
+          project-id: your-project
+          doc-check: true
+          doc-source-repositories: |
+            [{"organization-name": "${{ github.repository_owner }}",
+              "repository-name": "${{ github.event.repository.name }}",
+              "us-paths": ["${{ github.workspace }}/features/liv_doc_us"],
+              "func-paths": ["${{ github.workspace }}/features/liv_doc_func"],
+              "pages-paths": ["${{ github.workspace }}/pages"]}]
+          doc-check-changed-paths: ${{ steps.changed.outputs.paths }}
+```
+
+On each pull request:
+
+- `paths:` holds § 2's folders, so a pull request that changes none of them starts no run. Change both together.
+- The checkout is the pull request merged into its base; `fetch-depth: 0` brings the base commit for the diff.
+- `core.quotePath=false` prints a non-ASCII path as it is; quoted, it would match no file and go unchecked.
+- The mode skips each changed path outside those folders, and each deleted file; with none left, it passes
+  ([Changed paths](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/doc_check/README.md#changed-paths)).
+- So a pull request that only deletes a file passes, even when other files relate to it.
+- Otherwise it reports the changed files' own findings, and every broken relation among all the files it reads.
+- Each finding is a log line and a row in the job summary, and an annotation on its line while GitHub's limit
+  lasts ([Report](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/doc_check/README.md#report)).
+- It runs alone and writes nothing: § 2 and § 5 still build the documents.
+- A required check that `paths:` skips stays pending and blocks the merge; drop `paths:` to make it required.
+
+### The policy file
+
+`living-doc-policy.yaml`, at the repository root, names the codes that only warn. Without it, every code of the
+default fail list fails ([Policy file](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/check.md#policy-file)).
+
+```yaml
+check:
+  warn:            # these codes still print, but no longer fail
+    - LEGACY_AC_STATE
+```
+
+- Here a criterion in a retired state only warns, while the project moves to the four states
+  ([`LEGACY_AC_STATE`](../reference/errors.md#codes)).
+- A code under `warn:` still shows in the log and the summary, and the step passes on it.
+- To relax another code, add it to the list; to make a code fail again, remove it.
+- A code outside the default fail list, or another key under `check:`, fails the step with `INVALID_CONFIGURATION`.
+- The check reads the policy only when a header changes, so a pull request that changes only the policy passes.
+
+### Example: a broken criterion header
+
+In the testbed's
+[FUNC-008](https://github.com/AbsaOSS/living-doc-testbed/blob/master/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature),
+a pull request drops the hyphen from one criterion's header line:
+
+```diff
+-#   AC:FUNC-008-02 (v1.0.0 - active)
++#   AC:FUNC-008-02 (v1.0.0 active)
+```
+
+The check fails, and the step's log reads:
+
+```text
+projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature:16: MALFORMED_AC Acceptance criterion failed validation: state: Input should be 'planned', 'in_review', 'active' or 'deprecated'. Fix: Write 'AC:<id> (v<major.minor.patch> - <state>)', or 'AC:<id> (planned)' for a backlog criterion.
+projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature:17: AUTHORING_WARNING Line of a dropped acceptance criterion is not read. Fix: Put the line under the field it belongs to, or remove it: nothing reads it.
+projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature:18: AUTHORING_WARNING Line of a dropped acceptance criterion is not read. Fix: Put the line under the field it belongs to, or remove it: nothing reads it.
+```
+
+- The testbed's folders sit under `projects/core/tests/e2e/`, so its `paths:` and `*-paths` start with that prefix.
+- Each path in the log starts at the repository root.
+- Line 16 is no criterion any more, so lines 17 and 18, its description, belong to no field.
+- All three fail under the default policy; fixing line 16 clears them all.
+- Without the check, § 2's run passes: it warns `MALFORMED_AC` and drops the criterion from the documents.
 
 ## Related
 

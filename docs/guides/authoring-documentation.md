@@ -450,7 +450,9 @@ Each line of a dropped criterion is reported too, as `AUTHORING_WARNING`.
 
 ## How to check before you push
 
-- Run `collector-gh`'s `doc-source` mode on your branch, as a workflow step on the pull request or by hand
+- Add the pull-request check: it fails a pull request on its changed headers' findings and on every broken relation
+  ([Check a pull request before the merge](../tutorials/gh-source-to-markdown.md#6-check-a-pull-request-before-the-merge)).
+- To check by hand, run `collector-gh`'s `doc-source` mode on your branch
   ([action reference](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md)).
 - Read the `warnings[]` of its `doc-source.json`: each warning names the file and the line, and links that line at
   your commit ([Documentation Source mode — Errors](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/doc_source/README.md#errors)).
