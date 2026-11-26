@@ -14,6 +14,7 @@ tests/integration/.env.local
 
 # Local planning workspace — spec drafts, issue drafts, local tools. Never shipped.
 specs/
+/roadmap.md
 
 # macOS AppleDouble sidecar files
 ._*
