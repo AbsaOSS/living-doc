@@ -3,7 +3,7 @@
 ## Purpose
 
 This page is the fixed frame of the Living Documentation ecosystem: what each part is for, what it must not do,
-and the one place where the frame deliberately bends. Every change to any `living-doc-*` repository
+and the places where the frame deliberately bends. Every change to any `living-doc-*` repository
 is checked against this page — a pull request either stays inside the frame or names the exception
 it adds (see [Checking a change against the frame](#checking-a-change-against-the-frame)).
 
@@ -22,7 +22,7 @@ it adds (see [Checking a change against the frame](#checking-a-change-against-th
 | **F2** | Collectors | Mine entity headers from issues / work items or from source code, and collect auditable data from the source system (tracker state, audit events, project state) as provenance for later use. | Interpret, merge or compute — a collector records what the source says. |
 | **F3** | Toolkit | Carries every technical transformation between collector output and generator input: normalisation, validation, filtering and cross-referencing — including the coverage matrix. | Render output or talk to a source system. |
 | **F4** | Generators | Convert a toolkit output into one target format (Markdown, PDF). | Transform or enrich data — a generator reads only toolkit outputs. |
-| **F5** | Utilities | Share logic between repositories: the contract models, their generated schemas, and the authoring-format parsers. | Hold a pipeline stage of its own. |
+| **F5** | Utilities | Share logic between repositories: the contract models, their generated schemas, the authoring-format parsers, the authored-input check built on them with its policy file model, and the GitHub action helpers. | Hold a pipeline stage of its own — it has no entry point; a component runs it. |
 | **F6** | Agentic | Accelerates authoring with AI agents and skills: entity headers and the BDD tests bound to them, including the test surface those tests need (PageObjects, test ids, gap reports). | Run in the pipeline — the pipeline is AI-free, and everything an agent writes can be written by hand. |
 | **F7** | Pydantic models | Bind the rules: every contract is a Pydantic model, and its JSON Schema is generated from it. | Have a hand-written twin — no component mirrors a model or commits a schema copy. |
 
@@ -38,6 +38,7 @@ it adds (see [Checking a change against the frame](#checking-a-change-against-th
 | Id | Exception | Bends | Why |
 |---|---|---|---|
 | **E1** | A Feature's state is derived from its Functionalities, never authored. | F2, F3 — a value the author did not write appears in the dataset. | A Feature is the structural node of a surface; its behaviour lives in its Functionalities, so an authored Feature state would contradict them. Rule: [Glossary — Feature](../reference/glossary.md#feature). |
+| **E2** | A collector mode checks authored files before a merge, with the parsers it collects with, and fails on the policy file's codes. | F2 — a collector judges what the source says. | The check must read exactly the folders and the parsers the collector reads; a second reader would drift. Mode: [`collector-gh` — Documentation Check Mode](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/doc_check/README.md). |
 
 An exception is added only together with the pull request that introduces it, and removed when the
 behaviour goes.
