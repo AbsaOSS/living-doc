@@ -122,7 +122,6 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 | [living-doc-toolkit#117](https://github.com/AbsaOSS/living-doc-toolkit/issues/117) | `contract` | `MULTIPLE_DOCUMENTATION_SOURCES` `MIXED_DOCUMENTATION_SOURCES` `pipeline-rules.md` | `when:pilot` |
 | [living-doc-toolkit#118](https://github.com/AbsaOSS/living-doc-toolkit/issues/118) | `diagnostics` | `normalize-docs` `--input` `MULTIPLE_DOCUMENTATION_SOURCES` `validate_inputs` `normalize_docs.py` | `when:next-pr` |
 | [living-doc-toolkit#119](https://github.com/AbsaOSS/living-doc-toolkit/issues/119) | `docs` `testing` | `tests/docs/pages.py` `_CODE_SPAN` `_LINE_NUMBER_RE` | `when:reported` |
-| [living-doc-toolkit#120](https://github.com/AbsaOSS/living-doc-toolkit/issues/120) | `docs` `release` | `SPEC.md` `.github/copilot-review-rules.md` `major bump` | `when:next-pr` |
 | [living-doc-utilities#222](https://github.com/AbsaOSS/living-doc-utilities/issues/222) | `parser` `gh-issues` | `issue_body.py::_read_bullets` `MISINDENTED_LINE` `AUTHORING_WARNING` `authoring-formats.md` | `when:issues-source` |
 | [living-doc-utilities#223](https://github.com/AbsaOSS/living-doc-utilities/issues/223) | `parser` `gh-issues` | `parse_issue_body` `framing.py::frame_issue_body` `accounting.py::unplaced_lines` `MALFORMED_AC` `html_to_markdown` | `when:issues-source` |
 | [living-doc-utilities#225](https://github.com/AbsaOSS/living-doc-utilities/issues/225) | `contract` | `NEVER_CARRIED_PATHS` `producer.build` `full_sample` `doc_entities.py` | `when:v1` |
@@ -132,5 +131,5 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 | [living-doc-utilities#229](https://github.com/AbsaOSS/living-doc-utilities/issues/229) | `contract` `parser` | `AcLink` `STALE_AC_REF` `ui-tests.json` `coverage-matrix` | `when:input-checks` |
 | [living-doc-utilities#230](https://github.com/AbsaOSS/living-doc-utilities/issues/230) | `ci` | `.github/workflows/link-check.yml` `workflow_dispatch` `docs_changed` | `when:next-pr` |
 | [living-doc-utilities#232](https://github.com/AbsaOSS/living-doc-utilities/issues/232) | `contract` `testing` | `component-checks.md` `metadata.stats` `source_inputs` `sources_failed` `FIELD_LOSS` | `when:pilot` |
-| [living-doc-utilities#233](https://github.com/AbsaOSS/living-doc-utilities/issues/233) | `contract` `docs` | `artifact-rules.md` `component-checks.md` `LineageEntry` `check_field_loss` `selected_stats` `FIELD_LOSS` | `when:v1` |
+| [living-doc-utilities#233](https://github.com/AbsaOSS/living-doc-utilities/issues/233) | `contract` `docs` | `artifact-rules.md` `component-checks.md` `LineageEntry` `check_field_loss` `selected_stats` `FIELD_LOSS` `normalize-tests` `check_no_field_loss` `source_inputs` | `when:v1` |
 | [living-doc-utilities#234](https://github.com/AbsaOSS/living-doc-utilities/issues/234) | `contract` | `SourceRef` `scenario_id` `native_id` `normalize-tests` `ui_tests/collector.py` | `when:ado-source` |

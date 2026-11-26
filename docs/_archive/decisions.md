@@ -181,7 +181,7 @@ out, and the merged pull requests record them.
 [u-norm]: https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/authoring/normalisation.md#where-normalisation-runs
 [u-ac]: https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/authoring/ac-grammar.md#header
 [u-url]: https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/authoring/urls-and-html.md#url-policy
-[t-spec]: https://github.com/AbsaOSS/living-doc-toolkit/blob/master/SPEC.md
+[t-spec]: https://github.com/AbsaOSS/living-doc-toolkit/blob/339d6467ddf3af88bd42289b3c428b3fcba7113b/SPEC.md
 [t-setup]: https://github.com/AbsaOSS/living-doc-toolkit/blob/master/DEVELOPER.md#setup
 [t-version]: https://github.com/AbsaOSS/living-doc-toolkit/blob/master/DEVELOPER.md#versioning
 [t-anchors]: https://github.com/AbsaOSS/living-doc-toolkit/blob/master/DEVELOPER.md#anchors
