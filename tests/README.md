@@ -84,7 +84,7 @@ flowchart TB
             b3["mine projects/core<br/>doc-source + ui-tests"]
             b4["testbed/check_testbed_stage.py core<br/>the invariants, no warning"]
             b8["toolkit over the raw output: normalize-docs inner, release<br/>coverage-matrix · normalize-tests"]
-            b9["testbed/check_testbed_toolkit_stage.py<br/>valid, no warning, release view, every verdict"]
+            b9["testbed/check_testbed_toolkit_stage.py<br/>valid, no warning but a test written ahead's,<br/>release view, every verdict"]
             b5["each case in testbed/testbed_cases.py:<br/>copy core, apply the case, git init,<br/>mine doc-source"]
             b6["testbed/check_testbed_stage.py case<br/>exactly one warning, at its line"]
             b7{"testbed's git status<br/>unchanged?"}
@@ -120,7 +120,8 @@ names across the repositories, and the page rules), `examples/` (tests `docs/exa
 `integration/local-integration.sh` runs the whole source-code chain on an operator's machine for a milestone run:
 `collector-gh`, then `toolkit` and `generator-markdown` in the inner and the release view, each component cloned at
 its pin or at a named tag or SHA. A testbed run then runs the testbed checks of `testbed/` over its own output, so it
-fails on any warning or broken invariant; it is the release go/no-go. No workflow runs it; CI runs only its offline
+fails on a broken invariant or on any warning but [a test written ahead's](#the-testbed-stage); it is the release
+go/no-go. No workflow runs it; CI runs only its offline
 tests. How to run it and record the run: [Integration runs](../docs/_integration/README.md#run-a-milestone-target).
 
 | File | Stage | Holds |
@@ -150,6 +151,7 @@ tests. How to run it and record the run: [Integration runs](../docs/_integration
 | [`integration/test_local_integration.py`](integration/test_local_integration.py) | — | the runner's refusals before any clone, and the chain over stand-in components (order, each clone's `.env.local`, logs, stopping at a failure, a re-run's clearing and what it keeps, a project target and its untracked files, a reused clone's origin or a link to another checkout, cleaning each clone, a tag named like a branch, an output root inside a checkout or clone), and a testbed run's verdict (a warning in an artifact, a broken invariant, a missing document or run report, a project run not judged) over the first milestone's committed outputs, offline; run by `examples-check.yml` |
 | [`testbed/run-testbed-stage.sh`](testbed/run-testbed-stage.sh) | testbed | the runner, and the testbed's collector paths and `project-id` |
 | [`testbed/check_testbed_toolkit_stage.py`](testbed/check_testbed_toolkit_stage.py) | testbed | the invariants over what the toolkit writes from `core`, in the stage's layout or, with `--runner`, the local integration runner's |
+| [`testbed/test_check_testbed_toolkit_stage.py`](testbed/test_check_testbed_toolkit_stage.py) | — | the toolkit check's tests for the warnings of a test written ahead, over the first milestone's committed outputs, offline; run by `examples-check.yml` |
 | [`testbed/testbed_cases.py`](testbed/testbed_cases.py) | testbed | the derived problem cases, one function each |
 | [`testbed/check_testbed_stage.py`](testbed/check_testbed_stage.py) | testbed | the invariants over `core`, and the check for one case |
 | [`testbed/negative-cases.md`](testbed/negative-cases.md) | testbed | those cases: each one, how its run is checked, how to add one |
@@ -159,7 +161,10 @@ tests. How to run it and record the run: [Integration runs](../docs/_integration
 Reads the `core` project of [`AbsaOSS/living-doc-testbed`](https://github.com/AbsaOSS/living-doc-testbed)
 at `master`.
 
-- `core` follows the canon 100 %: any warning over it is a defect.
+- `core` follows the canon 100 %: any warning over it is a defect, but one. A scenario that links a `planned` or
+  `in_review` criterion is a test written ahead, and each coverage matrix reports it as `PLANNED_AC_HAS_TESTS` or
+  `IN_REVIEW_AC_HAS_TESTS` ([Coverage](../docs/reference/rendering-rules.md#coverage)). The toolkit check derives
+  these from `doc-source` and `ui-tests` and expects each once per scenario and criterion.
 - Nothing about `core`'s content is written here; every count comes from the checkout at run time.
 - Problems the pipeline must report are [negative cases](testbed/negative-cases.md).
 - The stage only reads the testbed, and fails if the checkout changes.
@@ -199,8 +204,9 @@ Where each part is checked:
   → `check_testbed_stage.py::check_ui_tests`.
 - `core` holds at least one of each construct, so no check passes on nothing → `check_testbed_stage.py::check_core`.
 - A case run's one warning → `check_testbed_stage.py::check_case`.
-- Over what the toolkit writes: every artifact valid and no warning → `check_testbed_toolkit_stage.py::main`; each
-  view's records against `doc-source` → `check_testbed_toolkit_stage.py::check_views`; every counted criterion's
+- Over what the toolkit writes: every artifact valid and no warning → `check_testbed_toolkit_stage.py::main`, but in
+  each matrix exactly the warnings of the tests written ahead → `check_testbed_toolkit_stage.py::check_matrix_warnings`;
+  each view's records against `doc-source` → `check_testbed_toolkit_stage.py::check_views`; every counted criterion's
   verdict against `doc-source` and `ui-tests` → `check_testbed_toolkit_stage.py::check_matrix`. `FIELD_LOSS` is the
   transform's own non-zero exit.
 

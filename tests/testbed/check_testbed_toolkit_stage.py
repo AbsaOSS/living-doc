@@ -16,12 +16,17 @@
 #
 """The toolkit stage's invariants over the testbed's ``core``, read at its ``master``.
 
-``core`` follows the canon 100 %, so any warning over it is a defect, and it is read at ``master``,
-so its content is never written down here: every value this checker compares comes from the
-artifacts at run time. It re-reads each artifact the toolkit wrote, and the two the collector wrote,
-with ``read_artifact``, which validates it against its contract, and asserts:
+``core`` follows the canon 100 %, so any warning over it is a defect, but one: a scenario that
+links a criterion still ``planned`` or ``in_review`` is a test written ahead, and the rendering
+rules name its warning. ``core`` is read at ``master``, so its content is never written down here:
+every value this checker compares comes from the artifacts at run time. It re-reads each artifact
+the toolkit wrote, and the two the collector wrote, with ``read_artifact``, which validates it
+against its contract, and asserts:
 
-- no toolkit artifact carries a warning;
+- each coverage matrix carries, for each scenario in ``ui-tests`` and each criterion it links that
+  ``doc-source`` holds as ``planned`` or ``in_review``, one ``PLANNED_AC_HAS_TESTS`` or
+  ``IN_REVIEW_AC_HAS_TESTS`` on that criterion and scenario, and no other warning; no other
+  toolkit artifact carries a warning;
 - the inner ``generator-ready`` view holds every entity and criterion of ``doc-source``, each with
   its state;
 - the release view holds exactly the records of ``doc-source`` that are not ``planned`` or
@@ -61,6 +66,11 @@ from living_doc_utilities.contracts.io import read_artifact
 
 COUNTED_STATES = ("active", "deprecated")
 RELEASE_DROPS = ("planned", "in_review")
+# The warning a coverage matrix reports for a link to a criterion in one of these states, which gets no row: one per
+# scenario and criterion of a User Story or Functionality, its `context` naming the scenario (the toolkit's
+# `coverage_matrix/builder.py::_link_warnings`, the context from `_warning`). A matrix carries no other warning over
+# `core`.
+UNCOUNTED_LINK_WARNINGS = {"planned": "PLANNED_AC_HAS_TESTS", "in_review": "IN_REVIEW_AC_HAS_TESTS"}
 VIEWS = ("inner", "release")
 # A toolkit command, the artifact it writes, and that artifact's contract.
 COMMANDS = (("normalize-docs", "generator-ready"), ("coverage-matrix", "coverage-matrix"),
@@ -149,6 +159,40 @@ def check_matrix(name: str, matrix, doc_source, ui_tests, failures: list[str]) -
     return statuses
 
 
+def expected_warnings(doc_source, ui_tests) -> Counter:
+    """Each warning a coverage matrix must carry, as (code, criterion, context): one per scenario and each criterion it
+    links that the matrix gives no row, by the criterion's state in `doc-source`. The matrix reads the criteria of the
+    User Stories and Functionalities only, as this does."""
+    states = {ac.id: ac.state for entity in [*doc_source.user_stories, *doc_source.functionalities]
+              for ac in entity.acceptance_criteria}
+    expected = set()
+    for scenario in ui_tests.scenarios:
+        for link in scenario.acceptance_criteria:
+            code = UNCOUNTED_LINK_WARNINGS.get(states.get(link.id))
+            if code is not None:
+                expected.add((code, link.id, f"scenario_id={scenario.scenario_id!r}"))
+    return Counter(expected)
+
+
+def check_matrix_warnings(name: str, matrix, expected: Counter, failures: list[str]) -> None:
+    """Asserts that the matrix `name` carries exactly the expected warnings, each once."""
+    got = Counter((warning.code, warning.ac_id, warning.context) for warning in matrix.warnings)
+    for code, ac_id, context in sorted(set(got) | set(expected), key=str):
+        key = (code, ac_id, context)
+        if got[key] == expected[key]:
+            continue
+        if expected[key]:
+            failures.append(f"{name}: {code} for AC:{ac_id} ({context}) reported {got[key]} time(s), expected once: "
+                            f"the scenario links a criterion the matrix does not count")
+        elif code in UNCOUNTED_LINK_WARNINGS.values():
+            failures.append(f"{name}: {code} for AC:{ac_id} ({context}), which no link in ui-tests to a criterion in "
+                            f"that state warrants")
+        else:
+            failures.extend(f"{name}: warning {warning.code} entity={warning.entity_id or '-'}: {warning.message}"
+                            for warning in matrix.warnings
+                            if (warning.code, warning.ac_id, warning.context) == key)
+
+
 USAGE = "usage: check_testbed_toolkit_stage.py [--runner] <output-root> <doc-source.json> <ui-tests.json>"
 
 
@@ -165,11 +209,15 @@ def main(argv: list[str]) -> int:
     results = {name: _read(name, path, contract, failures)
                for name, (path, contract) in layout(Path(argv[0]), runner).items()}
 
+    expected = expected_warnings(doc_source, ui_tests) if doc_source is not None and ui_tests is not None else Counter()
     for name, result in results.items():
         if result is not None:
             print(f"  {name}: valid ({result.schema_version}); warnings: {len(result.warnings) or 'none'}")
-            failures.extend(f"{name}: warning {warning.code} entity={warning.entity_id or '-'}: {warning.message}"
-                            for warning in result.warnings)
+            if name.startswith("coverage-matrix"):
+                check_matrix_warnings(name, result, expected, failures)
+            else:
+                failures.extend(f"{name}: warning {warning.code} entity={warning.entity_id or '-'}: {warning.message}"
+                                for warning in result.warnings)
 
     dropped = 0
     inner, release = results["generator-ready.inner"], results["generator-ready.release"]
@@ -201,7 +249,13 @@ def main(argv: list[str]) -> int:
               f"{counter['not_covered']} not covered")
     print(f"      the inner view holds every record of doc-source; the release view drops {dropped}, "
           f"none left in {RELEASE_DROPS}")
-    print("      warnings: none")
+    if not expected:
+        print("      warnings: none")
+        return 0
+    print(f"      warnings: {len(expected)} in each matrix, one per scenario and criterion in "
+          f"{tuple(UNCOUNTED_LINK_WARNINGS)} it links, and none elsewhere:")
+    for code, ac_id, context in sorted(expected):
+        print(f"        {code} for AC:{ac_id} ({context})")
     return 0
 
 

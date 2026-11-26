@@ -26,6 +26,7 @@ on:
       - "tests/examples/**"
       - "tests/docs/**"
       - "tests/integration/**"
+      - "tests/testbed/**"
       - ".github/workflows/examples-check.yml"
   pull_request:
     types: [ opened, synchronize, reopened ]
@@ -36,6 +37,7 @@ on:
       - "tests/examples/**"
       - "tests/docs/**"
       - "tests/integration/**"
+      - "tests/testbed/**"
       - ".github/workflows/examples-check.yml"
   workflow_dispatch:
 
@@ -87,3 +89,7 @@ jobs:
       # The runner's refusals that need no network; no workflow runs the chain itself.
       - name: Self-test the local integration runner's configuration checks
         run: python -m pytest tests/integration -q
+
+      # The warnings a test written ahead raises in each coverage matrix, over the first milestone's committed outputs.
+      - name: Self-test the toolkit testbed check's expected warnings
+        run: python -m pytest tests/testbed -q

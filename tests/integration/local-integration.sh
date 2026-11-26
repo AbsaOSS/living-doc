@@ -417,7 +417,8 @@ if [ "$CFG_TARGET" = project ]; then
 fi
 
 # --- The verdict over the testbed's output -------------------------------------------------------------------------
-# `core` follows the canon 100 %, so any warning or broken invariant over it is a defect. The run checks its own output
+# `core` follows the canon 100 %, so a broken invariant over it is a defect, and so is any warning but a test written
+# ahead's, which the toolkit check expects (tests/README.md § The testbed stage). The run checks its own output
 # with CI's testbed checks in tests/testbed/, each in the venv its component's script built, as the testbed stage runs
 # each in its component's venv. The first check that fails stops the run; its last line names it.
 venv_python() {  # venv_python CLONE: the interpreter of the venv the clone's local-integration.sh built
