@@ -108,11 +108,13 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 | [living-doc#136](https://github.com/AbsaOSS/living-doc/issues/136) | `release` | `docs/CONTEXT.md` `collector-pins.env` `-v1.0.0` | `when:release` |
 | [living-doc#144](https://github.com/AbsaOSS/living-doc/issues/144) | `epic` `rendering` `release` | `@skip` `SKIPPED_SCENARIO` `narrative` `coverage-matrix` `ui-test-catalog` | — |
 | [living-doc#165](https://github.com/AbsaOSS/living-doc/issues/165) | `epic` `input-checks` `release` | `getByTestId` `trace_impact.py` `feature_registry` `living-doc-policy.yaml` | — |
+| [living-doc#171](https://github.com/AbsaOSS/living-doc/issues/171) | `docs` | `SPEC.md` `DEC-3` `docs/_archive/decisions.md` `CONTRIBUTING.md` | `when:release` |
 | [living-doc-collector-gh#162](https://github.com/AbsaOSS/living-doc-collector-gh/issues/162) | `gh-issues` | `SUPPORTED_ISSUE_LABELS` `doc_issues/collector.py` `DocumentedUserStory` | `when:issues-source` |
 | [living-doc-collector-gh#163](https://github.com/AbsaOSS/living-doc-collector-gh/issues/163) | `ci` `action` | `.github/workflows/link-check.yml` `github.action_path` `GITHUB_ACTION_PATH` `check-pr-requirements` `CONTRIBUTING.md` | `when:next-pr` |
 | [living-doc-collector-gh#164](https://github.com/AbsaOSS/living-doc-collector-gh/issues/164) | `diagnostics` | `SOURCE_UNAVAILABLE` `EMPTY_SOURCE` `utils/artifact.py` `source_context` `allow-partial` | `when:allow-partial` |
 | [living-doc-collector-gh#165](https://github.com/AbsaOSS/living-doc-collector-gh/issues/165) | `action` | `action.yml` `bin/python` `Scripts/` `SPEC.md` `integration_test.yml` | `when:windows-runner` |
 | [living-doc-collector-gh#166](https://github.com/AbsaOSS/living-doc-collector-gh/issues/166) | `docs` `release` | `DEVELOPER.md` `MAJOR` `v1.0.1` | `when:next-pr` |
+| [living-doc-collector-gh#174](https://github.com/AbsaOSS/living-doc-collector-gh/issues/174) | `docs` | `SPEC.md` `.claude/rules/docs-lifecycle.md` `tests/docs/test_page_structure.py` | `when:release` |
 | [living-doc-generator-markdown#39](https://github.com/AbsaOSS/living-doc-generator-markdown/issues/39) | `action` | `action.yml` `github.action_path` `GITHUB_ACTION_PATH` | `when:container-job` |
 | [living-doc-generator-markdown#40](https://github.com/AbsaOSS/living-doc-generator-markdown/issues/40) | `rendering` | `sources_failed` `source_inputs` `rendering.md` `allow-partial` | `when:allow-partial` |
 | [living-doc-generator-markdown#41](https://github.com/AbsaOSS/living-doc-generator-markdown/issues/41) | `rendering` `security` | `presentation.py::_outline` `_NESTED_ITEM_RE` | `when:security-review` |
