@@ -74,6 +74,7 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 - `when:issues-source`: when GitHub Issues as a documentation source is built.
 - `when:ado-source`: when Azure DevOps as a documentation source is built.
 - `when:input-checks`: when the authored-input checks are built.
+- `when:upstream-release`: when the upstream release it waits for is out.
 
 ## Open debt
 
@@ -106,9 +107,9 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 | [living-doc#134](https://github.com/AbsaOSS/living-doc/issues/134) | `security` `ci` | `aquasec-night-scan.yml` `AQUA_GROUP_ID` `AQUA_REPOSITORY_ID` `url_policy` | `when:security-review` |
 | [living-doc#135](https://github.com/AbsaOSS/living-doc/issues/135) | `ci` | `check-pr-requirements.yml` `test.yml` `dependabot.yml` `Makefile` | `when:new-repo` |
 | [living-doc#136](https://github.com/AbsaOSS/living-doc/issues/136) | `release` | `docs/CONTEXT.md` `collector-pins.env` `-v1.0.0` | `when:release` |
-| [living-doc#144](https://github.com/AbsaOSS/living-doc/issues/144) | `epic` `rendering` `release` | `@skip` `SKIPPED_SCENARIO` `narrative` `coverage-matrix` `ui-test-catalog` | — |
 | [living-doc#165](https://github.com/AbsaOSS/living-doc/issues/165) | `epic` `input-checks` `release` | `getByTestId` `trace_impact.py` `feature_registry` `living-doc-policy.yaml` | — |
 | [living-doc#171](https://github.com/AbsaOSS/living-doc/issues/171) | `docs` | `SPEC.md` `DEC-3` `docs/_archive/decisions.md` `CONTRIBUTING.md` | `when:release` |
+| [living-doc#184](https://github.com/AbsaOSS/living-doc/issues/184) | `rendering` | `docs/tutorials/gh-source-to-markdown.md` `ui-test-catalog` `coverage-matrix` | `when:pilot` |
 | [living-doc-collector-gh#162](https://github.com/AbsaOSS/living-doc-collector-gh/issues/162) | `gh-issues` | `SUPPORTED_ISSUE_LABELS` `doc_issues/collector.py` `DocumentedUserStory` | `when:issues-source` |
 | [living-doc-collector-gh#163](https://github.com/AbsaOSS/living-doc-collector-gh/issues/163) | `ci` `action` | `.github/workflows/link-check.yml` `github.action_path` `GITHUB_ACTION_PATH` `check-pr-requirements` `CONTRIBUTING.md` | `when:next-pr` |
 | [living-doc-collector-gh#164](https://github.com/AbsaOSS/living-doc-collector-gh/issues/164) | `diagnostics` | `SOURCE_UNAVAILABLE` `EMPTY_SOURCE` `utils/artifact.py` `source_context` `allow-partial` | `when:allow-partial` |
@@ -135,3 +136,4 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 | [living-doc-utilities#232](https://github.com/AbsaOSS/living-doc-utilities/issues/232) | `contract` `testing` | `component-checks.md` `metadata.stats` `source_inputs` `sources_failed` `FIELD_LOSS` | `when:pilot` |
 | [living-doc-utilities#233](https://github.com/AbsaOSS/living-doc-utilities/issues/233) | `contract` `docs` | `artifact-rules.md` `component-checks.md` `LineageEntry` `check_field_loss` `selected_stats` `FIELD_LOSS` `normalize-tests` `check_no_field_loss` `source_inputs` | `when:v1` |
 | [living-doc-utilities#234](https://github.com/AbsaOSS/living-doc-utilities/issues/234) | `contract` | `SourceRef` `scenario_id` `native_id` `normalize-tests` `ui_tests/collector.py` | `when:ado-source` |
+| [living-doc-utilities#246](https://github.com/AbsaOSS/living-doc-utilities/issues/246) | `release` `ci` | `.github/workflows/release_draft.yml` `AbsaOSS/version-tag-check` `AbsaOSS/generate-release-notes` | `when:upstream-release` |
