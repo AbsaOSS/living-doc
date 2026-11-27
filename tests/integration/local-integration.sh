@@ -239,6 +239,12 @@ outside() {  # outside TREE NAME
 outside "$REPO_ROOT/$WORK/testbed" "the runner's testbed clone"
 outside "$REPO_ROOT/$WORK/components" "the runner's component clones"
 [ "$CFG_TARGET" != project ] || outside "$(resolve "$CFG_TARGET_CHECKOUT")" "TARGET_CHECKOUT"
+# The output root's path in this checkout, when it lies there, such as a gate's folder: the living-doc line leaves it
+# out, as the run clears and rewrites it, the committed files of the gate's earlier run included.
+OUT_IN_REPO=""
+case "$(physical "$OUT")" in
+  "$(physical "$REPO_ROOT")"/?*) OUT_IN_REPO="$(physical "$OUT")"; OUT_IN_REPO="${OUT_IN_REPO#"$(physical "$REPO_ROOT")"/}" ;;
+esac
 
 # --- Clones --------------------------------------------------------------------------------------------------
 # A blob-less clone of AbsaOSS/<repository> in DIR, made once and fetched on every later run, then checked out at the
@@ -271,15 +277,19 @@ checkout_at() {  # checkout_at REPOSITORY REF DIR CLEAN
   git -C "$dir" clean -q "$clean" || die "could not clean $dir"
 }
 
-# commit_of DIR [UNTRACKED]: its HEAD, marked when its files differ from it. UNTRACKED is git status's
+# commit_of DIR [UNTRACKED [EXCLUDE]]: its HEAD, marked when its files differ from it. UNTRACKED is git status's
 # --untracked-files: `no` (the default, as the component scripts check) for living-doc and the clones; `normal` for the
-# target, whose untracked files the collector mines like any other.
+# target, whose untracked files the collector mines like any other. EXCLUDE, a folder relative to DIR, is left out:
+# living-doc's output root.
 commit_of() {
-  local sha
+  local sha changes
   sha="$(git -C "$1" rev-parse HEAD 2>/dev/null)" || { echo "unknown (not a git checkout)"; return 0; }
-  if [ -n "$(git -C "$1" status --porcelain --untracked-files="${2:-no}" 2>/dev/null)" ]; then
-    sha="$sha (uncommitted changes)"
+  if [ -n "${3:-}" ]; then
+    changes="$(git -C "$1" status --porcelain --untracked-files="${2:-no}" -- . ":(exclude)$3" 2>/dev/null)"
+  else
+    changes="$(git -C "$1" status --porcelain --untracked-files="${2:-no}" 2>/dev/null)"
   fi
+  [ -z "$changes" ] || sha="$sha (uncommitted changes)"
   printf '%s\n' "$sha"
 }
 
@@ -338,7 +348,7 @@ if [ "$CHECK_ONLY" = false ]; then
 fi
 say "== $ME" \
   "run id:              $RUN_ID" \
-  "living-doc:          $(commit_of "$REPO_ROOT")" \
+  "living-doc:          $(commit_of "$REPO_ROOT" no "$OUT_IN_REPO")" \
   "collector-gh:        $(commit_of "$COLLECTOR") ($(source_of COLLECTOR_GH_REF))" \
   "toolkit:             $(commit_of "$TOOLKIT") ($(source_of TOOLKIT_REF))" \
   "generator-markdown:  $(commit_of "$GENERATOR") ($(source_of GENERATOR_MARKDOWN_REF))" \

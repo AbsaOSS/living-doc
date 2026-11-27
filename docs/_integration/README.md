@@ -350,7 +350,8 @@ and the toolkit and the generator in the inner and then the release view, into t
 [Layout](#layout). It writes the `.env.local` of its own clones only. It first clears the paths the chain writes in the
 output root (`collector-gh/doc-source/`, `collector-gh/ui-tests/`, each view's toolkit outputs and
 `generator-markdown/`, the logs and `pin-report.txt`), so the root holds one run's files even when the run stops
-midway; anything else there, such as the committed `env.local`, stays. An `OUT_DIR` inside the target's checkout or
+midway; anything else there, such as the committed `env.local`, stays. The `living-doc` line leaves the output root
+out, so a re-run over a gate's committed files reads the checkout as it is. An `OUT_DIR` inside the target's checkout or
 the runner's clones in `out/` is refused. The first step that fails stops the run with a non-zero exit and names
 its log, in the terminal and at the end of the runner's own `local-integration.log`. Then it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
 ran (`tests/examples/check_utilities_pins.py --strict`); a skew or a release candidate pin there fails the run too.

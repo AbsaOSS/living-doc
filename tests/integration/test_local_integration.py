@@ -80,7 +80,8 @@ exit 1
 """
 
 # The chain's `git`: a clone is a folder holding a stand-in component script, its origin kept in `.git/origin-url`;
-# `ls-remote` knows one tag, `{tag}`; `status` lists a file named `untracked.feature` unless untracked files are off.
+# `ls-remote` knows one tag, `{tag}`; `status` lists a file named `untracked.feature` unless untracked files are off,
+# and, as deleted, each path in `.git/tracked` that is gone, unless a `:(exclude)<folder>` pathspec holds it.
 CHAIN_GIT = """#!/bin/sh
 echo "$*" >> "{calls}"
 dir=.
@@ -108,6 +109,15 @@ case "$command" in
     exit 0 ;;
   remote) cat "$dir/.git/origin-url"; exit 0 ;;
   status)
+    exclude=""
+    for arg in "$@"; do case "$arg" in ":(exclude)"*) exclude="${{arg#:(exclude)}}" ;; esac; done
+    if [ -f "$dir/.git/tracked" ]; then
+      while read -r path; do
+        [ -e "$dir/$path" ] && continue
+        [ -n "$exclude" ] && case "$path" in "$exclude"/*) continue ;; esac
+        echo " D $path"
+      done < "$dir/.git/tracked"
+    fi
     case " $* " in *" --untracked-files=no "*) exit 0 ;; esac
     [ -f "$dir/untracked.feature" ] && echo "?? untracked.feature"
     exit 0 ;;
@@ -571,6 +581,36 @@ def test_an_untracked_file_in_the_target_marks_its_commit(tmp_path: Path) -> Non
     assert result.returncode == 0, result.stderr
     assert f"\ntarget:              absa-1: {SHA} (uncommitted changes) (" in result.stdout
     assert f"\nliving-doc:          {SHA}\n" in result.stdout
+
+
+def track(checkout: Path, *paths: str) -> None:
+    """Paths committed in ``checkout``, as the chain's ``git`` reads them: one that is gone is a deleted file."""
+    (checkout / ".git").mkdir(parents=True, exist_ok=True)
+    (checkout / ".git" / "tracked").write_text("".join(f"{path}\n" for path in paths), encoding="utf-8")
+
+
+def test_a_rerun_over_a_committed_run_in_its_output_root_leaves_living_doc_unmarked(tmp_path: Path) -> None:
+    # A gate's folder holds the committed files of its earlier run, which the run clears before its header.
+    install_chain(tmp_path, a_testbed_run())
+    committed = tmp_path / "run" / "collector-gh" / "doc-source" / "doc-source.json"
+    committed.parent.mkdir(parents=True)
+    committed.write_text("{}\n", encoding="utf-8")
+    track(tmp_path, "run/collector-gh/doc-source/doc-source.json")
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert f"\nliving-doc:          {SHA}\n" in result.stdout
+
+
+def test_a_tracked_change_outside_the_output_root_marks_living_doc(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    track(tmp_path, "tests/testbed/removed_check.py")
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert f"\nliving-doc:          {SHA} (uncommitted changes)\n" in result.stdout
 
 
 def test_a_tag_named_master_is_checked_out_as_the_tag(tmp_path: Path) -> None:
