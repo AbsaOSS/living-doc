@@ -103,7 +103,6 @@ a search would use: a path, a symbol, a code. A row only points to its issue, wh
 | [living-doc#130](https://github.com/AbsaOSS/living-doc/issues/130) | `ci` | `.github/workflows/link-check.yml` `workflow_dispatch` `docs_changed` | `when:next-pr` |
 | [living-doc#131](https://github.com/AbsaOSS/living-doc/issues/131) | `performance` | `docs/_integration/` `local-integration.sh` | `when:pilot` |
 | [living-doc#132](https://github.com/AbsaOSS/living-doc/issues/132) | `release` `testing` | `docs/_integration/README.md` `report.md` | `when:release` |
-| [living-doc#133](https://github.com/AbsaOSS/living-doc/issues/133) | `ci` | `.github/workflows/tutorial-by-tag.yml` | `when:next-pr` |
 | [living-doc#134](https://github.com/AbsaOSS/living-doc/issues/134) | `security` `ci` | `aquasec-night-scan.yml` `AQUA_GROUP_ID` `AQUA_REPOSITORY_ID` `url_policy` | `when:security-review` |
 | [living-doc#135](https://github.com/AbsaOSS/living-doc/issues/135) | `ci` | `check-pr-requirements.yml` `test.yml` `dependabot.yml` `Makefile` | `when:new-repo` |
 | [living-doc#136](https://github.com/AbsaOSS/living-doc/issues/136) | `release` | `docs/CONTEXT.md` `collector-pins.env` `-v1.0.0` | `when:release` |

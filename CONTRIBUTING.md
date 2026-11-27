@@ -177,8 +177,8 @@ ref and commit the regenerated snapshots in the same PR. `generator-markdown` fe
 alone regenerates nothing. `python tests/examples/check_utilities_pins.py` prints the
 `living-doc-utilities` version pinned by the collector, the toolkit, `generator-markdown` and the corpus
 checker (`tests/examples/requirements-examples-check.txt`) and warns on a minor-version skew and on a
-release candidate pin, such as `living-doc-utilities==0.9.0rc1`, which a gate must replace with a final
-version; `--strict` makes that a failure, and the snapshot job in `real-collector.yml` runs it so.
+release candidate pin, such as `living-doc-utilities==0.9.0rc1`, which the release go/no-go must replace with a
+final version; `--strict` makes that a failure, and the snapshot job in `real-collector.yml` runs it so.
 
 [Authoring documentation § What the pipeline also accepts](docs/guides/authoring-documentation.md#what-the-pipeline-also-accepts)
 shows each corrected variant as a before/after pair copied from `living-doc-utilities`'
@@ -209,7 +209,7 @@ tests/testbed/run-testbed-stage.sh
 
 How it works, how to read a failure: [`tests/README.md`](tests/README.md).
 Negative cases, how to add one: [`tests/testbed/negative-cases.md`](tests/testbed/negative-cases.md).
-A gate or a milestone runs the whole chain on an operator's machine instead:
+The release go/no-go runs the whole chain on an operator's machine instead:
 [Integration runs](docs/_integration/README.md).
 
 ## The agentic layer
@@ -326,18 +326,19 @@ Each component releases by its own `DEVELOPER.md` § Release. A release of the e
    one's last issue in the release sets the version and re-pins `living-doc-utilities`. That is step 1 of their
    § Release.
 3. The [release go/no-go](docs/_integration/README.md#release-gono-go) runs over each component's `master` commit and
-   the testbed.
+   the testbed. It is the release's only run of the chain.
 4. On go, each component is tagged at the commit the run used, by the rest of its § Release:
    [`living-doc-collector-gh`](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/DEVELOPER.md#release),
    [`living-doc-toolkit`](https://github.com/AbsaOSS/living-doc-toolkit/blob/master/DEVELOPER.md#release),
    [`living-doc-generator-markdown`](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/DEVELOPER.md#release).
-5. This repository's pin PR moves `tests/collector/collector-pins.env` and the corpus checker's `living-doc-utilities`
-   pin to the tags. It regenerates the snapshots ([Regenerating the collector snapshots](#regenerating-the-collector-snapshots)).
-6. This repository is tagged by its **Draft Release** workflow; its release notes hold the compatibility table and
+   One command then shows that each tag points at that commit.
+5. This repository's pin PR prepares its release:
+   - it moves `tests/collector/collector-pins.env` and the corpus checker's `living-doc-utilities` pin to the tags;
+   - it regenerates the snapshots ([Regenerating the collector snapshots](#regenerating-the-collector-snapshots));
+   - it files the go/no-go's record, with the tag check's output.
+6. This repository is tagged by its **Draft Release** workflow. Its release notes hold the compatibility table and
    what is planned next. The table names the `living-doc-utilities` version, each component's tag and commit, and the
    testbed commit, as in [`v0.1.0`](https://github.com/AbsaOSS/living-doc/releases/tag/v0.1.0).
-7. The milestone run at the tags is filed under `docs/_integration/`
-   ([Run a milestone target](docs/_integration/README.md#run-a-milestone-target)).
 
 These version rules hold for every package. How to pin and bump `living-doc-utilities` in detail is in its
 [§ Versioning](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/api.md#versioning).
@@ -362,7 +363,7 @@ A change that spans repositories follows these rules:
 - Each PR body opens with a `## Cross-repo change — N of M` block: the Pointer issue, the landing order, what is
   already merged, what this PR covers and what it leaves out.
 - A `living-doc-utilities` minor's release PR lists the re-pin PRs that must follow it. They land before the next
-  milestone run.
+  release go/no-go.
 
 ## Ecosystem conventions
 

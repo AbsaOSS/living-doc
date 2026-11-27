@@ -90,7 +90,7 @@ jobs:
       - name: Self-test the local integration runner's configuration checks
         run: python -m pytest tests/integration -q
 
-      # A test written ahead: the warnings it raises in each coverage matrix, over the first milestone's committed
-      # outputs, and the collector check's floor that needs one, over a one-file checkout.
+      # A test written ahead: the warnings it raises in each coverage matrix, over a committed testbed
+      # run's outputs, and the collector check's floor that needs one, over a one-file checkout.
       - name: Self-test the testbed checks for a test written ahead
         run: python -m pytest tests/testbed -q

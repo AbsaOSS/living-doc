@@ -6,7 +6,7 @@ The record of the release go/no-go: one run of
 [`tests/integration/local-integration.sh`](../../../tests/integration/local-integration.sh) over the testbed's `core`,
 with every component at the commit its release will tag: `living-doc-collector-gh`, then `living-doc-toolkit` and
 `living-doc-generator-markdown` in the inner and the release view. When to run it and what follows: [Integration runs
-§ Release go/no-go](../README.md#release-gono-go). How to fill it: [Run a milestone target](../README.md#run-a-milestone-target).
+§ Release go/no-go](../README.md#release-gono-go). How to fill it: [Run the chain](../README.md#run-the-chain).
 
 Every figure comes from the run's logs and its pin report. Only the testbed decides; the run's exit is the verdict.
 This report replaces `v0.1.0`'s, which stays in git and in that release's notes. The release run fills it and files it

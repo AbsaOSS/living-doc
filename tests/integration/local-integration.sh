@@ -20,7 +20,7 @@
 # into one output root; then the living-doc-utilities pin report over the clones that ran. A testbed run then judges
 # its own output with CI's testbed checks, and exits 0 only when the chain, the pin report and every check pass: the
 # release go/no-go. The configuration is tests/integration/.env.local (copy .env.local.example). See
-# docs/_integration/README.md § Run a milestone target and § Release go/no-go.
+# docs/_integration/README.md § Run the chain and § Release go/no-go.
 #
 #   tests/integration/local-integration.sh            # check, clone, run the chain, report the pins
 #   tests/integration/local-integration.sh --check    # check, clone, run the collector's own --check; nothing else
@@ -38,10 +38,10 @@
 #   <OUT_DIR>/inner/generator-markdown/<document type>-inner.md, .run-report.json
 #   <OUT_DIR>/release/generator-markdown/<document type>-release-v<RELEASE_VERSION>.md, .run-report.json
 #   <OUT_DIR>/pin-report.txt                           tests/examples/check_utilities_pins.py --strict over the clones;
-#                                                      PIN_REPORT=warn drops --strict for a run between gates
+#                                                      PIN_REPORT=warn drops --strict for a trial run
 #
 # A run first clears the paths the chain writes in the root, so the root holds one run's files even when the run stops
-# midway; anything else there, such as a milestone's env.local, stays. The root may not lie inside the target's checkout
+# midway; anything else there, such as the go/no-go's env.local, stays. The root may not lie in the target's checkout
 # or the runner's clones.
 #
 # No token. Runs in bash 3.2 or later: Linux, macOS, or Git Bash on Windows.
@@ -53,7 +53,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$HERE/../.." && pwd)"
 ENV_FILE="tests/integration/.env.local"
 PINS_FILE="tests/collector/collector-pins.env"
-# The runner's own clones. Never under OUT_DIR, which a milestone run may commit.
+# The runner's own clones. Never under OUT_DIR, which the go/no-go commits.
 WORK="out"
 GITHUB="https://github.com/AbsaOSS"
 VIEWS="inner release"
@@ -142,8 +142,8 @@ case "$CFG_TARGET" in
   *) die "TARGET '$CFG_TARGET' in $ENV_FILE is not testbed or project" ;;
 esac
 
-# Every gate and milestone runs the pin report with --strict. Between gates, a component may pin a release candidate of
-# living-doc-utilities, which --strict fails; `warn` lets such a run reach the testbed's checks, and is no gate run.
+# The release go/no-go runs the pin report with --strict. Before it, a component may pin a release candidate of
+# living-doc-utilities, which --strict fails; `warn` lets such a trial reach the testbed's checks, and is no gate run.
 case "$CFG_PIN_REPORT" in
   "" | strict) PIN_STRICT="--strict"; PIN_REPORT_LINE="strict"; PIN_NOTE="" ;;
   warn)
@@ -239,8 +239,8 @@ outside() {  # outside TREE NAME
 outside "$REPO_ROOT/$WORK/testbed" "the runner's testbed clone"
 outside "$REPO_ROOT/$WORK/components" "the runner's component clones"
 [ "$CFG_TARGET" != project ] || outside "$(resolve "$CFG_TARGET_CHECKOUT")" "TARGET_CHECKOUT"
-# The output root's path in this checkout, when it lies there, such as a gate's folder: the living-doc line leaves it
-# out, as the run clears and rewrites it, the committed files of the gate's earlier run included.
+# The output root's path in this checkout, when it lies there, such as the go/no-go's folder: the living-doc line
+# leaves it out, as the run clears and rewrites it, the committed files of the previous go/no-go included.
 OUT_IN_REPO=""
 case "$(physical "$OUT")" in
   "$(physical "$REPO_ROOT")"/?*) OUT_IN_REPO="$(physical "$OUT")"; OUT_IN_REPO="${OUT_IN_REPO#"$(physical "$REPO_ROOT")"/}" ;;
@@ -335,7 +335,7 @@ if [ "$CHECK_ONLY" = false ]; then
   mkdir -p "$OUT"
   # The root holds this run's files and nothing older: a run that stops midway would otherwise leave an earlier run's
   # later outputs beside its own. Only the paths the chain writes are cleared; anything else there, such as a
-  # milestone's committed env.local, stays.
+  # go/no-go's committed env.local, stays.
   rm -rf "$OUT/collector-gh/doc-source" "$OUT/collector-gh/ui-tests" "$OUT/collector-gh/local-integration.log" \
     "$OUT/pin-report.txt"
   for view in $VIEWS; do

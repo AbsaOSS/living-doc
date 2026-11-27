@@ -117,12 +117,12 @@ One folder per subject: `collector/` (the pinned components, shared by both stag
 names across the repositories, and the page rules), `examples/` (tests `docs/examples/`, and the two pages checked with it),
 `integration/` (the local integration runner), `testbed/` (tests the testbed).
 
-`integration/local-integration.sh` runs the whole source-code chain on an operator's machine for a milestone run:
+`integration/local-integration.sh` runs the whole source-code chain on an operator's machine:
 `collector-gh`, then `toolkit` and `generator-markdown` in the inner and the release view, each component cloned at
 its pin or at a named tag or SHA. A testbed run then runs the testbed checks of `testbed/` over its own output, so it
 fails on a broken invariant or on any warning but [a test written ahead's or a skipped scenario's](#the-testbed-stage);
 it is the release go/no-go. No workflow runs it; CI runs only its offline
-tests. How to run it and record the run: [Integration runs](../docs/_integration/README.md#run-a-milestone-target).
+tests. How to run it and record the run: [Integration runs](../docs/_integration/README.md#run-the-chain).
 
 | File | Stage | Holds |
 |---|---|---|
@@ -148,10 +148,10 @@ tests. How to run it and record the run: [Integration runs](../docs/_integration
 | [`examples/normalize_snapshot.py`](examples/normalize_snapshot.py) | snapshot | replaces volatile values with placeholders before the diff |
 | [`integration/local-integration.sh`](integration/local-integration.sh) | — | the local integration runner: clones the components and the testbed under `out/`, runs the chain into one output root, then the pin report; a testbed run then runs the testbed checks over its output and checks the six documents exist; run by hand, never by a workflow |
 | [`integration/.env.local.example`](integration/.env.local.example) | — | the runner's settings, each with a comment; copied to the git-ignored `integration/.env.local` |
-| [`integration/test_local_integration.py`](integration/test_local_integration.py) | — | the runner's refusals before any clone, and the chain over stand-in components (order, each clone's `.env.local`, logs, stopping at a failure, a re-run's clearing and what it keeps, a project target and its untracked files, a reused clone's origin or a link to another checkout, cleaning each clone, a tag named like a branch, an output root inside a checkout or clone), and a testbed run's verdict (a warning in an artifact, a broken invariant, a missing document or run report, a project run not judged) over the first milestone's committed outputs, offline; run by `examples-check.yml` |
+| [`integration/test_local_integration.py`](integration/test_local_integration.py) | — | the runner's refusals before any clone, and the chain over stand-in components (order, each clone's `.env.local`, logs, stopping at a failure, a re-run's clearing and what it keeps, a project target and its untracked files, a reused clone's origin or a link to another checkout, cleaning each clone, a tag named like a branch, an output root inside a checkout or clone), and a testbed run's verdict (a warning in an artifact, a broken invariant, a missing document or run report, a project run not judged) over a committed testbed run's outputs (`tests/testbed/fixtures/testbed-core-run/`), offline; run by `examples-check.yml` |
 | [`testbed/run-testbed-stage.sh`](testbed/run-testbed-stage.sh) | testbed | the runner, and the testbed's collector paths and `project-id` |
 | [`testbed/check_testbed_toolkit_stage.py`](testbed/check_testbed_toolkit_stage.py) | testbed | the invariants over what the toolkit writes from `core`, in the stage's layout or, with `--runner`, the local integration runner's |
-| [`testbed/test_check_testbed_toolkit_stage.py`](testbed/test_check_testbed_toolkit_stage.py) | — | the toolkit check's tests for the warnings of a test written ahead, over the first milestone's committed outputs, offline; run by `examples-check.yml` |
+| [`testbed/test_check_testbed_toolkit_stage.py`](testbed/test_check_testbed_toolkit_stage.py) | — | the toolkit check's tests for the warnings of a test written ahead, over the same committed outputs, offline; run by `examples-check.yml` |
 | [`testbed/testbed_cases.py`](testbed/testbed_cases.py) | testbed | the derived problem cases, one function each |
 | [`testbed/check_testbed_stage.py`](testbed/check_testbed_stage.py) | testbed | the invariants over `core`, and the check for one case |
 | [`testbed/test_check_testbed_stage.py`](testbed/test_check_testbed_stage.py) | — | the floor's tests for a test written ahead, by the state each `AC:` declaration names, over a one-file checkout, offline; run by `examples-check.yml` |
