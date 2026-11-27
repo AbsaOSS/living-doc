@@ -18,7 +18,7 @@ Not here: each tool's own docs (its repository) and the agentic layer's guides (
 | `tutorials/` | one per source + output combination: `gh-source-to-markdown.md` runs; the four others are planned and carry no workflow |
 | `projects/` | one card per repository, `agentic.md` for `agentic/`; `agentic-toolkit.md` is a redirect stub |
 | `examples/` | the canonical minimal input corpus; `_expected/` holds what the pinned collector mines from it and the pinned toolkit writes from that |
-| `_integration/` | gate, milestone and release go/no-go reports from local integration runs, one folder per gate (`G1/`, `G2/`), milestone (`MS1/`, `MS3/`) or the release check (`go-no-go/`); a milestone and the release check run `tests/integration/local-integration.sh` |
+| `_integration/` | gate, milestone and release go/no-go reports from local integration runs, one folder per gate (`G1/`, `G2/`), milestone (`MS1/`, `MS3/`, `MS4/`) or the release check (`go-no-go/`); a milestone and the release check run `tests/integration/local-integration.sh` |
 | `_archive/` | `decisions.md`: the decisions behind the current design and those binding planned work, one row each with its reason and the page holding its rule; append-only (a replacing decision gets a new row naming the one it replaces), not canon, numbers keep their original value |
 | `_backlog/` | `debt-overview.md`: one row per open tech-debt or epic issue of the seven repositories, four cells (link, topics, anchors, wake tag) and no issue data; its § Rules govern it, and `tests/docs/debt_overview_check.py` holds it to GitHub |
 

@@ -18,8 +18,8 @@ machine that can reach them.
   `living-doc-generator-markdown` in each view.
 - The release go/no-go, in `go-no-go/`, decides whether the three components may be tagged. It is one testbed run of
   the same runner, on the commits the release will tag.
-- The release milestone, in `MS3/`, runs the same runner over the testbed with every component at the tag
-  `living-doc` `v0.1.0` lists, and compares its output with the go/no-go's.
+- The release milestone runs the same runner over the testbed with every component at the tag a `living-doc` release
+  lists, and compares its output with the go/no-go's: `MS3/` for `v0.1.0`, `MS4/` for `v0.2.0`.
 
 This folder holds each gate's, milestone's and release check's report and the data from its runs, so a later run can
 be compared with this one.
@@ -108,10 +108,15 @@ docs/_integration/
       env.local                  the runner's configuration, its refs left empty for the operator
       …                          once the release run wrote them, the same files as MS1/testbed-core/
   MS3/
-    report.md                    the release milestone report, started from MS1's
+    report.md                    v0.1.0's release milestone report, started from MS1's
     testbed-core/                the runner's output root, every component at its released tag
       env.local                  the runner's configuration, committed
       …                          the same files as MS1/testbed-core/
+  MS4/
+    report.md                    v0.2.0's release milestone report, started from MS3's
+    testbed-core/                the runner's output root, every component at its released tag
+      env.local                  the runner's configuration, committed
+      …                          the same files as go-no-go/testbed-core/, each document named by its view
 ```
 
 The runner's clones of the components and the testbed live in `out/` at the repository's root, which git ignores,
@@ -288,7 +293,8 @@ The configuration is `tests/integration/.env.local`, which git ignores. Its keys
 the `living-doc` checkout.
 
 - **The testbed.** Its configuration is committed: [`MS1/testbed-core/env.local`](MS1/testbed-core/env.local), and,
-  with every component at its released tag, [`MS3/testbed-core/env.local`](MS3/testbed-core/env.local).
+  with every component at its released tag, [`MS4/testbed-core/env.local`](MS4/testbed-core/env.local)
+  (`v0.2.0`'s; `v0.1.0`'s is [`MS3/testbed-core/env.local`](MS3/testbed-core/env.local)).
   `TARGET=testbed` makes the runner clone `living-doc-testbed` at `master` and configure `core` as the CI testbed stage
   does; no internal access is needed.
 
