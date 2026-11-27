@@ -22,7 +22,7 @@ Not here: the collectors, toolkit, generators and utilities. Each lives in its o
 | `tests/` | the corpus checker (with the authoring guide's pairs and the error codes), the two collector stages, the retired-names check, the page check, the local integration runner `tests/integration/local-integration.sh` | [tests/CONTEXT.md](tests/CONTEXT.md) |
 | `agentic/` | the shipped AI authoring layer: skills, one agent, evals, eval scripts | [agentic/CONTEXT.md](agentic/CONTEXT.md) |
 | `.github/` | CI workflows, PR and issue templates | [.github/CONTEXT.md](.github/CONTEXT.md) |
-| `.claude/` | this repository's own dev agents and skills: the agd kit (listed in `.agd.lock`) plus the project agent `agents/eval-runner.md` | none |
+| `.claude/` | this repository's own dev agents and skills: the agd kit (listed in `.agd.lock`) plus the project agent `agents/eval-runner.md` and the project skill `skills/roadmap/`, which plans a release | none |
 | `.local_context/` | private task notes and plans; only its README and `.gitignore` are tracked | [README](.local_context/README.md) |
 | `specs/` | local planning, gitignored | none |
 

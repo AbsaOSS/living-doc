@@ -73,14 +73,16 @@ Files and parts marked "From agentic-defaults" are replaced when the kit updates
 
 ### Planning
 
-Plan and order work that reaches several repositories by [CONTRIBUTING.md § Planning ecosystem work](CONTRIBUTING.md#planning-ecosystem-work):
+Plan work that reaches several repositories with the `roadmap` skill. It runs [CONTRIBUTING.md § Planning ecosystem work](CONTRIBUTING.md#planning-ecosystem-work):
 
-- Spikes first: file implementation issues only from their answers.
-- One issue per deliverable that belongs together, in one repository; several per repository are fine.
+- One release epic holds a release's plan: a chain table with a column per goal and a row per layer, from the visible result down to the canon.
+- Trace each goal down with evidence, then design it back up from the canon. Decide every choice a higher row depends on before any issue exists.
+- Cut the issues once, from all columns. Each issue is one reviewable PR in one repository, and may carry cells of several goals.
 - Every issue you draft has a "What must work" example (an input and what must come out) and numbered acceptance criteria.
 - Every issue you draft, spikes included, has a canon criterion: the canon pages and frame rows the change must agree with, or each canon statement it changes and where that update lands; for a spike, the canon statements its answer changes.
-- Order bottom-up, one repository at a time: utilities, collector-gh, toolkit, generator-markdown, testbed, `living-doc`. A check that guards a lower repository lands before it.
-- `living-doc-utilities` ends its part with a release candidate, set by its last issue's last criterion; the components pin it while they build.
+- Order bottom-up: the canon issue, utilities, collector-gh, toolkit, generator-markdown, testbed, then `living-doc`'s integration. A check that guards a lower repository lands before it.
+- `living-doc-utilities` ends its part with its final release, set by its last issue's last criterion. Each component's last issue in a release sets the component's version.
+- Never fix a finding in the running PR. A finding that blocks the goal is a replan; one that doesn't is a tech-debt issue (`when:release`); a new need is a candidate for a later release.
 
 ### Pull requests
 

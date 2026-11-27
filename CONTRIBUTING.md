@@ -227,18 +227,47 @@ PRs have to target `main`, `master`, `support/*`, or `release/*`.
 
 ## Planning ecosystem work
 
-Work that reaches several of the ecosystem's repositories is planned and built in this order:
+Work that reaches several of the ecosystem's repositories is planned one release at a time, in a release epic in
+this repository. The epic's chain table and its sub-issues, in landing order, are the plan. A merged issue shows as
+closed, and the plan keeps no other history. An agent runs these steps with the owner through the
+[`roadmap` skill](.claude/skills/roadmap/SKILL.md); its [guide](.claude/skills/roadmap/README.md) shows how to get the
+best plan out of it.
 
-1. **A goal.** An epic in this repository states one goal: the results someone can observe, and when it is done, for
-   example "the milestone run at the release tags passes".
-2. **Spikes first.** Every question the goal leaves open becomes a spike. The spikes are answered before any
-   implementation issue is filed, so the order is settled once and doesn't break later.
-3. **A top-down split.** The goal becomes what each repository must deliver, and that becomes issues:
-   - An issue has a small scope: what belongs together, in one repository, mergeable on its own.
-   - A repository may get several issues.
-4. **What must work.** Every issue shows a concrete example, an input and what must come out or happen, and has
-   numbered acceptance criteria, each checkable against the code or a page. A design question stays open on its issue
-   until it is decided there, from real examples.
+1. **Goals.** The owner states each goal in one sentence, with done criteria. Each criterion has one observable
+   example: an input, and what someone sees. A group of small goals, such as several debt issues of one topic, counts
+   as one goal.
+2. **A chain table.** The epic's table has a column per goal and a row per layer, from the end of the chain down to
+   the canon:
+   - the visible result;
+   - this repository's integration: tutorials, runner and testbed checks;
+   - `living-doc-testbed`, `living-doc-generator-markdown`, `living-doc-toolkit`, `living-doc-collector-gh` and
+     `living-doc-utilities`;
+   - the canon.
+
+   Another repository gets a row when a goal touches it.
+3. **Down, then up.**
+   - Each column is first traced down from its visible result. Each row records what its layer lacks for the row
+     above, why, and the evidence: an artifact of the newest committed run under `docs/_integration/`, or a
+     `file:line`.
+   - The column is then designed back up from the canon. Each row records its change.
+   - The lowest row that introduces an interface defines it, and the rows above only name it.
+   - A new column starts from the changes that the earlier columns plan.
+4. **Decisions before issues.** Every choice that a higher row depends on is decided while the column is traced, from
+   real examples. A question that needs an experiment, or someone else's input, becomes a spike. The column waits for
+   the spike's answer.
+5. **A closed chain.** A column is closed when all of these hold:
+   - every missing part has a change;
+   - every input a change consumes exists already, or comes from a row below;
+   - every interface is defined once;
+   - every "what must work" example uses only inputs that exist when its work starts.
+6. **Issues, cut once.** When the release's set of goals is complete, the issues are cut from all columns together.
+   - An issue is one reviewable pull request in one repository. It may deliver cells of several goals, and a large
+     cell may need several issues.
+   - Every issue shows what must work: a concrete example, with an input and what must come out or happen. It has
+     numbered acceptance criteria, each checkable against the code or a page.
+   - Once filed, an issue changes only when the plan does. That is a replan, and the epic logs it.
+   - A goal agreed after the cut joins the release only while none of the rows it touches has started. Otherwise it
+     waits for the next release.
 
    One criterion of every issue, spikes included, is the **canon criterion**:
    - **An issue:** it names the canon pages and frame rows the change must agree with. Or it names each canon
@@ -249,37 +278,53 @@ Work that reaches several of the ecosystem's repositories is planned and built i
    - **The canon:** this repository's `docs/reference/` pages, the
      [document types guide](docs/guides/living-doc-document-types.md), the frame in
      [Principles](docs/introduction/principles.md#the-frame), and the contracts and rules `living-doc-utilities` owns.
-   - Why: a drift is then decided on the issue, before the work, instead of found in review.
-5. **Bottom-up, one repository at a time.** The repositories go in this order:
-   1. `living-doc-utilities` first, because every component pins it;
-   2. `living-doc-collector-gh`, `living-doc-toolkit` and `living-doc-generator-markdown`;
-   3. `living-doc-testbed`;
-   4. this repository.
+   - Why: a drift is then decided before the work, instead of found in review.
+7. **Bottom-up, one repository at a time.** The issues land in this order:
+   1. the canon issue in this repository;
+   2. `living-doc-utilities`, because every component pins it;
+   3. `living-doc-collector-gh`, `living-doc-toolkit` and `living-doc-generator-markdown`;
+   4. `living-doc-testbed`;
+   5. this repository's integration.
 
-   One repository's issues are finished before the next one up starts. The exception is a check in a higher
-   repository that guards a lower one: it lands before what it guards. This repository's testbed checks, for example,
-   read the testbed at `master`.
-6. **Release candidates.**
-   - `living-doc-utilities` ends its part with a release candidate. The components pin it while they build on it
+   One repository's issues are finished before the next one up starts.
+
+   The canon issue lands first. Each page it changes says, in one line, that the part is planned for the release, as
+   rule 4 of [Writing documentation](#writing-documentation) requires. A statement that a check compares with a pinned
+   release, such as a code in `docs/reference/errors.md`, lands with the pull request that moves that pin instead.
+
+   A check in a higher repository that guards a lower one lands before what it guards. This repository's testbed
+   checks, for example, read the testbed at `master`.
+8. **Final releases.**
+   - `living-doc-utilities` ends its part with its final release, set by the last acceptance criterion of its last
+     issue. The components pin it while they build.
+   - A release candidate is cut only when someone must use a version before its release
      ([§ Versioning](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/api.md#versioning)).
-   - Setting the candidate's version is the last acceptance criterion of the repository's last issue, not an issue of
-     its own.
-   - A component cuts a candidate only when another component depends on its code, or when someone must use it before
-     its release.
-7. **Release.** The final versions follow, bottom-up, by [Releasing the ecosystem](#releasing-the-ecosystem).
-
-The epic lists its issues in this order, grouped by repository, both in its Subtasks list and as its sub-issues. A
-merged issue is ticked off, and the plan keeps no other history.
+   - The last issue of each component in the release sets the component's version and re-pins
+     `living-doc-utilities`.
+   - The rest follows [Releasing the ecosystem](#releasing-the-ecosystem).
+9. **Findings.** A finding made during the work is never fixed in the pull request that is running:
+   - a finding that blocks a goal is a replan;
+   - a finding that doesn't block is a tech-debt issue in the repository at fault, woken `when:release`;
+   - a new need is a candidate for a later release;
+   - a rule that made the work slower or worse is a retro note for the release's end.
+10. **Retro and rounds.**
+    - When a release ships, a retro collects what didn't go well: the retro notes, the replans, every edit of a filed
+      issue outside a replan, and every correction of a plan, an issue or a pull request. Each item becomes a
+      proposed change to these rules. The owner decides on each, and the accepted ones land before the next release
+      is planned. The rules a release starts with hold until it ships.
+    - A debt review then goes through the debt that the release woke, and picks the next release's goals. A release
+      of debt thus follows each release of goals.
 
 ## Releasing the ecosystem
 
 Each component releases by its own `DEVELOPER.md` § Release. A release of the ecosystem runs them in this order:
 
-1. `living-doc-utilities` releases by its
-   [§ Release](https://github.com/AbsaOSS/living-doc-utilities/blob/master/DEVELOPER.md#release), if anything
-   merged since its last release.
-2. `living-doc-collector-gh`, `living-doc-toolkit` and `living-doc-generator-markdown` each merge a release PR, step 1
-   of their § Release. It sets the version and re-pins `living-doc-utilities`.
+1. `living-doc-utilities` has released at the end of its part ([§ Planning ecosystem work](#planning-ecosystem-work)).
+   If anything merged since that release, it releases again by its
+   [§ Release](https://github.com/AbsaOSS/living-doc-utilities/blob/master/DEVELOPER.md#release).
+2. In `living-doc-collector-gh`, `living-doc-toolkit` and `living-doc-generator-markdown`, the pull request of each
+   one's last issue in the release sets the version and re-pins `living-doc-utilities`. That is step 1 of their
+   § Release.
 3. The [release go/no-go](docs/_integration/README.md#release-gono-go) runs over each component's `master` commit and
    the testbed.
 4. On go, each component is tagged at the commit the run used, by the rest of its § Release:
@@ -312,6 +357,8 @@ A change that spans repositories follows these rules:
 
 - Each repository it changes gets an issue of its own.
 - A **Pointer** issue in this repository lists every PR in landing order, and closes once all are merged and verified.
+  A change planned in a release epic needs no Pointer: the epic lists its issues in landing order, and the PR block
+  below names the epic in the Pointer's place.
 - Each PR body opens with a `## Cross-repo change — N of M` block: the Pointer issue, the landing order, what is
   already merged, what this PR covers and what it leaves out.
 - A `living-doc-utilities` minor's release PR lists the re-pin PRs that must follow it. They land before the next
