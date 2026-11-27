@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check PR requirements
-        uses: AbsaOSS/check-pr-requirements@0d4f326fcf798afc702480a68281ab5694236a57
+        uses: AbsaOSS/check-pr-requirements@40a8970bea7014f119ec34a044082ac304999873
         with:
           pr-title: ${{ github.event.pull_request.title }}
           pr-body: ${{ github.event.pull_request.body }}
