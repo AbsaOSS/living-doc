@@ -310,9 +310,14 @@ the `living-doc` checkout.
   DOC_SOURCE_PAGES_PATHS=<from step 1, or empty>
   UI_TESTS_PATHS=<from step 1>
   GITHUB_SERVER_URL=<empty for github.com; the server's URL for GitHub Enterprise Server>
+  RELEASE_VERSION=<the release of the repository's content, as X.Y.Z>
   OUT_DIR=docs/_integration/<milestone>/internal/absa-1
   PYTHON=
   ```
+
+- **The release version.** `RELEASE_VERSION` is the release of the content the run collects, as `X.Y.Z` or `vX.Y.Z`,
+  named by whoever runs it; it is not `living-doc`'s version. Every run needs it: the generator names the release
+  view's files by it, `<document type>-release-vX.Y.Z.md`, and the inner view's `<document type>-inner.md`.
 
 - **The refs.** Each component runs at its pin in
   [`tests/collector/collector-pins.env`](../../tests/collector/collector-pins.env) unless `COLLECTOR_GH_REF`,
@@ -358,7 +363,8 @@ runs in its component's venv, and the first that fails stops the run:
 
 1. the collector's invariants over `core`: `tests/testbed/check_testbed_stage.py core` over `collector-gh/`;
 2. the toolkit's invariants over both views: `tests/testbed/check_testbed_toolkit_stage.py --runner`;
-3. the six documents and their run reports exist under each view's `generator-markdown/`.
+3. the six documents and their run reports exist under each view's `generator-markdown/`, under the names the
+   generator gives them: `<document type>-inner` and `<document type>-release-v<RELEASE_VERSION>`.
 
 Any warning in an artifact fails check 1 or 2, but
 [a test written ahead's or a skipped scenario's](../../tests/README.md#the-testbed-stage). Each check's output follows a
@@ -405,7 +411,7 @@ component tag is never re-cut, so this run comes before any tag.
   `OUT_DIR=docs/_integration/go-no-go/testbed-core`. `TESTBED_REF` is the testbed's `master` as a full commit SHA.
   Each component ref is its candidate's full commit SHA: its `master` once its release pin pull request merged. An
   empty ref runs the pin, and a tag is cut only after go: neither is a candidate. `PIN_REPORT` stays empty, so the
-  pin report is strict.
+  pin report is strict. `RELEASE_VERSION` names the release of the testbed's content the run reads.
 - **The run:** [Run a milestone target](#run-a-milestone-target), steps 2 and 3. The testbed run's checks decide.
 - **Go:** the run exits 0. Each component is then tagged at exactly the commit that passed. The release notes name
   the testbed commit the run read.

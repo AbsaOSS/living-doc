@@ -35,7 +35,8 @@
 #   <OUT_DIR>/<view>/toolkit/local-integration.log     the toolkit's log, per view
 #   <OUT_DIR>/<view>/toolkit/{normalize-docs,normalize-tests,coverage-matrix}/…
 #   <OUT_DIR>/<view>/local-integration.log             the generator's log, beside the folder it clears as a whole
-#   <OUT_DIR>/<view>/generator-markdown/<document type>.md, .run-report.json
+#   <OUT_DIR>/inner/generator-markdown/<document type>-inner.md, .run-report.json
+#   <OUT_DIR>/release/generator-markdown/<document type>-release-v<RELEASE_VERSION>.md, .run-report.json
 #   <OUT_DIR>/pin-report.txt                           tests/examples/check_utilities_pins.py --strict over the clones;
 #                                                      PIN_REPORT=warn drops --strict for a run between gates
 #
@@ -60,7 +61,7 @@ VIEWS="inner release"
 # Every setting the configuration may hold; a line with any other key stops the run, reported by its number only.
 KEYS="TARGET TESTBED_REF COLLECTOR_GH_REF TOOLKIT_REF GENERATOR_MARKDOWN_REF PROJECT_ID TARGET_CHECKOUT
 ORGANIZATION_NAME REPOSITORY_NAME DOC_SOURCE_US_PATHS DOC_SOURCE_FUNC_PATHS DOC_SOURCE_PAGES_PATHS UI_TESTS_PATHS
-GITHUB_SERVER_URL OUT_DIR PYTHON PIN_REPORT"
+GITHUB_SERVER_URL OUT_DIR PYTHON PIN_REPORT RELEASE_VERSION"
 # The collector's target keys: TARGET=project takes them from the configuration, TARGET=testbed sets them itself.
 PROJECT_KEYS="PROJECT_ID TARGET_CHECKOUT ORGANIZATION_NAME REPOSITORY_NAME DOC_SOURCE_US_PATHS DOC_SOURCE_FUNC_PATHS
 DOC_SOURCE_PAGES_PATHS UI_TESTS_PATHS GITHUB_SERVER_URL"
@@ -152,6 +153,12 @@ case "$CFG_PIN_REPORT" in
     ;;
   *) die "PIN_REPORT '$CFG_PIN_REPORT' in $ENV_FILE is not strict or warn" ;;
 esac
+
+# The release of the content the run collects, which whoever runs it names; not living-doc's version. The generator
+# fails a release-view run without it, and names that view's files by it, a leading `v` dropped.
+[ -n "$CFG_RELEASE_VERSION" ] \
+  || die "RELEASE_VERSION is not set in $ENV_FILE; set the release of the content the run collects, as X.Y.Z or vX.Y.Z"
+RELEASE_SUFFIX="release-v${CFG_RELEASE_VERSION#v}"
 
 # A configured path: `~/` is the home directory, and a relative one resolves against this repository's root.
 resolve() {
@@ -336,6 +343,7 @@ say "== $ME" \
   "toolkit:             $(commit_of "$TOOLKIT") ($(source_of TOOLKIT_REF))" \
   "generator-markdown:  $(commit_of "$GENERATOR") ($(source_of GENERATOR_MARKDOWN_REF))" \
   "target:              $TARGET_LINE" \
+  "release version:     $CFG_RELEASE_VERSION" \
   "python:              $PY_VERSION ($PY)" \
   "output:              $OUT" \
   "pin report:          $PIN_REPORT_LINE"
@@ -395,6 +403,7 @@ for view in $VIEWS; do
     "TECHNICAL_PROJECT_INPUT=$OUT/$view/toolkit/normalize-docs/generator-ready.json" \
     "UI_TEST_CATALOG_INPUT=$OUT/$view/toolkit/normalize-tests/ui-test-catalog.json" \
     "COVERAGE_MATRIX_INPUT=$OUT/$view/toolkit/coverage-matrix/coverage-matrix.json" \
+    "RELEASE_VERSION=$CFG_RELEASE_VERSION" \
     "OUT_DIR=$OUT/$view" \
     "PYTHON=$PY"
   # generator-markdown clears `<view>/generator-markdown/` as a whole, so its log goes beside that folder.
@@ -420,7 +429,8 @@ fi
 # `core` follows the canon 100 %, so a broken invariant over it is a defect, and so is any warning but a test written
 # ahead's or a scenario tagged `@skip`'s, which the toolkit check expects (tests/README.md § The testbed stage). The
 # run checks its own output with CI's testbed checks in tests/testbed/, each in the venv its component's script built,
-# as the testbed stage runs each in its component's venv. The first check that fails stops the run; its last line names it.
+# as the testbed stage runs each in its component's venv. The first check that fails stops the run; its last line
+# names it.
 venv_python() {  # venv_python CLONE: the interpreter of the venv the clone's local-integration.sh built
   if [ -x "$1/.venv-local-integration/bin/python" ]; then
     printf '%s\n' "$1/.venv-local-integration/bin/python"
@@ -448,8 +458,11 @@ check "the toolkit's invariants over both views" "$TOOLKIT_PY" tests/testbed/che
 say "" "== check: the six documents and their run reports"
 missing=""
 for view in $VIEWS; do
+  # Each file names its view, and a release-view file its release too, as the generator names them.
+  suffix="$view"
+  [ "$view" != release ] || suffix="$RELEASE_SUFFIX"
   for document in technical-project ui-test-catalog coverage-matrix; do
-    for file in "$document.md" "$document.run-report.json"; do
+    for file in "$document-$suffix.md" "$document-$suffix.run-report.json"; do
       [ -f "$OUT/$view/generator-markdown/$file" ] || missing="$missing $view/generator-markdown/$file"
     done
   done
