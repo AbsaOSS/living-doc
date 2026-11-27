@@ -44,7 +44,7 @@ live.
 | [living-doc-generator-markdown](https://github.com/AbsaOSS/living-doc-generator-markdown) | Plain `.md` files | Docs committed alongside code, rendered by whatever already renders your repository's Markdown (GitHub, a wiki, a generic static site generator); editable and diffable like code. | Available |
 | [living-doc-generator-pdf](https://github.com/AbsaOSS/living-doc-generator-pdf) | PDF | Point-in-time deliverables: technical projects, UI test catalogs, coverage matrices — a report or sign-off artifact, shared or archived as a file, not browsed as a site. | Planned |
 
-**PDF output is planned:** `living-doc-generator-pdf` is not part of the `v0.1.0` pipeline ([generator-pdf](../projects/generator-pdf.md)).
+**PDF output is planned:** `living-doc-generator-pdf` is not part of the `v0.2.0` pipeline ([generator-pdf](../projects/generator-pdf.md)).
 One pipeline can run several generator steps over the same `toolkit` files: one per document, and, once PDF output
 lands, one per output format.
 
@@ -57,23 +57,24 @@ action is pinned by its release tag, and one `project-id` names the project.
 - uses: actions/checkout@v7
 - uses: actions/setup-python@v7
   with: { python-version: '3.14' }
-- uses: AbsaOSS/living-doc-collector-gh@v0.2.0
+- uses: AbsaOSS/living-doc-collector-gh@v0.3.0
   with:
     project-id: your-project
     doc-source: true
     doc-source-repositories: |
       [{"organization-name": "your-org", "repository-name": "your-repo",
         "us-paths": ["${{ github.workspace }}/features/liv_doc_us"]}]
-- uses: AbsaOSS/living-doc-toolkit@v0.1.0
+- uses: AbsaOSS/living-doc-toolkit@v0.2.0
   with:
     command: normalize-docs
     input: output/collector-gh/doc-source/doc-source.json
     output: output/toolkit/generator-ready.json
     view: release
-- uses: AbsaOSS/living-doc-generator-markdown@v0.1.0
+- uses: AbsaOSS/living-doc-generator-markdown@v0.2.0
   with:
     document-type: technical-project
     source-path: output/toolkit/generator-ready.json
+    release-version: 1.2.0
 ```
 
 - `toolkit` and `generator-markdown` need Python on the runner, so `actions/setup-python` comes first
@@ -81,8 +82,8 @@ action is pinned by its release tag, and one `project-id` names the project.
 - The collector reads the checkout and needs no token
   ([`collector-gh` prerequisites](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md#prerequisites)).
 - The test catalog and the coverage matrix need the scenarios too: `ui-tests: true` and its repository list on the
-  collect step. `normalize-tests` then turns `ui-tests.json` into `ui-test-catalog.json`, and `coverage-matrix` joins
-  the two files; each is one more `toolkit` step, read by one more generator step
+  collect step. `normalize-tests` then reads `doc-source.json` as `input` and `ui-tests.json` as `tests-input`, with
+  the same `view`, and writes `ui-test-catalog.json`; `coverage-matrix` joins the same two files; each is one more `toolkit` step, read by one more generator step
   ([Data flows — Commands](../reference/data-flows.md#commands)). The tutorial renders all three.
 - Every input of each step:
   [`collector-gh`](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md#inputs),
@@ -93,8 +94,9 @@ action is pinned by its release tag, and one `project-id` names the project.
 
 ## What a run writes
 
-- Each generator step writes two files into its `output-path`, named by its document type: the document
-  `<document-type>.md` and its `<document-type>.run-report.json`
+- Each generator step writes two files into its `output-path`, named by its document type and view: the document,
+  `<document-type>-inner.md` or, in the release view, `<document-type>-release-vX.Y.Z.md` with the step's
+  `release-version`, and its run report beside it, `.run-report.json` in place of `.md`
   ([`generator-markdown` files](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/docs/action.md#files)).
 - The run report lists what the document shows; commit it with the document, or publish the document alone.
 - Every file of the chain, with its default path and who reads it: [Data flows — Files](../reference/data-flows.md#files).

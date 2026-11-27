@@ -46,7 +46,10 @@ The verdict in § 1 is the run's exit; the sign-off and the verdicts in § 9 are
 - **Earlier runs:** two runs over the same candidates went before this one, and each stopped on `living-doc`'s side,
   not on a candidate's (§ 8)
 - **Owner sign-off:** go, 2026-11-27
-- **Tags cut, each at its commit in § 3, after go:** pending
+- **Tags cut, each at its commit in § 3, after go:** `living-doc-collector-gh` `v0.3.0` at
+  `3219c9350e96d463a456e4384b4a58a117926233`, `living-doc-toolkit` `v0.2.0` at
+  `85e94232ba3294a1c8f86644ebe56d65b9d94a20`, `living-doc-generator-markdown` `v0.2.0` at
+  `d0e8b49cdaf9b6892327f8849742736408baeda3`, each released 2026-11-27 by Draft Release
 - **Testbed commit in the release notes:** `AbsaOSS/living-doc-testbed` `master` at
   `6b9b3ec9262032518023a3cd6e9f86acf97d1f89`
 

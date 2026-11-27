@@ -52,7 +52,7 @@
         "feature_dependencies": [],
         "func_type": null,
         "functionalities": [],
-        "narrative": null,
+        "narrative": "As a registered customer, I can sign in with my email and password, so that I can reach my account area.",
         "not_in_scope": [],
         "notes": [],
         "owners": [],
@@ -214,7 +214,7 @@
         "feature_dependencies": [],
         "func_type": "field_validation",
         "functionalities": [],
-        "narrative": null,
+        "narrative": "Validates a candidate password against the account complexity policy before the login form is submitted.",
         "not_in_scope": [],
         "notes": [],
         "owners": [],
@@ -269,8 +269,8 @@
     "producer": {
       "build": null,
       "name": "AbsaOSS/living-doc-toolkit",
-      "utilities_version": "0.8.1",
-      "version": "0.1.0"
+      "utilities_version": "0.9.0",
+      "version": "0.2.0"
     },
     "run": {
       "actor": null,
@@ -298,8 +298,8 @@
         "producer": {
           "build": null,
           "name": "AbsaOSS/living-doc-collector-gh",
-          "utilities_version": "0.8.1",
-          "version": "0.2.0"
+          "utilities_version": "0.9.0",
+          "version": "0.3.0"
         },
         "run": {
           "actor": null,
@@ -402,7 +402,7 @@
             "functionalities[].feature_dependencies[]": 0,
             "functionalities[].func_type": 1,
             "functionalities[].functionalities[]": 0,
-            "functionalities[].narrative": 0,
+            "functionalities[].narrative": 1,
             "functionalities[].not_in_scope[]": 0,
             "functionalities[].notes[]": 0,
             "functionalities[].owners[]": 0,
@@ -456,7 +456,7 @@
             "user_stories[].feature_dependencies[]": 0,
             "user_stories[].func_type": 0,
             "user_stories[].functionalities[]": 0,
-            "user_stories[].narrative": 0,
+            "user_stories[].narrative": 1,
             "user_stories[].not_in_scope[]": 0,
             "user_stories[].notes[]": 0,
             "user_stories[].owners[]": 0,
@@ -599,7 +599,7 @@
             "functionalities[].feature_dependencies[]": 0,
             "functionalities[].func_type": 2,
             "functionalities[].functionalities[]": 0,
-            "functionalities[].narrative": 0,
+            "functionalities[].narrative": 2,
             "functionalities[].not_in_scope[]": 1,
             "functionalities[].notes[]": 0,
             "functionalities[].owners[]": 0,
@@ -653,7 +653,7 @@
             "user_stories[].feature_dependencies[]": 0,
             "user_stories[].func_type": 0,
             "user_stories[].functionalities[]": 0,
-            "user_stories[].narrative": 0,
+            "user_stories[].narrative": 1,
             "user_stories[].not_in_scope[]": 0,
             "user_stories[].notes[]": 0,
             "user_stories[].owners[]": 0,
@@ -731,7 +731,7 @@
         "content.entities[].feature_dependencies[]": 0,
         "content.entities[].func_type": 1,
         "content.entities[].functionalities[]": 1,
-        "content.entities[].narrative": 0,
+        "content.entities[].narrative": 2,
         "content.entities[].not_in_scope[]": 0,
         "content.entities[].notes[]": 0,
         "content.entities[].owners[]": 1,

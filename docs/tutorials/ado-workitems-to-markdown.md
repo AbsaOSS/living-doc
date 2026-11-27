@@ -23,8 +23,8 @@ Markdown files from Azure DevOps work items, refreshed on a schedule:
 1. `living-doc-collector-ad` will mine the work items into `doc-entities.json`
    ([Data flows — Planned](../reference/data-flows.md#planned)).
 2. `toolkit` will normalize that into the file a generator reads.
-3. `generator-markdown` will render the technical project, `technical-project.md` with its run report, and the
-   workflow will commit any changes.
+3. `generator-markdown` will render the technical project, `technical-project-inner.md` with its run report,
+   and the workflow will commit any changes.
 
 ## Documentation from Azure DevOps, tests from GitHub
 

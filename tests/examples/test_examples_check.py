@@ -31,12 +31,13 @@ from pathlib import Path
 
 import pytest
 import yaml
+from living_doc_utilities.authoring import normalize
 from living_doc_utilities.contracts.codes import ALL_CODES
 
 from examples_check import (AC_TAG_RE, AUTHORING_GUIDE, CASES_URL, ERRORS_PAGE, FEATURE_STOP_RE,
                             FEATURE_STRIP_RE, Corpus, SourceFormat, _criteria, _decomment_block,
-                            _normalized, check_authoring_guide, check_corpus, check_error_codes,
-                            check_feature_levels, main)
+                            _normalized, _report_rewrites, check_authoring_guide, check_corpus,
+                            check_error_codes, check_feature_levels, main)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REAL_EXAMPLES = REPO_ROOT / "docs" / "examples"
@@ -639,6 +640,18 @@ def test_line_normalize_rewrites_fails(corpus_dir: Path, path: str, old: str, ne
                for f in findings), findings
     # `ac_grammar` reads the normalised text, so a variant it can rewrite is no grammar failure too.
     assert not any(f.rule.startswith("MALFORMED_AC") for f in findings), findings
+
+
+def test_every_change_normalize_records_is_reported() -> None:
+    # `normalize` records only the lines it rewrites (living-doc-utilities#231). One it records with its text
+    # unchanged would be a regression there, which the check reports instead of hiding.
+    corpus = Corpus()
+
+    _report_rewrites([normalize.Change(7, "ac_header_separator", "# AC:US-001-01", "# AC:US-001-01")],
+                     corpus, "x.feature")
+
+    assert [(f.line, f.rule) for f in corpus.findings] == [
+        (7, "NON_CANONICAL_FORM: normalize rewrites this line (ac_header_separator)")]
 
 
 def test_non_canonical_issue_title_fails(corpus_dir: Path) -> None:

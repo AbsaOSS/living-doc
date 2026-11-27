@@ -28,8 +28,9 @@ against its contract, then asserts:
 - ``coverage-matrix``: every counted criterion's verdict per aspect, ``AC:FUNC-001-03`` at 1 of its
   3 ``rule`` values among them, the summaries and the planned totals;
 - ``ui-test-catalog``: its feature files, their grouping and the number of scenarios;
-- the two warnings this corpus expects on ``FEAT-003``, in both ``generator-ready`` views and the
-  matrix, and none in the catalog;
+- the two warnings this corpus expects on ``FEAT-003``, in both ``generator-ready`` views, the matrix
+  and the catalog, which ``normalize-tests`` forwards from the documentation it reads since
+  ``living-doc-toolkit`` ``v0.2.0``;
 - two documentation files in one run fail with ``MULTIPLE_DOCUMENTATION_SOURCES``, a non-zero exit
   and no output file. This runs the CLI, not the action's ``main.py``: ``main.py`` takes one
   ``input``, and only ``coverage-matrix --doc-input`` may be repeated.
@@ -217,8 +218,7 @@ def check_catalog(result, failures: list[str]) -> None:
     scenarios |= {scenario.scenario_id for file in result.feature_files for scenario in file.unlinked}
     if len(scenarios) != CATALOG_SCENARIOS:
         failures.append(f"{name}: {len(scenarios)} scenarios, expected {CATALOG_SCENARIOS}")
-    if result.warnings:
-        failures.append(f"{name}: warnings {[warning.code for warning in result.warnings]}, expected none")
+    _check_warnings(name, result, failures)
 
 
 def check_negative_run(doc_source: Path, ui_tests: Path, failures: list[str]) -> None:

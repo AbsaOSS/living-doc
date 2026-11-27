@@ -310,9 +310,14 @@ the `living-doc` checkout.
   DOC_SOURCE_PAGES_PATHS=<from step 1, or empty>
   UI_TESTS_PATHS=<from step 1>
   GITHUB_SERVER_URL=<empty for github.com; the server's URL for GitHub Enterprise Server>
+  RELEASE_VERSION=<the release of the repository's content, as X.Y.Z>
   OUT_DIR=docs/_integration/<milestone>/internal/absa-1
   PYTHON=
   ```
+
+- **The release version.** `RELEASE_VERSION` is the release of the content the run collects, as `X.Y.Z` or `vX.Y.Z`,
+  named by whoever runs it; it is not `living-doc`'s version. Every run needs it: the generator names the release
+  view's files by it, `<document type>-release-vX.Y.Z.md`, and the inner view's `<document type>-inner.md`.
 
 - **The refs.** Each component runs at its pin in
   [`tests/collector/collector-pins.env`](../../tests/collector/collector-pins.env) unless `COLLECTOR_GH_REF`,
@@ -345,7 +350,8 @@ and the toolkit and the generator in the inner and then the release view, into t
 [Layout](#layout). It writes the `.env.local` of its own clones only. It first clears the paths the chain writes in the
 output root (`collector-gh/doc-source/`, `collector-gh/ui-tests/`, each view's toolkit outputs and
 `generator-markdown/`, the logs and `pin-report.txt`), so the root holds one run's files even when the run stops
-midway; anything else there, such as the committed `env.local`, stays. An `OUT_DIR` inside the target's checkout or
+midway; anything else there, such as the committed `env.local`, stays. The `living-doc` line leaves the output root
+out, so a re-run over a gate's committed files reads the checkout as it is. An `OUT_DIR` inside the target's checkout or
 the runner's clones in `out/` is refused. The first step that fails stops the run with a non-zero exit and names
 its log, in the terminal and at the end of the runner's own `local-integration.log`. Then it writes `pin-report.txt`, the living-doc-utilities pins of the clones that
 ran (`tests/examples/check_utilities_pins.py --strict`); a skew or a release candidate pin there fails the run too.
@@ -358,12 +364,15 @@ runs in its component's venv, and the first that fails stops the run:
 
 1. the collector's invariants over `core`: `tests/testbed/check_testbed_stage.py core` over `collector-gh/`;
 2. the toolkit's invariants over both views: `tests/testbed/check_testbed_toolkit_stage.py --runner`;
-3. the six documents and their run reports exist under each view's `generator-markdown/`.
+3. the six documents and their run reports exist under each view's `generator-markdown/`, under the names the
+   generator gives them: `<document type>-inner` and `<document type>-release-v<RELEASE_VERSION>`.
 
-Any warning in an artifact fails check 1 or 2, but [a test written ahead's](../../tests/README.md#the-testbed-stage).
-Each check's output follows a `== check:` line, in the terminal and in the runner's log. The run exits 0 only when the chain, the pin report and the three checks pass. Its last line names
-the check that failed, or says the chain and the testbed's invariants passed. A project run is not judged: an
-internal project's warnings belong to its authors ([Warnings on an internal target](#warnings-on-an-internal-target)).
+Any warning in an artifact fails check 1 or 2, but
+[a test written ahead's or a skipped scenario's](../../tests/README.md#the-testbed-stage). Each check's output follows a
+`== check:` line, in the terminal and in the runner's log. The run exits 0 only when the chain, the pin report and the
+three checks pass. Its last line names the check that failed, or says the chain and the testbed's invariants passed. A
+project run is not judged: an internal project's warnings belong to its authors
+([Warnings on an internal target](#warnings-on-an-internal-target)).
 
 Run one at a time per `living-doc` checkout: every run shares the clones in `out/` and rewrites their `.env.local`.
 `out/` is the runner's: don't link an existing checkout into it to save a clone. A linked clone is replaced by a fresh
@@ -403,7 +412,7 @@ component tag is never re-cut, so this run comes before any tag.
   `OUT_DIR=docs/_integration/go-no-go/testbed-core`. `TESTBED_REF` is the testbed's `master` as a full commit SHA.
   Each component ref is its candidate's full commit SHA: its `master` once its release pin pull request merged. An
   empty ref runs the pin, and a tag is cut only after go: neither is a candidate. `PIN_REPORT` stays empty, so the
-  pin report is strict.
+  pin report is strict. `RELEASE_VERSION` names the release of the testbed's content the run reads.
 - **The run:** [Run a milestone target](#run-a-milestone-target), steps 2 and 3. The testbed run's checks decide.
 - **Go:** the run exits 0. Each component is then tagged at exactly the commit that passed. The release notes name
   the testbed commit the run read.
@@ -415,8 +424,8 @@ component tag is never re-cut, so this run comes before any tag.
 ## Warnings on an internal target
 
 The testbed follows the canon 100 %, so any warning over it is a defect, and the gate accepts none but
-[a test written ahead's](../../tests/README.md#the-testbed-stage). An internal repository may deviate from the canon,
-so its warnings do not decide the gate. Its run never blocks the gate. Classify
+[a test written ahead's or a skipped scenario's](../../tests/README.md#the-testbed-stage). An internal repository may
+deviate from the canon, so its warnings do not decide the gate. Its run never blocks the gate. Classify
 each code in the report:
 
 - **authoring**: the file itself deviates from the canon. Record the code and its count; nothing to fix here.

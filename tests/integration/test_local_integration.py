@@ -24,8 +24,8 @@ refusals, that ``git`` answers every ``ls-remote`` with "no such tag" and fails 
 show in its log. For the chain, its ``clone`` makes a folder holding a stand-in ``local-integration.sh``, which records
 each call and its ``.env.local``, fails where ``FAIL_AT`` says, and otherwise writes what the real script writes: the
 first milestone's committed outputs (``docs/_integration/MS1/testbed-core/``), copied to a fixture folder a case may
-change first, and the venv its run builds, here a link to this interpreter. The verdict's toolkit check is the real
-one. The collector check is a stand-in that records its call and fails when ``BREAK_INVARIANT`` is set: the real one
+change first, with one scenario tagged ``@skip`` as today's ``core`` has (``skip_scenario``), and the venv its run
+builds, here a link to this interpreter. The verdict's toolkit check is the real one. The collector check is a stand-in that records its call and fails when ``BREAK_INVARIANT`` is set: the real one
 reads the testbed's own files, which no test holds, and CI's testbed stage runs it. Nothing goes online.
 """
 
@@ -56,6 +56,9 @@ ME = "tests/integration/local-integration.sh"
 
 pytestmark = pytest.mark.skipif(BASH is None, reason="needs bash")
 
+# The release of the collected content every run's configuration names, which the release view's file names carry.
+RELEASE = "1.2.0"
+
 # A complete TARGET=project configuration; each case drops or changes one line.
 PROJECT = {
     "TARGET": "project",
@@ -77,7 +80,8 @@ exit 1
 """
 
 # The chain's `git`: a clone is a folder holding a stand-in component script, its origin kept in `.git/origin-url`;
-# `ls-remote` knows one tag, `{tag}`; `status` lists a file named `untracked.feature` unless untracked files are off.
+# `ls-remote` knows one tag, `{tag}`; `status` lists a file named `untracked.feature` unless untracked files are off,
+# and, as deleted, each path in `.git/tracked` that is gone, unless a `:(exclude)<folder>` pathspec holds it.
 CHAIN_GIT = """#!/bin/sh
 echo "$*" >> "{calls}"
 dir=.
@@ -105,6 +109,15 @@ case "$command" in
     exit 0 ;;
   remote) cat "$dir/.git/origin-url"; exit 0 ;;
   status)
+    exclude=""
+    for arg in "$@"; do case "$arg" in ":(exclude)"*) exclude="${{arg#:(exclude)}}" ;; esac; done
+    if [ -f "$dir/.git/tracked" ]; then
+      while read -r path; do
+        [ -e "$dir/$path" ] && continue
+        [ -n "$exclude" ] && case "$path" in "$exclude"/*) continue ;; esac
+        echo " D $path"
+      done < "$dir/.git/tracked"
+    fi
     case " $* " in *" --untracked-files=no "*) exit 0 ;; esac
     [ -f "$dir/untracked.feature" ] && echo "?? untracked.feature"
     exit 0 ;;
@@ -117,7 +130,9 @@ exit 1
 
 # A component's `local-integration.sh`, standing in: records the call and its `.env.local` under `{record}`, writes
 # the files the real one writes under its OUT_DIR, copied from `{fixture}`, and the venv the real run builds, and fails
-# its run where FAIL_AT names `<clone>:<OUT_DIR's name>`.
+# its run where FAIL_AT names `<clone>:<OUT_DIR's name>`. The generator's files are named as the real one names them:
+# `<document type>-inner` in the inner view, `<document type>-release-v<RELEASE_VERSION without a leading v>` in the
+# release view.
 STUB_COMPONENT = """#!/bin/sh
 component=$(basename "$(pwd)")
 out=$(sed -n 's/^OUT_DIR=//p' .env.local)
@@ -138,7 +153,14 @@ case "$component" in
     done ;;
   living-doc-generator-markdown)
     rm -rf "$out/generator-markdown"
-    cp -R "{fixture}/$view/generator-markdown" "$out/generator-markdown" ;;
+    mkdir -p "$out/generator-markdown"
+    version=$(sed -n 's/^RELEASE_VERSION=//p' .env.local)
+    suffix=inner
+    [ "$view" = release ] && suffix="release-v${{version#v}}"
+    for file in "{fixture}/$view/generator-markdown"/*; do
+      name=$(basename "$file")
+      cp "$file" "$out/generator-markdown/${{name%%.*}}-$suffix.${{name#*.}}"
+    done ;;
 esac
 mkdir -p .venv-local-integration/bin
 printf '#!/bin/sh\\nexec "%s" "$@"\\n' "{python}" > .venv-local-integration/bin/python
@@ -206,15 +228,19 @@ def run(tmp_path: Path, config: str) -> tuple[subprocess.CompletedProcess[str], 
     return invoke(tmp_path)
 
 
-def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Path = CHECKER_REQUIREMENTS) -> Path:
+def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Path = CHECKER_REQUIREMENTS,
+                  skipped: bool = True) -> Path:
     """The runner over ``config`` with the chain's ``git`` and stand-ins, its remote knowing ``tag``, each clone's
     ``requirements.txt`` a copy of ``requirements``, and the verdict's two checks; the folder the stand-ins record in.
-    What the stand-in components write is under ``tmp_path/fixture``."""
+    What the stand-in components write is under ``tmp_path/fixture``: MS1's outputs, with ``SKIPPED_AC``'s only
+    scenario skipped (``skip_scenario``) unless ``skipped`` is false."""
     record = tmp_path / "record"
     record.mkdir()
     fixture = tmp_path / "fixture"
     shutil.copytree(MS1_OUTPUT, fixture, ignore=shutil.ignore_patterns("local-integration.log", "env.local",
                                                                        "pin-report.txt"))
+    if skipped:
+        skip_scenario(fixture)
     stub = tmp_path / "stub-local-integration.sh"
     stub.write_text(STUB_COMPONENT.format(record=record.as_posix(), fixture=fixture.as_posix(),
                                           python=python_setting()), encoding="utf-8", newline="\n")
@@ -227,6 +253,44 @@ def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Pat
     (checks / "check_testbed_stage.py").write_text(
         STAND_IN_COLLECTOR_CHECK.format(calls=(record / "collector-check.txt").as_posix()), encoding="utf-8")
     return record
+
+
+# MS1's `core` has no skipped scenario, and today's `core` does: the testbed's `@skip` on FUNC-009-03's only scenario.
+# The fixture skips a criterion's only scenario the same way, one with no declared values that links nothing else.
+SKIPPED_AC = "FUNC-009-02"
+SKIPPED_SCENARIO_ID = ("AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/"
+                       "func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state")
+
+
+def skip_scenario(fixture: Path) -> None:
+    """Tags ``SKIPPED_SCENARIO_ID`` ``@skip`` in the fixture's ``ui-tests``, and writes each view's matrix as the toolkit
+    does under living-doc-utilities 0.9.0's coverage rule: ``SKIPPED_AC`` not covered, its summaries recomputed, and
+    the link's ``SKIPPED_SCENARIO`` warning."""
+    from living_doc_utilities.contracts.coverage_matrix import AcCoverage, CoverageSummary
+
+    def summary(rows: list[dict]) -> dict:
+        return CoverageSummary.from_rows([AcCoverage.model_validate(row) for row in rows]).model_dump(mode="json")
+
+    ui_tests = fixture / "collector-gh" / "ui-tests" / "ui-tests.json"
+    data = json.loads(ui_tests.read_text(encoding="utf-8"))
+    scenario = next(scenario for scenario in data["scenarios"] if scenario["scenario_id"] == SKIPPED_SCENARIO_ID)
+    assert [link["id"] for link in scenario["acceptance_criteria"]] == [SKIPPED_AC], scenario
+    scenario["tags"].append("@skip")
+    ui_tests.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    for view in ("inner", "release"):
+        matrix = fixture / view / "toolkit" / "coverage-matrix" / "coverage-matrix.json"
+        data = json.loads(matrix.read_text(encoding="utf-8"))
+        for entity in data["entities"]:
+            for row in entity["acceptance_criteria"]:
+                if row["ac_id"] == SKIPPED_AC:
+                    row.update(status="not_covered", scenario_ids=[])
+            entity["summary"] = summary(entity["acceptance_criteria"])
+        data["summary"] = summary([row for entity in data["entities"] for row in entity["acceptance_criteria"]])
+        data["warnings"].append({"code": "SKIPPED_SCENARIO", "message": "planted by the test",
+                                 "context": f"scenario_id={SKIPPED_SCENARIO_ID!r}",
+                                 "entity_id": SKIPPED_AC.rsplit("-", 1)[0], "ac_id": SKIPPED_AC})
+        data["metadata"]["stats"]["cardinality"]["warnings_by_code"]["SKIPPED_SCENARIO"] = 1
+        matrix.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def settings(path: Path) -> dict[str, str]:
@@ -290,7 +354,8 @@ def test_an_unknown_key_is_refused_by_its_line_number(tmp_path: Path) -> None:
     ("TESTBED_REF", "master"),
 ])
 def test_a_ref_that_is_neither_a_full_sha_nor_a_tag_is_refused(tmp_path: Path, key: str, ref: str) -> None:
-    result, git_calls = run(tmp_path, f"TARGET=testbed\n{key}={ref}\nPYTHON={python_setting()}\n")
+    result, git_calls = run(tmp_path, f"TARGET=testbed\n{key}={ref}\nRELEASE_VERSION={RELEASE}\n"
+                                      f"PYTHON={python_setting()}\n")
 
     assert_refused(tmp_path, result, git_calls, f"{key} '{ref}'", "neither a full 40-hex commit SHA nor a tag")
     assert any(f"refs/tags/{ref}" in call for call in git_calls), git_calls
@@ -301,6 +366,13 @@ def test_a_pin_report_setting_other_than_strict_or_warn_is_refused(tmp_path: Pat
 
     assert_refused(tmp_path, result, git_calls, "PIN_REPORT 'off'", "not strict or warn")
     assert git_calls == []
+
+
+def test_a_missing_release_version_is_refused(tmp_path: Path) -> None:
+    result, git_calls = run(tmp_path, f"TARGET=testbed\nPYTHON={python_setting()}\n")
+
+    assert_refused(tmp_path, result, git_calls, "RELEASE_VERSION is not set",
+                   "the release of the content the run collects")
 
 
 def test_a_missing_target_is_refused(tmp_path: Path) -> None:
@@ -340,7 +412,7 @@ def read(path: Path) -> str:
 
 
 def test_a_testbed_run_chains_the_components_in_both_views_into_one_root(tmp_path: Path) -> None:
-    record = install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    record = install_chain(tmp_path, a_testbed_run())
 
     result, git_calls = invoke(tmp_path)
 
@@ -350,6 +422,7 @@ def test_a_testbed_run_chains_the_components_in_both_views_into_one_root(tmp_pat
     for label in ("run id:", "living-doc:", "collector-gh:", "toolkit:", "generator-markdown:", "target:"):
         assert f"\n{label}" in header, header
     assert f"testbed-core: AbsaOSS/living-doc-testbed {SHA} (master)" in header
+    assert f"\nrelease version:     {RELEASE}\n" in header, header
     assert any("/out/testbed -c " in call and call.endswith(" --detach origin/master") for call in git_calls), git_calls
     for repository in (*COMPONENTS, "living-doc-testbed"):
         assert any(call.startswith(f"clone --quiet --filter=blob:none https://github.com/AbsaOSS/{repository} ")
@@ -372,8 +445,10 @@ def test_a_testbed_run_chains_the_components_in_both_views_into_one_root(tmp_pat
         assert generator["UI_TEST_CATALOG_INPUT"].endswith(f"{toolkit_out}/normalize-tests/ui-test-catalog.json")
         assert generator["COVERAGE_MATRIX_INPUT"].endswith(f"{toolkit_out}/coverage-matrix/coverage-matrix.json")
         assert generator["OUT_DIR"].endswith(f"/run/{view}")
+        assert generator["RELEASE_VERSION"] == RELEASE
+        suffix = "inner" if view == "inner" else f"release-v{RELEASE}"
         for document in DOCUMENTS:
-            assert (root / view / "generator-markdown" / f"{document}.md").is_file()
+            assert (root / view / "generator-markdown" / f"{document}-{suffix}.md").is_file()
         assert f"stub: living-doc-toolkit:{view} done" in read(root / view / "toolkit" / "local-integration.log")
         assert f"stub: living-doc-generator-markdown:{view} done" in read(root / view / "local-integration.log")
     assert "stub: living-doc-collector-gh:run done" in read(root / "collector-gh" / "local-integration.log")
@@ -382,7 +457,7 @@ def test_a_testbed_run_chains_the_components_in_both_views_into_one_root(tmp_pat
 
 
 def test_an_existing_tag_is_accepted_as_a_ref(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nCOLLECTOR_GH_REF={TAG}\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    install_chain(tmp_path, a_testbed_run() + f"COLLECTOR_GH_REF={TAG}\n")
 
     result, git_calls = invoke(tmp_path)
 
@@ -392,7 +467,7 @@ def test_an_existing_tag_is_accepted_as_a_ref(tmp_path: Path) -> None:
 
 
 def test_a_failing_step_stops_the_chain_and_the_runners_log_names_it(tmp_path: Path) -> None:
-    record = install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    record = install_chain(tmp_path, a_testbed_run())
 
     result, _ = invoke(tmp_path, FAIL_AT="living-doc-toolkit:release")
 
@@ -404,7 +479,7 @@ def test_a_failing_step_stops_the_chain_and_the_runners_log_names_it(tmp_path: P
 
 
 def test_a_rerun_into_the_same_root_leaves_nothing_of_the_earlier_run(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    install_chain(tmp_path, a_testbed_run())
     first, _ = invoke(tmp_path)
     assert first.returncode == 0, first.stderr
     (tmp_path / "run" / "env.local").write_text("TARGET=testbed\n", encoding="utf-8")
@@ -415,12 +490,12 @@ def test_a_rerun_into_the_same_root_leaves_nothing_of_the_earlier_run(tmp_path: 
     assert not (tmp_path / "run" / "pin-report.txt").exists()
     assert not (tmp_path / "run" / "release" / "generator-markdown").exists()
     assert not (tmp_path / "run" / "release" / "toolkit" / "normalize-docs").exists()
-    assert (tmp_path / "run" / "inner" / "generator-markdown" / "technical-project.md").is_file()
+    assert (tmp_path / "run" / "inner" / "generator-markdown" / "technical-project-inner.md").is_file()
     assert read(tmp_path / "run" / "env.local") == "TARGET=testbed\n"
 
 
 def test_a_run_clears_only_the_paths_the_chain_writes(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    install_chain(tmp_path, a_testbed_run())
     kept = [tmp_path / "run" / folder / "notes.txt"
             for folder in ("collector-gh", "inner", "release", "inner/toolkit", "release/toolkit")]
     for path in kept:
@@ -436,7 +511,8 @@ def test_a_run_clears_only_the_paths_the_chain_writes(tmp_path: Path) -> None:
 def test_a_project_run_forwards_its_checkout_and_every_collector_setting(tmp_path: Path) -> None:
     project = {**PROJECT, "TARGET_CHECKOUT": "project-checkout", "DOC_SOURCE_FUNC_PATHS": "features/func",
                "DOC_SOURCE_PAGES_PATHS": "pages", "GITHUB_SERVER_URL": "https://ghe.example.com"}
-    record = install_chain(tmp_path, lines({**project, "OUT_DIR": "run", "PYTHON": python_setting()}))
+    record = install_chain(tmp_path, lines({**project, "OUT_DIR": "run", "RELEASE_VERSION": RELEASE,
+                                            "PYTHON": python_setting()}))
     (tmp_path / "project-checkout" / ".git").mkdir(parents=True)
 
     result, git_calls = invoke(tmp_path)
@@ -453,7 +529,7 @@ def test_a_project_run_forwards_its_checkout_and_every_collector_setting(tmp_pat
 
 
 def test_a_reused_clone_of_another_repository_is_cloned_again(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    install_chain(tmp_path, a_testbed_run())
     first, _ = invoke(tmp_path)
     assert first.returncode == 0, first.stderr
     toolkit = tmp_path / "out" / "components" / "living-doc-toolkit"
@@ -470,7 +546,7 @@ def test_a_reused_clone_of_another_repository_is_cloned_again(tmp_path: Path) ->
 
 
 def test_every_clone_is_cleaned_after_checkout_and_the_testbed_of_ignored_files_too(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    install_chain(tmp_path, a_testbed_run())
 
     result, git_calls = invoke(tmp_path)
 
@@ -488,14 +564,15 @@ def test_every_clone_is_cleaned_after_checkout_and_the_testbed_of_ignored_files_
 ])
 def test_an_output_root_inside_a_checkout_the_run_reads_or_a_clone_is_refused(
         tmp_path: Path, target: str, out_dir: str, inside: str) -> None:
-    result, git_calls = run(tmp_path, f"{target}OUT_DIR={out_dir}\nPYTHON={python_setting()}\n")
+    result, git_calls = run(tmp_path, f"{target}OUT_DIR={out_dir}\nRELEASE_VERSION={RELEASE}\n"
+                                      f"PYTHON={python_setting()}\n")
 
     assert_refused(tmp_path, result, git_calls, "OUT_DIR", f"is inside {inside}")
 
 
 def test_an_untracked_file_in_the_target_marks_its_commit(tmp_path: Path) -> None:
     install_chain(tmp_path, lines({**PROJECT, "TARGET_CHECKOUT": "project-checkout", "OUT_DIR": "run",
-                                   "PYTHON": python_setting()}))
+                                   "RELEASE_VERSION": RELEASE, "PYTHON": python_setting()}))
     (tmp_path / "project-checkout" / ".git").mkdir(parents=True)
     (tmp_path / "project-checkout" / "untracked.feature").write_text("Feature: not committed\n", encoding="utf-8")
 
@@ -506,8 +583,38 @@ def test_an_untracked_file_in_the_target_marks_its_commit(tmp_path: Path) -> Non
     assert f"\nliving-doc:          {SHA}\n" in result.stdout
 
 
+def track(checkout: Path, *paths: str) -> None:
+    """Paths committed in ``checkout``, as the chain's ``git`` reads them: one that is gone is a deleted file."""
+    (checkout / ".git").mkdir(parents=True, exist_ok=True)
+    (checkout / ".git" / "tracked").write_text("".join(f"{path}\n" for path in paths), encoding="utf-8")
+
+
+def test_a_rerun_over_a_committed_run_in_its_output_root_leaves_living_doc_unmarked(tmp_path: Path) -> None:
+    # A gate's folder holds the committed files of its earlier run, which the run clears before its header.
+    install_chain(tmp_path, a_testbed_run())
+    committed = tmp_path / "run" / "collector-gh" / "doc-source" / "doc-source.json"
+    committed.parent.mkdir(parents=True)
+    committed.write_text("{}\n", encoding="utf-8")
+    track(tmp_path, "run/collector-gh/doc-source/doc-source.json")
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert f"\nliving-doc:          {SHA}\n" in result.stdout
+
+
+def test_a_tracked_change_outside_the_output_root_marks_living_doc(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    track(tmp_path, "tests/testbed/removed_check.py")
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert f"\nliving-doc:          {SHA} (uncommitted changes)\n" in result.stdout
+
+
 def test_a_tag_named_master_is_checked_out_as_the_tag(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nTOOLKIT_REF=master\nOUT_DIR=run\nPYTHON={python_setting()}\n",
+    install_chain(tmp_path, a_testbed_run() + "TOOLKIT_REF=master\n",
                   tag="master")
 
     result, git_calls = invoke(tmp_path)
@@ -535,7 +642,7 @@ def developer_checkout(path: Path, repository: str) -> Path:
 
 
 def test_a_clone_folder_linked_to_another_checkout_is_cloned_again_and_the_checkout_left_alone(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    install_chain(tmp_path, a_testbed_run())
     developer = developer_checkout(tmp_path / "developer" / "living-doc-toolkit", "living-doc-toolkit")
     clone = tmp_path / "out" / "components" / "living-doc-toolkit"
     link(clone, developer)
@@ -548,7 +655,7 @@ def test_a_clone_folder_linked_to_another_checkout_is_cloned_again_and_the_check
 
 
 def test_a_clone_whose_git_folder_is_a_link_is_cloned_again(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    install_chain(tmp_path, a_testbed_run())
     developer = developer_checkout(tmp_path / "developer" / "living-doc-toolkit", "living-doc-toolkit")
     clone = tmp_path / "out" / "components" / "living-doc-toolkit"
     clone.mkdir(parents=True)
@@ -562,7 +669,7 @@ def test_a_clone_whose_git_folder_is_a_link_is_cloned_again(tmp_path: Path) -> N
 
 
 def test_clones_reached_through_a_linked_folder_stop_the_run(tmp_path: Path) -> None:
-    install_chain(tmp_path, f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n")
+    install_chain(tmp_path, a_testbed_run())
     developer = tmp_path / "developer"
     developer_checkout(developer / "living-doc-toolkit", "living-doc-toolkit")
     link(tmp_path / "out" / "components", developer)
@@ -579,7 +686,7 @@ def test_clones_reached_through_a_linked_folder_stop_the_run(tmp_path: Path) -> 
 
 
 def a_testbed_run() -> str:
-    return f"TARGET=testbed\nOUT_DIR=run\nPYTHON={python_setting()}\n"
+    return f"TARGET=testbed\nOUT_DIR=run\nRELEASE_VERSION={RELEASE}\nPYTHON={python_setting()}\n"
 
 
 def plant_warning(artifact: Path) -> None:
@@ -657,16 +764,79 @@ def test_a_broken_toolkit_invariant_fails_a_testbed_run(tmp_path: Path) -> None:
     assert "  FAIL generator-ready.release: holds" in result.stdout
 
 
-@pytest.mark.parametrize("missing", ["inner/generator-markdown/coverage-matrix.md",
-                                     "release/generator-markdown/technical-project.run-report.json"])
-def test_a_missing_document_or_run_report_fails_a_testbed_run(tmp_path: Path, missing: str) -> None:
+def test_a_skipped_scenario_covers_nothing_and_its_warning_passes_a_testbed_run(tmp_path: Path) -> None:
     install_chain(tmp_path, a_testbed_run())
-    (tmp_path / "fixture" / missing).unlink()
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "  coverage-matrix.inner: valid (coverage-matrix-v1.0.0); warnings: 1" in result.stdout
+    assert f"      skipped: {SKIPPED_AC}, whose only scenarios are tagged @skip, covered by none" in result.stdout
+    assert "      warnings: 1 in each matrix," in result.stdout
+    assert f"        SKIPPED_SCENARIO for AC:{SKIPPED_AC} (scenario_id={SKIPPED_SCENARIO_ID!r})" in result.stdout
+
+
+def test_a_toolkit_that_counts_a_skipped_scenario_fails_a_testbed_run(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    # A toolkit before living-doc-utilities 0.9.0 counts it: MS1's matrices, the criterion covered and no warning.
+    for view in ("inner", "release"):
+        relative = Path(view) / "toolkit" / "coverage-matrix" / "coverage-matrix.json"
+        shutil.copy(MS1_OUTPUT / relative, tmp_path / "fixture" / relative)
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
+    assert (f"  FAIL coverage-matrix.release: AC:{SKIPPED_AC} is ('covered', {{}}), doc-source and ui-tests give "
+            "('not_covered', {})") in result.stdout
+
+
+def test_a_skipped_scenario_warning_on_a_running_scenario_fails_a_testbed_run(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    matrix = tmp_path / "fixture" / "inner" / "toolkit" / "coverage-matrix" / "coverage-matrix.json"
+    data = json.loads(matrix.read_text(encoding="utf-8"))
+    running = SKIPPED_SCENARIO_ID.rsplit("/", 1)[0] + "/member-with-loans-sees-their-loans"
+    data["warnings"][-1].update(ac_id="FUNC-009-01", context=f"scenario_id={running!r}")
+    matrix.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
+    assert "  FAIL coverage-matrix.inner: warning SKIPPED_SCENARIO entity=FUNC-009: planted by the test" in result.stdout
+
+
+def test_a_testbed_run_over_a_core_that_skips_no_scenario_fails(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run(), skipped=False)
+
+    result, _ = invoke(tmp_path)
+
+    assert_failed_check(tmp_path, result, "the toolkit's invariants over both views failed")
+    assert ("  FAIL nothing to assert: the artifacts have no criterion whose only scenarios are skipped"
+            in result.stdout)
+
+
+@pytest.mark.parametrize(("dropped", "missing"), [
+    ("inner/generator-markdown/coverage-matrix.md", "inner/generator-markdown/coverage-matrix-inner.md"),
+    ("release/generator-markdown/technical-project.run-report.json",
+     f"release/generator-markdown/technical-project-release-v{RELEASE}.run-report.json"),
+])
+def test_a_missing_document_or_run_report_fails_a_testbed_run(tmp_path: Path, dropped: str, missing: str) -> None:
+    install_chain(tmp_path, a_testbed_run())
+    (tmp_path / "fixture" / dropped).unlink()
 
     result, _ = invoke(tmp_path)
 
     assert_failed_check(tmp_path, result, "the six documents and their run reports failed")
     assert result.stderr.splitlines()[-1].endswith(f" {missing}"), result.stderr
+
+
+def test_a_release_version_with_a_leading_v_names_the_release_files_once(tmp_path: Path) -> None:
+    install_chain(tmp_path, a_testbed_run().replace(f"RELEASE_VERSION={RELEASE}", f"RELEASE_VERSION=v{RELEASE}"))
+
+    result, _ = invoke(tmp_path)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    for document in DOCUMENTS:
+        assert (tmp_path / "run" / "release" / "generator-markdown" / f"{document}-release-v{RELEASE}.md").is_file()
 
 
 def candidate_requirements(tmp_path: Path) -> Path:
@@ -708,7 +878,7 @@ def test_pin_report_warn_lets_a_testbed_run_with_a_release_candidate_pin_reach_i
 
 def test_a_project_run_with_a_warning_is_not_judged(tmp_path: Path) -> None:
     record = install_chain(tmp_path, lines({**PROJECT, "TARGET_CHECKOUT": "project-checkout", "OUT_DIR": "run",
-                                            "PYTHON": python_setting()}))
+                                            "RELEASE_VERSION": RELEASE, "PYTHON": python_setting()}))
     (tmp_path / "project-checkout" / ".git").mkdir(parents=True)
     plant_warning(tmp_path / "fixture" / "collector-gh" / "doc-source" / "doc-source.json")
     plant_warning(tmp_path / "fixture" / "release" / "toolkit" / "coverage-matrix" / "coverage-matrix.json")

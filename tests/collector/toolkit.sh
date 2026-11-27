@@ -137,5 +137,5 @@ toolkit_chain() {
     && toolkit_run coverage-matrix "$output_root/gh-headers/coverage-matrix.json" \
       INPUT_INPUT="$doc_source" INPUT_TESTS_INPUT="$ui_tests" \
     && toolkit_run normalize-tests "$output_root/tests/ui-test-catalog.json" \
-      INPUT_INPUT="$ui_tests"
+      INPUT_INPUT="$doc_source" INPUT_TESTS_INPUT="$ui_tests" INPUT_VIEW=inner
 }

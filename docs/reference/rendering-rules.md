@@ -2,8 +2,8 @@
 
 ## Purpose
 
-This page explains what each view of a technical project shows and drops, and how a coverage matrix counts
-acceptance criteria. The normative rules are `living-doc-utilities`'
+This page explains what each view of a technical project and a UI test catalog shows and drops, and how a coverage
+matrix counts acceptance criteria. The normative rules are `living-doc-utilities`'
 [Rendering](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md) page; each
 line below links the rule it explains, and no table is restated. [What was not loaded](#what-was-not-loaded) is the
 exception: its rule is defined here, and that page maps it onto a warning's fields.
@@ -14,6 +14,7 @@ Read before: [Living Documentation Document Types](../guides/living-doc-document
 
 - [Views](#views)
 - [What was not loaded](#what-was-not-loaded)
+- [Test catalog](#test-catalog)
 - [Coverage](#coverage)
 
 ## Views
@@ -38,6 +39,10 @@ records and changes nothing that was authored
   reason ([Fields by view](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#fields-by-view)).
 - Both views show every criterion header in its canonical form
   ([Fields by view](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#fields-by-view)).
+- Every file `generator-markdown` writes names its view: `<document type>-inner.md` in the inner view, and
+  `<document type>-release-vX.Y.Z.md` in the release view, which also names the release the document describes, the
+  step's `release-version`; each run report follows its document's name
+  ([`generator-markdown` files](https://github.com/AbsaOSS/living-doc-generator-markdown/blob/master/docs/action.md#files)).
 
 ## What was not loaded
 
@@ -52,6 +57,21 @@ is shown once, for the whole document, with its file and line. The release view 
 The codes are listed in
 [`living-doc-utilities`' error codes](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/errors.md#codes).
 
+## Test catalog
+
+A UI test catalog lists the tests by the entities their `@AC:` tags link, and then every test by its feature file
+([Test catalog](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#test-catalog)).
+
+- Each link carries its criterion's state. The release view drops each link to a `planned` or `in_review`
+  criterion, and the test stays where it is, with no link if every one was dropped
+  ([Test catalog](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#test-catalog)).
+- A feature file none of whose tests links a criterion is in no chapter of either view; in the release view, that
+  includes a file whose every link was dropped. Only the inner view lists such a file, with its number of tests
+  ([Test catalog](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#test-catalog)).
+- A test shows its steps as written, under its `Rule:` name when it has one, and a feature file's `Background:` and
+  a rule's own background show once, above the tests they run before
+  ([Test catalog](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#test-catalog)).
+
 ## Coverage
 
 A coverage matrix answers one question per acceptance criterion: does a test cover it? Coverage is per declared
@@ -64,6 +84,10 @@ value; [AC variants](authoring-formats.md#ac-variants) defines the three verdict
   merged and its state was not updated ([Coverage](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#coverage)).
 - `planned` criteria, backlog or targeted, are not counted: tests ahead of the implementation are fine, and
   counting unbuilt work would lower the figure. A scenario linked to one is the warning `PLANNED_AC_HAS_TESTS`
+  ([Coverage](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#coverage)).
+- A scenario tagged `@skip` covers nothing, so a criterion whose only scenarios are skipped is not covered. A
+  skipped scenario linked to a counted criterion is the warning `SKIPPED_SCENARIO`, and the UI test catalog still
+  lists the link
   ([Coverage](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/contracts/rendering.md#coverage)).
 - The coverage figure weighs each counted criterion: covered counts 1, not covered 0, and partly covered its
   share of values, so **1/3** adds a third

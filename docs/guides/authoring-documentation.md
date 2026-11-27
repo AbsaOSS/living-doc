@@ -108,8 +108,8 @@ must hold for several values declares them once, with a keyword: one name, writt
 
 The normaliser in `living-doc-utilities` corrects small formatting variants before a header is parsed, so each one
 below reaches the document in its canonical form; your file keeps what you wrote. Each pair is a case of its
-[`normalisation_cases.yaml`](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.8.1/living_doc_utilities/authoring/normalisation_cases.yaml)
-at `v0.8.1`, named by its id: the case's `input` before, its `expected` after. What each rule rewrites, and what it
+[`normalisation_cases.yaml`](https://github.com/AbsaOSS/living-doc-utilities/blob/v0.9.0/living_doc_utilities/authoring/normalisation_cases.yaml)
+at `v0.9.0`, named by its id: the case's `input` before, its `expected` after. What each rule rewrites, and what it
 never touches, is in
 [Normalisation — Rules](https://github.com/AbsaOSS/living-doc-utilities/blob/master/docs/authoring/normalisation.md#rules).
 These are corrections, not alternatives: write the canonical form.
@@ -450,7 +450,9 @@ Each line of a dropped criterion is reported too, as `AUTHORING_WARNING`.
 
 ## How to check before you push
 
-- Run `collector-gh`'s `doc-source` mode on your branch, as a workflow step on the pull request or by hand
+- Add the pull-request check: it fails a pull request on its changed headers' findings and on every broken relation
+  ([Check a pull request before the merge](../tutorials/gh-source-to-markdown.md#6-check-a-pull-request-before-the-merge)).
+- To check by hand, run `collector-gh`'s `doc-source` mode on your branch
   ([action reference](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/docs/action.md)).
 - Read the `warnings[]` of its `doc-source.json`: each warning names the file and the line, and links that line at
   your commit ([Documentation Source mode — Errors](https://github.com/AbsaOSS/living-doc-collector-gh/blob/master/doc_source/README.md#errors)).

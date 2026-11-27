@@ -91,19 +91,31 @@ dropped. See [`living-doc-utilities`' artifact rules — The metadata envelope](
 
 ## Test catalog
 
-The list of **behaviours the automated tests document** — every Gherkin scenario, grouped by the
-Feature / Functionality it exercises, with its `@AC:` links.
+The list of **behaviours the automated tests document**: the User Stories and Functionalities the tests link, each
+criterion with its tests, and then every test by its feature file. The layout was agreed on
+[#155](https://github.com/AbsaOSS/living-doc/issues/155).
 
 **Structure**
 
 ```
-Feature file  (@US_ID / @FUNC_ID)
-  └─ Scenario  (# AC: comment + @AC: tag)
-       └─ steps
+User Stories, then Functionalities           the entities the tests' @AC: tags link
+  └─ Entity
+       └─ Criterion (its state)  ── the tests that link it
+Tests by feature file
+  └─ Feature file  (its Background: once)
+       └─ Test  (its tags, its Rule: and the rule's background, its steps as written)
+Not linked to an entity  (inner view only)   each feature file whose tests link no criterion, with its test count
 ```
 
-Scenario-to-AC traceability comes from the `# AC:` comment and `@AC:` tag on each scenario; see
-[Glossary § Acceptance Criterion](../reference/glossary.md#acceptance-criterion-ac).
+- A test is grouped by the entities its `@AC:` tags link. Only the `@AC:` tag links a test to a criterion; the
+  `# AC:` comment above a scenario is documentation for the reader
+  ([Glossary — Acceptance Criterion](../reference/glossary.md#acceptance-criterion-ac)).
+- A feature file none of whose tests links a criterion is in no chapter. The inner view lists it with its number of
+  tests; the release view leaves it out.
+- The release view drops each link to a `planned` or `in_review` criterion, and the test stays in its feature file
+  ([Rendering rules — Test catalog](../reference/rendering-rules.md#test-catalog)).
+- A test tagged `@skip` says it covers nothing: its criteria show as skipped, not counted, as in the coverage matrix
+  ([Rendering rules — Coverage](../reference/rendering-rules.md#coverage)).
 
 **Built from** — Gherkin `.feature` files in the living-doc directories
 (`features/liv_doc_us/`, `features/liv_doc_func/` by default), mined by `collector-gh`'s `ui-tests`
@@ -117,7 +129,8 @@ useful alongside one.
 their `@AC:` tagged scenarios.
 
 **Generator input:** `document-type: ui-test-catalog`, reading `ui-test-catalog.json`, which the
-`toolkit`'s `normalize-tests` writes from `ui-tests.json` — never raw collector output.
+`toolkit`'s `normalize-tests` writes from `ui-tests.json` and `doc-source.json`, the second for each criterion's
+state — never raw collector output.
 
 ---
 

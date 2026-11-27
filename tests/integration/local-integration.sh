@@ -35,7 +35,8 @@
 #   <OUT_DIR>/<view>/toolkit/local-integration.log     the toolkit's log, per view
 #   <OUT_DIR>/<view>/toolkit/{normalize-docs,normalize-tests,coverage-matrix}/…
 #   <OUT_DIR>/<view>/local-integration.log             the generator's log, beside the folder it clears as a whole
-#   <OUT_DIR>/<view>/generator-markdown/<document type>.md, .run-report.json
+#   <OUT_DIR>/inner/generator-markdown/<document type>-inner.md, .run-report.json
+#   <OUT_DIR>/release/generator-markdown/<document type>-release-v<RELEASE_VERSION>.md, .run-report.json
 #   <OUT_DIR>/pin-report.txt                           tests/examples/check_utilities_pins.py --strict over the clones;
 #                                                      PIN_REPORT=warn drops --strict for a run between gates
 #
@@ -60,7 +61,7 @@ VIEWS="inner release"
 # Every setting the configuration may hold; a line with any other key stops the run, reported by its number only.
 KEYS="TARGET TESTBED_REF COLLECTOR_GH_REF TOOLKIT_REF GENERATOR_MARKDOWN_REF PROJECT_ID TARGET_CHECKOUT
 ORGANIZATION_NAME REPOSITORY_NAME DOC_SOURCE_US_PATHS DOC_SOURCE_FUNC_PATHS DOC_SOURCE_PAGES_PATHS UI_TESTS_PATHS
-GITHUB_SERVER_URL OUT_DIR PYTHON PIN_REPORT"
+GITHUB_SERVER_URL OUT_DIR PYTHON PIN_REPORT RELEASE_VERSION"
 # The collector's target keys: TARGET=project takes them from the configuration, TARGET=testbed sets them itself.
 PROJECT_KEYS="PROJECT_ID TARGET_CHECKOUT ORGANIZATION_NAME REPOSITORY_NAME DOC_SOURCE_US_PATHS DOC_SOURCE_FUNC_PATHS
 DOC_SOURCE_PAGES_PATHS UI_TESTS_PATHS GITHUB_SERVER_URL"
@@ -153,6 +154,12 @@ case "$CFG_PIN_REPORT" in
   *) die "PIN_REPORT '$CFG_PIN_REPORT' in $ENV_FILE is not strict or warn" ;;
 esac
 
+# The release of the content the run collects, which whoever runs it names; not living-doc's version. The generator
+# fails a release-view run without it, and names that view's files by it, a leading `v` dropped.
+[ -n "$CFG_RELEASE_VERSION" ] \
+  || die "RELEASE_VERSION is not set in $ENV_FILE; set the release of the content the run collects, as X.Y.Z or vX.Y.Z"
+RELEASE_SUFFIX="release-v${CFG_RELEASE_VERSION#v}"
+
 # A configured path: `~/` is the home directory, and a relative one resolves against this repository's root.
 resolve() {
   case "$1" in
@@ -232,6 +239,12 @@ outside() {  # outside TREE NAME
 outside "$REPO_ROOT/$WORK/testbed" "the runner's testbed clone"
 outside "$REPO_ROOT/$WORK/components" "the runner's component clones"
 [ "$CFG_TARGET" != project ] || outside "$(resolve "$CFG_TARGET_CHECKOUT")" "TARGET_CHECKOUT"
+# The output root's path in this checkout, when it lies there, such as a gate's folder: the living-doc line leaves it
+# out, as the run clears and rewrites it, the committed files of the gate's earlier run included.
+OUT_IN_REPO=""
+case "$(physical "$OUT")" in
+  "$(physical "$REPO_ROOT")"/?*) OUT_IN_REPO="$(physical "$OUT")"; OUT_IN_REPO="${OUT_IN_REPO#"$(physical "$REPO_ROOT")"/}" ;;
+esac
 
 # --- Clones --------------------------------------------------------------------------------------------------
 # A blob-less clone of AbsaOSS/<repository> in DIR, made once and fetched on every later run, then checked out at the
@@ -264,15 +277,19 @@ checkout_at() {  # checkout_at REPOSITORY REF DIR CLEAN
   git -C "$dir" clean -q "$clean" || die "could not clean $dir"
 }
 
-# commit_of DIR [UNTRACKED]: its HEAD, marked when its files differ from it. UNTRACKED is git status's
+# commit_of DIR [UNTRACKED [EXCLUDE]]: its HEAD, marked when its files differ from it. UNTRACKED is git status's
 # --untracked-files: `no` (the default, as the component scripts check) for living-doc and the clones; `normal` for the
-# target, whose untracked files the collector mines like any other.
+# target, whose untracked files the collector mines like any other. EXCLUDE, a folder relative to DIR, is left out:
+# living-doc's output root.
 commit_of() {
-  local sha
+  local sha changes
   sha="$(git -C "$1" rev-parse HEAD 2>/dev/null)" || { echo "unknown (not a git checkout)"; return 0; }
-  if [ -n "$(git -C "$1" status --porcelain --untracked-files="${2:-no}" 2>/dev/null)" ]; then
-    sha="$sha (uncommitted changes)"
+  if [ -n "${3:-}" ]; then
+    changes="$(git -C "$1" status --porcelain --untracked-files="${2:-no}" -- . ":(exclude)$3" 2>/dev/null)"
+  else
+    changes="$(git -C "$1" status --porcelain --untracked-files="${2:-no}" 2>/dev/null)"
   fi
+  [ -z "$changes" ] || sha="$sha (uncommitted changes)"
   printf '%s\n' "$sha"
 }
 
@@ -331,11 +348,12 @@ if [ "$CHECK_ONLY" = false ]; then
 fi
 say "== $ME" \
   "run id:              $RUN_ID" \
-  "living-doc:          $(commit_of "$REPO_ROOT")" \
+  "living-doc:          $(commit_of "$REPO_ROOT" no "$OUT_IN_REPO")" \
   "collector-gh:        $(commit_of "$COLLECTOR") ($(source_of COLLECTOR_GH_REF))" \
   "toolkit:             $(commit_of "$TOOLKIT") ($(source_of TOOLKIT_REF))" \
   "generator-markdown:  $(commit_of "$GENERATOR") ($(source_of GENERATOR_MARKDOWN_REF))" \
   "target:              $TARGET_LINE" \
+  "release version:     $CFG_RELEASE_VERSION" \
   "python:              $PY_VERSION ($PY)" \
   "output:              $OUT" \
   "pin report:          $PIN_REPORT_LINE"
@@ -395,6 +413,7 @@ for view in $VIEWS; do
     "TECHNICAL_PROJECT_INPUT=$OUT/$view/toolkit/normalize-docs/generator-ready.json" \
     "UI_TEST_CATALOG_INPUT=$OUT/$view/toolkit/normalize-tests/ui-test-catalog.json" \
     "COVERAGE_MATRIX_INPUT=$OUT/$view/toolkit/coverage-matrix/coverage-matrix.json" \
+    "RELEASE_VERSION=$CFG_RELEASE_VERSION" \
     "OUT_DIR=$OUT/$view" \
     "PYTHON=$PY"
   # generator-markdown clears `<view>/generator-markdown/` as a whole, so its log goes beside that folder.
@@ -418,9 +437,10 @@ fi
 
 # --- The verdict over the testbed's output -------------------------------------------------------------------------
 # `core` follows the canon 100 %, so a broken invariant over it is a defect, and so is any warning but a test written
-# ahead's, which the toolkit check expects (tests/README.md § The testbed stage). The run checks its own output
-# with CI's testbed checks in tests/testbed/, each in the venv its component's script built, as the testbed stage runs
-# each in its component's venv. The first check that fails stops the run; its last line names it.
+# ahead's or a scenario tagged `@skip`'s, which the toolkit check expects (tests/README.md § The testbed stage). The
+# run checks its own output with CI's testbed checks in tests/testbed/, each in the venv its component's script built,
+# as the testbed stage runs each in its component's venv. The first check that fails stops the run; its last line
+# names it.
 venv_python() {  # venv_python CLONE: the interpreter of the venv the clone's local-integration.sh built
   if [ -x "$1/.venv-local-integration/bin/python" ]; then
     printf '%s\n' "$1/.venv-local-integration/bin/python"
@@ -448,8 +468,11 @@ check "the toolkit's invariants over both views" "$TOOLKIT_PY" tests/testbed/che
 say "" "== check: the six documents and their run reports"
 missing=""
 for view in $VIEWS; do
+  # Each file names its view, and a release-view file its release too, as the generator names them.
+  suffix="$view"
+  [ "$view" != release ] || suffix="$RELEASE_SUFFIX"
   for document in technical-project ui-test-catalog coverage-matrix; do
-    for file in "$document.md" "$document.run-report.json"; do
+    for file in "$document-$suffix.md" "$document-$suffix.run-report.json"; do
       [ -f "$OUT/$view/generator-markdown/$file" ] || missing="$missing $view/generator-markdown/$file"
     done
   done

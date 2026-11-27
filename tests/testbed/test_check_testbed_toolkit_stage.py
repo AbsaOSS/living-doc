@@ -15,12 +15,13 @@
 # limitations under the License.
 #
 """Tests for tests/testbed/check_testbed_toolkit_stage.py: the warnings a link to a ``planned`` or ``in_review``
-criterion must raise in each coverage matrix, and nothing else.
+criterion, or a skipped scenario's link, must raise in each coverage matrix, and nothing else.
 
 Run: ``python -m pytest tests/testbed -q`` (needs pytest and ``living-doc-utilities``, which
 ``tests/examples/requirements-examples-check.txt`` installs). Each case copies the first milestone's committed testbed
-outputs (``docs/_integration/MS1/testbed-core/``, the runner's layout, warning-free), adds links to ``ui-tests.json``
-and warnings to the views' ``coverage-matrix.json``, and runs the check with ``--runner``. A warning carries the code,
+outputs (``docs/_integration/MS1/testbed-core/``, the runner's layout, warning-free), skips one scenario as today's
+``core`` does (``skip_scenario``), adds links to ``ui-tests.json`` and warnings to the views' ``coverage-matrix.json``,
+and runs the check with ``--runner``. A warning carries the code,
 criterion and context the pinned toolkit writes, and is counted in the matrix's stats, so no case needs the toolkit.
 The stage's layout differs only in where the one matrix lies; the stage run over a testbed branch checks it. Nothing
 goes online.
@@ -35,17 +36,25 @@ import sys
 from pathlib import Path
 
 import pytest
+from living_doc_utilities.contracts.coverage_matrix import AcCoverage, CoverageSummary
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CHECK = REPO_ROOT / "tests" / "testbed" / "check_testbed_toolkit_stage.py"
 MS1_OUTPUT = REPO_ROOT / "docs" / "_integration" / "MS1" / "testbed-core"
 MATRICES = ("inner", "release")
+# MS1's `core` has no skipped scenario, and today's `core` does: the check needs a counted criterion whose only
+# scenarios are skipped. The fixture skips a criterion's only scenario, one with no declared values that links nothing
+# else, as tests/integration/test_local_integration.py's does.
+SKIPPED_AC = "FUNC-009-02"
+SKIPPED_SCENARIO_ID = ("AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/"
+                       "func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state")
 
 
 @pytest.fixture
 def root(tmp_path: Path) -> Path:
     copy = tmp_path / "testbed-core"
     shutil.copytree(MS1_OUTPUT, copy, ignore=shutil.ignore_patterns("*.log", "*.md", "generator-markdown"))
+    skip_scenario(copy)
     return copy
 
 
@@ -90,6 +99,31 @@ def warn(root: Path, code: str, ac_id: str, scenario_id: str, views: tuple[str, 
         by_code = data["metadata"]["stats"]["cardinality"]["warnings_by_code"]
         by_code[code] = by_code.get(code, 0) + 1
         _write(_matrix(root, view), data)
+
+
+def _summary(rows: list[dict]) -> dict:
+    return CoverageSummary.from_rows([AcCoverage.model_validate(row) for row in rows]).model_dump(mode="json")
+
+
+def skip_scenario(root: Path) -> None:
+    """Tags ``SKIPPED_SCENARIO_ID`` ``@skip`` in ``ui-tests``, and writes each view's matrix as the toolkit does under
+    living-doc-utilities 0.9.0's coverage rule: ``SKIPPED_AC`` not covered, its summaries recomputed, and the link's
+    ``SKIPPED_SCENARIO`` warning."""
+    data = _json(_ui_tests(root))
+    scenario = next(scenario for scenario in data["scenarios"] if scenario["scenario_id"] == SKIPPED_SCENARIO_ID)
+    assert [link["id"] for link in scenario["acceptance_criteria"]] == [SKIPPED_AC], scenario
+    scenario["tags"].append("@skip")
+    _write(_ui_tests(root), data)
+    for view in MATRICES:
+        data = _json(_matrix(root, view))
+        for entity in data["entities"]:
+            for row in entity["acceptance_criteria"]:
+                if row["ac_id"] == SKIPPED_AC:
+                    row.update(status="not_covered", scenario_ids=[])
+            entity["summary"] = _summary(entity["acceptance_criteria"])
+        data["summary"] = _summary([row for entity in data["entities"] for row in entity["acceptance_criteria"]])
+        _write(_matrix(root, view), data)
+    warn(root, "SKIPPED_SCENARIO", SKIPPED_AC, SKIPPED_SCENARIO_ID)
 
 
 def check(root: Path) -> subprocess.CompletedProcess[str]:
@@ -183,6 +217,33 @@ def test_the_expected_warning_missing_from_one_view_fails(root: Path) -> None:
     assert result.returncode == 1
     assert "coverage-matrix.release: PLANNED_AC_HAS_TESTS" in result.stdout
     assert "coverage-matrix.inner: PLANNED_AC_HAS_TESTS" not in result.stdout
+
+
+def test_a_skipped_scenario_without_its_warning_fails(root: Path) -> None:
+    for view in MATRICES:
+        data = _json(_matrix(root, view))
+        data["warnings"] = [warning for warning in data["warnings"] if warning["code"] != "SKIPPED_SCENARIO"]
+        data["metadata"]["stats"]["cardinality"]["warnings_by_code"].pop("SKIPPED_SCENARIO")
+        _write(_matrix(root, view), data)
+
+    result = check(root)
+
+    assert result.returncode == 1
+    assert (f"SKIPPED_SCENARIO for AC:{SKIPPED_AC} (scenario_id={SKIPPED_SCENARIO_ID!r}) reported 0 time(s), "
+            "expected once: the scenario is tagged @skip") in result.stdout
+
+
+def test_a_skipped_scenario_linking_a_planned_criterion_expects_the_planned_warning(root: Path) -> None:
+    ac_id = criterion(root, "planned")
+    index = next(index for index, scenario in enumerate(_json(_ui_tests(root))["scenarios"])
+                 if scenario["scenario_id"] == SKIPPED_SCENARIO_ID)
+    warn(root, "PLANNED_AC_HAS_TESTS", ac_id, link(root, index, ac_id))
+
+    result = check(root)
+
+    assert result.returncode == 0, result.stdout
+    assert f"PLANNED_AC_HAS_TESTS for AC:{ac_id} (scenario_id={SKIPPED_SCENARIO_ID!r})" in result.stdout
+    assert f"SKIPPED_SCENARIO for AC:{ac_id}" not in result.stdout
 
 
 def test_any_other_warning_still_fails(root: Path) -> None:
