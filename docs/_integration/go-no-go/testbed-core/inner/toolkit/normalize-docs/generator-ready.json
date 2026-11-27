@@ -3,9 +3,9 @@
   "metadata": {
     "producer": {
       "name": "AbsaOSS/living-doc-toolkit",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "build": null,
-      "utilities_version": "0.8.1"
+      "utilities_version": "0.9.0"
     },
     "run": {
       "run_id": null,
@@ -28,7 +28,7 @@
       ],
       "extraction_mode": null
     },
-    "generated_at": "2026-11-12T11:56:09Z",
+    "generated_at": "2026-11-27T09:23:18Z",
     "stats": {
       "cardinality": {
         "entities": 20,
@@ -37,7 +37,7 @@
           "DocumentedFeature": 5,
           "DocumentedFunctionality": 12
         },
-        "acceptance_criteria": 32,
+        "acceptance_criteria": 33,
         "scenarios": 0,
         "warnings_by_code": {},
         "sources_configured": 0,
@@ -62,15 +62,15 @@
         "content.entities[].timestamps.created_at": 0,
         "content.entities[].timestamps.updated_at": 0,
         "content.entities[].timestamps.closed_at": 0,
-        "content.entities[].narrative": 0,
+        "content.entities[].narrative": 14,
         "content.entities[].purpose": 5,
         "content.entities[].source": 2,
         "content.entities[].notes[]": 3,
         "content.entities[].business_value[]": 3,
-        "content.entities[].acceptance_criteria[].id": 32,
-        "content.entities[].acceptance_criteria[].state": 32,
-        "content.entities[].acceptance_criteria[].version": 30,
-        "content.entities[].acceptance_criteria[].description": 32,
+        "content.entities[].acceptance_criteria[].id": 33,
+        "content.entities[].acceptance_criteria[].state": 33,
+        "content.entities[].acceptance_criteria[].version": 31,
+        "content.entities[].acceptance_criteria[].description": 33,
         "content.entities[].acceptance_criteria[].aspect[]": 6,
         "content.entities[].acceptance_criteria[].preconditions[]": 1,
         "content.entities[].acceptance_criteria[].not_in_scope[]": 1,
@@ -107,9 +107,9 @@
         "schema_version": "doc-source-v1.0.0",
         "producer": {
           "name": "AbsaOSS/living-doc-collector-gh",
-          "version": "0.2.0",
+          "version": "0.3.0",
           "build": null,
-          "utilities_version": "0.8.1"
+          "utilities_version": "0.9.0"
         },
         "run": {
           "run_id": null,
@@ -140,7 +140,7 @@
               "DocumentedFeature": 5,
               "DocumentedFunctionality": 12
             },
-            "acceptance_criteria": 32,
+            "acceptance_criteria": 33,
             "scenarios": 0,
             "warnings_by_code": {},
             "sources_configured": 1,
@@ -165,7 +165,7 @@
             "user_stories[].timestamps.created_at": 0,
             "user_stories[].timestamps.updated_at": 0,
             "user_stories[].timestamps.closed_at": 0,
-            "user_stories[].narrative": 0,
+            "user_stories[].narrative": 3,
             "user_stories[].purpose": 0,
             "user_stories[].source": 1,
             "user_stories[].notes[]": 1,
@@ -273,15 +273,15 @@
             "functionalities[].timestamps.created_at": 0,
             "functionalities[].timestamps.updated_at": 0,
             "functionalities[].timestamps.closed_at": 0,
-            "functionalities[].narrative": 0,
+            "functionalities[].narrative": 11,
             "functionalities[].purpose": 0,
             "functionalities[].source": 1,
             "functionalities[].notes[]": 1,
             "functionalities[].business_value[]": 0,
-            "functionalities[].acceptance_criteria[].id": 22,
-            "functionalities[].acceptance_criteria[].state": 22,
-            "functionalities[].acceptance_criteria[].version": 21,
-            "functionalities[].acceptance_criteria[].description": 22,
+            "functionalities[].acceptance_criteria[].id": 23,
+            "functionalities[].acceptance_criteria[].state": 23,
+            "functionalities[].acceptance_criteria[].version": 22,
+            "functionalities[].acceptance_criteria[].description": 23,
             "functionalities[].acceptance_criteria[].aspect[]": 5,
             "functionalities[].acceptance_criteria[].preconditions[]": 0,
             "functionalities[].acceptance_criteria[].not_in_scope[]": 0,
@@ -321,7 +321,7 @@
               "DocumentedFeature": 5,
               "DocumentedFunctionality": 12
             },
-            "acceptance_criteria": 32,
+            "acceptance_criteria": 33,
             "scenarios": 0,
             "warnings_by_code": {},
             "sources_configured": 1,
@@ -346,7 +346,7 @@
             "user_stories[].timestamps.created_at": 0,
             "user_stories[].timestamps.updated_at": 0,
             "user_stories[].timestamps.closed_at": 0,
-            "user_stories[].narrative": 0,
+            "user_stories[].narrative": 3,
             "user_stories[].purpose": 0,
             "user_stories[].source": 1,
             "user_stories[].notes[]": 1,
@@ -454,15 +454,15 @@
             "functionalities[].timestamps.created_at": 0,
             "functionalities[].timestamps.updated_at": 0,
             "functionalities[].timestamps.closed_at": 0,
-            "functionalities[].narrative": 0,
+            "functionalities[].narrative": 11,
             "functionalities[].purpose": 0,
             "functionalities[].source": 1,
             "functionalities[].notes[]": 1,
             "functionalities[].business_value[]": 0,
-            "functionalities[].acceptance_criteria[].id": 22,
-            "functionalities[].acceptance_criteria[].state": 22,
-            "functionalities[].acceptance_criteria[].version": 21,
-            "functionalities[].acceptance_criteria[].description": 22,
+            "functionalities[].acceptance_criteria[].id": 23,
+            "functionalities[].acceptance_criteria[].state": 23,
+            "functionalities[].acceptance_criteria[].version": 22,
+            "functionalities[].acceptance_criteria[].description": 23,
             "functionalities[].acceptance_criteria[].aspect[]": 5,
             "functionalities[].acceptance_criteria[].preconditions[]": 0,
             "functionalities[].acceptance_criteria[].not_in_scope[]": 0,
@@ -506,8 +506,8 @@
       "total_entities": 20,
       "included_entities": 20,
       "excluded_entities": 0,
-      "total_acceptance_criteria": 32,
-      "included_acceptance_criteria": 32,
+      "total_acceptance_criteria": 33,
+      "included_acceptance_criteria": 33,
       "excluded_acceptance_criteria": 0
     }
   },
@@ -519,7 +519,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -534,7 +534,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "As a library member, I can borrow a book from the online catalogue, so that I can take it home without queuing at the desk.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -647,7 +647,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -662,7 +662,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "As a resident, I can join the library online, so that I can borrow books without visiting the desk first.",
         "purpose": null,
         "source": "https://github.com/AbsaOSS/living-doc-testbed/blob/master/projects/core/README.md",
         "notes": [
@@ -737,7 +737,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -752,7 +752,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "As desk staff, I can register a resident from a paper form, so that residents without internet access can join.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -797,7 +797,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/pages/CatalogueSearchPage.ts",
           "native_type": "page-object",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/CatalogueSearchPage.ts",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/pages/CatalogueSearchPage.ts",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -866,7 +866,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/pages/LoanDetailPage.ts",
           "native_type": "page-object",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/LoanDetailPage.ts",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/pages/LoanDetailPage.ts",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -929,7 +929,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/pages/LoanSlipPage.ts",
           "native_type": "page-object",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/LoanSlipPage.ts",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/pages/LoanSlipPage.ts",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -992,7 +992,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/pages/MembershipWizardPage.ts",
           "native_type": "page-object",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/MembershipWizardPage.ts",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/pages/MembershipWizardPage.ts",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1091,7 +1091,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/pages/MyLoansPage.ts",
           "native_type": "page-object",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/pages/MyLoansPage.ts",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/pages/MyLoansPage.ts",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1159,7 +1159,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-001-filter-search-results.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1174,7 +1174,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Narrows the catalogue results already on screen by author or subject.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -1234,7 +1234,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-002-sort-by-popularity.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1249,7 +1249,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Orders the catalogue results by how often each book was borrowed recently.",
         "purpose": null,
         "source": null,
         "notes": [
@@ -1294,7 +1294,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-003-renew-loan.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-003-renew-loan.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-003-renew-loan.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1309,7 +1309,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Extends a loan from the My Loans page.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -1366,7 +1366,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-004-show-overdue-badge.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-004-show-overdue-badge.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-004-show-overdue-badge.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1381,7 +1381,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Marks the loans a member has kept past their due date.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -1436,7 +1436,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-005-validate-required-details.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1451,7 +1451,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Checks the applicant's details on the first wizard step before they can move on.",
         "purpose": null,
         "source": "https://github.com/AbsaOSS/living-doc-testbed/blob/master/projects/core/README.md",
         "notes": [],
@@ -1532,7 +1532,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-006-submit-application.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1547,7 +1547,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Creates the membership when the applicant confirms the sign-up.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -1604,7 +1604,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-007-print-loan-slip.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1619,7 +1619,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Prints a slip for a new loan.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -1662,7 +1662,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1677,7 +1677,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Orders the catalogue results by relevance or by publication date.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -1755,7 +1755,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1799,6 +1799,18 @@
             "removal_planned": null,
             "rationale": null,
             "placeholder_values": {}
+          },
+          {
+            "id": "FUNC-009-03",
+            "state": "active",
+            "version": "1.0.0",
+            "description": "A member whose loans fail to load sees \"Loans could not be loaded\" and a \"Try again\" button.",
+            "aspect": [],
+            "preconditions": [],
+            "not_in_scope": [],
+            "removal_planned": null,
+            "rationale": null,
+            "placeholder_values": {}
           }
         ],
         "preconditions": [],
@@ -1825,7 +1837,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1840,7 +1852,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Adds up the fines a member owes across all loans.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -1905,7 +1917,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1920,7 +1932,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Keeps members who are already signed in from joining a second time.",
         "purpose": null,
         "source": null,
         "notes": [],
@@ -1963,7 +1975,7 @@
           "system": "GitHub",
           "native_id": "projects/core/tests/e2e/features/liv_doc_func/func-012-show-renewal-history.feature",
           "native_type": "feature-file",
-          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/36a0ee65ad11df7588cd74a505ea1ace1ef7abc9/projects/core/tests/e2e/features/liv_doc_func/func-012-show-renewal-history.feature",
+          "url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-012-show-renewal-history.feature",
           "tracker_state": "committed",
           "area_path": null,
           "iteration_path": null
@@ -1978,7 +1990,7 @@
           "updated_at": null,
           "closed_at": null
         },
-        "narrative": null,
+        "narrative": "Lists when a loan was renewed.",
         "purpose": null,
         "source": null,
         "notes": [],

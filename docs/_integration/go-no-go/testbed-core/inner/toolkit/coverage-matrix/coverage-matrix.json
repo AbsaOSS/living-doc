@@ -3,9 +3,9 @@
   "metadata": {
     "producer": {
       "name": "AbsaOSS/living-doc-toolkit",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "build": null,
-      "utilities_version": "0.8.1"
+      "utilities_version": "0.9.0"
     },
     "run": {
       "run_id": null,
@@ -28,7 +28,7 @@
       ],
       "extraction_mode": null
     },
-    "generated_at": "2026-11-12T11:56:14Z",
+    "generated_at": "2026-11-27T09:23:22Z",
     "stats": {
       "cardinality": {
         "entities": 15,
@@ -36,9 +36,12 @@
           "DocumentedUserStory": 3,
           "DocumentedFunctionality": 12
         },
-        "acceptance_criteria": 24,
+        "acceptance_criteria": 25,
         "scenarios": 0,
-        "warnings_by_code": {},
+        "warnings_by_code": {
+          "SKIPPED_SCENARIO": 2,
+          "PLANNED_AC_HAS_TESTS": 1
+        },
         "sources_configured": 0,
         "sources_failed": 0,
         "unresolved_refs": 0,
@@ -49,14 +52,14 @@
         "entities[].type": 15,
         "entities[].title": 15,
         "entities[].state": 15,
-        "entities[].acceptance_criteria[].ac_id": 24,
-        "entities[].acceptance_criteria[].state": 24,
-        "entities[].acceptance_criteria[].status": 24,
+        "entities[].acceptance_criteria[].ac_id": 25,
+        "entities[].acceptance_criteria[].state": 25,
+        "entities[].acceptance_criteria[].status": 25,
         "entities[].acceptance_criteria[].keyword": 3,
         "entities[].acceptance_criteria[].aspects[].aspect": 15,
         "entities[].acceptance_criteria[].aspects[].status": 15,
         "entities[].acceptance_criteria[].aspects[].scenario_ids[]": 13,
-        "entities[].acceptance_criteria[].scenario_ids[]": 16,
+        "entities[].acceptance_criteria[].scenario_ids[]": 17,
         "entities[].summary.counted_acs": 15,
         "entities[].summary.covered_acs": 15,
         "entities[].summary.partially_covered_acs": 15,
@@ -69,9 +72,9 @@
         "schema_version": "doc-source-v1.0.0",
         "producer": {
           "name": "AbsaOSS/living-doc-collector-gh",
-          "version": "0.2.0",
+          "version": "0.3.0",
           "build": null,
-          "utilities_version": "0.8.1"
+          "utilities_version": "0.9.0"
         },
         "run": {
           "run_id": null,
@@ -102,7 +105,7 @@
               "DocumentedFeature": 5,
               "DocumentedFunctionality": 12
             },
-            "acceptance_criteria": 32,
+            "acceptance_criteria": 33,
             "scenarios": 0,
             "warnings_by_code": {},
             "sources_configured": 1,
@@ -127,7 +130,7 @@
             "user_stories[].timestamps.created_at": 0,
             "user_stories[].timestamps.updated_at": 0,
             "user_stories[].timestamps.closed_at": 0,
-            "user_stories[].narrative": 0,
+            "user_stories[].narrative": 3,
             "user_stories[].purpose": 0,
             "user_stories[].source": 1,
             "user_stories[].notes[]": 1,
@@ -235,15 +238,15 @@
             "functionalities[].timestamps.created_at": 0,
             "functionalities[].timestamps.updated_at": 0,
             "functionalities[].timestamps.closed_at": 0,
-            "functionalities[].narrative": 0,
+            "functionalities[].narrative": 11,
             "functionalities[].purpose": 0,
             "functionalities[].source": 1,
             "functionalities[].notes[]": 1,
             "functionalities[].business_value[]": 0,
-            "functionalities[].acceptance_criteria[].id": 22,
-            "functionalities[].acceptance_criteria[].state": 22,
-            "functionalities[].acceptance_criteria[].version": 21,
-            "functionalities[].acceptance_criteria[].description": 22,
+            "functionalities[].acceptance_criteria[].id": 23,
+            "functionalities[].acceptance_criteria[].state": 23,
+            "functionalities[].acceptance_criteria[].version": 22,
+            "functionalities[].acceptance_criteria[].description": 23,
             "functionalities[].acceptance_criteria[].aspect[]": 5,
             "functionalities[].acceptance_criteria[].preconditions[]": 0,
             "functionalities[].acceptance_criteria[].not_in_scope[]": 0,
@@ -282,7 +285,7 @@
               "DocumentedUserStory": 3,
               "DocumentedFunctionality": 12
             },
-            "acceptance_criteria": 24,
+            "acceptance_criteria": 25,
             "scenarios": 0,
             "warnings_by_code": {},
             "sources_configured": 1,
@@ -307,7 +310,7 @@
             "user_stories[].timestamps.created_at": 0,
             "user_stories[].timestamps.updated_at": 0,
             "user_stories[].timestamps.closed_at": 0,
-            "user_stories[].narrative": 0,
+            "user_stories[].narrative": 3,
             "user_stories[].purpose": 0,
             "user_stories[].source": 1,
             "user_stories[].notes[]": 1,
@@ -415,15 +418,15 @@
             "functionalities[].timestamps.created_at": 0,
             "functionalities[].timestamps.updated_at": 0,
             "functionalities[].timestamps.closed_at": 0,
-            "functionalities[].narrative": 0,
+            "functionalities[].narrative": 11,
             "functionalities[].purpose": 0,
             "functionalities[].source": 1,
             "functionalities[].notes[]": 1,
             "functionalities[].business_value[]": 0,
-            "functionalities[].acceptance_criteria[].id": 17,
-            "functionalities[].acceptance_criteria[].state": 17,
-            "functionalities[].acceptance_criteria[].version": 17,
-            "functionalities[].acceptance_criteria[].description": 17,
+            "functionalities[].acceptance_criteria[].id": 18,
+            "functionalities[].acceptance_criteria[].state": 18,
+            "functionalities[].acceptance_criteria[].version": 18,
+            "functionalities[].acceptance_criteria[].description": 18,
             "functionalities[].acceptance_criteria[].aspect[]": 5,
             "functionalities[].acceptance_criteria[].preconditions[]": 0,
             "functionalities[].acceptance_criteria[].not_in_scope[]": 0,
@@ -460,9 +463,9 @@
         "schema_version": "ui-tests-v1.0.0",
         "producer": {
           "name": "AbsaOSS/living-doc-collector-gh",
-          "version": "0.2.0",
+          "version": "0.3.0",
           "build": null,
-          "utilities_version": "0.8.1"
+          "utilities_version": "0.9.0"
         },
         "run": {
           "run_id": null,
@@ -490,7 +493,7 @@
             "entities": 0,
             "entities_by_type": {},
             "acceptance_criteria": 0,
-            "scenarios": 28,
+            "scenarios": 37,
             "warnings_by_code": {},
             "sources_configured": 1,
             "sources_failed": 0,
@@ -498,17 +501,22 @@
             "entities_skipped": 0
           },
           "field_occupancy": {
-            "scenarios[].scenario_id": 28,
-            "scenarios[].title": 28,
-            "scenarios[].source_ref.system": 28,
-            "scenarios[].source_ref.native_id": 28,
-            "scenarios[].source_ref.native_type": 28,
-            "scenarios[].source_ref.url": 28,
-            "scenarios[].source_ref.tracker_state": 28,
+            "scenarios[].scenario_id": 37,
+            "scenarios[].title": 37,
+            "scenarios[].source_ref.system": 37,
+            "scenarios[].source_ref.native_id": 37,
+            "scenarios[].source_ref.native_type": 37,
+            "scenarios[].source_ref.url": 37,
+            "scenarios[].source_ref.tracker_state": 37,
             "scenarios[].source_ref.area_path": 0,
             "scenarios[].source_ref.iteration_path": 0,
-            "scenarios[].tags[]": 26,
-            "scenarios[].acceptance_criteria[].id": 27,
+            "scenarios[].tags[]": 34,
+            "scenarios[].line": 37,
+            "scenarios[].rule": 2,
+            "scenarios[].rule_background[]": 2,
+            "scenarios[].steps[]": 37,
+            "scenarios[].background[]": 4,
+            "scenarios[].acceptance_criteria[].id": 35,
             "scenarios[].acceptance_criteria[].aspect": 10
           }
         },
@@ -517,7 +525,7 @@
             "entities": 0,
             "entities_by_type": {},
             "acceptance_criteria": 0,
-            "scenarios": 28,
+            "scenarios": 37,
             "warnings_by_code": {},
             "sources_configured": 1,
             "sources_failed": 0,
@@ -525,24 +533,60 @@
             "entities_skipped": 0
           },
           "field_occupancy": {
-            "scenarios[].scenario_id": 28,
-            "scenarios[].title": 28,
-            "scenarios[].source_ref.system": 28,
-            "scenarios[].source_ref.native_id": 28,
-            "scenarios[].source_ref.native_type": 28,
-            "scenarios[].source_ref.url": 28,
-            "scenarios[].source_ref.tracker_state": 28,
+            "scenarios[].scenario_id": 37,
+            "scenarios[].title": 37,
+            "scenarios[].source_ref.system": 37,
+            "scenarios[].source_ref.native_id": 37,
+            "scenarios[].source_ref.native_type": 37,
+            "scenarios[].source_ref.url": 37,
+            "scenarios[].source_ref.tracker_state": 37,
             "scenarios[].source_ref.area_path": 0,
             "scenarios[].source_ref.iteration_path": 0,
-            "scenarios[].tags[]": 26,
-            "scenarios[].acceptance_criteria[].id": 27,
+            "scenarios[].tags[]": 34,
+            "scenarios[].line": 37,
+            "scenarios[].rule": 2,
+            "scenarios[].rule_background[]": 2,
+            "scenarios[].steps[]": 37,
+            "scenarios[].background[]": 4,
+            "scenarios[].acceptance_criteria[].id": 35,
             "scenarios[].acceptance_criteria[].aspect": 10
           }
         }
       }
     ]
   },
-  "warnings": [],
+  "warnings": [
+    {
+      "code": "SKIPPED_SCENARIO",
+      "message": "Scenario 'AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-whose-loans-fail-to-load-sees-the-error-state', 'Member whose loans fail to load sees the error state', links acceptance criterion 'FUNC-009-03' and is tagged @skip: the matrix counts no skipped scenario, so the link counts nowhere until the tag is removed.",
+      "context": "scenario_id='AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-whose-loans-fail-to-load-sees-the-error-state'",
+      "entity_id": "FUNC-009",
+      "ac_id": "FUNC-009-03",
+      "line_no": null,
+      "path": null,
+      "source_url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature"
+    },
+    {
+      "code": "SKIPPED_SCENARIO",
+      "message": "Scenario 'AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/small-fines-add-up-to-the-cent', 'Small fines add up to the cent', links acceptance criterion 'FUNC-010-01' and is tagged @skip: the matrix counts no skipped scenario, so the link counts nowhere until the tag is removed.",
+      "context": "scenario_id='AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/small-fines-add-up-to-the-cent'",
+      "entity_id": "FUNC-010",
+      "ac_id": "FUNC-010-01",
+      "line_no": null,
+      "path": null,
+      "source_url": "https://github.com/AbsaOSS/living-doc-testbed/blob/6b9b3ec9262032518023a3cd6e9f86acf97d1f89/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature"
+    },
+    {
+      "code": "PLANNED_AC_HAS_TESTS",
+      "message": "Scenario 'AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-012-show-renewal-history.feature/a-renewed-loan-lists-the-date-of-each-renewal' links acceptance criterion 'FUNC-012-01', which is planned: the matrix counts no planned criterion, so the link counts nowhere until the criterion is active.",
+      "context": "scenario_id='AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-012-show-renewal-history.feature/a-renewed-loan-lists-the-date-of-each-renewal'",
+      "entity_id": "FUNC-012",
+      "ac_id": "FUNC-012-01",
+      "line_no": null,
+      "path": null,
+      "source_url": null
+    }
+  ],
   "document": {
     "view": "inner"
   },
@@ -560,16 +604,19 @@
           "keyword": null,
           "aspects": [],
           "scenario_ids": [
-            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-borrows-an-available-book"
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-borrows-an-available-book",
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/borrowed-books-are-listed-with-their-due-dates"
           ]
         },
         {
           "ac_id": "US-001-02",
           "state": "active",
-          "status": "not_covered",
+          "status": "covered",
           "keyword": null,
           "aspects": [],
-          "scenario_ids": []
+          "scenario_ids": [
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-at-the-loan-limit-is-told-why-they-cannot-borrow"
+          ]
         },
         {
           "ac_id": "US-001-04",
@@ -584,10 +631,10 @@
       ],
       "summary": {
         "counted_acs": 3,
-        "covered_acs": 2,
+        "covered_acs": 3,
         "partially_covered_acs": 0,
-        "not_covered_acs": 1,
-        "coverage_pct": 66.7
+        "not_covered_acs": 0,
+        "coverage_pct": 100.0
       }
     },
     {
@@ -984,7 +1031,8 @@
           "keyword": null,
           "aspects": [],
           "scenario_ids": [
-            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-with-loans-sees-their-loans"
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-with-loans-sees-their-loans",
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/borrowed-books-are-listed-with-their-due-dates"
           ]
         },
         {
@@ -994,16 +1042,25 @@
           "keyword": null,
           "aspects": [],
           "scenario_ids": [
-            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state"
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state",
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/the-empty-state-shows-its-message-in-full"
           ]
+        },
+        {
+          "ac_id": "FUNC-009-03",
+          "state": "active",
+          "status": "not_covered",
+          "keyword": null,
+          "aspects": [],
+          "scenario_ids": []
         }
       ],
       "summary": {
-        "counted_acs": 2,
+        "counted_acs": 3,
         "covered_acs": 2,
         "partially_covered_acs": 0,
-        "not_covered_acs": 0,
-        "coverage_pct": 100.0
+        "not_covered_acs": 1,
+        "coverage_pct": 66.7
       }
     },
     {
@@ -1019,7 +1076,8 @@
           "keyword": null,
           "aspects": [],
           "scenario_ids": [
-            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/total-fines-add-up-across-loans"
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/total-fines-add-up-across-loans",
+            "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/the-total-adds-up-for-any-number-of-loans"
           ]
         },
         {
@@ -1109,10 +1167,10 @@
     }
   },
   "summary": {
-    "counted_acs": 24,
-    "covered_acs": 20,
+    "counted_acs": 25,
+    "covered_acs": 21,
     "partially_covered_acs": 2,
     "not_covered_acs": 2,
-    "coverage_pct": 88.2
+    "coverage_pct": 88.7
   }
 }
