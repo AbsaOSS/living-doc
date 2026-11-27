@@ -1,12 +1,35 @@
 # Coverage matrix
 
-*View: inner*
-
 ## Summary
 
 | Coverage | Counted | Covered | Partially covered | Not covered |
 |---|---|---|---|---|
-| 88.2% | 24 | 20 | 2 | 2 |
+| 88.7% | 25 | 21 | 2 | 2 |
+
+**User Stories**
+
+| ID | Title | State | Coverage | Counted | Covered | Partially covered | Not covered |
+|---|---|---|---|---|---|---|---|
+| [US-001](#us-001) | US-001 · Borrow a Book | `ACTIVE` | 100.0% | 3 | 3 | 0 | 0 |
+| [US-002](#us-002) | US-002 · Join the Library | `ACTIVE` | 100.0% | 3 | 3 | 0 | 0 |
+| [US-003](#us-003) | US-003 · Register at the Desk | `DEPRECATED` | 100.0% | 1 | 1 | 0 | 0 |
+
+**Functionalities**
+
+| ID | Title | State | Coverage | Counted | Covered | Partially covered | Not covered |
+|---|---|---|---|---|---|---|---|
+| [FUNC-001](#func-001) | FUNC-001 · Catalogue Search Page - Filter Search Results | `ACTIVE` | 75.0% | 2 | 1 | 1 | 0 |
+| [FUNC-002](#func-002) | FUNC-002 · Catalogue Search Page - Sort by Popularity | `DEPRECATED` | 100.0% | 1 | 1 | 0 | 0 |
+| [FUNC-003](#func-003) | FUNC-003 · My Loans Page - Renew Loan | `IN REVIEW` | not applicable | 0 | 0 | 0 | 0 |
+| [FUNC-004](#func-004) | FUNC-004 · My Loans Page - Show Overdue Badge | `PLANNED` | not applicable | 0 | 0 | 0 | 0 |
+| [FUNC-005](#func-005) | FUNC-005 · Membership Sign-up Wizard - Validate Required Details | `ACTIVE` | 88.9% | 3 | 2 | 1 | 0 |
+| [FUNC-006](#func-006) | FUNC-006 · Membership Sign-up Wizard - Submit Application | `ACTIVE` | 50.0% | 2 | 1 | 0 | 1 |
+| [FUNC-007](#func-007) | FUNC-007 · Printable Loan Slip - Print Slip | `DEPRECATED` | 100.0% | 1 | 1 | 0 | 0 |
+| [FUNC-008](#func-008) | FUNC-008 · Catalogue Search Page - Sort Results | `ACTIVE` | 100.0% | 3 | 3 | 0 | 0 |
+| [FUNC-009](#func-009) | FUNC-009 · My Loans Page - Loan List States | `ACTIVE` | 66.7% | 3 | 2 | 0 | 1 |
+| [FUNC-010](#func-010) | FUNC-010 · My Loans Page - Total Fines Owed | `ACTIVE` | 100.0% | 2 | 2 | 0 | 0 |
+| [FUNC-011](#func-011) | FUNC-011 · Membership Sign-up Wizard - Redirect Existing Members | `ACTIVE` | 100.0% | 1 | 1 | 0 | 0 |
+| [FUNC-012](#func-012) | FUNC-012 · Loan Detail Page - Show Renewal History | `PLANNED` | not applicable | 0 | 0 | 0 | 0 |
 
 ## Planned work
 
@@ -24,12 +47,12 @@ Planned criteria are not counted.
 
 | Coverage | Counted | Covered | Partially covered | Not covered |
 |---|---|---|---|---|
-| 66.7% | 3 | 2 | 0 | 1 |
+| 100.0% | 3 | 3 | 0 | 0 |
 
 | Criterion | State | Status | Scenarios |
 |---|---|---|---|
-| US-001-01 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_us/us-001-borrow-a-book.feature/member-borrows-an-available-book |
-| US-001-02 | active | `NOT COVERED` | — |
+| US-001-01 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_us/us-001-borrow-a-book.feature/member-borrows-an-available-book, AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_us/us-001-borrow-a-book.feature/borrowed-books-are-listed-with-their-due-dates |
+| US-001-02 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_us/us-001-borrow-a-book.feature/member-at-the-loan-limit-is-told-why-they-cannot-borrow |
 | US-001-04 | deprecated | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_us/us-001-borrow-a-book.feature/member-is-offered-a-loan-slip |
 
 ### US-002
@@ -201,12 +224,13 @@ No counted criteria.
 
 | Coverage | Counted | Covered | Partially covered | Not covered |
 |---|---|---|---|---|
-| 100.0% | 2 | 2 | 0 | 0 |
+| 66.7% | 3 | 2 | 0 | 1 |
 
 | Criterion | State | Status | Scenarios |
 |---|---|---|---|
-| FUNC-009-01 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-009-loan-list-states.feature/member-with-loans-sees-their-loans |
-| FUNC-009-02 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state |
+| FUNC-009-01 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-009-loan-list-states.feature/member-with-loans-sees-their-loans, AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-009-loan-list-states.feature/borrowed-books-are-listed-with-their-due-dates |
+| FUNC-009-02 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state, AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-009-loan-list-states.feature/the-empty-state-shows-its-message-in-full |
+| FUNC-009-03 | active | `NOT COVERED` | — |
 
 ### FUNC-010
 
@@ -218,7 +242,7 @@ No counted criteria.
 
 | Criterion | State | Status | Scenarios |
 |---|---|---|---|
-| FUNC-010-01 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-010-total-fines-owed.feature/total-fines-add-up-across-loans |
+| FUNC-010-01 | active | `COVERED` | AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-010-total-fines-owed.feature/total-fines-add-up-across-loans, AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv\_doc\_func/func-010-total-fines-owed.feature/the-total-adds-up-for-any-number-of-loans |
 | FUNC-010-02 | active | `COVERED` | per aspect, below |
 
 **FUNC-010-02** `COVERED`
