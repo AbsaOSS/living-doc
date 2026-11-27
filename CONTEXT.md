@@ -18,7 +18,7 @@ Not here: the collectors, toolkit, generators and utilities. Each lives in its o
 
 | Path | Holds | Context |
 |---|---|---|
-| `docs/` | people docs, the format canon, the example corpus and its snapshots, integration gate, milestone and release go/no-go reports | [docs/CONTEXT.md](docs/CONTEXT.md) |
+| `docs/` | people docs, the format canon, the example corpus and its snapshots, the release go/no-go report | [docs/CONTEXT.md](docs/CONTEXT.md) |
 | `tests/` | the corpus checker (with the authoring guide's pairs and the error codes), the two collector stages, the retired-names check, the page check, the local integration runner `tests/integration/local-integration.sh` | [tests/CONTEXT.md](tests/CONTEXT.md) |
 | `agentic/` | the shipped AI authoring layer: skills, one agent, evals, eval scripts | [agentic/CONTEXT.md](agentic/CONTEXT.md) |
 | `.github/` | CI workflows, PR and issue templates | [.github/CONTEXT.md](.github/CONTEXT.md) |
@@ -65,7 +65,7 @@ The canon pages in `docs/reference/` define the format; the corpus shows it; the
 
 Commands: `AGENTS.md` § This project. The collector stages need `git` and github.com access, no token; they build one venv per component in `.snapshot-venvs/` (gitignored).
 
-The local integration runner, `bash tests/integration/local-integration.sh [--check]`, is run by an operator for a milestone or the release go/no-go, never by CI or an agent's check: it needs github.com, PyPI and minutes. Its configuration is `tests/integration/.env.local` (git-ignored; copy `tests/integration/.env.local.example`). It clones into `out/` (git-ignored) and writes to `out/<run-id>/` unless `OUT_DIR` names a milestone or `go-no-go/` folder under `docs/_integration/` ([docs/_integration/README.md § Run a milestone target](docs/_integration/README.md#run-a-milestone-target)). A testbed run exits 0 only when the chain, the pin report and CI's testbed checks over its output pass (`PIN_REPORT=warn` makes the pin report only warn, for a run between gates, which is then no gate run); that run, on the commits a release will tag, is the release go/no-go ([§ Release go/no-go](docs/_integration/README.md#release-gono-go)).
+The local integration runner, `bash tests/integration/local-integration.sh [--check]`, is run by an operator for the release go/no-go or a trial run, never by CI or an agent's check: it needs github.com, PyPI and minutes. Its configuration is `tests/integration/.env.local` (git-ignored; copy `tests/integration/.env.local.example`). It clones into `out/` (git-ignored) and writes to `out/<run-id>/` unless `OUT_DIR` names `docs/_integration/go-no-go/` ([docs/_integration/README.md § Run the chain](docs/_integration/README.md#run-the-chain)). A testbed run exits 0 only when the chain, the pin report and CI's testbed checks over its output pass (`PIN_REPORT=warn` makes the pin report only warn, for a trial run, which is then no gate run); that run, on the commits a release will tag, is the release go/no-go ([§ Release go/no-go](docs/_integration/README.md#release-gono-go)).
 
 ## Conventions
 

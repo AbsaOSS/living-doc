@@ -23,7 +23,7 @@ remote has) and a configuration there, and runs the runner with a fake ``git`` f
 refusals, that ``git`` answers every ``ls-remote`` with "no such tag" and fails any other command, so a clone would
 show in its log. For the chain, its ``clone`` makes a folder holding a stand-in ``local-integration.sh``, which records
 each call and its ``.env.local``, fails where ``FAIL_AT`` says, and otherwise writes what the real script writes: the
-first milestone's committed outputs (``docs/_integration/MS1/testbed-core/``), copied to a fixture folder a case may
+outputs of a real testbed run (``tests/testbed/fixtures/testbed-core-run/``), copied to a fixture folder a case may
 change first, with one scenario tagged ``@skip`` as today's ``core`` has (``skip_scenario``), and the venv its run
 builds, here a link to this interpreter. The verdict's toolkit check is the real one. The collector check is a stand-in that records its call and fails when ``BREAK_INVARIANT`` is set: the real one
 reads the testbed's own files, which no test holds, and CI's testbed stage runs it. Nothing goes online.
@@ -50,7 +50,7 @@ CHECKER_REQUIREMENTS = REPO_ROOT / "tests" / "examples" / "requirements-examples
 TESTBED_STAGE = REPO_ROOT / "tests" / "testbed" / "run-testbed-stage.sh"
 TOOLKIT_CHECK = REPO_ROOT / "tests" / "testbed" / "check_testbed_toolkit_stage.py"
 # A real testbed run's output root, warning-free and passing every invariant: what the stand-in components write.
-MS1_OUTPUT = REPO_ROOT / "docs" / "_integration" / "MS1" / "testbed-core"
+RUN_OUTPUT = REPO_ROOT / "tests" / "testbed" / "fixtures" / "testbed-core-run"
 BASH = shutil.which("bash")
 ME = "tests/integration/local-integration.sh"
 
@@ -232,12 +232,12 @@ def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Pat
                   skipped: bool = True) -> Path:
     """The runner over ``config`` with the chain's ``git`` and stand-ins, its remote knowing ``tag``, each clone's
     ``requirements.txt`` a copy of ``requirements``, and the verdict's two checks; the folder the stand-ins record in.
-    What the stand-in components write is under ``tmp_path/fixture``: MS1's outputs, with ``SKIPPED_AC``'s only
+    What the stand-in components write is under ``tmp_path/fixture``: the run's outputs, with ``SKIPPED_AC``'s only
     scenario skipped (``skip_scenario``) unless ``skipped`` is false."""
     record = tmp_path / "record"
     record.mkdir()
     fixture = tmp_path / "fixture"
-    shutil.copytree(MS1_OUTPUT, fixture, ignore=shutil.ignore_patterns("local-integration.log", "env.local",
+    shutil.copytree(RUN_OUTPUT, fixture, ignore=shutil.ignore_patterns("local-integration.log", "env.local",
                                                                        "pin-report.txt"))
     if skipped:
         skip_scenario(fixture)
@@ -255,7 +255,7 @@ def install_chain(tmp_path: Path, config: str, tag: str = TAG, requirements: Pat
     return record
 
 
-# MS1's `core` has no skipped scenario, and today's `core` does: the testbed's `@skip` on FUNC-009-03's only scenario.
+# The fixture's `core` skips no scenario, and today's `core` does: the testbed's `@skip` on FUNC-009-03's only scenario.
 # The fixture skips a criterion's only scenario the same way, one with no declared values that links nothing else.
 SKIPPED_AC = "FUNC-009-02"
 SKIPPED_SCENARIO_ID = ("AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/"
@@ -590,7 +590,7 @@ def track(checkout: Path, *paths: str) -> None:
 
 
 def test_a_rerun_over_a_committed_run_in_its_output_root_leaves_living_doc_unmarked(tmp_path: Path) -> None:
-    # A gate's folder holds the committed files of its earlier run, which the run clears before its header.
+    # The go/no-go's folder holds the committed files of its earlier run, which the run clears before its header.
     install_chain(tmp_path, a_testbed_run())
     committed = tmp_path / "run" / "collector-gh" / "doc-source" / "doc-source.json"
     committed.parent.mkdir(parents=True)
@@ -778,10 +778,10 @@ def test_a_skipped_scenario_covers_nothing_and_its_warning_passes_a_testbed_run(
 
 def test_a_toolkit_that_counts_a_skipped_scenario_fails_a_testbed_run(tmp_path: Path) -> None:
     install_chain(tmp_path, a_testbed_run())
-    # A toolkit before living-doc-utilities 0.9.0 counts it: MS1's matrices, the criterion covered and no warning.
+    # A toolkit before living-doc-utilities 0.9.0 counts it: the fixture's matrices, the criterion covered, no warning.
     for view in ("inner", "release"):
         relative = Path(view) / "toolkit" / "coverage-matrix" / "coverage-matrix.json"
-        shutil.copy(MS1_OUTPUT / relative, tmp_path / "fixture" / relative)
+        shutil.copy(RUN_OUTPUT / relative, tmp_path / "fixture" / relative)
 
     result, _ = invoke(tmp_path)
 

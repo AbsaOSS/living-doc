@@ -18,8 +18,8 @@
 criterion, or a skipped scenario's link, must raise in each coverage matrix, and nothing else.
 
 Run: ``python -m pytest tests/testbed -q`` (needs pytest and ``living-doc-utilities``, which
-``tests/examples/requirements-examples-check.txt`` installs). Each case copies the first milestone's committed testbed
-outputs (``docs/_integration/MS1/testbed-core/``, the runner's layout, warning-free), skips one scenario as today's
+``tests/examples/requirements-examples-check.txt`` installs). Each case copies a real testbed run's committed
+outputs (``tests/testbed/fixtures/testbed-core-run/``, the runner's layout, warning-free), skips one scenario as today's
 ``core`` does (``skip_scenario``), adds links to ``ui-tests.json`` and warnings to the views' ``coverage-matrix.json``,
 and runs the check with ``--runner``. A warning carries the code,
 criterion and context the pinned toolkit writes, and is counted in the matrix's stats, so no case needs the toolkit.
@@ -40,9 +40,9 @@ from living_doc_utilities.contracts.coverage_matrix import AcCoverage, CoverageS
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CHECK = REPO_ROOT / "tests" / "testbed" / "check_testbed_toolkit_stage.py"
-MS1_OUTPUT = REPO_ROOT / "docs" / "_integration" / "MS1" / "testbed-core"
+RUN_OUTPUT = REPO_ROOT / "tests" / "testbed" / "fixtures" / "testbed-core-run"
 MATRICES = ("inner", "release")
-# MS1's `core` has no skipped scenario, and today's `core` does: the check needs a counted criterion whose only
+# The fixture's `core` has no skipped scenario, and today's `core` does: the check needs a counted criterion whose only
 # scenarios are skipped. The fixture skips a criterion's only scenario, one with no declared values that links nothing
 # else, as tests/integration/test_local_integration.py's does.
 SKIPPED_AC = "FUNC-009-02"
@@ -53,7 +53,7 @@ SKIPPED_SCENARIO_ID = ("AbsaOSS/living-doc-testbed/projects/core/tests/e2e/featu
 @pytest.fixture
 def root(tmp_path: Path) -> Path:
     copy = tmp_path / "testbed-core"
-    shutil.copytree(MS1_OUTPUT, copy, ignore=shutil.ignore_patterns("*.log", "*.md", "generator-markdown"))
+    shutil.copytree(RUN_OUTPUT, copy, ignore=shutil.ignore_patterns("*.log", "*.md", "generator-markdown"))
     skip_scenario(copy)
     return copy
 

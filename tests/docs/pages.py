@@ -97,7 +97,7 @@ CONCEPT_PAGES: tuple[str, ...] = tuple(
 MAX_LINKS_FROM_README = 3
 
 # Tracked Markdown that is not a page: the agentic setup and layer, the CI files, the private notes' README, the
-# tests' own pages, the mined corpus inputs and every gate's or milestone's run folder.
+# tests' own pages, the mined corpus inputs and the release go/no-go's run folder.
 NOT_PAGES = (
     "AGENTS.md",
     "CLAUDE.md",

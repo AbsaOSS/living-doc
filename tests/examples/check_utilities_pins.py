@@ -26,7 +26,7 @@ component -> pin table, then:
 - a warning when a pin is a release candidate, ``==X.Y.ZrcN`` or ``==X.Y.Z-RCn``, read as ``X.Y.ZrcN``: a
   consumer may pin one between release gates, and every gate needs a final version. Its minor takes part in the
   skew check, so ``0.9.0rc1`` next to ``0.9.0`` is no skew. Any other pre-release is not an exact version;
-- with ``--strict``, the same findings fail the run (exit 1) - for gates and milestones.
+- with ``--strict``, the same findings fail the run (exit 1) - for the release go/no-go.
 
 It reports and nothing more: whether the artifacts validate is the snapshot job's own check.
 
@@ -204,7 +204,7 @@ def table(pins: list[Pin]) -> list[str]:
 def main(argv: Optional[list[str]] = None, fetcher: Callable[[str], str] = fetch) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--strict", action="store_true",
-                        help="fail (exit 1) on any warning - for gates and milestones")
+                        help="fail (exit 1) on any warning - for the release go/no-go")
     parser.add_argument("--requirements", action="append", default=[], metavar="COMPONENT=PATH",
                         help="read COMPONENT's requirements from a local file instead "
                              f"(components: {', '.join([*COMPONENTS, *LOCAL])})")

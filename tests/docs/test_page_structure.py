@@ -113,7 +113,7 @@ def test_the_skipped_markdown_is_no_page():
         "agentic/README.md",
         "tests/README.md",
         "docs/examples/gh-issues/us-001-customer-login.md",
-        "docs/_integration/MS1/report.md",
+        "docs/_integration/go-no-go/report.md",
     ):
         assert skipped not in listed
     assert "docs/_integration/README.md" in listed
