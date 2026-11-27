@@ -154,6 +154,7 @@ tests. How to run it and record the run: [Integration runs](../docs/_integration
 | [`testbed/test_check_testbed_toolkit_stage.py`](testbed/test_check_testbed_toolkit_stage.py) | — | the toolkit check's tests for the warnings of a test written ahead, over the first milestone's committed outputs, offline; run by `examples-check.yml` |
 | [`testbed/testbed_cases.py`](testbed/testbed_cases.py) | testbed | the derived problem cases, one function each |
 | [`testbed/check_testbed_stage.py`](testbed/check_testbed_stage.py) | testbed | the invariants over `core`, and the check for one case |
+| [`testbed/test_check_testbed_stage.py`](testbed/test_check_testbed_stage.py) | — | the floor's tests for a test written ahead, by the state each `AC:` declaration names, over a one-file checkout, offline; run by `examples-check.yml` |
 | [`testbed/negative-cases.md`](testbed/negative-cases.md) | testbed | those cases: each one, how its run is checked, how to add one |
 
 ## The testbed stage
