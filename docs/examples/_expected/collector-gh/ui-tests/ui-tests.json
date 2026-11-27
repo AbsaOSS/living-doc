@@ -4,8 +4,8 @@
     "producer": {
       "build": null,
       "name": "AbsaOSS/living-doc-collector-gh",
-      "utilities_version": "0.8.1",
-      "version": "0.2.0"
+      "utilities_version": "0.9.0",
+      "version": "0.3.0"
     },
     "run": {
       "actor": null,
@@ -44,6 +44,10 @@
       "field_occupancy": {
         "scenarios[].acceptance_criteria[].aspect": 4,
         "scenarios[].acceptance_criteria[].id": 6,
+        "scenarios[].background[]": 0,
+        "scenarios[].line": 6,
+        "scenarios[].rule": 0,
+        "scenarios[].rule_background[]": 0,
         "scenarios[].scenario_id": 6,
         "scenarios[].source_ref.area_path": 0,
         "scenarios[].source_ref.iteration_path": 0,
@@ -52,6 +56,7 @@
         "scenarios[].source_ref.system": 6,
         "scenarios[].source_ref.tracker_state": 6,
         "scenarios[].source_ref.url": 6,
+        "scenarios[].steps[]": 6,
         "scenarios[].tags[]": 6,
         "scenarios[].title": 6
       }
@@ -65,6 +70,10 @@
           "id": "FUNC-001-01"
         }
       ],
+      "background": [],
+      "line": 32,
+      "rule": null,
+      "rule_background": [],
       "scenario_id": "AbsaOSS/living-doc/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature/password-shorter-than-the-minimum-length-is-rejected",
       "source_ref": {
         "area_path": null,
@@ -75,6 +84,11 @@
         "tracker_state": "committed",
         "url": "https://github.com/AbsaOSS/living-doc/blob/<normalized-for-snapshot>/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature"
       },
+      "steps": [
+        "Given the complexity policy requires at least 12 characters",
+        "When the password \"short\" is validated",
+        "Then the result is valid=false"
+      ],
       "tags": [
         "@AC:FUNC-001-01/aspect:minimum-length"
       ],
@@ -87,6 +101,10 @@
           "id": "FUNC-001-01"
         }
       ],
+      "background": [],
+      "line": 39,
+      "rule": null,
+      "rule_background": [],
       "scenario_id": "AbsaOSS/living-doc/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature/password-missing-a-required-character-class-is-rejected",
       "source_ref": {
         "area_path": null,
@@ -97,6 +115,11 @@
         "tracker_state": "committed",
         "url": "https://github.com/AbsaOSS/living-doc/blob/<normalized-for-snapshot>/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature"
       },
+      "steps": [
+        "Given the complexity policy requires an upper-case letter and a digit",
+        "When the password \"lowercaseonly\" is validated",
+        "Then the result is valid=false"
+      ],
       "tags": [
         "@AC:FUNC-001-01/aspect:character-classes"
       ],
@@ -109,6 +132,10 @@
           "id": "FUNC-001-01"
         }
       ],
+      "background": [],
+      "line": 46,
+      "rule": null,
+      "rule_background": [],
       "scenario_id": "AbsaOSS/living-doc/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature/password-containing-the-username-is-rejected",
       "source_ref": {
         "area_path": null,
@@ -119,6 +146,11 @@
         "tracker_state": "committed",
         "url": "https://github.com/AbsaOSS/living-doc/blob/<normalized-for-snapshot>/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature"
       },
+      "steps": [
+        "Given the complexity policy forbids the account username \"jdoe\" in the password",
+        "When the password \"jdoe-Secure-2026\" is validated",
+        "Then the result is valid=false"
+      ],
       "tags": [
         "@AC:FUNC-001-01/aspect:no-username"
       ],
@@ -131,6 +163,10 @@
           "id": "FUNC-001-03"
         }
       ],
+      "background": [],
+      "line": 53,
+      "rule": null,
+      "rule_background": [],
       "scenario_id": "AbsaOSS/living-doc/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature/password-shorter-than-the-minimum-length-shows-the-minimum-length-rule",
       "source_ref": {
         "area_path": null,
@@ -141,6 +177,11 @@
         "tracker_state": "committed",
         "url": "https://github.com/AbsaOSS/living-doc/blob/<normalized-for-snapshot>/docs/examples/gherkin/liv_doc_func/func-001-validate-password-strength.feature"
       },
+      "steps": [
+        "Given the complexity policy requires at least 12 characters",
+        "When the password \"short\" is validated",
+        "Then the minimum-length rule is shown under the password field"
+      ],
       "tags": [
         "@AC:FUNC-001-03/rule:minimum-length"
       ],
@@ -153,6 +194,10 @@
           "id": "US-001-01"
         }
       ],
+      "background": [],
+      "line": 36,
+      "rule": null,
+      "rule_background": [],
       "scenario_id": "AbsaOSS/living-doc/docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature/customer-signs-in-with-valid-credentials",
       "source_ref": {
         "area_path": null,
@@ -163,6 +208,11 @@
         "tracker_state": "committed",
         "url": "https://github.com/AbsaOSS/living-doc/blob/<normalized-for-snapshot>/docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature"
       },
+      "steps": [
+        "Given a registered customer is on the login screen",
+        "When the customer submits valid credentials",
+        "Then the account dashboard is displayed"
+      ],
       "tags": [
         "@AC:US-001-01"
       ],
@@ -175,6 +225,10 @@
           "id": "US-001-04"
         }
       ],
+      "background": [],
+      "line": 43,
+      "rule": null,
+      "rule_background": [],
       "scenario_id": "AbsaOSS/living-doc/docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature/remembered-customer-is-still-signed-in-after-a-browser-restart",
       "source_ref": {
         "area_path": null,
@@ -185,6 +239,11 @@
         "tracker_state": "committed",
         "url": "https://github.com/AbsaOSS/living-doc/blob/<normalized-for-snapshot>/docs/examples/gherkin/liv_doc_us/us-001-customer-login.feature"
       },
+      "steps": [
+        "Given a registered customer signed in with \"Remember me\" selected",
+        "When the customer reopens the browser",
+        "Then the account dashboard is displayed"
+      ],
       "tags": [
         "@AC:US-001-04"
       ],

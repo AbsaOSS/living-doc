@@ -357,12 +357,9 @@ def _entity_ids(value: str) -> list[str]:
 # --- living-doc-utilities: canonical form and the criterion grammar ----------------------
 
 def _report_rewrites(changes: list[normalize.Change], corpus: Corpus, rel: str) -> None:
-    """NON_CANONICAL_FORM for every line ``normalize`` rewrites."""
+    """NON_CANONICAL_FORM for every line ``normalize`` records: since living-doc-utilities#231 it records only the
+    lines it rewrites, so one recorded with its text unchanged is a regression there, reported like any other."""
     for change in changes:
-        # A rule may record a line it leaves as written (an inline '# AC:' comment's description
-        # does); only a line whose text changes is non-canonical.
-        if change.before == change.after:
-            continue
         corpus.fail(rel, change.line,
                     f"NON_CANONICAL_FORM: normalize rewrites this line ({change.rule})",
                     f"write it as {change.after.strip()!r} - '-' (hyphen-minus) in structural "
