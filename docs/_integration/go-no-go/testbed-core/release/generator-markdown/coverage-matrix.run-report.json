@@ -1,18 +1,18 @@
 {
   "generator": {
     "name": "living-doc-generator-markdown",
-    "utilities_version": "0.9.0"
+    "utilities_version": "0.8.1"
   },
   "document_type": "coverage-matrix",
-  "document": "coverage-matrix-release-v0.1.0.md",
+  "document": "coverage-matrix.md",
   "title": "Coverage matrix",
   "view": "release",
   "input": {
     "schema_version": "coverage-matrix-v1.0.0",
     "producer": {
       "name": "AbsaOSS/living-doc-toolkit",
-      "version": "0.2.0",
-      "utilities_version": "0.9.0"
+      "version": "0.1.0",
+      "utilities_version": "0.8.1"
     }
   },
   "counts": {
@@ -21,12 +21,9 @@
       "DocumentedUserStory": 3,
       "DocumentedFunctionality": 12
     },
-    "acceptance_criteria": 25,
+    "acceptance_criteria": 24,
     "scenarios": 0,
-    "warnings_by_code": {
-      "SKIPPED_SCENARIO": 2,
-      "PLANNED_AC_HAS_TESTS": 1
-    }
+    "warnings_by_code": {}
   },
   "render_manifest": {
     "view": "release",
@@ -69,7 +66,6 @@
       "FUNC-008-03",
       "FUNC-009-01",
       "FUNC-009-02",
-      "FUNC-009-03",
       "FUNC-010-01",
       "FUNC-010-02",
       "FUNC-011-01"
@@ -227,7 +223,7 @@
       {
         "id": "US-001-02",
         "badges": [
-          "COVERED"
+          "NOT COVERED"
         ]
       },
       {
@@ -345,12 +341,6 @@
         ]
       },
       {
-        "id": "FUNC-009-03",
-        "badges": [
-          "NOT COVERED"
-        ]
-      },
-      {
         "id": "FUNC-010-01",
         "badges": [
           "COVERED"
@@ -371,8 +361,6 @@
     ],
     "scenarios": [
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-borrows-an-available-book",
-      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/borrowed-books-are-listed-with-their-due-dates",
-      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-at-the-loan-limit-is-told-why-they-cannot-borrow",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-001-borrow-a-book.feature/member-is-offered-a-loan-slip",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/applicant-joins-the-library",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-003-register-at-the-desk.feature/desk-staff-register-a-resident",
@@ -384,11 +372,8 @@
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/results-are-ordered-by-relevance",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-008-sort-results.feature/results-are-ordered-newest-first",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-with-loans-sees-their-loans",
-      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/borrowed-books-are-listed-with-their-due-dates",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/member-without-loans-sees-the-empty-state",
-      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-009-loan-list-states.feature/the-empty-state-shows-its-message-in-full",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/total-fines-add-up-across-loans",
-      "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-010-total-fines-owed.feature/the-total-adds-up-for-any-number-of-loans",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_func/func-011-redirect-existing-members.feature/signed-in-member-is-redirected-to-my-loans",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/adult-applicant-gets-an-adult-card",
       "AbsaOSS/living-doc-testbed/projects/core/tests/e2e/features/liv_doc_us/us-002-join-the-library.feature/junior-applicant-gets-a-junior-card",

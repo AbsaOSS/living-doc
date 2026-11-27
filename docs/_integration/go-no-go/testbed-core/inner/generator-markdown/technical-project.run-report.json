@@ -1,18 +1,18 @@
 {
   "generator": {
     "name": "living-doc-generator-markdown",
-    "utilities_version": "0.9.0"
+    "utilities_version": "0.8.1"
   },
   "document_type": "technical-project",
-  "document": "technical-project-inner.md",
+  "document": "technical-project.md",
   "title": "testbed-core",
   "view": "inner",
   "input": {
     "schema_version": "generator-ready-v1.0.0",
     "producer": {
       "name": "AbsaOSS/living-doc-toolkit",
-      "version": "0.2.0",
-      "utilities_version": "0.9.0"
+      "version": "0.1.0",
+      "utilities_version": "0.8.1"
     }
   },
   "counts": {
@@ -22,7 +22,7 @@
       "DocumentedFeature": 5,
       "DocumentedFunctionality": 12
     },
-    "acceptance_criteria": 33,
+    "acceptance_criteria": 32,
     "scenarios": 0,
     "warnings_by_code": {}
   },
@@ -33,10 +33,10 @@
       "US-002",
       "US-003",
       "FEAT-001",
-      "FEAT-002",
-      "FEAT-003",
       "FEAT-004",
       "FEAT-005",
+      "FEAT-003",
+      "FEAT-002",
       "FUNC-001",
       "FUNC-002",
       "FUNC-003",
@@ -79,7 +79,6 @@
       "FUNC-008-03",
       "FUNC-009-01",
       "FUNC-009-02",
-      "FUNC-009-03",
       "FUNC-010-01",
       "FUNC-010-02",
       "FUNC-011-01",
@@ -165,9 +164,16 @@
         ]
       },
       {
-        "id": "FEAT-002",
+        "id": "FEAT-004",
         "badges": [
-          "ACTIVE",
+          "PLANNED",
+          "DERIVED"
+        ]
+      },
+      {
+        "id": "FEAT-005",
+        "badges": [
+          "DEPRECATED",
           "DERIVED"
         ]
       },
@@ -179,16 +185,9 @@
         ]
       },
       {
-        "id": "FEAT-004",
+        "id": "FEAT-002",
         "badges": [
-          "PLANNED",
-          "DERIVED"
-        ]
-      },
-      {
-        "id": "FEAT-005",
-        "badges": [
-          "DEPRECATED",
+          "ACTIVE",
           "DERIVED"
         ]
       },
