@@ -37,8 +37,8 @@ validates it against its contract):
 - every AC carries the values its header declares, by ``Aspect:`` or by keyword, as ``aspect``, and
   names its keyword, if any, in ``placeholder_values``;
 - a ``.feature`` file outside the living-doc folders contributes no entity and no AC link;
-- the checkout holds at least one of each construct these invariants are about, so none passes on
-  nothing.
+- the checkout holds at least one of each construct these invariants are about, and a test written
+  ahead for the toolkit check's warning, so none passes on nothing.
 
 The checkout is read the way the collector reads it: ``tutorial*`` folders and ``@tutorial`` files
 and scenarios are skipped, a wrapped id list is joined before it is split, and ``none`` is no id.
@@ -72,8 +72,11 @@ from living_doc_utilities.contracts.io import read_artifact
 
 # --- What the checkout authors ---------------------------------------------------------------------------------------
 
-# An `AC:<id> (…)` declaration in a .feature file's header comment.
-_AC_DECLARATION_RE = re.compile(r"^#\s*AC:(?P<id>\S+)\s*\(")
+# An `AC:<id> (…)` declaration in a .feature file's header comment, and the state it names, read from the canon's
+# shapes `(v<x.y.z> - <state>…)` and `(planned)`: a deprecated AC's `removal planned` note is not its state.
+_AC_DECLARATION_RE = re.compile(r"^#\s*AC:(?P<id>\S+)\s*\((?:v\S+ - )?(?P<state>planned|in_review|active|deprecated)?")
+# A scenario that links a criterion in one of these states is a test written ahead, whose warning the toolkit expects.
+_WRITTEN_AHEAD_STATES = ("planned", "in_review")
 # A header comment line's `#` leader and the one space after it; the rest of the indent is the line's level.
 _COMMENT_LEADER_RE = re.compile(r"^#+ ?")
 # A `{<name>}` in an AC's text: what makes a `- <name>: <values>` bullet the AC's keyword.
@@ -123,6 +126,8 @@ class Checkout:
     entity_files: dict[str, str] = field(default_factory=dict)
     # native_id -> the AC ids its header declares.
     declared_acs: dict[str, list[str]] = field(default_factory=dict)
+    # AC id -> the state its declaration names, None when it names none of the four.
+    states: dict[str, str | None] = field(default_factory=dict)
     # AC id -> its variant declaration: `aspect` for `Aspect:`, else the keyword's folded name, and its values.
     variants: dict[str, tuple[str, list[str]]] = field(default_factory=dict)
     cross_references: list[CrossReference] = field(default_factory=list)
@@ -297,9 +302,9 @@ def read_checkout(root: Path, us: str, func: str, pages: str, scenarios: str) ->
         for path in _feature_files(root / folder):
             header = _comment_header(path.read_text(encoding="utf-8"))
             checkout.entity_files[native_id(path)] = entity_type
-            checkout.declared_acs[native_id(path)] = [
-                match.group("id") for line in header if (match := _AC_DECLARATION_RE.match(line))
-            ]
+            declarations = [match for line in header if (match := _AC_DECLARATION_RE.match(line))]
+            checkout.declared_acs[native_id(path)] = [match.group("id") for match in declarations]
+            checkout.states.update(match.group("id", "state") for match in declarations)
             checkout.variants.update(_ac_variants(header))
 
     for path in sorted((root / pages).rglob("*.ts")):
@@ -505,8 +510,11 @@ def check_core(output_root: Path, testbed: Path, us: str, func: str, pages: str,
     tags = Counter("bare" if tag.param is None else "aspect" if _fold(tag.param) == "aspect" else "keyword"
                    for tag in checkout.tags if tag.param is not None or tag.ac_id in checkout.variants)
     outside_scenarios = sum(checkout.scenarios[native_id] for native_id in checkout.outside)
-    # At least one of each construct an invariant is about: an emptied folder only logs a collector message, and
-    # both sides empty would pass every comparison above. A floor, not core's counts, which are read at run time.
+    # Counts links, not scenarios: the floor only needs one, and any such link makes its scenario a test written ahead.
+    written_ahead = sum(1 for tag in checkout.tags if checkout.states.get(tag.ac_id) in _WRITTEN_AHEAD_STATES)
+    # At least one of each construct an invariant is about, here or in the toolkit check, which derives its expected
+    # warnings from a test written ahead: an emptied folder only logs a collector message, and both sides empty would
+    # pass every comparison. A floor, not core's counts, which are read at run time.
     for construct, count in (
         ("User Story", types["DocumentedUserStory"]),
         ("Functionality", types["DocumentedFunctionality"]),
@@ -521,6 +529,7 @@ def check_core(output_root: Path, testbed: Path, us: str, func: str, pages: str,
         ("keyword tag", tags["keyword"]),
         ("bare tag on an AC with variants", tags["bare"]),
         ("scenario outside the living-doc folders", outside_scenarios),
+        ("scenario that links a planned or in_review criterion", written_ahead),
     ):
         if count == 0:
             failures.append(f"nothing to assert: the checkout has no {construct}")
